@@ -1,0 +1,19 @@
+:host {
+  background-color: #383838;
+  padding-left: 44px;
+  max-height: 36px;
+}
+button[mat-button] {
+  padding: 0px;
+  width: 44px;
+  min-width: 44px;
+  color: #adadad;
+  &:hover {
+    color: white;
+  }
+}
+
+.separator {
+  margin-right: 15px;
+  display: inline-block;
+}

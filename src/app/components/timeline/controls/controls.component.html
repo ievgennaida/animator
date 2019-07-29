@@ -1,0 +1,43 @@
+<button mat-button>
+    <mat-icon>fiber_manual_record</mat-icon>
+</button>
+<span class="separator">
+</span>
+<button mat-button>
+    <mat-icon>first_page</mat-icon>
+</button>
+<button mat-button>
+    <mat-icon>keyboard_arrow_left</mat-icon>
+</button>
+<button *ngIf="isPaused" mat-button>
+    <mat-icon>play_arrow</mat-icon>
+</button>
+<button *ngIf="!isPaused" mat-button>
+    <mat-icon>pause</mat-icon>
+</button>
+<button mat-button>
+    <mat-icon>keyboard_arrow_right</mat-icon>
+</button>
+<button mat-button>
+    <mat-icon>last_page</mat-icon>
+</button>
+<span class="separator">
+</span>
+<button mat-button>
+    <mat-icon>loop</mat-icon>
+</button>
+<button mat-button>
+    <mat-icon>swap_horiz</mat-icon>
+</button>
+<button mat-button>
+    <mat-icon>repeat</mat-icon>
+</button>
+<span class="separator">
+</span>
+<button mat-button>
+    <mat-icon>pan_tool</mat-icon>
+</button>
+<button mat-button>
+    <mat-icon>zoom_in</mat-icon>
+</button>
+<span id="currentTime"></span>

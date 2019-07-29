@@ -1,0 +1,11 @@
+#timeline {
+  overflow: scroll;
+  height: 100%;
+  box-sizing: border-box;
+  scrollbar-color: rgb(231, 203, 203) #161616;
+}
+
+#layers {
+  overflow: hidden;
+  position: relative;
+}

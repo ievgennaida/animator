@@ -1,0 +1,20 @@
+  :host{
+      display: grid;
+  }
+  
+  svg {
+    height: 100%;
+  }
+  
+  #player {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  
+  #adorners {
+    pointer-events: none;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  

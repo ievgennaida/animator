@@ -1,0 +1,31 @@
+@import 'variables';
+@import "~@angular/material/theming";
+@import "@angular/material/prebuilt-themes/pink-bluegrey.css";
+body {
+  background-color: #1E1E1E;
+  scrollbar-color: gray #161616;
+  color: #ADADAD;
+}
+//.mat-flat-button, .mat-icon-button, .mat-stroked-button
+
+.mat-button {
+  border-radius: 0px !important;
+}
+::-webkit-scrollbar {
+  background: #161616;
+  color: gray;
+}
+
+::-webkit-scrollbar-thumb {
+  background: gray;
+}
+
+::-webkit-scrollbar-corner {
+  background: #161616;
+}
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+// TODO: specify global colors here.

@@ -1,0 +1,34 @@
+<mat-toolbar>
+  <button mat-button [matMenuTriggerFor]="menu">File</button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="file.click()">Open File...</button>
+    <button mat-menu-item>Save</button>
+    <input #file type='file' style="display:none;" (change)="fileSelected($event)">
+  </mat-menu>
+  <span class="toolbar-center"> {{title}}</span>
+  <button (click)="drawer.toggle()" mat-button>
+    <mat-icon class="example-icon" aria-hidden="false">menu</mat-icon>
+  </button>
+</mat-toolbar>
+<main #main>
+  <app-toolbox></app-toolbox>
+
+  <mat-drawer-container>
+    <mat-drawer #drawer mode="side" opened="true" position="end" #properties mwlResizable [ngStyle]="propertiesStyle"
+      [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }" (resizing)="onResizeResizable($event, false)"
+      (resizeEnd)="onResizeResizable($event, true)">
+      <app-properties> </app-properties>
+    </mat-drawer>
+    <mat-drawer-content  [ngStyle]="drawerContentStyle">
+      <app-player></app-player>
+    </mat-drawer-content>
+  </mat-drawer-container>
+</main>
+<app-controls></app-controls>
+<footer #footer>
+  <app-outline #outline mwlResizable [ngStyle]="outlineStyle" [resizeCursorPrecision]="6"
+    (resizing)="onResizeOutline($event, false)" (resizeEnd)="onResizeOutline($event, true)" [enableGhostResize]="false"
+    [resizeEdges]="{ right: true }">
+  </app-outline>
+  <app-timeline> </app-timeline>
+</footer>
