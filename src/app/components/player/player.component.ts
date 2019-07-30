@@ -4,6 +4,7 @@ import { default as lottie, AnimationItem, AnimationConfigWithData } from "node_
 import { StateService } from 'src/app/services/state.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { PlayerService } from 'src/app/services/player.service';
 
 @Component({
   selector: 'app-player',
@@ -21,11 +22,11 @@ export class PlayerComponent implements OnInit {
   animation: AnimationItem = null;
 
   private destroyed$ = new Subject();
-  constructor(private stateService: StateService) { }
+  constructor(private stateService: StateService, private playerService: PlayerService) { }
 
   ngOnInit() {
     this.loadData(null);
-    this.stateService.dataLoaded.pipe(takeUntil(this.destroyed$)).subscribe(p => {
+    this.stateService.data.pipe(takeUntil(this.destroyed$)).subscribe(p => {
       this.loadData(p);
     })
   }
@@ -35,6 +36,7 @@ export class PlayerComponent implements OnInit {
   }
 
   loadData(data) {
+ 
     if (this.animation) {
       this.animation.destroy();
     }
@@ -52,8 +54,9 @@ export class PlayerComponent implements OnInit {
       animationData: data,
     } as AnimationConfigWithData;
 
-
     this.animation = lottie.loadAnimation(animParams);
+
+    this.stateService.onDataParsed(animParams.animationData);
   }
 
 }

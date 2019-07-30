@@ -1,31 +1,94 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, BehaviorSubject } from 'rxjs';
+import { TreeNode } from '../models/TreeNode';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StateService {
 
-  panelResized$ = new Subject();
-  dataLoaded$ = new Subject();
-
+  resizeSubject = new Subject();
+  dataSubject = new Subject();
+  nodesSubject = new BehaviorSubject<TreeNode[]>([]);
   constructor() { }
 
-  public get panelResize(): Observable<any> {
-    return this.panelResized$.asObservable();
+  public get onResize(): Observable<any> {
+    return this.resizeSubject.asObservable();
   }
 
-  public onPanelResized() {
-    this.panelResized$.next();
+  public setPanelResized() {
+    this.resizeSubject.next();
   }
 
- 
-  public get dataLoaded(): Observable<any> {
-    return this.dataLoaded$.asObservable();
+  public get nodes(): Observable<any> {
+    return this.nodesSubject.asObservable();
+  }
+  public get data(): Observable<any> {
+    return this.dataSubject.asObservable();
   }
 
-  public onJsonLoaded(data) {
-    this.dataLoaded$.next(data);
+  public setData(data) {
+    this.dataSubject.next(data);
+  }
+
+
+  public onDataParsed(data: any) {
+    
+    if (!data || !data.layers) {
+      this.nodesSubject.next(this.nodesSubject.value);
+      return;
+    }
+
+    let treeNodes = this.nodesSubject.value;
+    treeNodes.length = 0;
+    treeNodes.push({
+      name: 'hell '
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    treeNodes.push({
+      name: 'hello'
+    } as TreeNode);
+    //let layers = data.layers;
+
+    this.nodesSubject.next(treeNodes);
   }
 
 }

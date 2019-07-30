@@ -3,30 +3,30 @@
 </button>
 <span class="separator">
 </span>
-<button mat-button>
+<button (click)="first()" mat-button>
     <mat-icon>first_page</mat-icon>
 </button>
-<button mat-button>
+<button (click)="prev()" mat-button>
     <mat-icon>keyboard_arrow_left</mat-icon>
 </button>
-<button *ngIf="isPaused" mat-button>
+<button (click)="play()" *ngIf="isPaused" mat-button>
     <mat-icon>play_arrow</mat-icon>
 </button>
-<button *ngIf="!isPaused" mat-button>
+<button (click)="pause()" *ngIf="!isPaused" mat-button>
     <mat-icon>pause</mat-icon>
 </button>
-<button mat-button>
+<button (click)="right()" mat-button>
     <mat-icon>keyboard_arrow_right</mat-icon>
 </button>
-<button mat-button>
+<button (click)="last()" mat-button>
     <mat-icon>last_page</mat-icon>
 </button>
 <span class="separator">
 </span>
-<button mat-button>
+<button (click)="loop()" mat-button>
     <mat-icon>loop</mat-icon>
 </button>
-<button mat-button>
+<button (click)="bounce()" mat-button>
     <mat-icon>swap_horiz</mat-icon>
 </button>
 <button mat-button>
@@ -34,7 +34,7 @@
 </button>
 <span class="separator">
 </span>
-<button mat-button>
+<button (click)="pan()" mat-button>
     <mat-icon>pan_tool</mat-icon>
 </button>
 <button mat-button>

@@ -2,8 +2,12 @@
   <button mat-button [matMenuTriggerFor]="menu">File</button>
   <mat-menu #menu="matMenu">
     <button mat-menu-item (click)="file.click()">Open File...</button>
+    <button mat-menu-item [matMenuTriggerFor]="recent">Recent</button>
     <button mat-menu-item>Save</button>
     <input #file type='file' style="display:none;" (change)="fileSelected($event)">
+  </mat-menu>
+  <mat-menu #recent="matMenu">
+    <button mat-menu-item (click)="loadData(item)" *ngFor="let item of recentItems">{{item?.name}}</button>
   </mat-menu>
   <span class="toolbar-center"> {{title}}</span>
   <button (click)="drawer.toggle()" mat-button>
@@ -30,5 +34,5 @@
     (resizing)="onResizeOutline($event, false)" (resizeEnd)="onResizeOutline($event, true)" [enableGhostResize]="false"
     [resizeEdges]="{ right: true }">
   </app-outline>
-  <app-timeline> </app-timeline>
+  <app-timeline (timelineScroll)="onTimelineScroll($event)" ></app-timeline>
 </footer>
