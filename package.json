@@ -22,7 +22,7 @@
     "@angular/platform-browser-dynamic": "~8.1.2",
     "@angular/router": "~8.1.2",
     "angular-resizable-element": "^3.2.4",
-    "animation-timeline-js": "1.0.3",
+    "animation-timeline-js": "1.0.4",
     "file-saver": "^2.0.2",
     "lottie-web": "5.5.5",
     "rxjs": "~6.4.0",

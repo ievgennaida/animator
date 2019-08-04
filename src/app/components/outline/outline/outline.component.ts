@@ -1,10 +1,12 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { StateService } from 'src/app/services/state.service';
 import { Subject } from 'rxjs';
 import { TreeNode } from 'src/app/models/TreeNode';
 import { takeUntil } from 'rxjs/operators';
+import { consts } from 'src/environments/consts';
+import { ScrollEventArgs } from 'animation-timeline-js';
 
 /** Flat node with expandable and level information */
 interface FlatNode {
@@ -19,9 +21,11 @@ interface FlatNode {
   styleUrls: ['./outline.component.scss']
 })
 export class OutlineComponent implements OnInit, OnDestroy {
-  constructor(private stateService: StateService) {
-
+  constructor(private stateService: StateService, private selfElement: ElementRef) {
   }
+
+  scrollTop: any = 0;
+  height: any = '';
 
   private destroyed$ = new Subject();
   ngOnInit(): void {
@@ -31,9 +35,7 @@ export class OutlineComponent implements OnInit, OnDestroy {
       })
   }
 
-  setScroll(args:any){
-    alert('set')
-  }
+
   ngOnDestroy() {
     this.destroyed$.next(true);
     this.destroyed$.complete();
@@ -56,8 +58,10 @@ export class OutlineComponent implements OnInit, OnDestroy {
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  doubleClick() {
-    //alert('db click');
+  public setSize(args: ScrollEventArgs) {
+    this.scrollTop = args.scrollTop;
+    console.log(args.scrollHeight);
+    this.height = args.scrollHeight - consts.timelineHeaderHeight;
   }
 
   hasChild = (_: number, node: FlatNode) => node.expandable;

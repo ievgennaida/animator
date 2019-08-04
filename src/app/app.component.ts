@@ -1,6 +1,8 @@
 import { OnInit, Component, HostListener, ElementRef, ViewChild } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
 import { StateService } from './services/state.service';
+import { OutlineComponent } from './components/outline/outline/outline.component';
+import { consts } from 'src/environments/consts';
 
 @Component({
   selector: "app-root",
@@ -19,16 +21,16 @@ export class AppComponent implements OnInit {
   }
 
 
-  @ViewChild("footer", { static: true })
+  @ViewChild("footer", { static: true, read: ElementRef  })
   footer: ElementRef;
 
-  @ViewChild("outline", { static: true })
+  @ViewChild("outline", { static: false, read: ElementRef })
   outline: ElementRef;
 
-  @ViewChild("properties", { static: true })
+  @ViewChild("properties", { static: true, read: ElementRef })
   properties: ElementRef;
 
-  @ViewChild("main", { static: true })
+  @ViewChild("main", { static: true, read: ElementRef  })
   main: ElementRef;
 
   @ViewChild("drawerContent", { static: true })
@@ -43,9 +45,9 @@ export class AppComponent implements OnInit {
     this.drawerContentStyle.marginRight = newSize;
   }
 
-  resize(w, cw, style) {
-    let minW = cw * 0.10;
-    let maxW = cw * 0.90;
+  resize(w, maxWidth, style) {
+    let minW = maxWidth * 0.10;
+    let maxW = maxWidth * 0.90;
     if (w <= minW) {
       w = minW;
     }
@@ -62,30 +64,23 @@ export class AppComponent implements OnInit {
   }
 
   @HostListener("window:resize", ["$event"])
-  onWindowResize(event) {
+  onWindowResize() {
     if (!this.outline || !this.outline.nativeElement) {
       return;
     }
+    
     // Set the scroll into the bounds:
     this.resize(
       this.outline.nativeElement.clientWidth,
       this.footer.nativeElement.clientWidth,
       this.outlineStyle
     );
+
     this.resize(
       this.properties.nativeElement.clientWidth,
       this.main.nativeElement.clientWidth,
       this.propertiesStyle
     );
-  }
-
-  onTimelineScroll(args: any) {
-    alert('a'+this.outline.nativeElement);
-
-    if (this.outline && this.outline.nativeElement) {
-
-      this.outline.nativeElement.scrollTop = args.scrollTop;
-    }
   }
 
   ngOnInit() {
@@ -113,14 +108,16 @@ export class AppComponent implements OnInit {
     this.recentItems = parsed;
 
     if (newRecentItem) {
-      if (this.recentItems.length > 7) {
-        let index = this.recentItems.indexOf(this.recentItems.find(p => p.name == newRecentItem.name));
+      let index = this.recentItems.indexOf(this.recentItems.find(p => p.name == newRecentItem.name));
+        
+      if (index >= 0 || this.recentItems.length > consts.recentItemsCount) {
         if (index <= 0) {
           index = 0;
         }
 
-        this.recentItems = this.recentItems.splice(index, 1);
+        this.recentItems.splice(index, 1);
       }
+
       this.recentItems.push(newRecentItem);
       localStorage.setItem('recent', JSON.stringify(this.recentItems));
     }

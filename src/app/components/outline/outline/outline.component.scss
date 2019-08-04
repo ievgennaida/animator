@@ -1,18 +1,30 @@
 :host {
   height: 100%;
   overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.header {
+  height: 30px;
+}
+
+.scroll-container {
+  overflow: hidden;
   overflow-x: scroll;
 }
 
 mat-tree {
   width: fit-content;
   min-width: 100%;
-  margin-top: 30px;
   background: transparent;
+  overflow: hidden;
 }
-.text{
+
+.text {
   cursor: default;
 }
+
 .selected {
   background-color: #3399ff !important;
   color: white;
@@ -21,11 +33,14 @@ mat-tree {
 mat-tree-node {
   min-height: 30px;
   max-height: 30px;
+  margin-bottom: 2px;
+  font-size: 12px !important;
 }
 
 mat-tree-node:hover {
   background-color: #094771;
 }
+
 .text {
   white-space: nowrap;
 }
