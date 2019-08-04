@@ -25,12 +25,15 @@ import { TreeControl } from "./TreeControl";
 import { PropertiesService } from "./properties.service";
 import { Property } from "../models/Properties/Property";
 import { Properties } from "../models/Properties/Properties";
+import { AnimationTimelineKeyframe } from "animation-timeline-js";
+import { PlayerService } from './player.service';
 
 @Injectable({
   providedIn: "root"
 })
 export class StateService {
-  constructor(private propertesService: PropertiesService) {}
+  constructor(private propertesService: PropertiesService, 
+    private playerService: PlayerService) {}
 
   resizeSubject = new Subject();
   dataSubject = new Subject();
@@ -87,6 +90,9 @@ export class StateService {
       this.nodesSubject.next(this.nodesSubject.value);
       return;
     }
+    
+    this.selectedSubject.next(null);
+
     let animation: LottieModel = data as LottieModel;
 
     let nodes = this.nodesSubject.value;
@@ -103,6 +109,7 @@ export class StateService {
       node.icon = "web-asset";
       node.name = animation.nm || "file.json";
       node.properties = this.propertesService.getProperties(node);
+      this.setKeyframes(node);
       nodes.push(node);
 
       // Render assets:
@@ -112,6 +119,7 @@ export class StateService {
         node.data = animation;
         node.name = "assets";
         node.properties = this.propertesService.getProperties(node);
+        this.setKeyframes(node);
         node.children = [];
         nodes.push(node);
 
@@ -160,7 +168,7 @@ export class StateService {
     node.data = layer;
     node.name = (layer.nm || layerType[layer.ty] || "layer").toString();
 
-    //TODO: 
+    //TODO:
     if (layer.ty == layerType.Image) {
       let currentLayer = layer as image;
     } else if (layer.ty === layerType.Null) {
@@ -178,6 +186,7 @@ export class StateService {
 
     node.properties = this.propertesService.getProperties(node);
     this.getTransformNode(node);
+    this.setKeyframes(node);
     flatLayerNodes.push(node);
   }
 
@@ -195,8 +204,10 @@ export class StateService {
 
       const folder = new Node();
       folder.type = NodeType.Folder;
-      folder.name = "Properties";
+      folder.name = "Transform";
+      folder.icon = "transform";
       folder.properties = this.propertesService.getProperties(folder);
+      this.setKeyframes(folder);
       folder.children = [];
       filtered.forEach(p => {
         const node = new Node();
@@ -206,6 +217,7 @@ export class StateService {
         node.icon = p.icon;
         node.properties = new Properties();
         node.properties.items.push(p);
+        this.setKeyframes(node);
         folder.children.push(node);
       });
       parentNode.children.push(folder);
@@ -249,11 +261,11 @@ export class StateService {
       } else if (shape.ty === shapeType.star) {
         node.icon = "star_border";
       } else if (shape.ty === shapeType.stroke) {
-        node.icon = "folder_special";
+        node.icon = "all_out";
       } else if (shape.ty === shapeType.trim) {
         node.icon = "folder_special";
       } else if (shape.ty === shapeType.ellipse) {
-        node.icon = "folder_special";
+        node.icon = "fiber_manual_record";
       } else if (shape.ty === shapeType.fill) {
         node.icon = "format_color_fill";
       } else if (shape.ty === shapeType.gFill) {
@@ -265,9 +277,43 @@ export class StateService {
       }
 
       node.properties = this.propertesService.getProperties(node);
+      this.setKeyframes(node);
       parentNode.children.push(node);
     }
 
     return nodes;
+  }
+
+  setKeyframes(node: Node) {
+    if (!node.properties || !node.properties.items || !node.lane) {
+      return;
+    }
+
+    // Render list of properties marked as allowed for the outline.
+    let filtered = node.properties.items.filter(
+      p => p.keyframe && p.data === node.data
+    );
+    if (filtered && filtered.length > 0) {
+      const keys = [];
+      filtered.forEach(p => {
+        const value = p.getValue();
+        if (!isNaN(value)) {
+          keys.push({ value: value, data: p });
+        }
+      });
+
+      if (keys && keys.length >= 2) {
+        if (!node.lane.keyframes) {
+          node.lane.keyframes = [];
+        }
+
+        keys.forEach(p =>
+          node.lane.keyframes.push({
+            ms: this.playerService.frameToMs(p.value),
+            data: p.data
+          } as AnimationTimelineKeyframe)
+        );
+      }
+    }
   }
 }

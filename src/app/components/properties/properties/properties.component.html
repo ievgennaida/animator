@@ -8,8 +8,8 @@
     <div *ngIf="activeSelection?.properties?.items">
         <div title="property.description" *ngFor="let property of activeSelection.properties.items">
             {{property.name}}
-            <app-numberic></app-numberic>
-            <app-dnumberic></app-dnumberic>
+            <app-numberic *ngIf="property.type == 'default'"></app-numberic>
+
         </div>
     </div>
 </div>

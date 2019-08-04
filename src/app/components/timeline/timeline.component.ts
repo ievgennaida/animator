@@ -96,6 +96,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
       ds.data.forEach(p => this.resolveLanesVisibilty(tc, p, false));
       this.timeline.setLanes(this.lanes);
       this.redraw();
+
+      if (this.timelineElement && this.timelineElement.nativeElement) {
+        this.timelineElement.nativeElement.scrollTop = 0;
+      }
     });
 
     tc.expansionModel.onChange
@@ -114,9 +118,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     // Wire wheel events with other divs over the app.
     if (this.timelineElement.nativeElement) {
       let scroll =
-        Math.sign(event.deltaY) *
-        this.timelineElement.nativeElement.scrollHeight *
-        0.125;
+        Math.sign(event.deltaY) * 10;
       this.timelineElement.nativeElement.scrollTop += scroll;
     }
   }

@@ -6,6 +6,7 @@ export class Property {
     this.description = description;
   }
 
+  public keyframe = false;
   public readOnly = false;
   public key: string;
   public name: string;
@@ -15,4 +16,16 @@ export class Property {
   public icon: string;
   // Render this property as outline node:
   public renderAsOutline = false;
+
+  getValue(): any {
+    if (this.data && this.key) {
+      return this.data[this.key];
+    }
+  }
+
+  setValue(value: any): any {
+    if (this.data && this.key) {
+      this.data[this.key] = value;
+    }
+  }
 }

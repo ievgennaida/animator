@@ -19,7 +19,6 @@ export class Node {
 
     set name(value: string) {
         this._name = value;
-        console.log('set'+ value);
     }
 
     get expandable(): boolean {

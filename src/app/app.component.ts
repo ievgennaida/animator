@@ -12,7 +12,7 @@ import { consts } from 'src/environments/consts';
 export class AppComponent implements OnInit {
   title = "animation";
   outlineW: number| string = null;
-  propertiesW: number| string = null;
+  propertiesW: number| string = 215;
   footerH: number| string = null;
   recentItems = [];
 

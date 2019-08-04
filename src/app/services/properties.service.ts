@@ -31,24 +31,25 @@ export class PropertiesService {
         new StringProperty("nm", "Name", node.data, "Composition name")
       );
 
-      let inProp = new NumberProperty(
+      let prop = new NumberProperty(
         "ip",
         "In Point",
         node.data,
         "In Point of the Time Ruler. Sets the initial Frame of the animation."
       );
-      inProp.min = 0;
+      prop.keyframe  = true;
+      prop.min = 0;
+      properties.push(prop);
 
-      let outProp = new NumberProperty(
+      prop = new NumberProperty(
         "op",
         "Out Point",
         node.data,
         "Out of the Time Ruler. Sets the final Frame of the animation"
       );
-      outProp.min = 0;
-
-      properties.push(inProp);
-      properties.push(outProp);
+      prop.keyframe  = true;
+      prop.min = 0;
+      properties.push(prop);
 
       properties.push(
         new NumberProperty(
@@ -94,21 +95,27 @@ export class PropertiesService {
         "Auto-Orient along path AE property"
       )
     );
-    let inProp = new NumberProperty(
+
+    let prop = new NumberProperty(
       "ip",
       "In Point",
       node.data,
       "In Point of the Time Ruler. Sets the initial Frame of the animation."
     );
-    inProp.min = 0;
-
-    let outProp = new NumberProperty(
+    prop.min = 0;
+    prop.keyframe  = true;
+    properties.push(prop);
+    prop = new NumberProperty(
       "op",
       "Out Point",
       node.data,
       "Out of the Time Ruler. Sets the final Frame of the animation"
     );
-    outProp.min = 0;
+
+    prop.min = 0;
+    prop.keyframe  = true;
+    properties.push(prop);
+
     properties.push(
       new BoolProperty(
         "sr",
@@ -160,6 +167,7 @@ export class PropertiesService {
       "Transform Rotation"
     );
 
+    prop.keyframe  = true;
     prop.type = NumberPropertyType.value;
     prop.renderAsOutline = true;
     prop.icon = 'autorenew';
@@ -193,6 +201,7 @@ export class PropertiesService {
 
     prop.type = NumberPropertyType.value;
     prop.renderAsOutline = true;
+    prop.keyframe  = true;
     properties.push(prop);
 
     prop = new NumberProperty(
@@ -204,6 +213,7 @@ export class PropertiesService {
 
     prop.type = NumberPropertyType.value;
     prop.renderAsOutline = true;
+    prop.keyframe  = true;
     properties.push(prop);
 
     //{"a":0, "k":[0, 0, 0]}
@@ -218,6 +228,7 @@ export class PropertiesService {
 
     prop.type = NumberPropertyType.multi;
     prop.renderAsOutline = true;
+    prop.keyframe  = true;
     properties.push(prop);
 
     //{"a":0, "k":[0, 0, 0]}
@@ -230,6 +241,7 @@ export class PropertiesService {
     prop.icon = 'photo_size_select_small';
     prop.type = NumberPropertyType.multi;
     prop.renderAsOutline = true;
+    prop.keyframe  = true;
     properties.push(prop);
 
     //{"a":0, "k":[100, 100, 100]}
@@ -238,6 +250,7 @@ export class PropertiesService {
     prop.icon = 'settings_overscan';
     prop.type = NumberPropertyType.multi;
     prop.renderAsOutline = true;
+    prop.keyframe  = true;
     properties.push(prop);
 
     return properties;
