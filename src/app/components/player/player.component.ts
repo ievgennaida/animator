@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 
 import { default as lottie, AnimationItem, AnimationConfigWithData } from "node_modules/lottie-web";
 import { StateService } from 'src/app/services/state.service';
@@ -11,7 +11,7 @@ import { PlayerService } from 'src/app/services/player.service';
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.scss']
 })
-export class PlayerComponent implements OnInit {
+export class PlayerComponent implements OnInit, OnDestroy {
 
   @Input('isPlaying')
   get isPaused() {
@@ -55,7 +55,7 @@ export class PlayerComponent implements OnInit {
     } as AnimationConfigWithData;
 
     this.animation = lottie.loadAnimation(animParams);
-
+    this.playerService.setPlayer(this.animation);
     this.stateService.onDataParsed(animParams.animationData);
   }
 

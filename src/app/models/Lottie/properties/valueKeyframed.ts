@@ -1,16 +1,9 @@
 import { valueKeyframe } from "./valueKeyframe";
+import { baseProperty } from './baseProperty';
 
-export interface valueKeyframed {
+export interface valueKeyframed extends baseProperty {
   /**
    * Keyframes. Property Value keyframes
    */
   k?: valueKeyframe[];
-  /**
-   * Property Index. Used for expressions.
-   */
-  ix?: string;
-  /**
-   * Expression. Property Expression. An AE expression that modifies the value.
-   */
-  x?: string;
 }

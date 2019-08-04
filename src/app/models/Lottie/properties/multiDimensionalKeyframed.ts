@@ -1,14 +1,11 @@
 import { offsetKeyframe } from "./offsetKeyframe";
+import { baseProperty } from './baseProperty';
 
-export interface multiDimensionalKeyframed {
+export interface multiDimensionalKeyframed extends baseProperty {
   /**
    * Keyframes. Property Value keyframes
    */
   k?: offsetKeyframe[];
-  /**
-   * Property Index. Used for expressions.
-   */
-  ix?: string;
   /**
    * In Spatial Tangent. Only for spatial properties. Array of numbers.
    */
@@ -17,8 +14,4 @@ export interface multiDimensionalKeyframed {
    * Out Spatial Tangent. Only for spatial properties. Array of numbers.
    */
   to?: any[];
-  /**
-   * Property Expression. An AE expression that modifies the value.
-   */
-  x?: string;
 }

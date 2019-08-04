@@ -14,8 +14,6 @@ export class AppComponent implements OnInit {
   outlineW: number| string = null;
   propertiesW: number| string = null;
   footerH: number| string = null;
-  propertiesStyle = {};
-  drawerContentStyle: any = {};
   recentItems = [];
 
   constructor(private stateService: StateService, private self:ElementRef) {
@@ -43,16 +41,13 @@ export class AppComponent implements OnInit {
   }
 
   onResizeProperties(event: ResizeEvent): void {
-    let newSize = this.resize(event.rectangle.width, this.self.nativeElement.clientWidth);
-    this.drawerContentStyle.marginRight = newSize;
-    this.propertiesW =  newSize;
+    this.propertiesW =   this.resize(event.rectangle.width, this.self.nativeElement.clientWidth);
     this.stateService.setPanelResized();
   }
 
   onResizeFooter(event: ResizeEvent): void {
-    let newSize = this.resize(event.rectangle.height, 
+    this.footerH = this.resize(event.rectangle.height, 
         this.self.nativeElement.clientHeight);
-    this.footerH =  newSize;
     this.stateService.setPanelResized();
   }
 
@@ -94,10 +89,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.setRecent(null);
-  }
-
-  onWheel(event){
-
   }
 
   loadData(item) {

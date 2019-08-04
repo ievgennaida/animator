@@ -1,13 +1,16 @@
 /**
- * Value data
+ * Values data
  */
 export interface valuesProp {
-  /**
-   * x
-   */
-  x?: any[];
-  /**
-   * y
-   */
-  y?: any[];
+  x: any[];
+  y: any[];
 }
+
+/**
+ * Value data
+ */
+export interface valueProp {
+  x: number;
+  y: number;
+}
+

@@ -1,8 +1,12 @@
 import { default as timeline, AnimationTimelineOptions, Timeline, AnimationTimelineLane } from 'animation-timeline-js';
 import { baseLayer } from './Lottie/layers/baseLayer';
 import { NodeType } from './NodeType';
+import { Properties } from './Properties/Properties';
 
-export class TreeNode {
+/**
+ * Application node. 
+ */
+export class Node {
     constructor(){
         this.lane = { } as AnimationTimelineLane;
     }
@@ -15,13 +19,16 @@ export class TreeNode {
 
     set name(value: string) {
         this._name = value;
+        console.log('set'+ value);
     }
 
     get expandable(): boolean {
         return !!this.children && this.children.length > 0;
     }
 
-    children?: TreeNode[];
+    icon =  'folder';
+    properties: Properties;
+    children?: Node[];
     tag: any;
     type: NodeType;
     data: any;

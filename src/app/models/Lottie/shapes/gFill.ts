@@ -1,4 +1,4 @@
-import { baseShape } from './baseShape';
+import { baseShape } from "./baseShape";
 import { multiDimensional } from "../properties/multiDimensional";
 import { multiDimensionalKeyframed } from "../properties/multiDimensionalKeyframed";
 import { valueKeyframed } from "../properties/valueKeyframed";

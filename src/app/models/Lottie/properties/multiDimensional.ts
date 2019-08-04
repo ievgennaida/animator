@@ -1,14 +1,9 @@
-export interface multiDimensional {
-  /**
-   * Property Index. Used for expressions.
-   */
-  ix?: string;
+import { baseProperty } from './baseProperty';
+import { offsetKeyframe } from './offsetKeyframe';
+
+export interface multiDimensional extends baseProperty {
   /**
    * Property Value
    */
-  k?: any[];
-  /**
-   * Property Expression. An AE expression that modifies the value.
-   */
-  x?: string;
+  k?: offsetKeyframe[];
 }

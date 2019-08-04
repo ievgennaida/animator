@@ -17,22 +17,23 @@ export class transform {
   /**
    * Position X. Transform Position X{"a":0, "k":0},
    */
-  px: value | valueKeyframed;
+  px?: value | valueKeyframed;
 
   /**
    * Position Y. Transform Position Y{"a":0, "k":0},
    */
-  py: value | valueKeyframed;
+  py?: value | valueKeyframed;
 
   /**
    * Position Z. Transform Position Z{"a":0, "k":0},
    */
-  pz: value | valueKeyframed;
+  pz?: value | valueKeyframed;
 
   /**
    * Skew. Transform Skew {"a":0, "k":0},
    */
   sk: value | valueKeyframed;
+  
   /**
    * Skew Axis. Transform Skew Axis {"a":0, "k":0},
    */

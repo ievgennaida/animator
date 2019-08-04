@@ -3,7 +3,9 @@ import {
   OnInit,
   OnDestroy,
   Output,
-  EventEmitter
+  EventEmitter,
+  ViewChild,
+  ElementRef
 } from "@angular/core";
 import {
   default as timeline,
@@ -17,7 +19,7 @@ import { takeUntil } from "rxjs/operators";
 import { StateService } from "src/app/services/state.service";
 import { PlayerService } from "src/app/services/player.service";
 import { consts } from "src/environments/consts";
-import { TreeNode } from "src/app/models/TreeNode";
+import { Node } from "src/app/models/Node";
 
 @Component({
   selector: "app-timeline",
@@ -30,12 +32,28 @@ export class TimelineComponent implements OnInit, OnDestroy {
     private stateService: StateService,
     private playerService: PlayerService
   ) {}
-  @Output()
-  public timelineScroll: EventEmitter<any> = new EventEmitter();
+
   lanes: AnimationTimelineLane[] = [];
   options: AnimationTimelineOptions;
-  player: Timeline;
+  scrollTop: number = 0;
+  timeline: Timeline;
+
+  @ViewChild("timeline", { static: false, read: ElementRef })
+  timelineElement: ElementRef;
+
+  @Output()
+  public timelineScroll: EventEmitter<any> = new EventEmitter();
+
+
+
   ngOnInit() {
+    let onDraw = timestamp => {
+      this.playerService.syncornizeTimelineWithPlayer();
+      window.requestAnimationFrame(onDraw);
+    };
+
+    window.requestAnimationFrame(onDraw);
+
     this.options = {
       id: "timeline",
       laneColor: "#333333",
@@ -43,19 +61,19 @@ export class TimelineComponent implements OnInit, OnDestroy {
       backgroundColor: "#252526"
     } as AnimationTimelineOptions;
 
-    this.player = timeline.initialize(this.options, this.lanes);
-    this.player.on("timeChanged", args => {
+    this.timeline = timeline.initialize(this.options, this.lanes);
+    this.playerService.setTimeline(this.timeline);
+    this.timeline.on("timeChanged", args => {
       if (args.source == "user") {
         this.playerService.goTo(args.ms);
-        this.playerService.pause();
       }
     });
 
-    this.player.on("scroll", (args: ScrollEventArgs) => {
+    this.timeline.on("scroll", (args: ScrollEventArgs) => {
       this.timelineScroll.emit(args);
     });
 
-    this.player.on("keyframeChanged", args => {
+    this.timeline.on("keyframeChanged", args => {
       if (args) {
         args.forEach(p => {
           if (p.prop && p.data) {
@@ -76,7 +94,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       });
 
       ds.data.forEach(p => this.resolveLanesVisibilty(tc, p, false));
-      this.player.setLanes(this.lanes);
+      this.timeline.setLanes(this.lanes);
       this.redraw();
     });
 
@@ -92,7 +110,18 @@ export class TimelineComponent implements OnInit, OnDestroy {
     });
   }
 
-  resolveLanesVisibilty(tc: any, node: TreeNode, hidden: boolean) {
+  public onWheel(event: WheelEvent) {
+    // Wire wheel events with other divs over the app.
+    if (this.timelineElement.nativeElement) {
+      let scroll =
+        Math.sign(event.deltaY) *
+        this.timelineElement.nativeElement.scrollHeight *
+        0.125;
+      this.timelineElement.nativeElement.scrollTop += scroll;
+    }
+  }
+
+  resolveLanesVisibilty(tc: any, node: Node, hidden: boolean) {
     node.lane.hidden = hidden;
     if (!hidden) {
       if (tc.isExpandable(node)) {
@@ -107,8 +136,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   redraw() {
-    this.player.rescale();
-    this.player.redraw();
+    if (!this.timeline) {
+      return;
+    }
+    
+    this.timeline.rescale();
+    this.timeline.redraw();
   }
 
   ngOnDestroy() {

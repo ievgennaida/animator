@@ -1,8 +1,8 @@
 import { index } from "../effects";
 import { transform } from "../shapes/transform";
 import { layerType } from "./layerType";
-import { mask } from '../helpers/mask';
-import { blendMode } from '../helpers/blendMode';
+import { mask } from "../helpers/mask";
+import { blendMode } from "../helpers/blendMode";
 
 export class baseLayer {
   /**
@@ -32,7 +32,7 @@ export class baseLayer {
   /**
    * After Effects Layer Name. Used for expressions.
    */
-  nm: string|number;
+  nm: string | number;
   /**
    * Out Point of layer. Sets the final frame of the layer.
    */
@@ -70,7 +70,7 @@ export class baseLayer {
   /**
    * Masks Properties.Boolean when layer has a mask. Will be deprecated in favor of checking masksProperties.
    */
-  hasMasks?: mask[];
+  hasMask?: number;
 
   /**
    * Masks Properties. List of Masks.

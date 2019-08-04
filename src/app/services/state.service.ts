@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Subject, Observable, BehaviorSubject } from "rxjs";
-import { TreeNode } from "../models/TreeNode";
+import { Node } from "../models/Node";
 import { LottieModel } from "../models/Lottie/LottieModel";
 
 import { solid } from "../models/Lottie/layers/solid";
@@ -21,25 +21,30 @@ import {
   MatTreeFlattener
 } from "@angular/material/tree";
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { TreeControl } from './TreeControl';
+import { TreeControl } from "./TreeControl";
+import { PropertiesService } from "./properties.service";
+import { Property } from "../models/Properties/Property";
+import { Properties } from "../models/Properties/Properties";
 
 @Injectable({
   providedIn: "root"
 })
 export class StateService {
+  constructor(private propertesService: PropertiesService) {}
+
   resizeSubject = new Subject();
   dataSubject = new Subject();
-  nodesSubject = new BehaviorSubject<TreeNode[]>([]);
-
-  treeConrol = new FlatTreeControl<TreeNode>(
+  nodesSubject = new BehaviorSubject<Node[]>([]);
+  selectedSubject = new BehaviorSubject<Node>(null);
+  treeConrol = new FlatTreeControl<Node>(
     node => node.level,
     node => node.expandable
   );
 
-  flatDataSource = new MatTreeFlatDataSource<TreeNode, TreeNode>(
+  flatDataSource = new MatTreeFlatDataSource<Node, Node>(
     this.treeConrol,
-    new MatTreeFlattener<TreeNode, TreeNode>(
-      (node: TreeNode, level: number) => {
+    new MatTreeFlattener<Node, Node>(
+      (node: Node, level: number) => {
         node.level = level;
         return node;
       },
@@ -49,8 +54,9 @@ export class StateService {
     )
   );
 
-  constructor() {
-
+  // Allow to select tree node, but list of avaliable might be extended.
+  setSelected(node: Node) {
+    this.selectedSubject.next(node);
   }
 
   public get onResize(): Observable<any> {
@@ -61,7 +67,10 @@ export class StateService {
     this.resizeSubject.next();
   }
 
-  public get nodes(): Observable<any> {
+  public get selected(): Observable<Node> {
+    return this.selectedSubject.asObservable();
+  }
+  public get nodes(): Observable<Node[]> {
     return this.nodesSubject.asObservable();
   }
 
@@ -80,60 +89,50 @@ export class StateService {
     }
     let animation: LottieModel = data as LottieModel;
 
-    let treeNodes = this.nodesSubject.value;
-    treeNodes.length = 0;
+    let nodes = this.nodesSubject.value;
+    nodes.length = 0;
 
-    let flatLayerNodes: TreeNode[] = [];
+    let flatLayerNodes: Node[] = [];
 
     if (animation) {
-      const node = new TreeNode();
+      const node = new Node();
 
-      node.type = NodeType.File,
-      node.data = animation,
-      node.name = animation.nm || 'file.json';
+      node.type = NodeType.File;
+      // root:
+      node.data = animation;
+      node.icon = "web-asset";
+      node.name = animation.nm || "file.json";
+      node.properties = this.propertesService.getProperties(node);
+      nodes.push(node);
 
-      treeNodes.push(node);
+      // Render assets:
+      if (animation.assets && animation.assets.length > 0) {
+        const node = new Node();
+        node.type = NodeType.Assets;
+        node.data = animation;
+        node.name = "assets";
+        node.properties = this.propertesService.getProperties(node);
+        node.children = [];
+        nodes.push(node);
 
+        animation.assets.forEach((p: any) => {
+          this.addLayer(node.children, p);
+        });
+      }
+
+      // Add layers:
       if (animation.layers) {
         animation.layers.forEach((p: any) => {
-          let layer = p;
-          let converted = new TreeNode();
-          converted.type = NodeType.Layer,
-          converted.data = layer,
-          converted.name = 
-              layer.nm.toString() +
-              "id" +
-              layer.ind +
-              ".par:" +
-              layer.parent +
-              "  " +
-              layer.ty;
-
-          if (p.ty == layerType.Image) {
-            let currentLayer = layer as image;
-          } else if (p.ty === layerType.Null) {
-            let currentLayer = layer as nullLayer;
-          } else if (p.ty === layerType.Precomp) {
-            let currentLayer = layer as preComp;
-          } else if (p.ty === layerType.Shape) {
-            let currentLayer = layer as shape;
-            this.getShapesNodes(currentLayer.shapes, converted);
-          } else if (p.ty === layerType.Solid) {
-            let currentLayer = layer as solid;
-          } else if (p.ty === layerType.Text) {
-            let currentLayer = layer as text;
-          }
-
-          flatLayerNodes.push(converted);
+          this.addLayer(flatLayerNodes, p);
         });
       }
     }
 
     // Remap and convert the the flat level nodes to be tree structured.
     let onlyLayerNodes = flatLayerNodes.filter(p => p.type == NodeType.Layer);
-    onlyLayerNodes.forEach(treeNode => {
+    onlyLayerNodes.forEach(node => {
       let parentFound = false;
-      let layer = treeNode.data as baseLayer;
+      let layer = node.data as baseLayer;
 
       if (layer.parent !== undefined) {
         let parentNode = onlyLayerNodes.find(p => p.data.ind === layer.parent);
@@ -142,36 +141,91 @@ export class StateService {
             parentNode.children = [];
           }
 
-          parentNode.children.push(treeNode);
+          parentNode.children.push(node);
           parentFound = true;
         }
       }
 
       if (!parentFound) {
-        treeNodes.push(treeNode);
+        nodes.push(node);
       }
     });
 
-    this.flatDataSource.data = treeNodes;
+    this.flatDataSource.data = nodes;
   }
 
-  getShapesNodes(
-    shape: anyShape | anyShape[],
-    parentNode: TreeNode
-  ): TreeNode[] {
+  addLayer(flatLayerNodes: Node[], layer) {
+    let node = new Node();
+    node.type = NodeType.Layer;
+    node.data = layer;
+    node.name = (layer.nm || layerType[layer.ty] || "layer").toString();
+
+    //TODO: 
+    if (layer.ty == layerType.Image) {
+      let currentLayer = layer as image;
+    } else if (layer.ty === layerType.Null) {
+      let currentLayer = layer as nullLayer;
+    } else if (layer.ty === layerType.Precomp) {
+      let currentLayer = layer as preComp;
+    } else if (layer.ty === layerType.Shape) {
+      let currentLayer = layer as shape;
+      this.getShapesNodes(currentLayer.shapes, node);
+    } else if (layer.ty === layerType.Solid) {
+      let currentLayer = layer as solid;
+    } else if (layer.ty === layerType.Text) {
+      let currentLayer = layer as text;
+    }
+
+    node.properties = this.propertesService.getProperties(node);
+    this.getTransformNode(node);
+    flatLayerNodes.push(node);
+  }
+
+  getTransformNode(parentNode: Node) {
+    if (!parentNode.properties || !parentNode.properties.items) {
+      return;
+    }
+
+    // Render list of properties marked as allowed for the outline.
+    let filtered = parentNode.properties.items.filter(p => p.renderAsOutline);
+    if (filtered && filtered.length > 0) {
+      if (!parentNode.children) {
+        parentNode.children = [];
+      }
+
+      const folder = new Node();
+      folder.type = NodeType.Folder;
+      folder.name = "Properties";
+      folder.properties = this.propertesService.getProperties(folder);
+      folder.children = [];
+      filtered.forEach(p => {
+        const node = new Node();
+        node.type = NodeType.Property;
+        node.name = p.name;
+        node.data = p.data;
+        node.icon = p.icon;
+        node.properties = new Properties();
+        node.properties.items.push(p);
+        folder.children.push(node);
+      });
+      parentNode.children.push(folder);
+    }
+  }
+
+  getShapesNodes(shape: anyShape | anyShape[], parentNode: Node): Node[] {
     if (!shape) {
       return;
     }
 
-    let nodes: TreeNode[] = [];
+    let nodes: Node[] = [];
     if (Array.isArray(shape)) {
       shape.forEach(p => {
         this.getShapesNodes(p, parentNode);
       });
     } else {
-      let node = new TreeNode();
+      let node = new Node();
       node.type = NodeType.Shape;
-      node.data =  shape;
+      node.data = shape;
       node.name = (shape.nm || "").toString() + " type: " + shape.ty;
 
       if (!parentNode.children) {
@@ -180,9 +234,37 @@ export class StateService {
 
       if (shape.ty === shapeType.group) {
         let groupShape = shape as group;
+        node.icon = "folder_special";
         this.getShapesNodes(groupShape.it, node);
+      } else if (shape.ty === shapeType.transform) {
+        node.icon = "transform";
+      } else if (shape.ty === shapeType.merge) {
+        node.icon = "call_merge";
+      } else if (shape.ty === shapeType.rect) {
+        node.icon = "crop_square";
+      } else if (shape.ty === shapeType.repeater) {
+        node.icon = "repeat";
+      } else if (shape.ty === shapeType.round) {
+        node.icon = "rounded_corner";
+      } else if (shape.ty === shapeType.star) {
+        node.icon = "star_border";
+      } else if (shape.ty === shapeType.stroke) {
+        node.icon = "folder_special";
+      } else if (shape.ty === shapeType.trim) {
+        node.icon = "folder_special";
+      } else if (shape.ty === shapeType.ellipse) {
+        node.icon = "folder_special";
+      } else if (shape.ty === shapeType.fill) {
+        node.icon = "format_color_fill";
+      } else if (shape.ty === shapeType.gFill) {
+        node.icon = "gradient";
+      } else if (shape.ty === shapeType.gStroke) {
+        node.icon = "folder_special";
+      } else if (shape.ty === shapeType.shape) {
+        node.icon = "format_shapes";
       }
 
+      node.properties = this.propertesService.getProperties(node);
       parentNode.children.push(node);
     }
 

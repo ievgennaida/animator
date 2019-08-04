@@ -1,8 +1,10 @@
+import { valueProp } from './valuesProp';
+
 export interface valueKeyframe {
   /**
-   * Bezier curve interpolation in value.
+   * interpolation in value.
    */
-  i?: InValue;
+  i?: valueProp;
   /**
    * Start value of keyframe segment.
    */
@@ -13,16 +15,3 @@ export interface valueKeyframe {
   t?: number;
 }
 
-/**
- * Bezier curve interpolation in value.
- */
-export interface InValue {
-  /**
-   * bezier x axis
-   */
-  x?: number;
-  /**
-   * bezier y axis
-   */
-  y?: number;
-}

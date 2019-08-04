@@ -6,7 +6,7 @@ export class solid extends baseLayer {
    */
   sc?: string;
   /**
-   *Solid Height Height of the solid.
+   *Solid Height. Height of the solid.
    */
   sh?: number;
   /**

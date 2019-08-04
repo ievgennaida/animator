@@ -1,6 +1,15 @@
-{{selected}}
-<mat-list>
-    <mat-list-item> <app-numberic></app-numberic> </mat-list-item>
-    <mat-list-item> <app-numberic></app-numberic> </mat-list-item>
-    <mat-list-item> <app-dnumberic></app-dnumberic> </mat-list-item>
-</mat-list>
+<div *ngIf="activeSelection?.properties">
+    <mat-icon *ngIf="activeSelection.icon">
+        {{activeSelection.icon}}
+    </mat-icon>
+    <input [(value)]="activeSelection.name" />
+    {{activeSelection.type}}
+
+    <div *ngIf="activeSelection?.properties?.items">
+        <div title="property.description" *ngFor="let property of activeSelection.properties.items">
+            {{property.name}}
+            <app-numberic></app-numberic>
+            <app-dnumberic></app-dnumberic>
+        </div>
+    </div>
+</div>

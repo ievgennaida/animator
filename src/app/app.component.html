@@ -19,12 +19,12 @@
     <app-toolbox></app-toolbox>
 
     <mat-drawer-container>
-      <mat-drawer #drawer mode="side" opened="true" position="end" #properties mwlResizable [ngStyle]="propertiesStyle"
+      <mat-drawer #drawer mode="side" opened="true" position="end" #properties mwlResizable [style.width.px]="propertiesW"
         [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }" (resizing)="onResizeProperties($event, false)"
         (resizeEnd)="onResizeProperties($event, true)">
         <app-properties> </app-properties>
       </mat-drawer>
-      <mat-drawer-content [ngStyle]="drawerContentStyle">
+      <mat-drawer-content [style.marginRight.px]="propertiesW">
         <app-player></app-player>
       </mat-drawer-content>
     </mat-drawer-container>
@@ -34,9 +34,9 @@
 <footer #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6"
   (resizing)="onResizeFooter($event, false)" (resizeEnd)="onResizeFooter($event, true)" [enableGhostResize]="false"
   [resizeEdges]="{ top: true }">
-  <app-outline (mousewheel)="onWheel($event)" #outline mwlResizable [style.width.px]="outlineW"
+  <app-outline (mousewheel)="timeline.onWheel($event)" #outline mwlResizable [style.width.px]="outlineW"
     [resizeCursorPrecision]="6" (resizing)="onResizeOutline($event, false)" (resizeEnd)="onResizeOutline($event, true)"
     [enableGhostResize]="false" [resizeEdges]="{ right: true }">
   </app-outline>
-  <app-timeline (timelineScroll)="outline.setSize($event)"></app-timeline>
+  <app-timeline #timeline (timelineScroll)="outline.setSize($event)"></app-timeline>
 </footer>

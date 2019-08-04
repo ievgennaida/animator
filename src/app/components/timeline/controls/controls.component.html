@@ -15,13 +15,13 @@
 <button (click)="pause()" *ngIf="!isPaused" mat-button>
     <mat-icon>pause</mat-icon>
 </button>
-<button (click)="right()" mat-button>
+<button (click)="next()" mat-button>
     <mat-icon>keyboard_arrow_right</mat-icon>
 </button>
 <button (click)="last()" mat-button>
     <mat-icon>last_page</mat-icon>
 </button>
-<span class="separator">
+<!--span class="separator">
 </span>
 <button (click)="loop()" mat-button>
     <mat-icon>loop</mat-icon>
@@ -31,13 +31,16 @@
 </button>
 <button mat-button>
     <mat-icon>repeat</mat-icon>
-</button>
+</button>-->
 <span class="separator">
 </span>
-<button (click)="pan()" mat-button>
+<button *ngIf="!isPan" (click)="pan()" mat-button>
     <mat-icon>pan_tool</mat-icon>
 </button>
-<button mat-button>
-    <mat-icon>zoom_in</mat-icon>
+<button *ngIf="isPan" (click)="select()" mat-button>
+    <mat-icon>tab_unselected</mat-icon>
 </button>
+<!--button mat-button>
+    <mat-icon>zoom_in</mat-icon>
+</button-->
 <span id="currentTime"></span>
