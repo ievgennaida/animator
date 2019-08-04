@@ -11,13 +11,14 @@ import { consts } from 'src/environments/consts';
 })
 export class AppComponent implements OnInit {
   title = "animation";
-  // TODO bind specific value directly.
-  outlineStyle = {};
+  outlineW: number| string = null;
+  propertiesW: number| string = null;
+  footerH: number| string = null;
   propertiesStyle = {};
   drawerContentStyle: any = {};
   recentItems = [];
 
-  constructor(private stateService: StateService) {
+  constructor(private stateService: StateService, private self:ElementRef) {
   }
 
 
@@ -36,31 +37,39 @@ export class AppComponent implements OnInit {
   @ViewChild("drawerContent", { static: true })
   drawerContent: ElementRef;
 
-  onResizeOutline(event: ResizeEvent, isEnd: boolean): void {
-    this.resize(event.rectangle.width, this.main.nativeElement.clientWidth, this.outlineStyle);
-  }
-
-  onResizeResizable(event: ResizeEvent, isEnd: boolean): void {
-    let newSize = this.resize(event.rectangle.width, this.footer.nativeElement.clientWidth, this.propertiesStyle);
-    this.drawerContentStyle.marginRight = newSize;
-  }
-
-  resize(w, maxWidth, style) {
-    let minW = maxWidth * 0.10;
-    let maxW = maxWidth * 0.90;
-    if (w <= minW) {
-      w = minW;
-    }
-
-    if (w >= maxW) {
-      w = maxW;
-    }
-
-    let toSet = `${w}px`;;
-    style.width = toSet
+  onResizeOutline(event: ResizeEvent): void {
+    this.outlineW = this.resize(event.rectangle.width, this.self.nativeElement.clientWidth);
     this.stateService.setPanelResized();
+  }
 
-    return toSet;
+  onResizeProperties(event: ResizeEvent): void {
+    let newSize = this.resize(event.rectangle.width, this.self.nativeElement.clientWidth);
+    this.drawerContentStyle.marginRight = newSize;
+    this.propertiesW =  newSize;
+    this.stateService.setPanelResized();
+  }
+
+  onResizeFooter(event: ResizeEvent): void {
+    let newSize = this.resize(event.rectangle.height, 
+        this.self.nativeElement.clientHeight);
+    this.footerH =  newSize;
+    this.stateService.setPanelResized();
+  }
+
+
+  resize(size, maxSize) {
+    let min = maxSize * 0.10;
+    let max = maxSize * 0.90;
+    if (size <= min) {
+      size = min;
+    }
+
+    if (size >= max) {
+      size = max;
+    }
+
+   // let toSet = `${size}px`;
+    return size;
   }
 
   @HostListener("window:resize", ["$event"])
@@ -70,21 +79,25 @@ export class AppComponent implements OnInit {
     }
     
     // Set the scroll into the bounds:
-    this.resize(
+    this.outlineW = this.resize(
       this.outline.nativeElement.clientWidth,
-      this.footer.nativeElement.clientWidth,
-      this.outlineStyle
+      this.self.nativeElement.clientWidth
     );
 
-    this.resize(
+    this.propertiesW = this.resize(
       this.properties.nativeElement.clientWidth,
-      this.main.nativeElement.clientWidth,
-      this.propertiesStyle
+      this.self.nativeElement.clientWidth
     );
+
+    this.stateService.setPanelResized();
   }
 
   ngOnInit() {
     this.setRecent(null);
+  }
+
+  onWheel(event){
+
   }
 
   loadData(item) {

@@ -90,22 +90,17 @@ export class TimelineComponent implements OnInit, OnDestroy {
     this.stateService.onResize.pipe(takeUntil(this.destroyed$)).subscribe(p => {
       this.redraw();
     });
-
-    this.stateService.data.pipe(takeUntil(this.destroyed$)).subscribe(p => {
-      this.player.setLanes(this.lanes);
-    });
   }
 
   resolveLanesVisibilty(tc: any, node: TreeNode, hidden: boolean) {
     node.lane.hidden = hidden;
     if (!hidden) {
-      if(tc.isExpandable(node)) {
+      if (tc.isExpandable(node)) {
         hidden = !tc.isExpanded(node);
       }
     }
 
-    //node.lane.name = node.name + " " + node.lane.hidden;
-
+    // node.lane.name = node.name + " " + node.lane.hidden;
     if (node.children) {
       node.children.forEach(p => this.resolveLanesVisibilty(tc, p, hidden));
     }

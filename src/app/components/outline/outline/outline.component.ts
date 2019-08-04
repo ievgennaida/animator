@@ -1,4 +1,3 @@
-import { FlatTreeControl } from "@angular/cdk/tree";
 import {
   Component,
   OnInit,
@@ -16,6 +15,7 @@ import { TreeNode } from "src/app/models/TreeNode";
 import { takeUntil } from "rxjs/operators";
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
+import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
 
 @Component({
   selector: "app-outline",
@@ -26,16 +26,18 @@ export class OutlineComponent implements OnInit, OnDestroy {
   constructor(
     private stateService: StateService,
     private selfElement: ElementRef
-  ) {
-  }
+  ) {}
 
   scrollTop: any = 0;
   height: any = "";
   dataSource = this.stateService.flatDataSource;
   private destroyed$ = new Subject();
-  ngOnInit(): void {
+  public shapeType = shapeType;
 
+  onScroll(){
+    console.log('scroll');
   }
+  ngOnInit(): void {}
 
   ngOnDestroy() {
     this.destroyed$.next(true);

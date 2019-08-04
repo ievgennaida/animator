@@ -6,7 +6,51 @@
         <mat-tree-node (click)="activeNode = node" [ngClass]="{ 'selected': activeNode === node }"
             *matTreeNodeDef="let node" matTreeNodePadding [matTreeNodePaddingIndent]="10">
             <!-- use a disabled button to provide padding for tree leaf -->
-            <button mat-icon-button disabled></button>
+            <button mat-icon-button disabled>
+
+            </button>
+            <mat-icon *ngIf="node?.data.ty == shapeType.transform">
+                transform
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.merge">
+                call_merge
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.rect">
+                crop_square
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.repeater">
+                repeat
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.round" class="mat-icon-rtl-mirror">
+                rounded_corner
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.star" class="mat-icon-rtl-mirror">
+                star_border
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.stroke" class="mat-icon-rtl-mirror">
+                folder_special
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.trim" class="mat-icon-rtl-mirror">
+                folder_special
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.ellipse" class="mat-icon-rtl-mirror">
+                folder_special
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.fill" class="mat-icon-rtl-mirror">
+                format_color_fill
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.gFill" class="mat-icon-rtl-mirror">
+                gradient
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.group" class="mat-icon-rtl-mirror">
+                folder_special
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.gStroke">
+                folder_special
+            </mat-icon>
+            <mat-icon *ngIf="node?.data.ty == shapeType.shape">
+                format_shapes
+            </mat-icon>
             <div class="text">
                 {{node.name}}
             </div>
@@ -15,10 +59,13 @@
         <mat-tree-node (click)="activeNode = node" [ngClass]="{ 'selected': activeNode === node }"
             *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [matTreeNodePaddingIndent]="5">
             <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
-                <mat-icon class="mat-icon-rtl-mirror">
+                <mat-icon>
                     {{dataSource._treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                 </mat-icon>
             </button>
+            <mat-icon>
+                folder
+            </mat-icon>
             <div class="text">
                 {{node.name}}
             </div>
