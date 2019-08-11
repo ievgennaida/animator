@@ -19,7 +19,7 @@ export class NumbericComponent implements OnInit {
   onValueChanged(event) {
     if (this.property) {
       this.property.setValue(parseInt(event.target.value));
-      this.propertiesService.emitPropertyChanged();
+      this.propertiesService.emitPropertyChanged(this.property);
     }
   }
 

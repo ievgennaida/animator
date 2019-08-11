@@ -7,7 +7,8 @@ import {
 import { baseLayer } from "./Lottie/layers/baseLayer";
 import { NodeType } from "./NodeType";
 import { Properties } from "./Properties/Properties";
-import { Property } from './Properties/Property';
+import { Property } from "./Properties/Property";
+import { shapeType } from "./Lottie/shapes/shapeType";
 
 /**
  * Application node.
@@ -20,7 +21,7 @@ export class Node {
   private _name: string = "";
 
   get name(): string {
-    return this._name;
+    return this._name || this.typeTitle;
   }
 
   set name(value: string) {
@@ -33,6 +34,13 @@ export class Node {
 
   get typeTitle() {
     let typeTitle = NodeType[this.type];
+    if (this.type == NodeType.Shape && this.data) {
+      const typeSubtitle = Object.keys(shapeType)
+        .find(value => shapeType[value] === this.data.ty);
+      if (typeSubtitle) {
+        typeTitle += ` (${typeSubtitle})`;
+      }
+    }
     return typeTitle;
   }
 

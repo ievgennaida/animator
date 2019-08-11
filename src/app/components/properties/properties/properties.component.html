@@ -5,7 +5,8 @@
             </mat-icon>
         </div>
         <div>
-            <div class="label-item">Name: <input [readonly]="!node.nameProperty || node.nameProperty.readonly" (focusout)="onNameFocusOut($event)" [(value)]="node.name" /></div>
+            <div class="label-item">Name: <input [readonly]="!node.nameProperty || node.nameProperty.readonly"
+                    (focusout)="onNameFocusOut($event)" [(value)]="node.name" /></div>
             <div class="label-item">Type: <span>{{node.typeTitle}}</span></div>
         </div>
     </div>

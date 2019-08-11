@@ -6,5 +6,6 @@ export enum PropertyType {
   // value | valueKeyframed
   value = "value",
   //multiDimensional | multiDimensionalKeyframed;
-  multi = "multi"
+  multi = "multi",
+  shape = "shape"
 }

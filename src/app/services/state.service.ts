@@ -26,14 +26,16 @@ import { PropertiesService } from "./properties.service";
 import { Property } from "../models/Properties/Property";
 import { Properties } from "../models/Properties/Properties";
 import { AnimationTimelineKeyframe } from "animation-timeline-js";
-import { PlayerService } from './player.service';
+import { PlayerService } from "./player.service";
 
 @Injectable({
   providedIn: "root"
 })
 export class StateService {
-  constructor(private propertesService: PropertiesService, 
-    private playerService: PlayerService) {}
+  constructor(
+    private propertesService: PropertiesService,
+    private playerService: PlayerService
+  ) {}
 
   resizeSubject = new Subject();
   dataSubject = new Subject();
@@ -90,7 +92,7 @@ export class StateService {
       this.nodesSubject.next(this.nodesSubject.value);
       return;
     }
-    
+
     this.selectedSubject.next(null);
 
     let animation: LottieModel = data as LottieModel;
@@ -202,13 +204,18 @@ export class StateService {
         parentNode.children = [];
       }
 
-      const folder = new Node();
-      folder.type = NodeType.Folder;
-      folder.name = "Transform";
-      folder.icon = "transform";
-      folder.properties = this.propertesService.getProperties(folder);
-      this.setKeyframes(folder);
-      folder.children = [];
+      let folder = parentNode;
+      if (parentNode.type !== NodeType.Shape) {
+        folder = new Node();
+        folder.type = NodeType.Folder;
+        folder.name = "Transform";
+        folder.icon = "transform";
+        folder.properties = this.propertesService.getProperties(folder);
+        this.setKeyframes(folder);
+        parentNode.children.push(folder);
+      }
+
+      folder.children = folder.children || [];
       filtered.forEach(p => {
         const node = new Node();
         node.type = NodeType.Property;
@@ -220,7 +227,6 @@ export class StateService {
         this.setKeyframes(node);
         folder.children.push(node);
       });
-      parentNode.children.push(folder);
     }
   }
 
@@ -238,7 +244,7 @@ export class StateService {
       let node = new Node();
       node.type = NodeType.Shape;
       node.data = shape;
-      node.name = (shape.nm || "").toString() + " type: " + shape.ty;
+      node.name = shape.nm;
 
       if (!parentNode.children) {
         parentNode.children = [];
@@ -277,6 +283,7 @@ export class StateService {
       }
 
       node.properties = this.propertesService.getProperties(node);
+      this.getTransformNode(node);
       this.setKeyframes(node);
       parentNode.children.push(node);
     }
