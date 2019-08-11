@@ -20,9 +20,11 @@ import { ResizableModule } from "angular-resizable-element";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatSidenavModule } from "@angular/material/sidenav";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
+
 import { ControlsComponent } from './components/timeline/controls/controls.component';
+import { TextComponent } from './components/properties/text/text.component';
+import { BoolComponent } from './components/properties/bool/bool.component';
+import { ComboComponent } from './components/properties/combo/combo.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +36,10 @@ import { ControlsComponent } from './components/timeline/controls/controls.compo
     PlayerComponent,
     NumbericComponent,
     DnumbericComponent,
-    ControlsComponent
+    ControlsComponent,
+    TextComponent,
+    BoolComponent,
+    ComboComponent
   ],
   imports: [
     ResizableModule,
@@ -43,9 +48,7 @@ import { ControlsComponent } from './components/timeline/controls/controls.compo
     MatIconModule,
     MatListModule,
     MatMenuModule,
-    MatInputModule,
     MatSidenavModule,
-    MatFormFieldModule,
     NoopAnimationsModule,
     MatButtonModule,
     BrowserModule

@@ -1,15 +1,22 @@
-<div *ngIf="activeSelection?.properties">
-    <mat-icon *ngIf="activeSelection.icon">
-        {{activeSelection.icon}}
-    </mat-icon>
-    <input [(value)]="activeSelection.name" />
-    {{activeSelection.type}}
+<div *ngIf="node?.properties">
+    <div class="label-item">
+        <div>
+            <mat-icon *ngIf="node.icon">{{node.icon}}
+            </mat-icon>
+        </div>
+        <div>
+            <div class="label-item">Name: <input [readonly]="!node.nameProperty || node.nameProperty.readonly" (focusout)="onNameFocusOut($event)" [(value)]="node.name" /></div>
+            <div class="label-item">Type: <span>{{node.typeTitle}}</span></div>
+        </div>
+    </div>
 
-    <div *ngIf="activeSelection?.properties?.items">
-        <div title="property.description" *ngFor="let property of activeSelection.properties.items">
-            {{property.name}}
-            <app-numberic *ngIf="property.type == 'default'"></app-numberic>
 
+    <div *ngIf="node?.properties?.items">
+        <div class="properties" title="property?.description" *ngFor="let property of node.properties.items">
+            <app-numberic [property]="property" *ngIf="property.type == 'number'"></app-numberic>
+            <app-text [property]="property" *ngIf="property.type == 'text' && property.key != 'nm'"></app-text>
+
+            <!--app-text [property]="property" *ngIf="property.type == 'default'"></app-text>-->
         </div>
     </div>
 </div>

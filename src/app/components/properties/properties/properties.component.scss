@@ -1,3 +1,22 @@
-:host{
-    background-color: black;
+:host {
+  background-color: black;
+}
+
+:host ::ng-deep .property-title{
+  min-width: 70px;
+}
+
+.label-item {
+  display: grid;
+  grid-template-columns: minmax(auto, 30px)  1fr;
+  grid-gap: 5px;
+  align-items: center;
+  margin: 4px;
+}
+
+.properties {
+  margin: 4px 8px 4px 4px;
+}
+.properties > * {
+  margin-bottom: 4px;
 }

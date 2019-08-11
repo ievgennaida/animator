@@ -1,3 +1,5 @@
+import { PropertyType } from './PropertyType';
+
 export class Property {
   constructor(key, name, data, description) {
     this.key = key;
@@ -7,7 +9,7 @@ export class Property {
   }
 
   public keyframe = false;
-  public readOnly = false;
+  public readonly = false;
   public key: string;
   public name: string;
   public description: string;
@@ -16,6 +18,7 @@ export class Property {
   public icon: string;
   // Render this property as outline node:
   public renderAsOutline = false;
+  public type: PropertyType = PropertyType.text;
 
   getValue(): any {
     if (this.data && this.key) {

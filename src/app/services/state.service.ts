@@ -106,7 +106,7 @@ export class StateService {
       node.type = NodeType.File;
       // root:
       node.data = animation;
-      node.icon = "web-asset";
+      node.icon = "assignment";
       node.name = animation.nm || "file.json";
       node.properties = this.propertesService.getProperties(node);
       this.setKeyframes(node);

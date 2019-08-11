@@ -13,15 +13,18 @@ export class PropertiesComponent implements OnInit {
   constructor(private stateService: StateService) {}
 
   private destroyed$ = new Subject();
-  activeSelection: Node = null;
+  node: Node = null;
   ngOnInit() {
     this.stateService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p: Node) => {
-        this.activeSelection = p;
+        this.node = p;
       });
   }
 
+  onNameFocusOut(){
+    
+  }
   ngOnDestroy() {
     this.destroyed$.next(true);
     this.destroyed$.complete();

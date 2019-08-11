@@ -2,11 +2,8 @@ import { Injectable } from "@angular/core";
 import { Node } from "../models/Node";
 import { NodeType } from "../models/NodeType";
 import { Property } from "../models/Properties/Property";
-import {
-  NumberProperty,
-  NumberPropertyType
-} from "../models/Properties/NumberProperty";
-import { StringProperty } from "../models/Properties/StringProperty";
+import { NumberProperty } from "../models/Properties/NumberProperty";
+import { TextProperty } from "../models/Properties/TextProperty";
 import { BoolProperty } from "../models/Properties/BoolProperty";
 import { ComboProperty } from "../models/Properties/ComboProperty";
 import { blendMode } from "../models/Lottie/helpers/blendMode";
@@ -14,12 +11,22 @@ import { transform } from "../models/Lottie/helpers/transform";
 import { layerType } from "../models/Lottie/layers/layerType";
 import { ColorProperty } from "../models/Properties/ColorProperty";
 import { Properties } from "../models/Properties/Properties";
+import { PropertyType } from "../models/Properties/PropertyType";
+import { Subject, Observable } from "rxjs";
 
 @Injectable({
   providedIn: "root"
 })
 export class PropertiesService {
   constructor() {}
+  changedSubject = new Subject();
+  public get сhanged(): Observable<any> {
+    return this.changedSubject.asObservable();
+  }
+
+  public emitPropertyChanged() {
+    this.changedSubject.next();
+  }
 
   getProperties(node: Node): Properties {
     let property = new Properties();
@@ -27,9 +34,12 @@ export class PropertiesService {
 
     // App properties
     if (node.type == NodeType.File) {
-      properties.push(
-        new StringProperty("nm", "Name", node.data, "Composition name")
-      );
+      let nameProperty =new TextProperty("nm", "Name", node.data, "Composition name");
+      properties.push(nameProperty);
+      node.nameProperty = nameProperty;
+      const version = new TextProperty("v", "Version", node.data, "Version");
+      version.readonly = true;
+      properties.push(version);
 
       let prop = new NumberProperty(
         "ip",
@@ -37,7 +47,7 @@ export class PropertiesService {
         node.data,
         "In Point of the Time Ruler. Sets the initial Frame of the animation."
       );
-      prop.keyframe  = true;
+      prop.keyframe = true;
       prop.min = 0;
       properties.push(prop);
 
@@ -47,7 +57,7 @@ export class PropertiesService {
         node.data,
         "Out of the Time Ruler. Sets the final Frame of the animation"
       );
-      prop.keyframe  = true;
+      prop.keyframe = true;
       prop.min = 0;
       properties.push(prop);
 
@@ -60,15 +70,13 @@ export class PropertiesService {
         )
       );
 
-      const version = new StringProperty("v", "Version", node.data, "Version");
-      version.readOnly = true;
-      properties.push(version);
-      properties.push(
-        new NumberProperty("h", "Height", node.data, "Composition Height")
-      );
-      properties.push(
-        new NumberProperty("w", "Width", node.data, "Composition Width")
-      );
+      prop =new NumberProperty("h", "Height", node.data, "Composition Height");
+      prop.min = 0;
+      properties.push(prop);
+      
+      prop = new NumberProperty("w", "Width", node.data, "Composition Width");
+      prop.min = 0;
+      properties.push(prop);
       //  properties.push(new NumberProperty('ddd','Width', node.data, 'Composition Width'));
     } else if (node.type == NodeType.Layer) {
       let transformProperties = this.getLayerProperties(node);
@@ -85,8 +93,10 @@ export class PropertiesService {
 
   getLayerProperties(node: Node): Property[] {
     let properties: Property[] = [];
-    properties.push(new StringProperty("nm", "Name", node.data, "Layer name"));
 
+    let nameProperty =new TextProperty("nm", "Name", node.data, "Layer name");
+    properties.push(nameProperty);
+    node.nameProperty = nameProperty;
     properties.push(
       new BoolProperty(
         "ao",
@@ -103,7 +113,7 @@ export class PropertiesService {
       "In Point of the Time Ruler. Sets the initial Frame of the animation."
     );
     prop.min = 0;
-    prop.keyframe  = true;
+    prop.keyframe = true;
     properties.push(prop);
     prop = new NumberProperty(
       "op",
@@ -113,7 +123,7 @@ export class PropertiesService {
     );
 
     prop.min = 0;
-    prop.keyframe  = true;
+    prop.keyframe = true;
     properties.push(prop);
 
     properties.push(
@@ -167,41 +177,40 @@ export class PropertiesService {
       "Transform Rotation"
     );
 
-    prop.keyframe  = true;
-    prop.type = NumberPropertyType.value;
+    prop.keyframe = true;
+    prop.type = PropertyType.value;
     prop.renderAsOutline = true;
-    prop.icon = 'autorenew';
+    prop.icon = "autorenew";
     properties.push(prop);
 
     //{"a":0, "k":100}
     prop = new NumberProperty("o", "Opacity", transform, "Transform Opacity");
-    prop.icon = 'opacity';
-    
+    prop.icon = "opacity";
 
     //{"a":0, "k":0}
-    prop.type = NumberPropertyType.value;
+    prop.type = PropertyType.value;
     prop.renderAsOutline = true;
     properties.push(prop);
 
     /* 
       prop = new NumberProperty("px", "Transform Position X", transform, "");
-      prop.type = NumberPropertyType.value;
+      prop.type = PropertyType.value;
       properties.push(prop);
 
       prop = new NumberProperty("py", "Transform Position Y", transform, "");
-      prop.type = NumberPropertyType.value;
+      prop.type = PropertyType.value;
       properties.push(prop);
 
       prop = new NumberProperty("pz", "Transform Position Z", transform, "");
-      prop.type = NumberPropertyType.value;
+      prop.type = PropertyType.value;
       properties.push(prop);
     */
 
     prop = new NumberProperty("sk", "Skew", transform, "Transform Skew");
-
-    prop.type = NumberPropertyType.value;
+    prop.icon = "compare_arrows";
+    prop.type = PropertyType.value;
     prop.renderAsOutline = true;
-    prop.keyframe  = true;
+    prop.keyframe = true;
     properties.push(prop);
 
     prop = new NumberProperty(
@@ -211,9 +220,10 @@ export class PropertiesService {
       "Transform Skew Axis"
     );
 
-    prop.type = NumberPropertyType.value;
+    prop.icon = "subdirectory_arrow_right";
+    prop.type = PropertyType.value;
     prop.renderAsOutline = true;
-    prop.keyframe  = true;
+    prop.keyframe = true;
     properties.push(prop);
 
     //{"a":0, "k":[0, 0, 0]}
@@ -224,11 +234,11 @@ export class PropertiesService {
       "Transform Anchor Point "
     );
 
-    prop.icon = 'filter_center_focus';
+    prop.icon = "filter_center_focus";
 
-    prop.type = NumberPropertyType.multi;
+    prop.type = PropertyType.multi;
     prop.renderAsOutline = true;
-    prop.keyframe  = true;
+    prop.keyframe = true;
     properties.push(prop);
 
     //{"a":0, "k":[0, 0, 0]}
@@ -238,19 +248,19 @@ export class PropertiesService {
       transform,
       "Transform Anchor Point "
     );
-    prop.icon = 'photo_size_select_small';
-    prop.type = NumberPropertyType.multi;
+    prop.icon = "photo_size_select_small";
+    prop.type = PropertyType.multi;
     prop.renderAsOutline = true;
-    prop.keyframe  = true;
+    prop.keyframe = true;
     properties.push(prop);
 
     //{"a":0, "k":[100, 100, 100]}
     prop = new NumberProperty("s", "Scale", transform, "Transform Scale");
 
-    prop.icon = 'settings_overscan';
-    prop.type = NumberPropertyType.multi;
+    prop.icon = "settings_overscan";
+    prop.type = PropertyType.multi;
     prop.renderAsOutline = true;
-    prop.keyframe  = true;
+    prop.keyframe = true;
     properties.push(prop);
 
     return properties;

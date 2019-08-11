@@ -1,15 +1,20 @@
 import { Property } from "./Property";
+import { PropertyType } from './PropertyType';
 
 export class NumberProperty extends Property {
+  constructor(key, name, data, description) {
+    super(key, name, data, description);
+    this.type = PropertyType.number;
+  }
+
   public min?: number;
   public max?: number;
-  public type: NumberPropertyType = NumberPropertyType.default;
 
-  getValue(): number | undefined {
+  getValue(): number | undefined | string {
     if (this.data && this.key) {
       let number = this.data[this.key];
       if (number === undefined) {
-        return;
+        return '';
       } else {
         return parseInt(number);
       }
@@ -21,12 +26,4 @@ export class NumberProperty extends Property {
       this.data[this.key] = value;
     }
   }
-}
-
-export enum NumberPropertyType {
-  default = "default",
-  // value | valueKeyframed
-  value = "value",
-  //multiDimensional | multiDimensionalKeyframed;
-  multi = "multi"
 }

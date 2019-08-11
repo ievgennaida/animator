@@ -1,42 +1,57 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from "@angular/core";
 
-import { default as lottie, AnimationItem, AnimationConfigWithData } from "node_modules/lottie-web";
-import { StateService } from 'src/app/services/state.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { PlayerService } from 'src/app/services/player.service';
+import {
+  default as lottie,
+  AnimationItem,
+  AnimationConfigWithData
+} from "node_modules/lottie-web";
+import { StateService } from "src/app/services/state.service";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { PlayerService } from "src/app/services/player.service";
+import { PropertiesService } from "src/app/services/properties.service";
 
 @Component({
-  selector: 'app-player',
-  templateUrl: './player.component.html',
-  styleUrls: ['./player.component.scss']
+  selector: "app-player",
+  templateUrl: "./player.component.html",
+  styleUrls: ["./player.component.scss"]
 })
 export class PlayerComponent implements OnInit, OnDestroy {
-
-  @Input('isPlaying')
+  @Input("isPlaying")
   get isPaused() {
     return false;
     //return this.animation.isPaused;
   }
 
-  animation: AnimationItem = null;
+  animation: AnimationItem | any = null;
 
   private destroyed$ = new Subject();
-  constructor(private stateService: StateService, private playerService: PlayerService) { }
+  constructor(
+    private propertiesService: PropertiesService,
+    private stateService: StateService,
+    private playerService: PlayerService
+  ) {}
 
   ngOnInit() {
     this.loadData(null);
     this.stateService.data.pipe(takeUntil(this.destroyed$)).subscribe(p => {
       this.loadData(p);
-    })
+    });
+
+    this.propertiesService.сhanged
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(p => {
+        if (this.animation) {
+          this.loadData(this.animation.animationData, true);
+        }
+      });
   }
   ngOnDestroy() {
     this.destroyed$.next(true);
     this.destroyed$.complete();
   }
 
-  loadData(data) {
- 
+  loadData(data, refresh: boolean = false) {
     if (this.animation) {
       this.animation.destroy();
     }
@@ -47,16 +62,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
     let animParams = {
       container: document.getElementById("player") as Element,
-      renderer: 'svg',
+      renderer: "svg",
       loop: true,
       prerender: true,
       autoplay: false,
-      animationData: data,
+      animationData: data
     } as AnimationConfigWithData;
 
     this.animation = lottie.loadAnimation(animParams);
-    this.playerService.setPlayer(this.animation);
-    this.stateService.onDataParsed(animParams.animationData);
+    if (!refresh) {
+      this.playerService.setPlayer(this.animation);
+      this.stateService.onDataParsed(animParams.animationData);
+    }
   }
-
 }
