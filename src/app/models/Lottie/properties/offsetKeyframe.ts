@@ -17,4 +17,6 @@ export interface offsetKeyframe {
    * Start time of keyframe segment.
    */
   t?: number;
+
+  n?: string[];
 }

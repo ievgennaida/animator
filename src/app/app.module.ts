@@ -25,6 +25,7 @@ import { ControlsComponent } from './components/timeline/controls/controls.compo
 import { TextComponent } from './components/properties/text/text.component';
 import { BoolComponent } from './components/properties/bool/bool.component';
 import { ComboComponent } from './components/properties/combo/combo.component';
+import { ColorComponent } from './components/properties/color/color.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { ComboComponent } from './components/properties/combo/combo.component';
     ControlsComponent,
     TextComponent,
     BoolComponent,
-    ComboComponent
+    ComboComponent,
+    ColorComponent
   ],
   imports: [
     ResizableModule,

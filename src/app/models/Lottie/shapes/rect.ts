@@ -1,7 +1,6 @@
 import { multiDimensional } from "../properties/multiDimensional";
-import { multiDimensionalKeyframed } from "../properties/multiDimensionalKeyframed";
 import { baseShape } from "./baseShape";
-import { value } from "../properties/value";
+
 import { valueKeyframed } from "../properties/valueKeyframed";
 
 export class rect extends baseShape {
@@ -13,14 +12,14 @@ export class rect extends baseShape {
   /**
    * Rounded corners. Rect's rounded corners
    */
-  r: value | valueKeyframed;
+  r: valueKeyframed;
 
   /**
    * Position. Rect's position
    */
-  p?: multiDimensional | multiDimensionalKeyframed;
+  p?: multiDimensional;
   /**
    * Size. Rect's Size
    */
-  s?: multiDimensional | multiDimensionalKeyframed;
+  s?: multiDimensional;
 }

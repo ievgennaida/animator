@@ -3,9 +3,10 @@ export enum PropertyType {
   combo = "combo",
   bool = "bool",
   number = "number",
-  // value | valueKeyframed
+  color = "color",
+  // valueKeyframed
   value = "value",
-  //multiDimensional | multiDimensionalKeyframed;
+  //multiDimensional;
   multi = "multi",
   shape = "shape"
 }

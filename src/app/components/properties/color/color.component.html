@@ -1,0 +1,11 @@
+<span class="property-title">{{property?.name}}</span>
+<div>
+    <div *ngIf="!property.readonly">
+        <div class="colorIndicator" [style.background]="property.getValue()">
+
+        </div>
+    </div>
+    <div *ngIf="property.readonly">
+        {{property.getValue()}}
+    </div>
+</div>

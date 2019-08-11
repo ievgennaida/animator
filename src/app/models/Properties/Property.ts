@@ -12,6 +12,7 @@ export class Property {
   public readonly = false;
   public key: string;
   public name: string;
+  public dataType: any;
   public description: string;
   // Container to set the data
   public data: any;

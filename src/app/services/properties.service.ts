@@ -24,6 +24,7 @@ import {
 } from "../models/Lottie/helpers/gradientType";
 import { lineJoint, defaultLineJoint } from "../models/Lottie/helpers/lineJoin";
 import { defaultLineCap, lineCap } from "../models/Lottie/helpers/lineCap";
+import { multiDimensional } from "../models/Lottie/properties/multiDimensional";
 
 @Injectable({
   providedIn: "root"
@@ -617,12 +618,13 @@ export class PropertiesService {
       prop.icon = "opacity";
       properties.push(prop);
 
-      prop = new NumberProperty("c", "Color", node.data, "Fill Color");
-      prop.icon = "color_lens";
-      prop.type = PropertyType.multi;
-      prop.renderAsOutline = true;
-      prop.keyframe = true;
-      properties.push(prop);
+      let color = new ColorProperty("c", "Color", node.data, "Fill Color");
+
+      color.dataType = "multiDimensional";
+      color.renderAsOutline = true;
+      color.keyframe = true;
+      color.icon = "color_lens";
+      properties.push(color);
     } else if (type == shapeType.ellipse) {
       const directionProperty = new BoolProperty(
         "d",
@@ -747,6 +749,7 @@ export class PropertiesService {
     if (node.data.type === layerType.Solid) {
       let color = new ColorProperty("sc", "Solid Color", node.data, "");
       color.icon = "color_lens";
+      color.dataType = "string";
       // Single
       properties.push(color);
 

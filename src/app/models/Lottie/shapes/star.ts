@@ -1,7 +1,6 @@
-import { value } from "../properties/value";
+
 import { valueKeyframed } from "../properties/valueKeyframed";
 import { multiDimensional } from "../properties/multiDimensional";
-import { multiDimensionalKeyframed } from "../properties/multiDimensionalKeyframed";
 
 import { baseShape } from "./baseShape";
 
@@ -15,39 +14,39 @@ export class star extends baseShape {
   /**
    * Inner Radius.Star's inner radius. (Star only)
    */
-  ir: value | valueKeyframed;
+  ir: valueKeyframed;
 
   /**
    * Inner Roundness. Star's inner roundness. (Star only)
    */
-  is: value | valueKeyframed;
+  is: valueKeyframed;
 
   /**
    * Outer Radius. Star's outer radius..
    */
-  or: value | valueKeyframed;
+  or: valueKeyframed;
   /**
    * Outer Roundness. Star's outer roundness.
    */
-  os: value | valueKeyframed;
+  os: valueKeyframed;
 
   /**
    * Rotation. Star's rotation.
    */
-  r: value | valueKeyframed;
+  r: valueKeyframed;
 
   /**
    * Points. Star's number of points
    */
-  pt: value | valueKeyframed;
+  pt: valueKeyframed;
 
   /**
    * Star Type. Star's type. Polygon or Star.
    */
-  sy: value | valueKeyframed;
+  sy: valueKeyframed;
 
   /**
    * Position. Star's position
    */
-  p?: multiDimensional | multiDimensionalKeyframed;
+  p?: multiDimensional;
 }

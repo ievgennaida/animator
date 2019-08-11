@@ -1,5 +1,4 @@
 import { multiDimensional } from "../properties/multiDimensional";
-import { multiDimensionalKeyframed } from "../properties/multiDimensionalKeyframed";
 import { baseShape } from "./baseShape";
 
 export class ellipse extends baseShape {
@@ -11,10 +10,10 @@ export class ellipse extends baseShape {
   /**
    * Position. Ellipse's position
    */
-  p: multiDimensional | multiDimensionalKeyframed;
+  p?: multiDimensional;
 
   /**
    * Size. Ellipse's size
    */
-  s: multiDimensional | multiDimensionalKeyframed;
+  s?: multiDimensional;
 }

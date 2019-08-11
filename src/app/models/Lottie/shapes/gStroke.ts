@@ -1,8 +1,6 @@
 import { baseShape } from "./baseShape";
 import { multiDimensional } from "../properties/multiDimensional";
-import { multiDimensionalKeyframed } from "../properties/multiDimensionalKeyframed";
 import { valueKeyframed } from "../properties/valueKeyframed";
-import { value } from "../properties/value";
 import { gradientType } from "../helpers/gradientType";
 import { lineJoint } from "../helpers/lineJoin";
 import { lineCap } from '../helpers/lineCap';
@@ -29,22 +27,22 @@ export class gStroke extends baseShape {
   /**
    * Stroke Width. Gradient Stroke Width
    */
-  w: value | valueKeyframed;
+  w: valueKeyframed;
 
   /**
    * Highlight Length. Gradient Highlight Length. Only if type is Radial
    */
-  h: value | valueKeyframed;
+  h: valueKeyframed;
 
   /**
    * Highlight Angle. Highlight Angle. Only if type is Radial
    */
-  a: value | valueKeyframed;
+  a: valueKeyframed;
 
   /**
    * Opacity. Stroke Opacity
    */
-  o: value | valueKeyframed;
+  o: valueKeyframed;
 
   /*
    * Line Cap.Gradient Stroke Line Cap
@@ -54,9 +52,9 @@ export class gStroke extends baseShape {
   /**
    * Start Point. Gradient Start Point
    */
-  s: multiDimensional | multiDimensionalKeyframed;
+  s?: multiDimensional;
   /**
    * End Point. Gradient End Point
    */
-  e: multiDimensional | multiDimensionalKeyframed;
+  e?: multiDimensional;
 }

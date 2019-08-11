@@ -1,5 +1,5 @@
 import { Property } from "./Property";
-import { PropertyType } from './PropertyType';
+import { PropertyType } from "./PropertyType";
 
 export class NumberProperty extends Property {
   constructor(key, name, data, description) {
@@ -12,11 +12,17 @@ export class NumberProperty extends Property {
 
   getValue(): number | undefined | string {
     if (this.data && this.key) {
-      let number = this.data[this.key];
-      if (number === undefined) {
-        return '';
+      let data = this.data[this.key];
+      if (data && this.type == PropertyType.value) {
+        if (data.k !== undefined) {
+          data = data.k;
+        }
+      }
+
+      if (data === undefined) {
+        return "";
       } else {
-        return parseInt(number);
+        return parseInt(data);
       }
     }
   }

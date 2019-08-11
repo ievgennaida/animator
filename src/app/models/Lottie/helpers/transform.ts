@@ -1,56 +1,55 @@
-import { value } from "../properties/value";
+
 import { valueKeyframed } from "../properties/valueKeyframed";
 import { multiDimensional } from "../properties/multiDimensional";
-import { multiDimensionalKeyframed } from "../properties/multiDimensionalKeyframed";
 
 export class transform {
   /**
    * Rotation. Transform Rotation{"a":0, "k":0},
    */
-  r: value | valueKeyframed;
+  r: valueKeyframed;
 
   /**
    * Opacity. Transform Opacity{"a":0, "k":100},
    */
-  o: value | valueKeyframed;
+  o: valueKeyframed;
 
   /**
    * Position X. Transform Position X{"a":0, "k":0},
    */
-  px?: value | valueKeyframed;
+  px?: valueKeyframed;
 
   /**
    * Position Y. Transform Position Y{"a":0, "k":0},
    */
-  py?: value | valueKeyframed;
+  py?: valueKeyframed;
 
   /**
    * Position Z. Transform Position Z{"a":0, "k":0},
    */
-  pz?: value | valueKeyframed;
+  pz?: valueKeyframed;
 
   /**
    * Skew. Transform Skew {"a":0, "k":0},
    */
-  sk: value | valueKeyframed;
+  sk: valueKeyframed;
   
   /**
    * Skew Axis. Transform Skew Axis {"a":0, "k":0},
    */
-  sa: value | valueKeyframed;
+  sa: valueKeyframed;
 
   /**
    * Anchor Point. Transform Anchor Point  "default": {"a":0, "k":[0, 0, 0]},
    */
-  a: multiDimensional | multiDimensionalKeyframed;
+  a?: multiDimensional;
 
   /**
    * Position. Transform Position  "default": {"a":0, "k":[0, 0, 0]},
    */
-  p: multiDimensional | multiDimensionalKeyframed;
+  p?: multiDimensional;
 
   /**
    * Scale. Transform Scale.     "default": {"a":0, "k":[100, 100, 100]},
    */
-  s: multiDimensional | multiDimensionalKeyframed;
+  s?: multiDimensional;
 }

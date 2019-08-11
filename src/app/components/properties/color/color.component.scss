@@ -1,0 +1,12 @@
+:host {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-gap: 4px;
+  align-items: center;
+}
+
+.colorIndicator {
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}

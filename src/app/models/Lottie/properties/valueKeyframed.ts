@@ -5,5 +5,5 @@ export interface valueKeyframed extends baseProperty {
   /**
    * Keyframes. Property Value keyframes
    */
-  k?: valueKeyframe[];
+  k: number | valueKeyframe[];
 }

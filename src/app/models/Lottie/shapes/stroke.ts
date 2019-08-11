@@ -1,7 +1,5 @@
 import { multiDimensional } from "../properties/multiDimensional";
-import { multiDimensionalKeyframed } from "../properties/multiDimensionalKeyframed";
 import { valueKeyframed } from "../properties/valueKeyframed";
-import { value } from "../properties/value";
 import { lineCap } from "../helpers/lineCap";
 import { lineJoint } from "../helpers/lineJoin";
 import { baseShape } from "./baseShape";
@@ -25,14 +23,14 @@ export class stroke extends baseShape {
   /**
    * Opacity. Stroke Opacity
    */
-  o: value | valueKeyframed;
+  o: valueKeyframed;
   /**
    * Width. Stroke Width
    */
-  w: value | valueKeyframed;
+  w: valueKeyframed;
 
   /**
    * Color. Stroke Color
    */
-  c?: multiDimensional | multiDimensionalKeyframed;
+  c?: multiDimensional;
 }
