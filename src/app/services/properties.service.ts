@@ -26,7 +26,7 @@ import { lineJoint, defaultLineJoint } from "../models/Lottie/helpers/lineJoin";
 import { defaultLineCap, lineCap } from "../models/Lottie/helpers/lineCap";
 import { multiDimensional } from "../models/Lottie/properties/multiDimensional";
 import { PropertyDataType } from "../models/Properties/PropertyDataType";
-import { Keyframe } from '../models/keyframes/Keyframe';
+import { Keyframe } from "../models/keyframes/Keyframe";
 
 @Injectable({
   providedIn: "root"
@@ -61,32 +61,38 @@ export class PropertiesService {
       properties.push(version);
 
       let prop = new NumberProperty(
+        node.model,
         "ip",
         "In Point",
         node.data,
         "In Point of the Time Ruler. Sets the initial Frame of the animation."
       );
 
-      prop.keyframe = new Keyframe();
-      prop.keyframe.node = node;
-      prop.keyframe.property = prop;
+      let keyframe = new Keyframe();
+      keyframe.model = node.model;
+      keyframe.property = prop;
+      prop.keyframes.push(keyframe);
       prop.min = 0;
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "op",
         "Out Point",
         node.data,
         "Out of the Time Ruler. Sets the final Frame of the animation"
       );
 
-      prop.keyframe = new Keyframe();
-      prop.keyframe.node = node;
-      prop.keyframe.property = prop;
+      keyframe = new Keyframe();
+      keyframe.model = node.model;
+      keyframe.property = prop;
+      prop.keyframes.push(keyframe);
+
       prop.min = 0;
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "fr",
         "Frame Rate",
         node.data,
@@ -95,11 +101,23 @@ export class PropertiesService {
       prop.min = 0;
       properties.push(prop);
 
-      prop = new NumberProperty("h", "Height", node.data, "Composition Height");
+      prop = new NumberProperty(
+        node.model,
+        "h",
+        "Height",
+        node.data,
+        "Composition Height"
+      );
       prop.min = 0;
       properties.push(prop);
 
-      prop = new NumberProperty("w", "Width", node.data, "Composition Width");
+      prop = new NumberProperty(
+        node.model,
+        "w",
+        "Width",
+        node.data,
+        "Composition Width"
+      );
       prop.min = 0;
       properties.push(prop);
       //  properties.push(new NumberProperty('ddd','Width', node.data, 'Composition Width'));
@@ -127,20 +145,32 @@ export class PropertiesService {
 
     const type: shapeType = node.data.ty;
     if (type == shapeType.trim) {
-      let prop = new NumberProperty("s", "Trim Start.", node.data, "");
+      let prop = new NumberProperty(
+        node.model,
+        "s",
+        "Trim Start.",
+        node.data,
+        ""
+      );
 
       prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "first_page";
       properties.push(prop);
 
-      prop = new NumberProperty("e", "Trim End", node.data, "");
+      prop = new NumberProperty(node.model, "e", "Trim End", node.data, "");
       prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "last_page";
       properties.push(prop);
 
-      prop = new NumberProperty("o", "Offset", node.data, "Trim Offset");
+      prop = new NumberProperty(
+        node.model,
+        "o",
+        "Offset",
+        node.data,
+        "Trim Offset"
+      );
       prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "short_text";
@@ -151,6 +181,7 @@ export class PropertiesService {
       childProperties.forEach(p => properties.push(p));
     } else if (type == shapeType.stroke) {
       let prop = new NumberProperty(
+        node.model,
         "ml",
         "Miter Limit",
         node.data,
@@ -182,7 +213,13 @@ export class PropertiesService {
         )
       );
 
-      prop = new NumberProperty("o", "Opacity", node.data, "Stroke Opacity");
+      prop = new NumberProperty(
+        node.model,
+        "o",
+        "Opacity",
+        node.data,
+        "Stroke Opacity"
+      );
       prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.min = 0;
@@ -190,7 +227,7 @@ export class PropertiesService {
       prop.icon = "opacity";
       properties.push(prop);
 
-      prop = new NumberProperty("w", "Stroke Width", node.data, "");
+      prop = new NumberProperty(node.model, "w", "Stroke Width", node.data, "");
       prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "border_style";
@@ -214,6 +251,7 @@ export class PropertiesService {
       properties.push(directionProperty);
 
       let prop = new NumberProperty(
+        node.model,
         "ir",
         "Inner Radius",
         node.data,
@@ -226,6 +264,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "is",
         "Inner Roundness",
         node.data,
@@ -238,6 +277,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "or",
         "Outer Radius",
         node.data,
@@ -250,6 +290,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "os",
         "Outer Roundness",
         node.data,
@@ -261,7 +302,13 @@ export class PropertiesService {
       prop.icon = "";
       properties.push(prop);
 
-      prop = new NumberProperty("r", "Rotation", node.data, "Star's rotation.");
+      prop = new NumberProperty(
+        node.model,
+        "r",
+        "Rotation",
+        node.data,
+        "Star's rotation."
+      );
 
       prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
@@ -269,6 +316,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "pt",
         "Points",
         node.data,
@@ -282,6 +330,7 @@ export class PropertiesService {
 
       // TODO: check?
       prop = new NumberProperty(
+        node.model,
         "sy",
         "Star Type",
         node.data,
@@ -292,13 +341,20 @@ export class PropertiesService {
       prop.icon = "";
       properties.push(prop);
 
-      prop = new NumberProperty("p", "Position", node.data, "Star's position");
+      prop = new NumberProperty(
+        node.model,
+        "p",
+        "Position",
+        node.data,
+        "Star's position"
+      );
 
       prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
       properties.push(prop);
     } else if (type == shapeType.round) {
       let prop = new NumberProperty(
+        node.model,
         "r",
         "Radius",
         node.data,
@@ -327,6 +383,7 @@ export class PropertiesService {
       childProperties.forEach(p => properties.push(p));
 
       let prop = new NumberProperty(
+        node.model,
         "c",
         "Copies",
         node.data,
@@ -339,6 +396,7 @@ export class PropertiesService {
       properties.push(prop);
       //{"a": 0, "k": 0}
       prop = new NumberProperty(
+        node.model,
         "o",
         "Offset",
         node.data,
@@ -361,6 +419,7 @@ export class PropertiesService {
       properties.push(directionProperty);
 
       let prop = new NumberProperty(
+        node.model,
         "r",
         "Rounded corners",
         node.data,
@@ -371,13 +430,25 @@ export class PropertiesService {
       prop.icon = "rounded_corner";
       properties.push(prop);
 
-      prop = new NumberProperty("p", "Position", node.data, "Rect's position");
+      prop = new NumberProperty(
+        node.model,
+        "p",
+        "Position",
+        node.data,
+        "Rect's position"
+      );
 
       prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
       properties.push(prop);
 
-      prop = new NumberProperty("s", "Size", node.data, "Rect's Size");
+      prop = new NumberProperty(
+        node.model,
+        "s",
+        "Size",
+        node.data,
+        "Rect's Size"
+      );
 
       prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
@@ -394,6 +465,7 @@ export class PropertiesService {
       // g: any;
 
       let prop = new NumberProperty(
+        node.model,
         "ml",
         "Miter Limit",
         node.data,
@@ -426,6 +498,7 @@ export class PropertiesService {
       );
 
       prop = new NumberProperty(
+        node.model,
         "w",
         "Stroke Width",
         node.data,
@@ -437,6 +510,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "h",
         "Highlight Length",
         node.data,
@@ -448,6 +522,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "a",
         "Highlight Angle",
         node.data,
@@ -459,7 +534,13 @@ export class PropertiesService {
       prop.icon = "";
       properties.push(prop);
 
-      prop = new NumberProperty("o", "Opacity", node.data, "Stroke Opacity");
+      prop = new NumberProperty(
+        node.model,
+        "o",
+        "Opacity",
+        node.data,
+        "Stroke Opacity"
+      );
       prop.min = 0;
       prop.max = 100;
       prop.dataType = PropertyDataType.value;
@@ -479,6 +560,7 @@ export class PropertiesService {
       );
 
       prop = new NumberProperty(
+        node.model,
         "s",
         "Start Point",
         transform,
@@ -490,6 +572,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "e",
         "End Point",
         transform,
@@ -501,6 +584,7 @@ export class PropertiesService {
       properties.push(prop);
     } else if (type == shapeType.group) {
       let prop = new NumberProperty(
+         node.model,
         "np",
         "Gr. num",
         node.data,
@@ -531,6 +615,7 @@ export class PropertiesService {
       );
 
       let prop = new NumberProperty(
+        node.model,
         "h",
         "Highlight Length",
         node.data,
@@ -542,6 +627,7 @@ export class PropertiesService {
       prop.icon = "";
       properties.push(prop);
       prop = new NumberProperty(
+        node.model,
         "a",
         "Highlight Angle",
         node.data,
@@ -552,7 +638,13 @@ export class PropertiesService {
       prop.icon = "";
       properties.push(prop);
 
-      prop = new NumberProperty("o", "Opacity", node.data, "Stroke Opacity");
+      prop = new NumberProperty(
+        node.model,
+        "o",
+        "Opacity",
+        node.data,
+        "Stroke Opacity"
+      );
       prop.min = 0;
       prop.max = 100;
       prop.dataType = PropertyDataType.value;
@@ -561,6 +653,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "s",
         "Start Point",
         node.data,
@@ -572,6 +665,7 @@ export class PropertiesService {
       properties.push(prop);
 
       prop = new NumberProperty(
+        node.model,
         "e",
         "End Point",
         node.data,
@@ -582,7 +676,13 @@ export class PropertiesService {
       prop.renderAsOutline = true;
       properties.push(prop);
     } else if (type == shapeType.fill) {
-      let prop = new NumberProperty("o", "Opacity", node.data, "Fill Opacity");
+      let prop = new NumberProperty(
+        node.model,
+        "o",
+        "Opacity",
+        node.data,
+        "Fill Opacity"
+      );
       prop.min = 0;
       prop.max = 100;
       prop.dataType = PropertyDataType.value;
@@ -608,6 +708,7 @@ export class PropertiesService {
       properties.push(directionProperty);
 
       let prop = new NumberProperty(
+        node.model,
         "p",
         "Position",
         node.data,
@@ -618,7 +719,13 @@ export class PropertiesService {
       prop.renderAsOutline = true;
       properties.push(prop);
 
-      prop = new NumberProperty("s", "Size", node.data, "Ellipse's size");
+      prop = new NumberProperty(
+        node.model,
+        "s",
+        "Size",
+        node.data,
+        "Ellipse's size"
+      );
 
       prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
@@ -636,6 +743,7 @@ export class PropertiesService {
 
       // shapeProp | shapeKeyframed
       let prop = new NumberProperty(
+        node.model,
         "ks",
         "Vertices",
         node.data,
@@ -666,18 +774,21 @@ export class PropertiesService {
     );
 
     let prop = new NumberProperty(
+      node.model,
       "ip",
       "In Point",
       node.data,
       "In Point of the Time Ruler. Sets the initial Frame of the animation."
     );
     prop.min = 0;
-    prop.keyframe = new Keyframe();
-    prop.keyframe.node = node;
-    prop.keyframe.property = prop;
-    
+    let keyframe = new Keyframe();
+    keyframe.model = node.model;
+    keyframe.property = prop;
+    prop.keyframes.push(keyframe);
+
     properties.push(prop);
     prop = new NumberProperty(
+      node.model,
       "op",
       "Out Point",
       node.data,
@@ -685,9 +796,10 @@ export class PropertiesService {
     );
 
     prop.min = 0;
-    prop.keyframe = new Keyframe();
-    prop.keyframe.node = node;
-    prop.keyframe.property = prop;
+    keyframe = new Keyframe();
+    keyframe.model = node.model;
+    keyframe.property = prop;
+    prop.keyframes.push(keyframe);
 
     properties.push(prop);
 
@@ -726,11 +838,17 @@ export class PropertiesService {
       // Single
       properties.push(color);
 
-      prop = new NumberProperty("sh", "Solid Height", node.data, "");
+      prop = new NumberProperty(
+        node.model,
+        "sh",
+        "Solid Height",
+        node.data,
+        ""
+      );
       prop.min = 0;
       properties.push(prop);
 
-      prop = new NumberProperty("sw", "Solid Width", node.data, "");
+      prop = new NumberProperty(node.model, "sw", "Solid Width", node.data, "");
       prop.min = 0;
       properties.push(prop);
     }
@@ -740,7 +858,13 @@ export class PropertiesService {
 
   getTransfromProperties(node: Node, data: any): Property[] {
     const properties: Property[] = [];
-    let prop = new NumberProperty("r", "Rotation", data, "Transform Rotation");
+    let prop = new NumberProperty(
+      node.model,
+      "r",
+      "Rotation",
+      data,
+      "Transform Rotation"
+    );
 
     prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
@@ -748,7 +872,13 @@ export class PropertiesService {
     properties.push(prop);
 
     //{"a":0, "k":100}
-    prop = new NumberProperty("o", "Opacity", data, "Transform Opacity");
+    prop = new NumberProperty(
+      node.model,
+      "o",
+      "Opacity",
+      data,
+      "Transform Opacity"
+    );
     prop.min = 0;
     prop.max = 100;
     prop.icon = "opacity";
@@ -770,7 +900,7 @@ export class PropertiesService {
       properties.push(prop);
     */
 
-    prop = new NumberProperty("sk", "Skew", data, "Transform Skew");
+    prop = new NumberProperty(node.model, "sk", "Skew", data, "Transform Skew");
     prop.icon = "compare_arrows";
     prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
@@ -778,6 +908,7 @@ export class PropertiesService {
     properties.push(prop);
 
     prop = new NumberProperty(
+      node.model,
       "sa",
       "Skew Axis",
       transform,
@@ -791,6 +922,7 @@ export class PropertiesService {
 
     //{"a":0, "k":[0, 0, 0]}
     prop = new NumberProperty(
+      node.model,
       "a",
       "Anchor Point",
       transform,
@@ -804,7 +936,13 @@ export class PropertiesService {
     properties.push(prop);
 
     //{"a":0, "k":[0, 0, 0]}
-    prop = new NumberProperty("p", "Pos", data, "Transform Position");
+    prop = new NumberProperty(
+      node.model,
+      "p",
+      "Pos",
+      data,
+      "Transform Position"
+    );
 
     prop.icon = "photo_size_select_small";
     prop.dataType = PropertyDataType.multi;
@@ -812,7 +950,13 @@ export class PropertiesService {
     properties.push(prop);
 
     //{"a":0, "k":[100, 100, 100]}
-    prop = new NumberProperty("s", "Scale", data, "Transform Scale");
+    prop = new NumberProperty(
+      node.model,
+      "s",
+      "Scale",
+      data,
+      "Transform Scale"
+    );
 
     prop.icon = "settings_overscan";
     prop.dataType = PropertyDataType.multi;

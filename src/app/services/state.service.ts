@@ -108,7 +108,7 @@ export class StateService {
       node.type = NodeType.File;
       // root:
       node.data = model;
-      
+
       node.icon = "assignment";
       node.name = model.nm || "file.json";
       node.properties = this.propertesService.getProperties(node);
@@ -166,7 +166,7 @@ export class StateService {
     this.flatDataSource.data = nodes;
   }
 
-  addLayer(flatLayerNodes: Node[], layer, model:LottieModel) {
+  addLayer(flatLayerNodes: Node[], layer, model: LottieModel) {
     let node = new Node();
     node.model = model;
     node.type = NodeType.Layer;
@@ -195,7 +195,7 @@ export class StateService {
     flatLayerNodes.push(node);
   }
 
-  getTransformNode(parentNode: Node, model:LottieModel) {
+  getTransformNode(parentNode: Node, model: LottieModel) {
     if (!parentNode.properties || !parentNode.properties.items) {
       return;
     }
@@ -235,7 +235,11 @@ export class StateService {
     }
   }
 
-  getShapesNodes(shape: anyShape | anyShape[], parentNode: Node, model: LottieModel): Node[] {
+  getShapesNodes(
+    shape: anyShape | anyShape[],
+    parentNode: Node,
+    model: LottieModel
+  ): Node[] {
     if (!shape) {
       return;
     }
@@ -303,25 +307,19 @@ export class StateService {
     }
 
     // Render list of properties marked as allowed for the outline.
-    let filtered = node.properties.items.filter(
-      p => p.keyframe && p.data === node.data
-    );
-    
+    let filtered = node.properties.items;
+
     if (filtered && filtered.length > 0) {
-      const keys = [];
       filtered.forEach(p => {
-         keys.push(p);
-      });
+        let keyframes =  p.getKeyframes();
+        if (keyframes) {
+          if (!node.lane.keyframes) {
+            node.lane.keyframes = [];
+          }
 
-      if (keys && keys.length >= 2) {
-        if (!node.lane.keyframes) {
-          node.lane.keyframes = [];
+          keyframes.forEach(k => node.lane.keyframes.push(k));
         }
-
-        keys.forEach(p =>
-          node.lane.keyframes.push(p.keyframe)
-        );
-      }
+      });
     }
   }
 }

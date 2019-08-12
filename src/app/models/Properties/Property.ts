@@ -21,8 +21,11 @@ export class Property {
   // Render this property as outline node:
   public renderAsOutline = false;
   public type: PropertyType = PropertyType.text;
-  public keyframe: Keyframe = null;
-  
+  public keyframes: Keyframe[] = [];
+  getKeyframes(): Keyframe[] {
+    return this.keyframes;
+  }
+
   getValue(): any {
     if (this.data && this.key) {
       return this.data[this.key];

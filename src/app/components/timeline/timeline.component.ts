@@ -75,11 +75,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     this.timeline.on("keyframeChanged", args => {
       if (args) {
-        args.forEach(p => {
-          if (p.data) {
-            this.propertiesService.emitPropertyChanged(p.data);
-          }
-        });
+        this.propertiesService.emitPropertyChanged(null);
       }
     });
 

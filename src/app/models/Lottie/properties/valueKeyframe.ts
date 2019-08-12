@@ -1,4 +1,4 @@
-import { valueProp } from './valuesProp';
+import { valueProp, valuesProp } from './valuesProp';
 
 export interface valueKeyframe {
   /**
@@ -8,7 +8,7 @@ export interface valueKeyframe {
   /**
    * Start value of keyframe segment.
    */
-  s?: number;
+  s?: number | number[];
   /**
    * Start time of keyframe segment.
    */

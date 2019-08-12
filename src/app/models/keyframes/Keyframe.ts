@@ -1,29 +1,43 @@
 import { AnimationTimelineKeyframe } from "animation-timeline-js";
 import { Node } from "../Node";
 import { Property } from "../Properties/Property";
+import { LottieModel } from "../Lottie/LottieModel";
 
 interface TimelineKeyframe extends AnimationTimelineKeyframe {}
 
 export class Keyframe implements TimelineKeyframe {
-  public node: Node = null;
+  public model: LottieModel = null;
   public property: Property = null;
+  public key: string = null;
+  public container: string = null;
+
   get data() {
     return this;
   }
 
   get val() {
-    if (this.property && this.node && this.node.model && this.node.model.fr) {
-      let value = this.property.getValue();
-      return Math.round((value * 1000) / this.node.model.fr);
+    if (this.property && this.model && this.model.fr) {
+      let value = 0;
+      if (this.container && this.key) {
+        value = this.container[this.key];
+      } else {
+        value = this.property.setValue(value);
+      }
+
+      return Math.round((value * 1000) / this.model.fr);
     }
 
-    return this.val;
+    return 0;
   }
 
   set val(val: number) {
-    if (this.property && this.node && this.node.model) {
-      let value = Math.round((val / 1000) * this.node.model.fr);
-      this.property.setValue(value);
+    if (this.property && this.model && this.model.fr) {
+      let value = Math.round((val / 1000) * this.model.fr);
+      if (this.container && this.key) {
+        this.container[this.key] = value;
+      } else {
+        this.property.setValue(value);
+      }
     }
   }
 }
