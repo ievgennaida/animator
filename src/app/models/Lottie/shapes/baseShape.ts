@@ -13,4 +13,6 @@ export class baseShape {
    * Shape content type.
    */
   ty?: shapeType | string;
+  
+  hd?: boolean;
 }

@@ -83,7 +83,7 @@ export class StateService {
     return this.dataSubject.asObservable();
   }
 
-  public setData(data) {
+  public setData(data, title: string) {
     this.dataSubject.next(data);
   }
 
@@ -95,45 +95,47 @@ export class StateService {
 
     this.selectedSubject.next(null);
 
-    let animation: LottieModel = data as LottieModel;
+    let model: LottieModel = data as LottieModel;
 
     let nodes = this.nodesSubject.value;
     nodes.length = 0;
 
     let flatLayerNodes: Node[] = [];
 
-    if (animation) {
+    if (model) {
       const node = new Node();
-
+      node.model = model;
       node.type = NodeType.File;
       // root:
-      node.data = animation;
+      node.data = model;
+      
       node.icon = "assignment";
-      node.name = animation.nm || "file.json";
+      node.name = model.nm || "file.json";
       node.properties = this.propertesService.getProperties(node);
       this.setKeyframes(node);
       nodes.push(node);
 
       // Render assets:
-      if (animation.assets && animation.assets.length > 0) {
+      if (model.assets && model.assets.length > 0) {
         const node = new Node();
+        node.model = model;
         node.type = NodeType.Assets;
-        node.data = animation;
+        node.data = model;
         node.name = "assets";
         node.properties = this.propertesService.getProperties(node);
         this.setKeyframes(node);
         node.children = [];
         nodes.push(node);
 
-        animation.assets.forEach((p: any) => {
-          this.addLayer(node.children, p);
+        model.assets.forEach((p: any) => {
+          this.addLayer(node.children, p, model);
         });
       }
 
       // Add layers:
-      if (animation.layers) {
-        animation.layers.forEach((p: any) => {
-          this.addLayer(flatLayerNodes, p);
+      if (model.layers) {
+        model.layers.forEach((p: any) => {
+          this.addLayer(flatLayerNodes, p, model);
         });
       }
     }
@@ -164,8 +166,9 @@ export class StateService {
     this.flatDataSource.data = nodes;
   }
 
-  addLayer(flatLayerNodes: Node[], layer) {
+  addLayer(flatLayerNodes: Node[], layer, model:LottieModel) {
     let node = new Node();
+    node.model = model;
     node.type = NodeType.Layer;
     node.data = layer;
     node.name = (layer.nm || layerType[layer.ty] || "layer").toString();
@@ -179,7 +182,7 @@ export class StateService {
       let currentLayer = layer as preComp;
     } else if (layer.ty === layerType.Shape) {
       let currentLayer = layer as shape;
-      this.getShapesNodes(currentLayer.shapes, node);
+      this.getShapesNodes(currentLayer.shapes, node, model);
     } else if (layer.ty === layerType.Solid) {
       let currentLayer = layer as solid;
     } else if (layer.ty === layerType.Text) {
@@ -187,12 +190,12 @@ export class StateService {
     }
 
     node.properties = this.propertesService.getProperties(node);
-    this.getTransformNode(node);
+    this.getTransformNode(node, model);
     this.setKeyframes(node);
     flatLayerNodes.push(node);
   }
 
-  getTransformNode(parentNode: Node) {
+  getTransformNode(parentNode: Node, model:LottieModel) {
     if (!parentNode.properties || !parentNode.properties.items) {
       return;
     }
@@ -207,6 +210,7 @@ export class StateService {
       let folder = parentNode;
       if (parentNode.type !== NodeType.Shape) {
         folder = new Node();
+        folder.model = model;
         folder.type = NodeType.Folder;
         folder.name = "Transform";
         folder.icon = "transform";
@@ -218,6 +222,7 @@ export class StateService {
       folder.children = folder.children || [];
       filtered.forEach(p => {
         const node = new Node();
+        node.model = model;
         node.type = NodeType.Property;
         node.name = p.name;
         node.data = p.data;
@@ -230,7 +235,7 @@ export class StateService {
     }
   }
 
-  getShapesNodes(shape: anyShape | anyShape[], parentNode: Node): Node[] {
+  getShapesNodes(shape: anyShape | anyShape[], parentNode: Node, model: LottieModel): Node[] {
     if (!shape) {
       return;
     }
@@ -238,10 +243,11 @@ export class StateService {
     let nodes: Node[] = [];
     if (Array.isArray(shape)) {
       shape.forEach(p => {
-        this.getShapesNodes(p, parentNode);
+        this.getShapesNodes(p, parentNode, model);
       });
     } else {
       let node = new Node();
+      node.model = model;
       node.type = NodeType.Shape;
       node.data = shape;
       node.name = shape.nm;
@@ -253,7 +259,7 @@ export class StateService {
       if (shape.ty === shapeType.group) {
         let groupShape = shape as group;
         node.icon = "folder_special";
-        this.getShapesNodes(groupShape.it, node);
+        this.getShapesNodes(groupShape.it, node, model);
       } else if (shape.ty === shapeType.transform) {
         node.icon = "transform";
       } else if (shape.ty === shapeType.merge) {
@@ -283,7 +289,7 @@ export class StateService {
       }
 
       node.properties = this.propertesService.getProperties(node);
-      this.getTransformNode(node);
+      this.getTransformNode(node, model);
       this.setKeyframes(node);
       parentNode.children.push(node);
     }
@@ -300,13 +306,11 @@ export class StateService {
     let filtered = node.properties.items.filter(
       p => p.keyframe && p.data === node.data
     );
+    
     if (filtered && filtered.length > 0) {
       const keys = [];
       filtered.forEach(p => {
-        const value = p.getValue();
-        if (!isNaN(value)) {
-          keys.push({ value: value, data: p });
-        }
+         keys.push(p);
       });
 
       if (keys && keys.length >= 2) {
@@ -315,10 +319,7 @@ export class StateService {
         }
 
         keys.forEach(p =>
-          node.lane.keyframes.push({
-            ms: this.playerService.frameToMs(p.value),
-            data: p.data
-          } as AnimationTimelineKeyframe)
+          node.lane.keyframes.push(p.keyframe)
         );
       }
     }

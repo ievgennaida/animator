@@ -1,10 +1,12 @@
 import { Property } from "./Property";
 import { PropertyType } from "./PropertyType";
+import { PropertyDataType } from "./PropertyDataType";
 
 export class ColorProperty extends Property {
   constructor(key, name, data, description) {
     super(key, name, data, description);
     this.type = PropertyType.color;
+    this.dataType = PropertyDataType.number;
   }
 
   rgbToHex(rgb) {
@@ -29,7 +31,8 @@ export class ColorProperty extends Property {
         let k = data.k;
 
         if (Array.isArray(k) && k.length >= 4) {
-          return `rgba(${k[0]}, ${k[1]}, ${k[2]}, ${k[3]})`;
+          let toReturn = `rgba(${k[0]}, ${k[1]}, ${k[2]}, ${k[3]})`;
+          return toReturn;
         }
       }
     }

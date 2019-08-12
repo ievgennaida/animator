@@ -91,9 +91,9 @@ export class AppComponent implements OnInit {
     this.setRecent(null);
   }
 
-  loadData(item) {
+  loadData(item, title: string) {
     let data = JSON.parse(item.str);
-    this.stateService.setData(data);
+    this.stateService.setData(data, title);
     this.setRecent(item);
   }
 
@@ -144,7 +144,7 @@ export class AppComponent implements OnInit {
           str: str
         };
 
-        this.loadData(newData);
+        this.loadData(newData, this.title);
       } catch (err) {
         alert(`File ${file.name} cannot be parsed!`);
         console.log(err);

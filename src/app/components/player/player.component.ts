@@ -70,8 +70,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     } as AnimationConfigWithData;
 
     this.animation = lottie.loadAnimation(animParams);
+    this.playerService.setPlayer(this.animation);
     if (!refresh) {
-      this.playerService.setPlayer(this.animation);
       this.stateService.onDataParsed(animParams.animationData);
     }
   }

@@ -1,4 +1,6 @@
 import { PropertyType } from './PropertyType';
+import { PropertyDataType } from './PropertyDataType';
+import { Keyframe } from '../Keyframes/Keyframe';
 
 export class Property {
   constructor(key, name, data, description) {
@@ -8,11 +10,10 @@ export class Property {
     this.description = description;
   }
 
-  public keyframe = false;
   public readonly = false;
   public key: string;
   public name: string;
-  public dataType: any;
+  public dataType: PropertyDataType = PropertyDataType.string;
   public description: string;
   // Container to set the data
   public data: any;
@@ -20,7 +21,8 @@ export class Property {
   // Render this property as outline node:
   public renderAsOutline = false;
   public type: PropertyType = PropertyType.text;
-
+  public keyframe: Keyframe = null;
+  
   getValue(): any {
     if (this.data && this.key) {
       return this.data[this.key];

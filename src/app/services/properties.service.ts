@@ -25,6 +25,8 @@ import {
 import { lineJoint, defaultLineJoint } from "../models/Lottie/helpers/lineJoin";
 import { defaultLineCap, lineCap } from "../models/Lottie/helpers/lineCap";
 import { multiDimensional } from "../models/Lottie/properties/multiDimensional";
+import { PropertyDataType } from "../models/Properties/PropertyDataType";
+import { Keyframe } from '../models/keyframes/Keyframe';
 
 @Injectable({
   providedIn: "root"
@@ -64,7 +66,10 @@ export class PropertiesService {
         node.data,
         "In Point of the Time Ruler. Sets the initial Frame of the animation."
       );
-      prop.keyframe = true;
+
+      prop.keyframe = new Keyframe();
+      prop.keyframe.node = node;
+      prop.keyframe.property = prop;
       prop.min = 0;
       properties.push(prop);
 
@@ -74,7 +79,10 @@ export class PropertiesService {
         node.data,
         "Out of the Time Ruler. Sets the final Frame of the animation"
       );
-      prop.keyframe = true;
+
+      prop.keyframe = new Keyframe();
+      prop.keyframe.node = node;
+      prop.keyframe.property = prop;
       prop.min = 0;
       properties.push(prop);
 
@@ -121,24 +129,19 @@ export class PropertiesService {
     if (type == shapeType.trim) {
       let prop = new NumberProperty("s", "Trim Start.", node.data, "");
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "first_page";
       properties.push(prop);
 
       prop = new NumberProperty("e", "Trim End", node.data, "");
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "last_page";
       properties.push(prop);
 
       prop = new NumberProperty("o", "Offset", node.data, "Trim Offset");
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "short_text";
       properties.push(prop);
@@ -180,26 +183,23 @@ export class PropertiesService {
       );
 
       prop = new NumberProperty("o", "Opacity", node.data, "Stroke Opacity");
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
+      prop.min = 0;
+      prop.max = 100;
       prop.icon = "opacity";
       properties.push(prop);
 
       prop = new NumberProperty("w", "Stroke Width", node.data, "");
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "border_style";
       properties.push(prop);
 
       let color = new ColorProperty("c", "Color", node.data, "Stroke Color");
 
-      color.type = PropertyType.multi;
+      color.dataType = PropertyDataType.multi;
       color.renderAsOutline = true;
-      color.keyframe = true;
       color.icon = "color_lens";
       properties.push(color);
     } else if (type == shapeType.star) {
@@ -220,8 +220,7 @@ export class PropertiesService {
         "Star's inner radius"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
@@ -233,8 +232,7 @@ export class PropertiesService {
         "Star's inner roundness"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
@@ -246,8 +244,7 @@ export class PropertiesService {
         "Star's outer radius"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
@@ -259,16 +256,14 @@ export class PropertiesService {
         "Star's outer roundness"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
 
       prop = new NumberProperty("r", "Rotation", node.data, "Star's rotation.");
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
@@ -280,8 +275,7 @@ export class PropertiesService {
         "Star's number of points."
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
@@ -293,18 +287,15 @@ export class PropertiesService {
         node.data,
         "Star's type. Polygon or Star."
       );
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
 
       prop = new NumberProperty("p", "Position", node.data, "Star's position");
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
     } else if (type == shapeType.round) {
       let prop = new NumberProperty(
@@ -314,8 +305,7 @@ export class PropertiesService {
         "Rounded Corner Radius"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "rounded_corner";
       properties.push(prop);
@@ -343,8 +333,7 @@ export class PropertiesService {
         "Number of Copies"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "format_list_numbered";
       properties.push(prop);
@@ -356,8 +345,7 @@ export class PropertiesService {
         "Offset of Copies default"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "settings_ethernet";
       properties.push(prop);
@@ -378,25 +366,21 @@ export class PropertiesService {
         node.data,
         "Rect's rounded corners"
       );
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "rounded_corner";
       properties.push(prop);
 
       prop = new NumberProperty("p", "Position", node.data, "Rect's position");
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
 
       prop = new NumberProperty("s", "Size", node.data, "Rect's Size");
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
     } else if (type == shapeType.merge) {
       const prop = new TextProperty("mm", "OffMerge Modeset", node.data, "");
@@ -447,9 +431,7 @@ export class PropertiesService {
         node.data,
         "Gradient Stroke Width"
       );
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "border_style";
       properties.push(prop);
@@ -460,9 +442,7 @@ export class PropertiesService {
         node.data,
         "Gradient Highlight Length. Only if type is Radial"
       );
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
@@ -474,16 +454,15 @@ export class PropertiesService {
         "Highlight Angle. Only if type is Radial"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
 
       prop = new NumberProperty("o", "Opacity", node.data, "Stroke Opacity");
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.min = 0;
+      prop.max = 100;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "opacity";
       properties.push(prop);
@@ -506,9 +485,8 @@ export class PropertiesService {
         "Gradient Start Point"
       );
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
 
       prop = new NumberProperty(
@@ -518,9 +496,8 @@ export class PropertiesService {
         "Gradient End Point"
       );
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
     } else if (type == shapeType.group) {
       let prop = new NumberProperty(
@@ -560,8 +537,7 @@ export class PropertiesService {
         "Gradient Highlight Length. Only if type is Radial"
       );
 
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
@@ -571,17 +547,15 @@ export class PropertiesService {
         node.data,
         "Highlight Angle. Only if type is Radial"
       );
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "";
       properties.push(prop);
 
       prop = new NumberProperty("o", "Opacity", node.data, "Stroke Opacity");
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.min = 0;
+      prop.max = 100;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "opacity";
       properties.push(prop);
@@ -593,9 +567,8 @@ export class PropertiesService {
         "Gradient Start Point"
       );
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
 
       prop = new NumberProperty(
@@ -605,24 +578,22 @@ export class PropertiesService {
         "Gradient End Point"
       );
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
     } else if (type == shapeType.fill) {
       let prop = new NumberProperty("o", "Opacity", node.data, "Fill Opacity");
-
-      prop.keyframe = true;
-      prop.type = PropertyType.value;
+      prop.min = 0;
+      prop.max = 100;
+      prop.dataType = PropertyDataType.value;
       prop.renderAsOutline = true;
       prop.icon = "opacity";
       properties.push(prop);
 
       let color = new ColorProperty("c", "Color", node.data, "Fill Color");
 
-      color.dataType = "multiDimensional";
+      color.dataType = PropertyDataType.multi;
       color.renderAsOutline = true;
-      color.keyframe = true;
       color.icon = "color_lens";
       properties.push(color);
     } else if (type == shapeType.ellipse) {
@@ -643,16 +614,14 @@ export class PropertiesService {
         "Ellipse's position"
       );
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
 
       prop = new NumberProperty("s", "Size", node.data, "Ellipse's size");
 
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
     } else if (type == shapeType.shape) {
       const directionProperty = new BoolProperty(
@@ -674,9 +643,8 @@ export class PropertiesService {
       );
 
       prop.icon = "show_chart";
-      prop.type = PropertyType.multi;
+      prop.dataType = PropertyDataType.multi;
       prop.renderAsOutline = true;
-      prop.keyframe = true;
       properties.push(prop);
     }
     return properties;
@@ -704,7 +672,10 @@ export class PropertiesService {
       "In Point of the Time Ruler. Sets the initial Frame of the animation."
     );
     prop.min = 0;
-    prop.keyframe = true;
+    prop.keyframe = new Keyframe();
+    prop.keyframe.node = node;
+    prop.keyframe.property = prop;
+    
     properties.push(prop);
     prop = new NumberProperty(
       "op",
@@ -714,7 +685,10 @@ export class PropertiesService {
     );
 
     prop.min = 0;
-    prop.keyframe = true;
+    prop.keyframe = new Keyframe();
+    prop.keyframe.node = node;
+    prop.keyframe.property = prop;
+
     properties.push(prop);
 
     properties.push(
@@ -749,7 +723,6 @@ export class PropertiesService {
     if (node.data.type === layerType.Solid) {
       let color = new ColorProperty("sc", "Solid Color", node.data, "");
       color.icon = "color_lens";
-      color.dataType = "string";
       // Single
       properties.push(color);
 
@@ -769,8 +742,7 @@ export class PropertiesService {
     const properties: Property[] = [];
     let prop = new NumberProperty("r", "Rotation", data, "Transform Rotation");
 
-    prop.keyframe = true;
-    prop.type = PropertyType.value;
+    prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
     prop.icon = "autorenew";
     properties.push(prop);
@@ -780,31 +752,29 @@ export class PropertiesService {
     prop.min = 0;
     prop.max = 100;
     prop.icon = "opacity";
-
-    //{"a":0, "k":0}
-    prop.type = PropertyType.value;
+    prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
     properties.push(prop);
 
     /* 
-      prop = new NumberProperty("px", "Transform Position X", transform, "");
+      prop = new NumberProperty("px", "X", transform, "Transform Position X");
       prop.type = PropertyType.value;
       properties.push(prop);
 
-      prop = new NumberProperty("py", "Transform Position Y", transform, "");
+      prop = new NumberProperty("py", "Y", transform, "Transform Position Y");
       prop.type = PropertyType.value;
       properties.push(prop);
 
-      prop = new NumberProperty("pz", "Transform Position Z", transform, "");
+      prop = new NumberProperty("pz", "Z", transform, "Transform Position Z");
       prop.type = PropertyType.value;
       properties.push(prop);
     */
 
     prop = new NumberProperty("sk", "Skew", data, "Transform Skew");
     prop.icon = "compare_arrows";
-    prop.type = PropertyType.value;
+    prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
-    prop.keyframe = true;
+
     properties.push(prop);
 
     prop = new NumberProperty(
@@ -815,9 +785,8 @@ export class PropertiesService {
     );
 
     prop.icon = "subdirectory_arrow_right";
-    prop.type = PropertyType.value;
+    prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
-    prop.keyframe = true;
     properties.push(prop);
 
     //{"a":0, "k":[0, 0, 0]}
@@ -830,31 +799,24 @@ export class PropertiesService {
 
     prop.icon = "filter_center_focus";
 
-    prop.type = PropertyType.multi;
+    prop.dataType = PropertyDataType.multi;
     prop.renderAsOutline = true;
-    prop.keyframe = true;
     properties.push(prop);
 
     //{"a":0, "k":[0, 0, 0]}
-    prop = new NumberProperty(
-      "p",
-      "Transform Position",
-      data,
-      "Transform Anchor Point "
-    );
+    prop = new NumberProperty("p", "Pos", data, "Transform Position");
+
     prop.icon = "photo_size_select_small";
-    prop.type = PropertyType.multi;
+    prop.dataType = PropertyDataType.multi;
     prop.renderAsOutline = true;
-    prop.keyframe = true;
     properties.push(prop);
 
     //{"a":0, "k":[100, 100, 100]}
     prop = new NumberProperty("s", "Scale", data, "Transform Scale");
 
     prop.icon = "settings_overscan";
-    prop.type = PropertyType.multi;
+    prop.dataType = PropertyDataType.multi;
     prop.renderAsOutline = true;
-    prop.keyframe = true;
     properties.push(prop);
 
     return properties;

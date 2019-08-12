@@ -4,9 +4,5 @@ export enum PropertyType {
   bool = "bool",
   number = "number",
   color = "color",
-  // valueKeyframed
-  value = "value",
-  //multiDimensional;
-  multi = "multi",
   shape = "shape"
 }

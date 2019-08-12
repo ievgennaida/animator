@@ -20,6 +20,7 @@ import { StateService } from "src/app/services/state.service";
 import { PlayerService } from "src/app/services/player.service";
 import { consts } from "src/environments/consts";
 import { Node } from "src/app/models/Node";
+import { PropertiesService } from "src/app/services/properties.service";
 
 @Component({
   selector: "app-timeline",
@@ -29,6 +30,7 @@ import { Node } from "src/app/models/Node";
 export class TimelineComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
   constructor(
+    private propertiesService: PropertiesService,
     private stateService: StateService,
     private playerService: PlayerService
   ) {}
@@ -43,8 +45,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   @Output()
   public timelineScroll: EventEmitter<any> = new EventEmitter();
-
-
 
   ngOnInit() {
     let onDraw = timestamp => {
@@ -76,8 +76,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
     this.timeline.on("keyframeChanged", args => {
       if (args) {
         args.forEach(p => {
-          if (p.prop && p.data) {
-            this.playerService.changeKeyframeValue(p, p.ms);
+          if (p.data) {
+            this.propertiesService.emitPropertyChanged(p.data);
           }
         });
       }
@@ -109,6 +109,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.redraw();
       });
 
+    this.propertiesService.сhanged
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.redraw();
+      });
+
     this.stateService.onResize.pipe(takeUntil(this.destroyed$)).subscribe(p => {
       this.redraw();
     });
@@ -117,8 +123,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   public onWheel(event: WheelEvent) {
     // Wire wheel events with other divs over the app.
     if (this.timelineElement.nativeElement) {
-      let scroll =
-        Math.sign(event.deltaY) * 10;
+      let scroll = Math.sign(event.deltaY) * 10;
       this.timelineElement.nativeElement.scrollTop += scroll;
     }
   }
@@ -141,7 +146,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     if (!this.timeline) {
       return;
     }
-    
+
     this.timeline.rescale();
     this.timeline.redraw();
   }

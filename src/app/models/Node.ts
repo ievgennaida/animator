@@ -9,6 +9,7 @@ import { NodeType } from "./NodeType";
 import { Properties } from "./Properties/Properties";
 import { Property } from "./Properties/Property";
 import { shapeType } from "./Lottie/shapes/shapeType";
+import { LottieModel } from './Lottie/LottieModel';
 
 /**
  * Application node.
@@ -51,6 +52,8 @@ export class Node {
   tag: any;
   type: NodeType;
   data: any;
+  model: LottieModel = null;
+
   lane: AnimationTimelineLane;
   layer?: baseLayer;
   level: number;

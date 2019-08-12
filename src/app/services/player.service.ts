@@ -74,13 +74,6 @@ export class PlayerService {
     );
   }
 
-  changeKeyframeValue(data: any, value: number) {
-    //animParams.animationData = p.data;
-    //bodymovin.destroy();
-    //p.data[p.prop] = msToFrame(p.ms);
-    //player = bodymovin.loadAnimation(animParams);
-  }
-
   msToFrame(ms: number) {
     return Math.round((ms / 1000) * this.player.frameRate);
   }
