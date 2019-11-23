@@ -65,7 +65,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     this.playerService.setTimeline(this.timeline);
     this.timeline.on("timeChanged", args => {
       if (args.source == "user") {
-        this.playerService.goTo(args.ms);
+        this.playerService.goTo(args.val);
       }
     });
 
