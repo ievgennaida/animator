@@ -1,9 +1,18 @@
 import { Property } from "./Property";
-import { PropertyType } from './PropertyType';
+import { PropertyType } from "./PropertyType";
+import { Node } from "src/app/models/Node";
 
 export class ComboProperty extends Property {
-  constructor(key, name, items, defaultItem, data, description) {
-    super(key, name, data, description);
+  constructor(
+    node: Node,
+    key: string,
+    name: string,
+    items,
+    defaultItem,
+    data,
+    description: string
+  ) {
+    super(node, key, name, data, description);
     this.type = PropertyType.combo;
   }
 
