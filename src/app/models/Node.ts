@@ -12,7 +12,7 @@ import { shapeType } from "./Lottie/shapes/shapeType";
 import { LottieModel } from './Lottie/LottieModel';
 
 /**
- * Application node.
+ * Application node view model.
  */
 export class Node {
   constructor() {
@@ -52,6 +52,8 @@ export class Node {
   tag: any;
   type: NodeType;
   data: any;
+  // Lottie layer element
+  lottieLayer: any;
   model: LottieModel = null;
 
   lane: AnimationTimelineLane;

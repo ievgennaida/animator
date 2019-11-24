@@ -1,0 +1,9 @@
+:host {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: center;
+}
+
+.second-input {
+  margin-left: 4px;
+}

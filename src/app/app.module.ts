@@ -7,8 +7,8 @@ import { PropertiesComponent } from "./components/properties/properties/properti
 import { TimelineComponent } from "./components/timeline/timeline.component";
 import { ToolboxComponent } from "./components/toolbox/toolbox.component";
 import { PlayerComponent } from "./components/player/player.component";
-import { NumbericComponent } from "./components/properties/numberic/numberic.component";
-import { DnumbericComponent } from "./components/properties/dnumberic/dnumberic.component";
+import { NumericComponent } from "./components/properties/numeric/numeric.component";
+import { DnumericComponent } from "./components/properties/dnumeric/dnumeric.component";
 
 import { MatIconModule } from "@angular/material/icon";
 import { MatTreeModule } from "@angular/material/tree";
@@ -35,8 +35,8 @@ import { ColorComponent } from './components/properties/color/color.component';
     TimelineComponent,
     ToolboxComponent,
     PlayerComponent,
-    NumbericComponent,
-    DnumbericComponent,
+    NumericComponent,
+    DnumericComponent,
     ControlsComponent,
     TextComponent,
     BoolComponent,

@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NumbericComponent } from './numeric.component';
+import { DnumericComponent } from './dnumeric.component';
 
-describe('NumbericComponent', () => {
-  let component: NumbericComponent;
-  let fixture: ComponentFixture<NumbericComponent>;
+describe('DnumericComponent', () => {
+  let component: DnumericComponent;
+  let fixture: ComponentFixture<DnumericComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ NumbericComponent ]
+      declarations: [ DnumericComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(NumbericComponent);
+    fixture = TestBed.createComponent(DnumericComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

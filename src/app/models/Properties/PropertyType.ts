@@ -3,6 +3,7 @@ export enum PropertyType {
   combo = "combo",
   bool = "bool",
   number = "number",
+  dnumber = "dnumber",
   color = "color",
   shape = "shape"
 }

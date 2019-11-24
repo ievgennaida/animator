@@ -47,7 +47,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   public timelineScroll: EventEmitter<any> = new EventEmitter();
 
   ngOnInit() {
-    let onDraw = timestamp => {
+    let onDraw = () => {
       this.playerService.syncornizeTimelineWithPlayer();
       window.requestAnimationFrame(onDraw);
     };
@@ -63,6 +63,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     this.timeline = timeline.initialize(this.options, this.lanes);
     this.playerService.setTimeline(this.timeline);
+
     this.timeline.on("timeChanged", args => {
       if (args.source == "user") {
         this.playerService.goTo(args.val);

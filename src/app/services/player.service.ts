@@ -3,21 +3,28 @@ import { AnimationItem } from "lottie-web";
 import { LottieModel } from "../models/Lottie/LottieModel";
 import { Timeline } from "animation-timeline-js";
 import { BehaviorSubject, Observable } from "rxjs";
+import { EventEmitter } from "events";
+import { TimeData } from "./models/timeData";
 
 @Injectable({
   providedIn: "root"
 })
 export class PlayerService {
   constructor() {}
-
   // Model has limited list of the described properties.
   private player: AnimationItem | any = null;
   timeline: Timeline;
   playSubject = new BehaviorSubject<boolean>(false);
+  // Current frame subject
+  timeSubject = new BehaviorSubject<TimeData>(new TimeData());
 
   setTimeline(timeline: Timeline | any) {
     this.timeline = timeline;
     this.syncornizeTimelineWithPlayer(true);
+  }
+
+  getPlayer() {
+    return this.player;
   }
 
   setPlayer(player: AnimationItem | any) {
@@ -38,12 +45,21 @@ export class PlayerService {
       return;
     }
 
-    let isSet = this.timeline.setTime(this.getTime());
+    const time = this.getTime();
+    const isSet = this.timeline.setTime(time);
     if (isSet) {
       this.timeline.redraw();
+      this.emitTimeChanged(time);
     }
   }
 
+  private emitTimeChanged(time: number) {
+    let timeData = this.timeSubject.value;
+    timeData.ms = time;
+    timeData.frame = time / 1000;
+    timeData.globalFrame = this.msToFrame(time);
+    this.timeSubject.next(this.timeSubject.value);
+  }
   isReady() {
     return !!this.player && !!this.timeline;
   }
@@ -52,15 +68,14 @@ export class PlayerService {
     return !!this.player && !this.player.isPaused;
   }
 
-  goTo(value: number) {
+  goTo(time: number) {
     if (!this.player || !this.player.animationData) {
       return 0;
     }
 
-    this.player.goToAndStop(
-      this.msToFrame(value) - this.getStartPosition(),
-      true
-    );
+    let frame = this.msToFrame(time) - this.getStartPosition();
+    this.player.goToAndStop(frame, true);
+    this.emitTimeChanged(time);
   }
 
   getTime(): number {

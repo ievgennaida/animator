@@ -27,6 +27,7 @@ import { Property } from "../models/Properties/Property";
 import { Properties } from "../models/Properties/Properties";
 import { AnimationTimelineKeyframe } from "animation-timeline-js";
 import { PlayerService } from "./player.service";
+import { AnimationItem } from "lottie-web";
 
 @Injectable({
   providedIn: "root"
@@ -87,7 +88,7 @@ export class StateService {
     this.dataSubject.next(data);
   }
 
-  public onDataParsed(data: any) {
+  public onDataParsed(player: AnimationItem | any, data: any) {
     if (!data || !data.layers) {
       this.nodesSubject.next(this.nodesSubject.value);
       return;
@@ -128,13 +129,18 @@ export class StateService {
         nodes.push(node);
 
         model.assets.forEach((p: any) => {
-          this.addLayer(node.children, p, model);
+          // this.addLayer(node.children, p, model);
         });
       }
 
+      // shapePropertyFactory
+      //matrix
+      //let factory = player.__getFactory('propertyFactory');
+      let renderer = player.renderer;
+
       // Add layers:
-      if (model.layers) {
-        model.layers.forEach((p: any) => {
+      if (renderer.elements) {
+        renderer.elements.forEach((p: any) => {
           this.addLayer(flatLayerNodes, p, model);
         });
       }
@@ -166,27 +172,35 @@ export class StateService {
     this.flatDataSource.data = nodes;
   }
 
-  addLayer(flatLayerNodes: Node[], layer, model: LottieModel) {
+  addLayer(
+    flatLayerNodes: Node[],
+    layer: any,
+    model: LottieModel,
+  ) {
+
+    const layerData = layer.data;
+
     let node = new Node();
     node.model = model;
     node.type = NodeType.Layer;
-    node.data = layer;
-    node.name = (layer.nm || layerType[layer.ty] || "layer").toString();
+    node.data = layerData;
+    node.lottieLayer = layer;
+    node.name = (layerData.nm || layerType[layerData.ty] || "layer").toString();
 
-    //TODO:
-    if (layer.ty == layerType.Image) {
-      let currentLayer = layer as image;
-    } else if (layer.ty === layerType.Null) {
-      let currentLayer = layer as nullLayer;
-    } else if (layer.ty === layerType.Precomp) {
-      let currentLayer = layer as preComp;
-    } else if (layer.ty === layerType.Shape) {
-      let currentLayer = layer as shape;
+    // TODO:
+    if (layerData.ty == layerType.Image) {
+      let currentLayer = layerData as image;
+    } else if (layerData.ty === layerType.Null) {
+      let currentLayer = layerData as nullLayer;
+    } else if (layerData.ty === layerType.Precomp) {
+      let currentLayer = layerData as preComp;
+    } else if (layerData.ty === layerType.Shape) {
+      let currentLayer = layerData as shape;
       this.getShapesNodes(currentLayer.shapes, node, model);
-    } else if (layer.ty === layerType.Solid) {
-      let currentLayer = layer as solid;
-    } else if (layer.ty === layerType.Text) {
-      let currentLayer = layer as text;
+    } else if (layerData.ty === layerType.Solid) {
+      let currentLayer = layerData as solid;
+    } else if (layerData.ty === layerType.Text) {
+      let currentLayer = layerData as text;
     }
 
     node.properties = this.propertesService.getProperties(node);
@@ -311,7 +325,7 @@ export class StateService {
 
     if (filtered && filtered.length > 0) {
       filtered.forEach(p => {
-        let keyframes =  p.getKeyframes();
+        let keyframes = p.getKeyframes();
         if (keyframes) {
           if (!node.lane.keyframes) {
             node.lane.keyframes = [];

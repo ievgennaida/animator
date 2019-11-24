@@ -14,10 +14,10 @@
 
     <div *ngIf="node?.properties?.items">
         <div class="properties" [title]="property?.description" *ngFor="let property of node.properties.items">
-            <app-numberic [property]="property" *ngIf="property.type == 'number'"></app-numberic>
-            <app-text [property]="property" *ngIf="property.type == 'text' && property.key != 'nm'"></app-text>
-            <app-color [property]="property" *ngIf="property.type == 'color'"></app-color>
-
+            <app-numeric *ngIf="property.type == 'number'" [property]="property"></app-numeric>
+            <app-text *ngIf="property.type == 'text' && property.key != 'nm'" [property]="property"></app-text>
+            <app-color *ngIf="property.type == 'color'" [property]="property"></app-color>
+            <app-dnumeric *ngIf="property.type == 'dnumber'" [property]="property"></app-dnumeric>
             <!--app-text [property]="property" *ngIf="property.type == 'default'"></app-text>-->
         </div>
     </div>

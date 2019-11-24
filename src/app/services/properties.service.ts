@@ -27,6 +27,7 @@ import { defaultLineCap, lineCap } from "../models/Lottie/helpers/lineCap";
 import { multiDimensional } from "../models/Lottie/properties/multiDimensional";
 import { PropertyDataType } from "../models/Properties/PropertyDataType";
 import { Keyframe } from "../models/keyframes/Keyframe";
+import { DNumberProperty } from '../models/Properties/DNumberProperty';
 
 @Injectable({
   providedIn: "root"
@@ -584,7 +585,7 @@ export class PropertiesService {
       properties.push(prop);
     } else if (type == shapeType.group) {
       let prop = new NumberProperty(
-         node.model,
+        node.model,
         "np",
         "Gr. num",
         node.data,
@@ -858,6 +859,13 @@ export class PropertiesService {
 
   getTransfromProperties(node: Node, data: any): Property[] {
     const properties: Property[] = [];
+    let dynamicProperty = null;
+    if (node.lottieLayer) {
+      dynamicProperty = node.lottieLayer.dynamicProperties.find(
+        element => element.data === data
+      );
+    }
+
     let prop = new NumberProperty(
       node.model,
       "r",
@@ -869,6 +877,7 @@ export class PropertiesService {
     prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
     prop.icon = "autorenew";
+    prop.dynamicProperty = dynamicProperty;
     properties.push(prop);
 
     //{"a":0, "k":100}
@@ -884,6 +893,7 @@ export class PropertiesService {
     prop.icon = "opacity";
     prop.dataType = PropertyDataType.value;
     prop.renderAsOutline = true;
+    prop.dynamicProperty = dynamicProperty;
     properties.push(prop);
 
     /* 
@@ -903,6 +913,7 @@ export class PropertiesService {
     prop = new NumberProperty(node.model, "sk", "Skew", data, "Transform Skew");
     prop.icon = "compare_arrows";
     prop.dataType = PropertyDataType.value;
+    prop.dynamicProperty = dynamicProperty;
     prop.renderAsOutline = true;
 
     properties.push(prop);
@@ -917,6 +928,7 @@ export class PropertiesService {
 
     prop.icon = "subdirectory_arrow_right";
     prop.dataType = PropertyDataType.value;
+    prop.dynamicProperty = dynamicProperty;
     prop.renderAsOutline = true;
     properties.push(prop);
 
@@ -930,7 +942,7 @@ export class PropertiesService {
     );
 
     prop.icon = "filter_center_focus";
-
+    prop.dynamicProperty = dynamicProperty;
     prop.dataType = PropertyDataType.multi;
     prop.renderAsOutline = true;
     properties.push(prop);
@@ -943,25 +955,26 @@ export class PropertiesService {
       data,
       "Transform Position"
     );
-
+    prop.dynamicProperty = dynamicProperty;
     prop.icon = "photo_size_select_small";
     prop.dataType = PropertyDataType.multi;
     prop.renderAsOutline = true;
     properties.push(prop);
 
     //{"a":0, "k":[100, 100, 100]}
-    prop = new NumberProperty(
+    let scale = new DNumberProperty(
       node.model,
       "s",
       "Scale",
       data,
-      "Transform Scale"
+      "Transform Scale",
+      dynamicProperty
     );
-
-    prop.icon = "settings_overscan";
-    prop.dataType = PropertyDataType.multi;
-    prop.renderAsOutline = true;
-    properties.push(prop);
+    
+    scale.icon = "settings_overscan";
+    scale.dataType = PropertyDataType.multi;
+    scale.renderAsOutline = true;
+    properties.push(scale);
 
     return properties;
   }

@@ -8,7 +8,7 @@ export enum PropertyDataType {
     /**
      * multiDimensional
      */
-    multi = "multi",
+    multi = "multidimensional",
     string = "string"
   }
   
