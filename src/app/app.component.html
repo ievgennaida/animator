@@ -10,6 +10,8 @@
     <mat-menu #recent="matMenu">
       <button mat-menu-item (click)="loadData(item)" *ngFor="let item of recentItems">{{item?.name}}</button>
     </mat-menu>
+    <button mat-button (click)="undo()" [disabled]="undoDisabled"><mat-icon>undo</mat-icon></button>
+    <button mat-button (click)="redo()" [disabled]="redoDisabled"><mat-icon>redo</mat-icon></button>
     <span class="toolbar-center"> {{title}}</span>
     <button (click)="drawer.toggle()" mat-button>
       <mat-icon class="example-icon" aria-hidden="false">menu</mat-icon>

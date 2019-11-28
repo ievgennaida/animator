@@ -3,6 +3,7 @@ import { ResizeEvent } from "angular-resizable-element";
 import { StateService } from './services/state.service';
 import { OutlineComponent } from './components/outline/outline/outline.component';
 import { consts } from 'src/environments/consts';
+import { UndoService } from './services/actions/undo.service';
 
 @Component({
   selector: "app-root",
@@ -15,8 +16,10 @@ export class AppComponent implements OnInit {
   propertiesW: number| string = 215;
   footerH: number| string = null;
   recentItems = [];
-
-  constructor(private stateService: StateService, private self:ElementRef) {
+  undoDisabled = false;
+  redoDisabled = false;
+  constructor(private undoService: UndoService,
+    private stateService: StateService, private self:ElementRef) {
   }
 
 
@@ -51,7 +54,13 @@ export class AppComponent implements OnInit {
     this.stateService.setPanelResized();
   }
 
+  redo(){
+    this.undoService.redo();
+  }
 
+  undo(){
+    this.undoService.undo();
+  }
   resize(size, maxSize) {
     let min = maxSize * 0.10;
     let max = maxSize * 0.90;
