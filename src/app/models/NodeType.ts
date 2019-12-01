@@ -4,5 +4,5 @@ export enum NodeType {
   File = 3,
   Folder = 4,
   Property = 5,
-  Assets = 4,
+  Assets = 6,
 }

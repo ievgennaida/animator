@@ -16,6 +16,7 @@ import { takeUntil } from "rxjs/operators";
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
+import { SelectedData } from 'src/app/models/SelectedData';
 
 @Component({
   selector: "app-outline",
@@ -34,8 +35,6 @@ export class OutlineComponent implements OnInit, OnDestroy {
   // Allow to use enums in the template:
   shapeType = shapeType;
 
-  activeNode: Node = null;
-
   ngOnInit(): void {}
 
   ngOnDestroy() {
@@ -43,9 +42,8 @@ export class OutlineComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  setSelected(node: Node) {
-    this.activeNode = node;
-    this.stateService.setSelected(node);
+  setSelected(event, node: Node) {
+    this.stateService.setSelectedNode(node, event.ctrlKey);
   }
 
   public setSize(args: ScrollEventArgs) {

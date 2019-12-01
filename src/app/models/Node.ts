@@ -55,7 +55,7 @@ export class Node {
   // Lottie layer element
   lottieLayer: any;
   model: LottieModel = null;
-
+  selected = false;
   lane: AnimationTimelineLane;
   layer?: baseLayer;
   level: number;

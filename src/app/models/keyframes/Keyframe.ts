@@ -6,6 +6,11 @@ import { LottieModel } from "../Lottie/LottieModel";
 interface TimelineKeyframe extends AnimationTimelineKeyframe {}
 
 export class Keyframe implements TimelineKeyframe {
+  keyframesLaneSizePx?: number;
+  selected?: boolean;
+  keyframesShape?: string;
+  hidden?: boolean;
+  draggable?: boolean;
   public model: LottieModel = null;
   public property: Property = null;
   public key: string = null;

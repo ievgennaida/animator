@@ -28,6 +28,8 @@ import { Properties } from "../models/Properties/Properties";
 import { AnimationTimelineKeyframe } from "animation-timeline-js";
 import { PlayerService } from "./player.service";
 import { AnimationItem } from "lottie-web";
+import { SelectedData } from "../models/SelectedData";
+import { Keyframe } from "../models/keyframes/Keyframe";
 
 @Injectable({
   providedIn: "root"
@@ -41,7 +43,7 @@ export class StateService {
   resizeSubject = new Subject();
   dataSubject = new Subject();
   nodesSubject = new BehaviorSubject<Node[]>([]);
-  selectedSubject = new BehaviorSubject<Node>(null);
+  selectedSubject = new BehaviorSubject<SelectedData>(new SelectedData());
   treeConrol = new FlatTreeControl<Node>(
     node => node.level,
     node => node.expandable
@@ -60,9 +62,39 @@ export class StateService {
     )
   );
 
+  deleteElement(array, element) {
+    const index: number = array.indexOf(element);
+    if (index !== -1) {
+      return array.splice(index, 1);
+    }
+    return array;
+  }
+
   // Allow to select tree node, but list of avaliable might be extended.
-  setSelected(node: Node) {
-    this.selectedSubject.next(node);
+  setSelectedNode(node: Node, isAdd: boolean = false) {
+    let currentSelected = this.selectedSubject.getValue();
+    if (isAdd) {
+      if (currentSelected.nodes.includes(node)) {
+        node.selected = false;
+        this.deleteElement(currentSelected.nodes, node);
+      } else {
+        node.selected = true;
+      }
+    } else {
+      node.selected = true;
+      currentSelected.nodes.forEach(p => (p.selected = false));
+      currentSelected.nodes.length = 0;
+    }
+    
+    if (node.selected) {
+      currentSelected.nodes.push(node);
+    }
+    this.selectedSubject.next(currentSelected);
+  }
+
+  setSelectedKeyframes(keyframe: Keyframe) {
+    //this.selectedSubject.value.keyframe = keyframe;
+    //this.selectedSubject.next(this.selectedSubject.value);
   }
 
   public get onResize(): Observable<any> {
@@ -73,7 +105,7 @@ export class StateService {
     this.resizeSubject.next();
   }
 
-  public get selected(): Observable<Node> {
+  public get selected(): Observable<SelectedData> {
     return this.selectedSubject.asObservable();
   }
   public get nodes(): Observable<Node[]> {
@@ -88,14 +120,22 @@ export class StateService {
     this.dataSubject.next(data);
   }
 
+  public deselectAll() {
+    let currentSelection = this.selectedSubject.value;
+    if (!currentSelection) {
+      currentSelection.nodes.length = 0;
+      currentSelection.keyframes.length = 0;
+    }
+
+    this.selectedSubject.next(currentSelection);
+  }
   public onDataParsed(player: AnimationItem | any, data: any) {
     if (!data || !data.layers) {
       this.nodesSubject.next(this.nodesSubject.value);
       return;
     }
 
-    this.selectedSubject.next(null);
-
+    this.deselectAll();
     let model: LottieModel = data as LottieModel;
 
     let nodes = this.nodesSubject.value;
@@ -172,12 +212,7 @@ export class StateService {
     this.flatDataSource.data = nodes;
   }
 
-  addLayer(
-    flatLayerNodes: Node[],
-    layer: any,
-    model: LottieModel,
-  ) {
-
+  addLayer(flatLayerNodes: Node[], layer: any, model: LottieModel) {
     const layerData = layer.data;
 
     let node = new Node();
@@ -214,7 +249,7 @@ export class StateService {
       return;
     }
 
-    // Render list of properties marked as allowed for the outline.
+    // Render list of properties marked as allowed to be a part of the outline tree.
     let filtered = parentNode.properties.items.filter(p => p.renderAsOutline);
     if (filtered && filtered.length > 0) {
       if (!parentNode.children) {
@@ -230,7 +265,7 @@ export class StateService {
         folder.icon = "transform";
         folder.properties = this.propertesService.getProperties(folder);
         this.setKeyframes(folder);
-        parentNode.children.push(folder);
+        parentNode.children.splice(0, 0, folder);
       }
 
       folder.children = folder.children || [];
@@ -241,6 +276,7 @@ export class StateService {
         node.name = p.name;
         node.data = p.data;
         node.icon = p.icon;
+        node.lane.color = "#2D2D2D";
         node.properties = new Properties();
         node.properties.items.push(p);
         this.setKeyframes(node);

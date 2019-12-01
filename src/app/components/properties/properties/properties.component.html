@@ -1,24 +1,21 @@
-<div *ngIf="node?.properties">
-    <div class="label-item">
-        <div>
-            <mat-icon *ngIf="node.icon">{{node.icon}}
-            </mat-icon>
-        </div>
-        <div>
-            <div class="label-item">Name: <input [readonly]="!node.nameProperty || node.nameProperty.readonly"
-                    (focusout)="onNameFocusOut($event)" [(value)]="node.name" /></div>
-            <div class="label-item">Type: <span>{{node.typeTitle}}</span></div>
-        </div>
+<div class="label-item" *ngIf="namePropertiesVisible">
+    <div>
+        <mat-icon>{{icon || "code"}}
+        </mat-icon>
     </div>
+    <div>
+        <div class="label-item">Name: <input [readonly]="!nameProperty || nameProperty.readonly"
+                (focusout)="onNameFocusOut($event)" [(value)]="name" /></div>
+        <div class="label-item">Type: <span>{{type}}</span></div>
+    </div>
+</div>
 
-
-    <div *ngIf="node?.properties?.items">
-        <div class="properties" [title]="property?.description" *ngFor="let property of node.properties.items">
-            <app-numeric *ngIf="property.type == 'number'" [property]="property"></app-numeric>
-            <app-text *ngIf="property.type == 'text' && property.key != 'nm'" [property]="property"></app-text>
-            <app-color *ngIf="property.type == 'color'" [property]="property"></app-color>
-            <app-dnumeric *ngIf="property.type == 'dnumber'" [property]="property"></app-dnumeric>
-            <!--app-text [property]="property" *ngIf="property.type == 'default'"></app-text>-->
-        </div>
+<div *ngIf="properties?.items">
+    <div class="properties" [title]="property?.description" *ngFor="let property of properties.items">
+        <app-numeric *ngIf="property.type == 'number'" [property]="property"></app-numeric>
+        <app-text *ngIf="property.type == 'text' && property.key != 'nm'" [property]="property"></app-text>
+        <app-color *ngIf="property.type == 'color'" [property]="property"></app-color>
+        <app-dnumeric *ngIf="property.type == 'dnumber'" [property]="property"></app-dnumeric>
+        <!--app-text [property]="property" *ngIf="property.type == 'default'"></app-text>-->
     </div>
 </div>

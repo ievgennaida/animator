@@ -3,7 +3,7 @@
     <mat-tree *ngIf="dataSource" [style.height.px]="height" [dataSource]="dataSource"
         [treeControl]="dataSource._treeControl">
         <!-- This is the tree node template for leaf nodes -->
-        <mat-tree-node (click)="setSelected(node)" [ngClass]="{ 'selected': activeNode === node }"
+        <mat-tree-node (click)="setSelected($event, node)" [ngClass]="{ 'selected': node.selected }"
             *matTreeNodeDef="let node" matTreeNodePadding [matTreeNodePaddingIndent]="10">
             <!-- use a disabled button to provide padding for tree leaf -->
             <button mat-icon-button disabled>
@@ -17,7 +17,7 @@
             </div>
         </mat-tree-node>
         <!-- This is the tree node template for expandable nodes -->
-        <mat-tree-node (click)="setSelected(node)" [ngClass]="{ 'selected': activeNode === node }"
+        <mat-tree-node (click)="setSelected($event, node)" [ngClass]="{ 'selected': node.selected }"
             *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [matTreeNodePaddingIndent]="5">
             <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
                 <mat-icon>
