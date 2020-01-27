@@ -21,6 +21,8 @@ import { PlayerService } from "src/app/services/player.service";
 import { consts } from "src/environments/consts";
 import { Node } from "src/app/models/Node";
 import { PropertiesService } from "src/app/services/properties.service";
+import { ActionService } from 'src/app/services/actions/action.service';
+import { Keyframe } from 'src/app/models/keyframes/Keyframe';
 
 @Component({
   selector: "app-timeline",
@@ -32,7 +34,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private stateService: StateService,
-    private playerService: PlayerService
+    private playerService: PlayerService,
+    private actionService: ActionService
   ) {}
 
   lanes: AnimationTimelineLane[] = [];
@@ -70,19 +73,30 @@ export class TimelineComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Sync scroll between outline and tree view.
     this.timeline.on("scroll", (args: ScrollEventArgs) => {
       this.timelineScroll.emit(args);
     });
 
-    this.timeline.on("keyframeChanged", args => {
+    this.timeline.on("dragStarted", args => {
+      if (args) {
+        let keyframes = args.keyframes as Array<Keyframe>;
+        this.actionService.StartTransaction(keyframes);
+        //this.propertiesService.emitPropertyChanged(null);
+      }
+    });
+    
+    this.timeline.on("dragFinished", args => {
       if (args) {
         this.propertiesService.emitPropertyChanged(null);
+        this.actionService.Commit();
       }
     });
 
+
     const ds = this.stateService.flatDataSource;
     const tc = this.stateService.treeConrol;
-
+ 
     ds._flattenedData.pipe(takeUntil(this.destroyed$)).subscribe(flatItems => {
       this.lanes.length = 0;
 

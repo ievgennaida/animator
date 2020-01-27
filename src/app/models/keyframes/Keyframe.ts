@@ -26,7 +26,7 @@ export class Keyframe implements TimelineKeyframe {
       if (this.container && this.key) {
         value = this.container[this.key];
       } else {
-        value = this.property.setValue(value);
+        value = this.property.getValue();
       }
 
       return Math.round((value * 1000) / this.model.fr);

@@ -72,6 +72,10 @@ export class Property {
    */
   public value: any;
 
+  /**
+   * Get interpolated value at the specific time.
+   * @param frame 
+   */
   getValueAtTime(frame: number) {
     if (this.dynamicProperty && this.dynamicProperty.getValueAtTime) {
       if (this.key) {

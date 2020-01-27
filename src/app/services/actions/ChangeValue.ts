@@ -1,7 +1,12 @@
 import { BaseAction } from "./BaseAction";
+import { Keyframe } from 'src/app/models/keyframes/Keyframe';
 
 export class ChangeValue extends BaseAction {
-  do(): void {}
+
+  keyframes: Array<Keyframe> = []
+  do(): void {
+    
+  }
 
   undo(): void {}
 }

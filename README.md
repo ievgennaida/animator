@@ -1,17 +1,15 @@
 # animator
 
-Suppose to be a simple editor for the lottie animations:
+Suppose to be a simple (svg) animation editor:
 
 ![screenshot](pic.png)
 
+-> have not decided about the engine yet.
 
 Steps: 
-- edit existing transformations with the timeline keyframes <- in progress.
+- editor interfaces and general views <- in progress.
+- edit existing transformations with the timeline keyframes
 - edit other properties with the timeline.
 - import svg.
 - easing functions.
 - wysiwyg.
-
-
-Example json file
-https://raw.githubusercontent.com/airbnb/lottie-web/master/demo/adrock/data.json
