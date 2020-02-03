@@ -23,6 +23,7 @@ import { Node } from "src/app/models/Node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { ActionService } from 'src/app/services/actions/action.service';
 import { Keyframe } from 'src/app/models/keyframes/Keyframe';
+import { ViewportService } from 'src/app/services/viewport-tools/viewport.service';
 
 @Component({
   selector: "app-timeline",
@@ -34,13 +35,14 @@ export class TimelineComponent implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private stateService: StateService,
+    private viewportService: ViewportService,
     private playerService: PlayerService,
     private actionService: ActionService
   ) {}
 
   lanes: AnimationTimelineLane[] = [];
   options: AnimationTimelineOptions;
-  scrollTop: number = 0;
+  scrollTop = 0;
   timeline: Timeline;
 
   @ViewChild("timeline", { static: false, read: ElementRef })
@@ -126,7 +128,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.redraw();
       });
 
-    this.stateService.onResize.pipe(takeUntil(this.destroyed$)).subscribe(p => {
+    this.viewportService.viewportResize.pipe(takeUntil(this.destroyed$)).subscribe(p => {
       this.redraw();
     });
   }
@@ -134,7 +136,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   public onWheel(event: WheelEvent) {
     // Wire wheel events with other divs over the app.
     if (this.timelineElement.nativeElement) {
-      let scroll = Math.sign(event.deltaY) * 10;
+      const scroll = Math.sign(event.deltaY) * consts.timelineScrollSpeed;
       this.timelineElement.nativeElement.scrollTop += scroll;
     }
   }

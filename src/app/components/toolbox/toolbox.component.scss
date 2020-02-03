@@ -1,15 +1,19 @@
-
-:host{
-   background-color: #333333;
-   width: 44px;
+:host {
+  background-color: #333333;
+  width: 44px;
 }
 
-button[mat-button] {
-   padding: 0px;
-   width: 44px;
-   min-width: 44px;
-   color: #ADADAD;
-   &:hover {  
-      color: white;
-   }
+mat-button-toggle {
+  padding: 0px;
+  color: #adadad;
+  border: none !important;
+  &:hover {
+    color: white;
+  }
+  button {
+   background-color: blue;
+    div {
+      padding: 0 10px !important;
+    }
+  }
 }

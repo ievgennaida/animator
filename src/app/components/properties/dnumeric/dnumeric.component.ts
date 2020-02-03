@@ -4,7 +4,7 @@ import { PlayerService } from "src/app/services/player.service";
 import { PropertiesService } from "src/app/services/properties.service";
 import { DNumberProperty } from "src/app/models/Properties/DNumberProperty";
 import { Subscription } from "rxjs";
-import { TimeData } from 'src/app/services/models/timeData';
+import { TimeData } from 'src/app/services/models/timedata';
 
 @Component({
   selector: "app-dnumeric",

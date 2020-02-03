@@ -21,6 +21,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatSidenavModule } from "@angular/material/sidenav";
 
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ControlsComponent } from './components/timeline/controls/controls.component';
 import { TextComponent } from './components/properties/text/text.component';
 import { BoolComponent } from './components/properties/bool/bool.component';
@@ -51,6 +52,7 @@ import { ColorComponent } from './components/properties/color/color.component';
     MatListModule,
     MatMenuModule,
     MatSidenavModule,
+    MatButtonToggleModule,
     NoopAnimationsModule,
     MatButtonModule,
     BrowserModule

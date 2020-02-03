@@ -4,7 +4,7 @@ import { NumberProperty } from "src/app/models/Properties/NumberProperty";
 import { PropertiesService } from "src/app/services/properties.service";
 import { PlayerService } from "src/app/services/player.service";
 import { Subscription } from "rxjs";
-import { TimeData } from 'src/app/services/models/timeData';
+import { TimeData } from 'src/app/services/models/timedata';
 
 @Component({
   selector: "app-numeric",

@@ -4,7 +4,7 @@ import { LottieModel } from "../models/Lottie/LottieModel";
 import { Timeline } from "animation-timeline-js";
 import { BehaviorSubject, Observable } from "rxjs";
 import { EventEmitter } from "events";
-import { TimeData } from "./models/timeData";
+import { TimeData } from "./models/timedata";
 
 @Injectable({
   providedIn: "root"

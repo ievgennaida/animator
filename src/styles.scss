@@ -11,7 +11,14 @@ body {
 
 .mat-button {
   border-radius: 0px !important;
+  border: none;
 }
+
+.mat-button-toggle-group {
+  border-radius: 0px !important;
+  border: none;
+}
+
 ::-webkit-scrollbar {
   background: #161616;
   color: gray;
@@ -24,7 +31,20 @@ body {
 ::-webkit-scrollbar-corner {
   background: #161616;
 }
+.mat-button-toggle-label-content {
+  background-color: none !important;
+}
 
+.mat-button-toggle-appearance-standard {
+  background-color: initial !important;
+  .mat-button-toggle-label-content {
+    padding: 0 10px !important;
+  }
+}
+
+.mat-button-toggle-checked {
+  background-color: #212121 !important;
+}
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
@@ -54,9 +74,9 @@ input {
   margin: 0px;
   padding: 0px 5px;
   border: 1px solid rgba(0, 0, 0, 0.5);
-  background: #1E1E1E;
+  background: #1e1e1e;
   &:focus {
-    border-color: #3399FF;
+    border-color: #3399ff;
   }
   &[readonly] {
     background: #333333;

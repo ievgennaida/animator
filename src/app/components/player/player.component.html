@@ -1,5 +1,31 @@
-<canvas id="adorners">
-    adorners
-</canvas>
-<div id="player">
+<div #svgContainer class="svg-container">
+    <div (scroll)="onScroll($event)" #scrollContainer class="scroll-container">
+        <div #scrollContent class="scroll-content"></div>
+    </div>
+
+    <svg fill="transparent" #svg class="svg-content" xmlns="http://www.w3.org/2000/svg"
+        xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" (touchstart)="onViewportTouchStart($event)"
+        (mousedown)="onViewportMouseDown($event)" (mouseup)="onViewportMouseUp($event)"
+        (touchend)="onViewportTouchEnd($event)" (touchmove)="onViewportTouchMove($event)"
+        (mouseleave)="onViewportMouseLeave($event)" (touchleave)="onViewportTouchLeave($event)"
+        (blur)="onViewportBlur($event)" (wheel)="onViewportMouseWheel($event)"
+        (touchcancel)="onViewportTouchCancel($event)">
+        <g #svgViewport class="svg-viewport" fill="none">
+
+            <rect x="0" y="0" width="640" height="480" [attr.x]="workAreaSize.x" [attr.y]="workAreaSize.y"
+                [attr.width]="workAreaSize.shadowW" [attr.height]="workAreaSize.shadowH" fill="Blue">
+                <!--Shadow viewport used to add some extra scroll when svg is loaded-->
+            </rect>
+            <svg #player [attr.width]="workAreaSize.w" [attr.height]="workAreaSize.h" [attr.x]="workAreaSize.x"
+                [attr.y]="workAreaSize.y">
+            </svg>
+        </g>
+        <g>
+            <rect #selectionRectangleAdorner display="none" shape-rendering="crispEdges"
+                class="selection-rectangle" x="0" y="0" width="0" height="0" />
+        </g>
+    </svg>
+    <button mat-button #resetButton class="reset-button" (click)="fitViewport()">
+        <mat-icon>aspect_ratio</mat-icon>
+    </button>
 </div>

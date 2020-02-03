@@ -2,14 +2,36 @@
       display: grid;
   }
   
-  svg {
+  .svg-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+  }
+
+  .svg-content {
+    width: calc(100% - 17px);
+    height: calc(100% - 17px);
+    position: absolute;
+  }
+
+  .scroll-content {
+    position: absolute;
+  }
+
+  .scroll-container {
+    overflow: scroll;
+    touch-action: none;
+    position: absolute;
+    width: 100%;
     height: 100%;
   }
-  
-  #player {
-    display: grid;
-    grid-column: 1;
-    grid-row: 1;
+
+  #selection-rectangle {
+    stroke-width: 1;
+    stroke: black;
+    fill: none;
+    stroke-dasharray: 10 4;
   }
   
   #adorners {
@@ -17,4 +39,28 @@
     grid-column: 1;
     grid-row: 1;
   }
+  .selection-rectangle {
+    stroke-width: 1;
+    stroke: white;
+    fill: none;
+    stroke-dasharray: 10 4;
+  }
   
+  .reset-button{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 17px;
+    min-width: 0px;
+    border: none;
+    font-size: 15px;
+    padding: 0px;
+    width: 17px;
+    overflow: hidden;
+    .mat-icon{
+      height: inherit;
+      width: inherit;
+      margin-top: -20px;
+      font-size: 15px;
+    }
+  }

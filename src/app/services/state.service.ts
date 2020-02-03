@@ -21,7 +21,6 @@ import {
   MatTreeFlattener
 } from "@angular/material/tree";
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { TreeControl } from "./TreeControl";
 import { PropertiesService } from "./properties.service";
 import { Property } from "../models/Properties/Property";
 import { Properties } from "../models/Properties/Properties";
@@ -40,7 +39,6 @@ export class StateService {
     private playerService: PlayerService
   ) {}
 
-  resizeSubject = new Subject();
   dataSubject = new Subject();
   nodesSubject = new BehaviorSubject<Node[]>([]);
   selectedSubject = new BehaviorSubject<SelectedData>(new SelectedData());
@@ -97,14 +95,6 @@ export class StateService {
     //this.selectedSubject.next(this.selectedSubject.value);
   }
 
-  public get onResize(): Observable<any> {
-    return this.resizeSubject.asObservable();
-  }
-
-  public setPanelResized() {
-    this.resizeSubject.next();
-  }
-
   public get selected(): Observable<SelectedData> {
     return this.selectedSubject.asObservable();
   }
@@ -121,7 +111,7 @@ export class StateService {
   }
 
   public deselectAll() {
-    let currentSelection = this.selectedSubject.value;
+    const currentSelection = this.selectedSubject.value;
     if (!currentSelection) {
       currentSelection.nodes.length = 0;
       currentSelection.keyframes.length = 0;
@@ -136,15 +126,15 @@ export class StateService {
     }
 
     this.deselectAll();
-    let model: LottieModel = data as LottieModel;
+    const model: LottieModel = data as LottieModel;
 
-    let nodes = this.nodesSubject.value;
+    const nodes = this.nodesSubject.value;
     nodes.length = 0;
 
-    let flatLayerNodes: Node[] = [];
+    const flatLayerNodes: Node[] = [];
 
     if (model) {
-      const node = new Node();
+      let node = new Node();
       node.model = model;
       node.type = NodeType.File;
       // root:
@@ -158,7 +148,7 @@ export class StateService {
 
       // Render assets:
       if (model.assets && model.assets.length > 0) {
-        const node = new Node();
+        node = new Node();
         node.model = model;
         node.type = NodeType.Assets;
         node.data = model;
@@ -224,18 +214,18 @@ export class StateService {
 
     // TODO:
     if (layerData.ty == layerType.Image) {
-      let currentLayer = layerData as image;
+      const currentLayer = layerData as image;
     } else if (layerData.ty === layerType.Null) {
-      let currentLayer = layerData as nullLayer;
+      const currentLayer = layerData as nullLayer;
     } else if (layerData.ty === layerType.Precomp) {
-      let currentLayer = layerData as preComp;
+      const currentLayer = layerData as preComp;
     } else if (layerData.ty === layerType.Shape) {
-      let currentLayer = layerData as shape;
+      const currentLayer = layerData as shape;
       this.getShapesNodes(currentLayer.shapes, node, model);
     } else if (layerData.ty === layerType.Solid) {
-      let currentLayer = layerData as solid;
+      const currentLayer = layerData as solid;
     } else if (layerData.ty === layerType.Text) {
-      let currentLayer = layerData as text;
+      const currentLayer = layerData as text;
     }
 
     node.properties = this.propertesService.getProperties(node);
