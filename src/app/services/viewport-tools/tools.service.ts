@@ -5,7 +5,7 @@ import { BaseTool } from "./base.tool";
 import { ZoomTool } from "./zoom.tool";
 import { BehaviorSubject } from "rxjs";
 import { SelectionTool } from "./selection.tool";
-import { ScrollbarsPanTool } from './scrollbars-pan.tool';
+import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 
 /**
  * Handle current active tool and services.
@@ -75,11 +75,18 @@ export class ToolsService {
     const mouseArgs = new MouseEventArgs(event);
     this.activeTool.onViewportMouseWheel(mouseArgs);
 
-    // Allow to zoom by mouse wheel for all the modes
-    if (!mouseArgs.handled && this.activeTool !== this.zoomTool) {
-      this.zoomTool.onViewportMouseWheel(mouseArgs);
+    if (!mouseArgs.handled) {
+      if (event.ctrlKey) {
+        // Allow to zoom by mouse wheel for all the modes
+        if (this.activeTool !== this.zoomTool) {
+          this.zoomTool.onViewportMouseWheel(mouseArgs);
+        }
+      } else {
+        this.scrollbarsPanTool.onViewportMouseWheel(mouseArgs);
+      }
     }
   }
+
   onViewportBlur(event: Event) {
     this.activeTool.onViewportBlur(event);
   }

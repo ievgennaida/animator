@@ -3,6 +3,7 @@ import { BaseTool } from "./base.tool";
 import { ViewportService } from "./viewport.service";
 import { MouseEventArgs } from "./MouseEventArgs";
 import { PanTool } from "./pan.tool";
+import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root"
@@ -23,10 +24,20 @@ export class ScrollbarsPanTool extends BaseTool {
   scrollContentElement: HTMLElement;
 
   onViewportMouseWheel(event: MouseEventArgs) {
-    // TODO: scroll up and down using wheel by default.
-    // Ignore existing the scroll bounds! Scroll by wheel in any case.
-    // Use shift to scroll horizontal.
-    // Use zoom tool when ctrl is clicked.
+    const whell = event.args as WheelEvent;
+    const speed = -event.deltaY * consts.wheelPanSpeed;
+    const pan = this.viewportService.getPan();
+    if (speed === 0) {
+      return;
+    }
+
+    if (whell.shiftKey) {
+      pan.x += speed;
+    } else {
+      pan.y += speed;
+    }
+
+    this.panTool.pan(pan.x, pan.y);
   }
 
   public init(

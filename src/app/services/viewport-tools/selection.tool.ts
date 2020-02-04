@@ -11,8 +11,6 @@ import { consts } from "src/environments/consts";
   providedIn: "root"
 })
 export class SelectionTool extends BaseTool {
-  iconName = "navigation";
-  selectionRectElement: HTMLElement;
   constructor(
     private viewportService: ViewportService,
     private logger: LoggerService,
@@ -21,11 +19,15 @@ export class SelectionTool extends BaseTool {
   ) {
     super();
   }
+  iconName = "navigation";
+  selectionRectElement: HTMLElement;
 
   private containerRect: DOMRect = null;
   private selectionRect: DOMRect = null;
   private startPos: DOMPoint = null;
   private currentArgs: MouseEventArgs = null;
+
+  private autoPanIntervalRef = null;
   init(element: HTMLElement) {
     this.selectionRectElement = element;
   }
@@ -96,8 +98,6 @@ export class SelectionTool extends BaseTool {
 
     return done;
   }
-
-  private autoPanIntervalRef = null;
   stopAutoPan() {
     if (this.autoPanIntervalRef) {
       clearInterval(this.autoPanIntervalRef);
