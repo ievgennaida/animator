@@ -146,14 +146,11 @@ export class SelectionTool extends BaseTool {
   }
 
   getMousePos(event: MouseEventArgs) {
-    // TODO: cache this.
     const point = this.viewportService.toSvgPoint(
-      event.clientX,
-      event.clientY,
-      false
+      event.clientX - this.containerRect.left,
+      event.clientY - this.containerRect.top,
+      true
     );
-    point.x -= this.containerRect.left;
-    point.y -= this.containerRect.top;
     return point;
   }
 

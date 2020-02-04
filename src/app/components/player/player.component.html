@@ -19,10 +19,11 @@
             <svg #player [attr.width]="workAreaSize.w" [attr.height]="workAreaSize.h" [attr.x]="workAreaSize.x"
                 [attr.y]="workAreaSize.y">
             </svg>
+            <rect #selectionRectangleAdorner display="none" vector-effect="non-scaling-stroke" shape-rendering="crispEdges"
+            class="selection-rectangle" x="0" y="0" width="0" height="0" />
         </g>
         <g>
-            <rect #selectionRectangleAdorner display="none" shape-rendering="crispEdges"
-                class="selection-rectangle" x="0" y="0" width="0" height="0" />
+         
         </g>
     </svg>
     <button mat-button #resetButton class="reset-button" (click)="fitViewport()">
