@@ -3,7 +3,8 @@ import {
   Component,
   HostListener,
   ElementRef,
-  ViewChild
+  ViewChild,
+  NgZone
 } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
 import { StateService } from "./services/state.service";
@@ -28,6 +29,7 @@ export class AppComponent implements OnInit {
   undoDisabled = false;
   redoDisabled = false;
   constructor(
+    private ngZone: NgZone,
     private undoService: UndoService,
     private stateService: StateService,
     private self: ElementRef,
@@ -138,7 +140,22 @@ export class AppComponent implements OnInit {
     this.toolsService.onWindowBlur(event);
   }
 
+  onWindowMouseWheel(event: WheelEvent) {
+    // Method is used becaus HostListener doesnot have
+    // 'passive' option support.
+    this.toolsService.onWindowMouseWheel(event);
+  }
   ngOnInit() {
+    window.addEventListener(
+      "wheel",
+      (e) => {
+        this.onWindowMouseWheel(e);
+      },
+      {
+        passive: false
+      }
+    );
+
     this.setRecent(null);
   }
 
