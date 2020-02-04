@@ -1,7 +1,7 @@
 <div class="header"></div>
 <div [scrollTop]="scrollTop" class="scroll-container">
     <mat-tree *ngIf="dataSource" [style.height.px]="height" [dataSource]="dataSource"
-        [treeControl]="dataSource._treeControl">
+        [treeControl]="treeControl">
         <!-- This is the tree node template for leaf nodes -->
         <mat-tree-node (click)="setSelected($event, node)" [ngClass]="{ 'selected': node.selected }"
             *matTreeNodeDef="let node" matTreeNodePadding [matTreeNodePaddingIndent]="10">
@@ -21,11 +21,11 @@
             *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [matTreeNodePaddingIndent]="5">
             <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
                 <mat-icon>
-                    {{dataSource._treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                 </mat-icon>
             </button>
             <mat-icon>
-                {{node.icon || folder}}
+                {{node.icon || 'folder'}}
             </mat-icon>
             <div class="text">
                 {{node.name}}

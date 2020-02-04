@@ -8,7 +8,7 @@
       <input #file type='file' accept="application/json" style="display:none;" (change)="fileSelected($event)">
     </mat-menu>
     <mat-menu #recent="matMenu">
-      <button mat-menu-item (click)="loadData(item)" *ngFor="let item of recentItems">{{item?.name}}</button>
+      <button mat-menu-item (click)="loadData(item, null)" *ngFor="let item of recentItems">{{item?.name}}</button>
     </mat-menu>
     <button mat-button (click)="undo()" [disabled]="undoDisabled"><mat-icon>undo</mat-icon></button>
     <button mat-button (click)="redo()" [disabled]="redoDisabled"><mat-icon>redo</mat-icon></button>
@@ -22,8 +22,8 @@
 
     <mat-drawer-container>
       <mat-drawer #drawer mode="side" opened="true" position="end" #properties mwlResizable [style.width.px]="propertiesW"
-        [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }" (resizing)="onResizeProperties($event, false)"
-        (resizeEnd)="onResizeProperties($event, true)">
+        [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }" (resizing)="onResizeProperties($event)"
+        (resizeEnd)="onResizeProperties($event)">
         <app-properties> </app-properties>
       </mat-drawer>
       <mat-drawer-content [style.marginRight.px]="propertiesW">
@@ -34,10 +34,10 @@
   <app-controls></app-controls>
 </main>
 <footer #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6"
-  (resizing)="onResizeFooter($event, false)" (resizeEnd)="onResizeFooter($event, true)" [enableGhostResize]="false"
+  (resizing)="onResizeFooter($event)" (resizeEnd)="onResizeFooter($event)" [enableGhostResize]="false"
   [resizeEdges]="{ top: true }">
   <app-outline (mousewheel)="timeline.onWheel($event)" #outline mwlResizable [style.width.px]="outlineW"
-    [resizeCursorPrecision]="6" (resizing)="onResizeOutline($event, false)" (resizeEnd)="onResizeOutline($event, true)"
+    [resizeCursorPrecision]="6" (resizing)="onResizeOutline($event)" (resizeEnd)="onResizeOutline($event)"
     [enableGhostResize]="false" [resizeEdges]="{ right: true }">
   </app-outline>
   <app-timeline #timeline (timelineScroll)="outline.setSize($event)"></app-timeline>

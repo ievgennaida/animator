@@ -95,7 +95,7 @@ export class AppComponent implements OnInit {
     return size;
   }
 
-  @HostListener("window:resize", ["$event"])
+  @HostListener("window:resize", [])
   onWindowResize() {
     if (!this.outline || !this.outline.nativeElement) {
       return;

@@ -31,6 +31,7 @@ export class OutlineComponent implements OnInit, OnDestroy {
   scrollTop: any = 0;
   height: any = "";
   dataSource = this.stateService.flatDataSource;
+  treeControl = this.stateService.treeConrol;
   private destroyed$ = new Subject();
   // Allow to use enums in the template:
   shapeType = shapeType;
