@@ -26,7 +26,7 @@ export class MouseEventArgs {
       } else if (wheel.deltaY > 0) {
         this.deltaY = 1;
       }
-    } else if (event instanceof TouchEvent) {
+    } else if (window.TouchEvent && event instanceof TouchEvent) {
       if (event.touches.length > 0) {
         this.clientX = event.touches[0].clientX;
         this.clientY = event.touches[0].clientX;
