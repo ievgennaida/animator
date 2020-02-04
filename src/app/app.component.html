@@ -21,7 +21,7 @@
     <app-toolbox></app-toolbox>
 
     <mat-drawer-container>
-      <mat-drawer #drawer mode="side" opened="true" position="end" #properties mwlResizable [style.width.px]="propertiesW"
+      <mat-drawer (openedChange)="onPropertiesDrawerPanelToogle($event)" #drawer mode="side" opened="true" position="end" #properties mwlResizable [style.width.px]="propertiesW"
         [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }" (resizing)="onResizeProperties($event)"
         (resizeEnd)="onResizeProperties($event)">
         <app-properties> </app-properties>

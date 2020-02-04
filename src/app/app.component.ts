@@ -10,8 +10,8 @@ import { StateService } from "./services/state.service";
 import { OutlineComponent } from "./components/outline/outline/outline.component";
 import { consts } from "src/environments/consts";
 import { UndoService } from "./services/actions/undo.service";
-import { ToolsService } from './services/viewport-tools/tools.service';
-import { ViewportService } from './services/viewport-tools/viewport.service';
+import { ToolsService } from "./services/viewport-tools/tools.service";
+import { ViewportService } from "./services/viewport-tools/viewport.service";
 
 @Component({
   selector: "app-root",
@@ -22,6 +22,7 @@ export class AppComponent implements OnInit {
   title = "animation";
   outlineW: number | string = null;
   propertiesW: number | string = 215;
+  lastUsedPropertiesW = this.propertiesW;
   footerH: number | string = null;
   recentItems = [];
   undoDisabled = false;
@@ -107,10 +108,12 @@ export class AppComponent implements OnInit {
       this.self.nativeElement.clientWidth
     );
 
-    this.propertiesW = this.resize(
-      this.properties.nativeElement.clientWidth,
-      this.self.nativeElement.clientWidth
-    );
+    if (this.propertiesW !== 0) {
+      this.propertiesW = this.resize(
+        this.properties.nativeElement.clientWidth,
+        this.self.nativeElement.clientWidth
+      );
+    }
 
     this.viewportService.onViewportResized();
   }
@@ -143,6 +146,16 @@ export class AppComponent implements OnInit {
     const data = JSON.parse(item.str);
     this.stateService.setData(data, title);
     this.setRecent(item);
+  }
+
+  onPropertiesDrawerPanelToogle(opened: boolean) {
+    if (!opened) {
+      this.lastUsedPropertiesW = this.propertiesW;
+      this.propertiesW = 0;
+    } else {
+      this.propertiesW = this.lastUsedPropertiesW;
+    }
+    this.viewportService.onViewportResized();
   }
 
   setRecent(newRecentItem: any) {
