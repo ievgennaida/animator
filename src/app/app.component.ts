@@ -204,7 +204,7 @@ export class AppComponent implements OnInit {
         const str = fileReader.result.toString();
         const newData = {
           name: file.name,
-          str: str
+          str
         };
 
         this.loadData(newData, this.title);

@@ -36,7 +36,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   @Input("isPlaying")
   get isPaused() {
     return false;
-    //return this.animation.isPaused;
+    // return this.animation.isPaused;
   }
 
   @ViewChild("player", { static: true })

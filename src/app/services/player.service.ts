@@ -54,7 +54,7 @@ export class PlayerService {
   }
 
   private emitTimeChanged(time: number) {
-    let timeData = this.timeSubject.value;
+    const timeData = this.timeSubject.value;
     timeData.ms = time;
     timeData.frame = time / 1000;
     timeData.globalFrame = this.msToFrame(time);
@@ -73,7 +73,7 @@ export class PlayerService {
       return 0;
     }
 
-    let frame = this.msToFrame(time) - this.getStartPosition();
+    const frame = this.msToFrame(time) - this.getStartPosition();
     this.player.goToAndStop(frame, true);
     this.emitTimeChanged(time);
   }
@@ -120,7 +120,7 @@ export class PlayerService {
       return;
     }
 
-    let first = this.getStartPosition();
+    const first = this.getStartPosition();
 
     this.player.goToAndStop(first, true);
     this.syncornizeTimelineWithPlayer(true);
@@ -171,7 +171,7 @@ export class PlayerService {
       return;
     }
 
-    let pos = this.getEndPosition();
+    const pos = this.getEndPosition();
 
     this.player.goToAndStop(pos, true);
     this.syncornizeTimelineWithPlayer(true);

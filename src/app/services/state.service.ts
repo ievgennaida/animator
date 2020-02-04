@@ -70,7 +70,7 @@ export class StateService {
 
   // Allow to select tree node, but list of avaliable might be extended.
   setSelectedNode(node: Node, isAdd: boolean = false) {
-    let currentSelected = this.selectedSubject.getValue();
+    const currentSelected = this.selectedSubject.getValue();
     if (isAdd) {
       if (currentSelected.nodes.includes(node)) {
         node.selected = false;
@@ -83,7 +83,7 @@ export class StateService {
       currentSelected.nodes.forEach(p => (p.selected = false));
       currentSelected.nodes.length = 0;
     }
-    
+
     if (node.selected) {
       currentSelected.nodes.push(node);
     }
@@ -91,8 +91,8 @@ export class StateService {
   }
 
   setSelectedKeyframes(keyframe: Keyframe) {
-    //this.selectedSubject.value.keyframe = keyframe;
-    //this.selectedSubject.next(this.selectedSubject.value);
+    // this.selectedSubject.value.keyframe = keyframe;
+    // this.selectedSubject.next(this.selectedSubject.value);
   }
 
   public get selected(): Observable<SelectedData> {
@@ -164,9 +164,9 @@ export class StateService {
       }
 
       // shapePropertyFactory
-      //matrix
-      //let factory = player.__getFactory('propertyFactory');
-      let renderer = player.renderer;
+      // matrix
+      // let factory = player.__getFactory('propertyFactory');
+      const renderer = player.renderer;
 
       // Add layers:
       if (renderer.elements) {
@@ -177,13 +177,13 @@ export class StateService {
     }
 
     // Remap and convert the the flat level nodes to be tree structured.
-    let onlyLayerNodes = flatLayerNodes.filter(p => p.type == NodeType.Layer);
+    const onlyLayerNodes = flatLayerNodes.filter(p => p.type === NodeType.Layer);
     onlyLayerNodes.forEach(node => {
       let parentFound = false;
-      let layer = node.data as baseLayer;
+      const layer = node.data as baseLayer;
 
       if (layer.parent !== undefined) {
-        let parentNode = onlyLayerNodes.find(p => p.data.ind === layer.parent);
+        const parentNode = onlyLayerNodes.find(p => p.data.ind === layer.parent);
         if (parentNode) {
           if (!parentNode.children) {
             parentNode.children = [];
@@ -205,7 +205,7 @@ export class StateService {
   addLayer(flatLayerNodes: Node[], layer: any, model: LottieModel) {
     const layerData = layer.data;
 
-    let node = new Node();
+    const node = new Node();
     node.model = model;
     node.type = NodeType.Layer;
     node.data = layerData;
@@ -213,7 +213,7 @@ export class StateService {
     node.name = (layerData.nm || layerType[layerData.ty] || "layer").toString();
 
     // TODO:
-    if (layerData.ty == layerType.Image) {
+    if (layerData.ty === layerType.Image) {
       const currentLayer = layerData as image;
     } else if (layerData.ty === layerType.Null) {
       const currentLayer = layerData as nullLayer;
@@ -240,7 +240,7 @@ export class StateService {
     }
 
     // Render list of properties marked as allowed to be a part of the outline tree.
-    let filtered = parentNode.properties.items.filter(p => p.renderAsOutline);
+    const filtered = parentNode.properties.items.filter(p => p.renderAsOutline);
     if (filtered && filtered.length > 0) {
       if (!parentNode.children) {
         parentNode.children = [];
@@ -284,13 +284,13 @@ export class StateService {
       return;
     }
 
-    let nodes: Node[] = [];
+    const nodes: Node[] = [];
     if (Array.isArray(shape)) {
       shape.forEach(p => {
         this.getShapesNodes(p, parentNode, model);
       });
     } else {
-      let node = new Node();
+      const node = new Node();
       node.model = model;
       node.type = NodeType.Shape;
       node.data = shape;
@@ -301,7 +301,7 @@ export class StateService {
       }
 
       if (shape.ty === shapeType.group) {
-        let groupShape = shape as group;
+        const groupShape = shape as group;
         node.icon = "folder_special";
         this.getShapesNodes(groupShape.it, node, model);
       } else if (shape.ty === shapeType.transform) {
@@ -347,11 +347,11 @@ export class StateService {
     }
 
     // Render list of properties marked as allowed for the outline.
-    let filtered = node.properties.items;
+    const filtered = node.properties.items;
 
     if (filtered && filtered.length > 0) {
       filtered.forEach(p => {
-        let keyframes = p.getKeyframes();
+        const keyframes = p.getKeyframes();
         if (keyframes) {
           if (!node.lane.keyframes) {
             node.lane.keyframes = [];

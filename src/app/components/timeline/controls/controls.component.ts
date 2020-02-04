@@ -13,13 +13,14 @@ export class ControlsComponent implements OnInit, OnDestroy {
   constructor(private playerService: PlayerService) { }
   isPaused = true;
   isPan = false;
+  private destroyed$ = new Subject();
+
   ngOnInit() {
     this.playerService.playSubject.pipe(takeUntil(this.destroyed$)).subscribe(p => {
       this.isPaused = !p;
     })
   }
 
-  private destroyed$ = new Subject();
   ngOnDestroy() {
     this.destroyed$.next(true);
     this.destroyed$.complete();

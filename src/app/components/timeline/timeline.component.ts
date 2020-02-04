@@ -52,7 +52,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   public timelineScroll: EventEmitter<any> = new EventEmitter();
 
   ngOnInit() {
-    let onDraw = () => {
+    const onDraw = () => {
       this.playerService.syncornizeTimelineWithPlayer();
       window.requestAnimationFrame(onDraw);
     };
@@ -70,7 +70,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     this.playerService.setTimeline(this.timeline);
 
     this.timeline.on("timeChanged", args => {
-      if (args.source == "user") {
+      if (args.source === "user") {
         this.playerService.goTo(args.val);
       }
     });
@@ -82,12 +82,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     this.timeline.on("dragStarted", args => {
       if (args) {
-        let keyframes = args.keyframes as Array<Keyframe>;
+        const keyframes = args.keyframes as Array<Keyframe>;
         this.actionService.StartTransaction(keyframes);
-        //this.propertiesService.emitPropertyChanged(null);
+        // this.propertiesService.emitPropertyChanged(null);
       }
     });
-    
+
     this.timeline.on("dragFinished", args => {
       if (args) {
         this.propertiesService.emitPropertyChanged(null);
@@ -98,7 +98,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     const ds = this.stateService.flatDataSource;
     const tc = this.stateService.treeConrol;
- 
+
     ds._flattenedData.pipe(takeUntil(this.destroyed$)).subscribe(flatItems => {
       this.lanes.length = 0;
 
@@ -115,7 +115,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       }
     });
 
-    tc.expansionModel.onChange
+    tc.expansionModel.changed
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         ds.data.forEach(p => this.resolveLanesVisibilty(tc, p, false));
