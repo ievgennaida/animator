@@ -23,7 +23,10 @@ export class ScrollbarsPanTool extends BaseTool {
   scrollContentElement: HTMLElement;
 
   onViewportMouseWheel(event: MouseEventArgs) {
-    // TODO: implement.
+    // TODO: scroll up and down using wheel by default.
+    // Ignore existing the scroll bounds! Scroll by wheel in any case.
+    // Use shift to scroll horizontal.
+    // Use zoom tool when ctrl is clicked.
   }
 
   public init(
