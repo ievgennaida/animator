@@ -24,13 +24,13 @@ import { PanTool } from "src/app/services/viewport-tools/pan.tool";
 import { SelectionTool } from "src/app/services/viewport-tools/selection.tool";
 import { ViewportService } from "src/app/services/viewport-tools/viewport.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport-tools/scrollbars-pan.tool";
-import { consts } from 'src/environments/consts';
+import { consts } from "src/environments/consts";
 
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
   styleUrls: ["./player.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlayerComponent implements OnInit, OnDestroy {
   @Input("isPlaying")
@@ -79,7 +79,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private toolsService: ToolsService,
     private panTool: PanTool,
     private selectionTool: SelectionTool,
-    private cdRef:ChangeDetectorRef,
+    private cdRef: ChangeDetectorRef,
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {}
 
@@ -140,14 +140,21 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.toolsService.fitViewport();
   }
 
-  ngOnInit() {
-    this.calcRealScrollBarSize();
-
+  setWorkAreaSize() {
     this.viewportService.onViewportInit(
       this.svgViewPortRef.nativeElement,
-      this.workAreaSize.w,
-      this.workAreaSize.h
+      new DOMRect(
+        this.workAreaSize.x,
+        this.workAreaSize.y,
+        this.workAreaSize.shadowW,
+        this.workAreaSize.shadowH
+      )
     );
+  }
+
+  ngOnInit() {
+    this.calcRealScrollBarSize();
+    this.setWorkAreaSize();
 
     this.loadData(null);
 
@@ -213,11 +220,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.stateService.onDataParsed(this.animation, animParams.animationData);
     }
 
-    this.viewportService.onViewportInit(
-      this.svgViewPortRef.nativeElement,
-      data.w,
-      data.h
-    );
+    this.setWorkAreaSize();
 
     this.toolsService.fitViewport();
     this.cdRef.markForCheck();

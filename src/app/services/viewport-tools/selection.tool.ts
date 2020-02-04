@@ -132,16 +132,16 @@ export class SelectionTool extends BaseTool {
     const matrix = this.viewportService.viewport.ownerSVGElement
       .createSVGMatrix()
       .inverse()
-      .translate(this.selectionRect.x, this.selectionRect.y);
+      .translate(Math.round(this.selectionRect.x), Math.round(this.selectionRect.y));
     this.viewportService.setCTMForElement(this.selectionRectElement, matrix);
     this.selectionRectElement.setAttribute("display", "initial");
     this.selectionRectElement.setAttribute(
       "width",
-      this.selectionRect.width.toString()
+      Math.round(this.selectionRect.width).toString()
     );
     this.selectionRectElement.setAttribute(
       "height",
-      this.selectionRect.height.toString()
+      Math.round(this.selectionRect.height).toString()
     );
   }
 

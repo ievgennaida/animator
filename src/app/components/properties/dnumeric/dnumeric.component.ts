@@ -21,7 +21,6 @@ export class DnumericComponent implements OnInit, OnDestroy {
   property: DNumberProperty = null;
   subscription: Subscription[] = [];
   ngOnInit() {
-    
   }
 
   ngOnDestroy() {

@@ -41,11 +41,17 @@
   }
   .selection-rectangle {
     stroke-width: 1;
-    stroke: white;
-    fill: none;
+    stroke: black;
+    fill:rgba(60,100,255,0.2);
     stroke-dasharray: 10 4;
   }
-  
+
+  .shadow-workarea{
+    fill: white;
+    stroke-width: 1;
+    stroke: black;
+  }
+
   .reset-button{
     position: absolute;
     right: 0;

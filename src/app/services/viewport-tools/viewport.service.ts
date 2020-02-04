@@ -8,9 +8,7 @@ import { MouseEventArgs } from "./MouseEventArgs";
 export class ViewportService {
   constructor() {}
   public viewport: SVGGraphicsElement = null;
-  // Predefined viewport height.
-  viewportHeight = 0;
-  viewportWidth = 0;
+  workAreaRect: DOMRect = null;
   viewportTransformationSubject = new Subject();
   viewportResizedSubject = new Subject();
 
@@ -34,7 +32,7 @@ export class ViewportService {
     this.setCTMForElement(this.viewport, matrix);
   }
 
-  public getZoom(){
+  public getZoom() {
     const ctm = this.getCTM();
     return ctm.a;
   }
@@ -62,16 +60,12 @@ export class ViewportService {
     return element.getCTM();
   }
 
-  public toSvgPoint(x:number, y:number, translate = false) {
+  public toSvgPoint(x: number, y: number, translate = false) {
     if (!this.isInit()) {
       return;
     }
 
-    let point = this.convertSvgPoint(
-      this.viewport,
-      x,
-      y
-    );
+    let point = this.convertSvgPoint(this.viewport, x, y);
     if (translate) {
       const matrix = this.getCTM();
       point = point.matrixTransform(matrix.inverse());
@@ -93,19 +87,17 @@ export class ViewportService {
   }
 
   onViewportResize() {
-    if (!this.viewportHeight || !this.viewportWidth) {
-      const size = this.viewport.getBBox();
-      this.viewportHeight = size.height;
-      this.viewportWidth = size.width;
+    if (!this.workAreaRect) {
+      this.workAreaRect = this.viewport.getBBox();
     }
   }
 
   getWorkAreaSize(): DOMRect {
     this.onViewportResize();
-    return new DOMRect(0, 0, this.viewportWidth, this.viewportHeight);
+    return this.workAreaRect;
   }
 
-  getContainerClientRect(): DOMRect|any{
+  getContainerClientRect(): DOMRect | any {
     if (!this.isInit()) {
       return;
     }
@@ -122,15 +114,10 @@ export class ViewportService {
    * Called once on the application start.
    * @param viewport svg application viewport.
    */
-  onViewportInit(
-    viewport: SVGGraphicsElement,
-    viewportWidth = 0,
-    viewportHeight = 0
-  ) {
+  onViewportInit(viewport: SVGGraphicsElement, workAreaRect: DOMRect = null) {
     this.viewport = viewport;
     if (viewport) {
-      this.viewportHeight = viewportHeight;
-      this.viewportWidth = viewportWidth;
+      this.workAreaRect = workAreaRect;
       this.onViewportResize();
       this.viewportTransformationSubject.next();
     }

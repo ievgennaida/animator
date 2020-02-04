@@ -12,8 +12,8 @@
         (touchcancel)="onViewportTouchCancel($event)">
         <g #svgViewport class="svg-viewport" fill="none">
 
-            <rect x="0" y="0" width="640" height="480" [attr.x]="workAreaSize.x" [attr.y]="workAreaSize.y"
-                [attr.width]="workAreaSize.shadowW" [attr.height]="workAreaSize.shadowH" fill="Blue">
+            <rect class="shadow-workarea"x="0" y="0" width="640" height="480" vector-effect="non-scaling-stroke" shape-rendering="crispEdges" [attr.x]="workAreaSize.x" [attr.y]="workAreaSize.y"
+                [attr.width]="workAreaSize.shadowW" [attr.height]="workAreaSize.shadowH">
                 <!--Shadow viewport used to add some extra scroll when svg is loaded-->
             </rect>
             <svg #player [attr.width]="workAreaSize.w" [attr.height]="workAreaSize.h" [attr.x]="workAreaSize.x"
