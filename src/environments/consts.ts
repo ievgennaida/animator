@@ -7,5 +7,11 @@ export const consts = {
     height: 480
   },
   autoPanSpeed: 10,
-  wheelPanSpeed: 15
+  wheelPanSpeed: 15,
+  zoom: {
+    sensitivityWheel: 0.04,
+    sensitivityMouse: 0.1,
+    min: 0.1,
+    max: 4
+  }
 };

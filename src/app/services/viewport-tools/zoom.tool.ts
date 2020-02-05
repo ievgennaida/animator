@@ -3,25 +3,22 @@ import { MouseEventArgs } from "./MouseEventArgs";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewportService } from "./viewport.service";
+import { BaseSelectionTool } from "./base-selection.tool";
+import { PanTool } from "./pan.tool";
+import { consts } from 'src/environments/consts';
 
 @Injectable({
   providedIn: "root"
 })
-export class ZoomTool extends BaseTool {
-  sensitivityWheel = 0.04;
-  sensitivityMouse = 0.1;
-
-  currentZoom = 1;
-  min = 0.1;
-  max = 2;
-
+export class ZoomTool extends BaseSelectionTool {
   viewport: SVGElement = null;
   iconName = "search";
   constructor(
-    private viewportService: ViewportService,
-    private logger: LoggerService
+    viewportService: ViewportService,
+    logger: LoggerService,
+    panTool: PanTool
   ) {
-    super();
+    super(viewportService, logger, panTool);
   }
 
   onViewportMouseWheel(event: MouseEventArgs) {
@@ -31,10 +28,28 @@ export class ZoomTool extends BaseTool {
 
     event.handled = true;
     const direction = event.deltaY;
-    this.zoom(direction, this.sensitivityWheel, event);
+    this.zoom(direction, consts.zoom.sensitivityWheel, event);
+  }
+  /**
+   * Override base method.
+   */
+  selectionEnded(event: MouseEventArgs, selectedArea: DOMRect) {
+    const clickThreshold = 5;
+    if (
+      selectedArea &&
+      selectedArea.width > clickThreshold &&
+      selectedArea.height > clickThreshold
+    ) {
+      // Zoom to area when selection is made:
+      this.fit(selectedArea);
+      this.panTool.fit(selectedArea);
+    } else {
+      // zoom by a mouse click:
+      this.zoomByMouseEvent(event);
+    }
   }
 
-  onViewportMouseUp(event: MouseEventArgs) {
+  zoomByMouseEvent(event: MouseEventArgs) {
     if (!this.viewportService.isInit()) {
       return;
     }
@@ -44,7 +59,7 @@ export class ZoomTool extends BaseTool {
       direction = 1;
     }
 
-    this.zoom(direction, this.sensitivityMouse, event);
+    this.zoom(direction, consts.zoom.sensitivityMouse, event);
   }
 
   zoom(direction = 1, scale = 1, event: MouseEventArgs = null) {
@@ -59,7 +74,7 @@ export class ZoomTool extends BaseTool {
       }
 
       const expectedScale = matrix.a * scale;
-      if (expectedScale > this.min && expectedScale < this.max) {
+      if (expectedScale >= consts.zoom.min && expectedScale <= consts.zoom.max) {
         matrix = matrix
           .translate(point.x, point.y)
           .scale(scale, scale, scale)
@@ -68,25 +83,31 @@ export class ZoomTool extends BaseTool {
       }
     }
   }
-  setDirectZoom(scale:number){
+  setDirectZoom(scale: number) {
     const matrix = this.viewportService.getCTM();
     matrix.a = scale;
     matrix.d = scale;
     this.viewportService.setCTM(matrix);
   }
 
-  fit() {
+  fit(rect: DOMRect = null) {
     if (!this.viewportService.isInit()) {
       return;
     }
 
-    const size = this.viewportService.getWorkAreaSize();
+    if (!rect) {
+      rect = this.viewportService.getWorkAreaSize();
+    }
+
     const parentSize = this.viewportService.getContainerSize();
 
-    const fitProportion = Math.min(
-      parentSize.width / size.width,
-      parentSize.height / size.height
+    let fitProportion = Math.min(
+      parentSize.width / rect.width,
+      parentSize.height / rect.height,
+      consts.zoom.max
     );
+
+    fitProportion = Math.max(fitProportion, consts.zoom.min);
 
     this.setDirectZoom(fitProportion);
   }

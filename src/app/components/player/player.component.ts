@@ -21,10 +21,11 @@ import { PlayerService } from "src/app/services/player.service";
 import { PropertiesService } from "src/app/services/properties.service";
 import { ToolsService } from "src/app/services/viewport-tools/tools.service";
 import { PanTool } from "src/app/services/viewport-tools/pan.tool";
-import { SelectionTool } from "src/app/services/viewport-tools/selection.tool";
+import { BaseSelectionTool } from "src/app/services/viewport-tools/base-selection.tool";
 import { ViewportService } from "src/app/services/viewport-tools/viewport.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport-tools/scrollbars-pan.tool";
 import { consts } from "src/environments/consts";
+import { ZoomTool } from 'src/app/services/viewport-tools/zoom.tool';
 
 @Component({
   selector: "app-player",
@@ -78,7 +79,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private viewportService: ViewportService,
     private toolsService: ToolsService,
     private panTool: PanTool,
-    private selectionTool: SelectionTool,
+    private zoomTool: ZoomTool,
+    private selectionTool: BaseSelectionTool,
     private cdRef: ChangeDetectorRef,
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {}
@@ -175,6 +177,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.scrollContentRef.nativeElement
     );
 
+    this.zoomTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.toolsService.fitViewport();
   }

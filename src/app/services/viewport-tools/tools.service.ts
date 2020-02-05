@@ -4,7 +4,7 @@ import { MouseEventArgs } from "./MouseEventArgs";
 import { BaseTool } from "./base.tool";
 import { ZoomTool } from "./zoom.tool";
 import { BehaviorSubject } from "rxjs";
-import { SelectionTool } from "./selection.tool";
+import { BaseSelectionTool } from "./base-selection.tool";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 
 /**
@@ -21,7 +21,7 @@ export class ToolsService {
   constructor(
     private panTool: PanTool,
     private zoomTool: ZoomTool,
-    private selectionTool: SelectionTool,
+    private selectionTool: BaseSelectionTool,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {
@@ -114,8 +114,8 @@ export class ToolsService {
   /**
    * Fit zoom and pan.
    */
-  fitViewport() {
-    this.zoomTool.fit();
-    this.panTool.fit();
+  fitViewport(rect: DOMRect = null) {
+    this.zoomTool.fit(rect);
+    this.panTool.fit(rect);
   }
 }

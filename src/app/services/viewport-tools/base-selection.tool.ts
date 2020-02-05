@@ -6,26 +6,26 @@ import { LoggerService } from "../logger.service";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
+import { ZoomTool } from './zoom.tool';
 
 @Injectable({
   providedIn: "root"
 })
-export class SelectionTool extends BaseTool {
+export class BaseSelectionTool extends BaseTool {
   constructor(
-    private viewportService: ViewportService,
-    private logger: LoggerService,
-    private scrollbarsPanTool: ScrollbarsPanTool,
-    private panTool: PanTool
+    protected viewportService: ViewportService,
+    protected logger: LoggerService,
+    protected panTool: PanTool
   ) {
     super();
   }
   iconName = "navigation";
   selectionRectElement: HTMLElement;
 
-  private containerRect: DOMRect = null;
-  private selectionRect: DOMRect = null;
-  private startPos: DOMPoint = null;
-  private currentArgs: MouseEventArgs = null;
+  protected containerRect: DOMRect = null;
+  protected selectionRect: DOMRect = null;
+  protected startPos: DOMPoint = null;
+  protected currentArgs: MouseEventArgs = null;
 
   private autoPanIntervalRef = null;
   init(element: HTMLElement) {
@@ -44,7 +44,11 @@ export class SelectionTool extends BaseTool {
   onWindowMouseUp(e: MouseEventArgs) {
     this.currentArgs = e;
     this.trackMousePos(e);
+    this.selectionEnded(e, this.selectionRect);
     this.cleanUp();
+  }
+
+  selectionEnded(e: MouseEventArgs, selectedArea:DOMRect){
   }
 
   onWindowMouseMove(event: MouseEventArgs) {

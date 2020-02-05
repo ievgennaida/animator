@@ -83,7 +83,11 @@ export class PanTool extends BaseTool {
     this.viewportService.setCTM(matrix);
   }
 
-  fit() {
+  /**
+   * fit the pan to the scene.
+   * @param rect rectagle to fit view for. use player svg if null.
+   */
+  fit(rect: DOMRect = null) {
     if (!this.viewportService.isInit()) {
       this.logger.log(
         "Pan: cannot center content. vieport should be initiazed first."
@@ -93,7 +97,10 @@ export class PanTool extends BaseTool {
 
     const matrix = this.viewportService.getCTM();
     const zoom = matrix.a;
-    const rect = this.viewportService.getWorkAreaSize();
+    if (!rect) {
+      rect = this.viewportService.getWorkAreaSize();
+    }
+
     const h = rect.height * zoom;
     const w = rect.width * zoom;
     const x = rect.x * zoom;
