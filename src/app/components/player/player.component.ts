@@ -176,6 +176,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     );
 
     this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
+    this.toolsService.fitViewport();
   }
 
   onScroll() {

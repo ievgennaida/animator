@@ -3,7 +3,7 @@ import { MouseEventArgs } from "./MouseEventArgs";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewportService } from "./viewport.service";
-import { consts } from 'src/environments/consts';
+import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root"
@@ -46,7 +46,10 @@ export class PanTool extends BaseTool {
     }
 
     event.handled = true;
-    const currentPoint = this.viewportService.toSvgPoint(event.clientX, event.clientY);
+    const currentPoint = this.viewportService.toSvgPoint(
+      event.clientX,
+      event.clientY
+    );
     this.panByRelativePoint(currentPoint);
   }
 
@@ -63,7 +66,10 @@ export class PanTool extends BaseTool {
   onWindowMouseUp(event: MouseEventArgs) {
     if (this.mouseDownPos) {
       event.handled = true;
-      const currentPoint = this.viewportService.toSvgPoint(event.clientX, event.clientY);
+      const currentPoint = this.viewportService.toSvgPoint(
+        event.clientX,
+        event.clientY
+      );
       this.panByRelativePoint(currentPoint);
     }
 
@@ -87,15 +93,16 @@ export class PanTool extends BaseTool {
 
     const matrix = this.viewportService.getCTM();
     const zoom = matrix.a;
-    const size = this.viewportService.getWorkAreaSize();
-    size.height *= zoom;
-    size.width *= zoom;
+    const rect = this.viewportService.getWorkAreaSize();
+    const h = rect.height * zoom;
+    const w = rect.width * zoom;
+    const x = rect.x * zoom;
+    const y = rect.y * zoom;
+
     const parent = this.viewportService.viewport.ownerSVGElement;
     const parentWidth = parent.clientWidth;
     const parentHeight = parent.clientHeight;
 
-    const x = parentWidth / 2 - size.width / 2;
-    const y = parentHeight / 2 - size.height / 2;
-    this.pan(x, y);
+    this.pan(parentWidth / 2 - w / 2 - x, parentHeight / 2 - h / 2 - y);
   }
 }

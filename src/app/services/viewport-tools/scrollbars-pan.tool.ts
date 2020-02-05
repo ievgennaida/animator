@@ -105,7 +105,7 @@ export class ScrollbarsPanTool extends BaseTool {
     const viewPortRect = svgContentElement.getBoundingClientRect();
 
     // TODO: This data should be cached until the browser resize:
-    const parentPos = svgContentElement.ownerSVGElement.getBoundingClientRect();
+    const parentPos = this.viewportService.getContainerClientRect();
     const pan = this.viewportService.getPan();
 
     const relativePos = {
