@@ -5,7 +5,7 @@ import { LoggerService } from "../logger.service";
 import { ViewportService } from "./viewport.service";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
-import { consts } from 'src/environments/consts';
+import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root"
@@ -34,7 +34,7 @@ export class ZoomTool extends BaseSelectionTool {
    * Override base method.
    */
   selectionEnded(event: MouseEventArgs, selectedArea: DOMRect) {
-    const clickThreshold = 5;
+    const clickThreshold = 8;
     if (
       selectedArea &&
       selectedArea.width > clickThreshold &&
@@ -44,8 +44,16 @@ export class ZoomTool extends BaseSelectionTool {
       this.fit(selectedArea);
       this.panTool.fit(selectedArea);
     } else {
-      // zoom by a mouse click:
-      this.zoomByMouseEvent(event);
+      // check the bounds while it's window events:
+      const area = this.viewportService.getContainerClientRect();
+      if (
+        event.clientX >= area.left &&
+        event.clientX <= area.right &&
+        event.clientY >= area.top &&
+        event.clientY <= area.bottom
+      ) {
+        this.zoomByMouseEvent(event);
+      }
     }
   }
 
@@ -55,7 +63,8 @@ export class ZoomTool extends BaseSelectionTool {
     }
 
     let direction = -1;
-    if (event.args.shiftKey || event.args.ctrlKey) {
+    const e = event.args as MouseEvent;
+    if (e.shiftKey || e.ctrlKey || e.button === 2) {
       direction = 1;
     }
 
@@ -74,7 +83,10 @@ export class ZoomTool extends BaseSelectionTool {
       }
 
       const expectedScale = matrix.a * scale;
-      if (expectedScale >= consts.zoom.min && expectedScale <= consts.zoom.max) {
+      if (
+        expectedScale >= consts.zoom.min &&
+        expectedScale <= consts.zoom.max
+      ) {
         matrix = matrix
           .translate(point.x, point.y)
           .scale(scale, scale, scale)
