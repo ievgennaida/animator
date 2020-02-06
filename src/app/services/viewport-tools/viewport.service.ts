@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Subject, Observable } from "rxjs";
+import { Subject, BehaviorSubject, Observable } from "rxjs";
 import { MouseEventArgs } from "./MouseEventArgs";
 
 @Injectable({
@@ -9,7 +9,7 @@ export class ViewportService {
   constructor() {}
   public viewport: SVGGraphicsElement = null;
   workAreaRect: DOMRect = null;
-  viewportTransformationSubject = new Subject();
+  viewportTransformationSubject = new BehaviorSubject<DOMMatrix>(null);
   viewportResizedSubject = new Subject();
 
   public get viewportResize(): Observable<any> {
@@ -119,7 +119,6 @@ export class ViewportService {
     if (viewport) {
       this.workAreaRect = workAreaRect;
       this.onViewportResize();
-      this.viewportTransformationSubject.next();
     }
   }
 }

@@ -25,7 +25,7 @@ import { BaseSelectionTool } from "src/app/services/viewport-tools/base-selectio
 import { ViewportService } from "src/app/services/viewport-tools/viewport.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport-tools/scrollbars-pan.tool";
 import { consts } from "src/environments/consts";
-import { ZoomTool } from 'src/app/services/viewport-tools/zoom.tool';
+import { ZoomTool } from "src/app/services/viewport-tools/zoom.tool";
 
 @Component({
   selector: "app-player",
@@ -60,6 +60,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   private readonly defaultBrowserScrollSize = 17;
   offset = 0;
+  scrollbarInputValue = "100";
   workAreaSize = {
     x: this.offset,
     y: this.offset,
@@ -85,6 +86,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {}
 
+  scrollbarSize = 17;
   calcRealScrollBarSize() {
     const scrollBars = this.scrollBarsRef.nativeElement;
     const svgContent = this.svgRef.nativeElement;
@@ -93,17 +95,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
     const scrollBarWidth = scrollBars.offsetWidth - scrollBars.clientWidth;
     // Change in a case of the non-standart scrollbar width.
     if (scrollBarWidth !== this.defaultBrowserScrollSize) {
+      this.scrollbarSize = scrollBarWidth;
       const sizeStr = scrollBarWidth + "px";
       const sizeWithoutScrollbar = `calc(100% - ${sizeStr})`;
       svgContent.style.width = sizeWithoutScrollbar;
       svgContent.style.height = sizeWithoutScrollbar;
-
-      const button = this.resetButton.nativeElement;
-      if (button) {
-        // Scroll bar buttons
-        button.style.width = sizeStr;
-        button.style.height = sizeStr;
-      }
     }
   }
 
@@ -138,6 +134,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.toolsService.onViewportBlur(event);
   }
 
+  centerViewport() {
+    this.panTool.fit();
+  }
+  zoomVieport(zoom: number) {
+    this.zoomTool.setDirectZoom(zoom);
+    this.centerViewport();
+  }
   fitViewport() {
     this.toolsService.fitViewport();
   }
@@ -180,6 +183,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.zoomTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.toolsService.fitViewport();
+
+    this.viewportService.viewportTransformationSubject
+      .asObservable()
+      .subscribe(p => {
+        if (p) {
+          this.scrollbarInputValue = String(p.a * 100);
+        } else {
+          this.scrollbarInputValue = "";
+        }
+      });
   }
 
   onScroll() {
@@ -191,6 +204,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
+  toogleGridLines() {}
   loadData(data, refresh: boolean = false) {
     if (this.animation) {
       this.animation.destroy();

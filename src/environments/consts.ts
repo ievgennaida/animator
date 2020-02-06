@@ -6,6 +6,7 @@ export const consts = {
     width: 640,
     height: 480
   },
+  rulerSize: 20,
   autoPanSpeed: 10,
   wheelPanSpeed: 15,
   zoom: {

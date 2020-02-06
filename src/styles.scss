@@ -8,6 +8,7 @@ body {
   font-size: 12px;
 }
 //.mat-flat-button, .mat-icon-button, .mat-stroked-button
+$scrollbar-color: #161616;
 
 .mat-button {
   border-radius: 0px !important;
@@ -20,7 +21,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-  background: #161616;
+  background: $scrollbar-color;
   color: gray;
 }
 
@@ -29,7 +30,7 @@ body {
 }
 
 ::-webkit-scrollbar-corner {
-  background: #161616;
+  background: $scrollbar-color;
 }
 .mat-button-toggle-label-content {
   background-color: none !important;
