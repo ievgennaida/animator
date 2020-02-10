@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
   @ViewChild("footer", { static: true, read: ElementRef })
   footer: ElementRef;
 
-  @ViewChild("outline", { static: false, read: ElementRef })
+  @ViewChild("outline", { read: ElementRef })
   outline: ElementRef;
 
   @ViewChild("properties", { static: true, read: ElementRef })

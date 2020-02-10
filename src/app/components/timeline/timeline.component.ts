@@ -45,7 +45,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   scrollTop = 0;
   timeline: Timeline;
 
-  @ViewChild("timeline", { static: false, read: ElementRef })
+  @ViewChild("timeline", { read: ElementRef })
   timelineElement: ElementRef;
 
   @Output()
