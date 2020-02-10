@@ -45,6 +45,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   @ViewChild("scrollContent", { static: true })
   scrollContentRef: ElementRef<HTMLElement>;
+
+  @ViewChild("svgContainer", { static: true })
+  svgContainer: ElementRef<HTMLElement>;
+
   @ViewChild("scrollContainer", { static: true })
   scrollBarsRef: ElementRef<HTMLElement>;
   @ViewChild("svgViewport", { static: true })
@@ -89,7 +93,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   scrollbarSize = 17;
   calcRealScrollBarSize() {
     const scrollBars = this.scrollBarsRef.nativeElement;
-    const svgContent = this.svgRef.nativeElement;
+    const offsetElement = this.svgContainer.nativeElement;
     // add the real scrollbar offset size as style.
 
     const scrollBarWidth = scrollBars.offsetWidth - scrollBars.clientWidth;
@@ -98,8 +102,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.scrollbarSize = scrollBarWidth;
       const sizeStr = scrollBarWidth + "px";
       const sizeWithoutScrollbar = `calc(100% - ${sizeStr})`;
-      svgContent.style.width = sizeWithoutScrollbar;
-      svgContent.style.height = sizeWithoutScrollbar;
+      offsetElement.style.width = sizeWithoutScrollbar;
+      offsetElement.style.height = sizeWithoutScrollbar;
     }
   }
 
@@ -205,6 +209,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   toogleGridLines() {}
+  setZoomLevel(){
+
+  }
+
   loadData(data, refresh: boolean = false) {
     if (this.animation) {
       this.animation.destroy();
