@@ -228,16 +228,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   toogleGridLines() {}
 
-  setZoomLevel(zoom: string, center = true) {
-    const newValue = parseFloat(zoom) / 100;
+  setZoomLevel(zoom: any, direction = 0) {
+    let newValue = parseFloat(zoom);
     if (isNaN(newValue)) {
       return;
     }
 
+    newValue += direction * 10;
+    newValue = newValue / 100;
     this.zoomTool.setDirectZoom(newValue);
-    if (center) {
-      this.centerViewport();
-    }
+    this.centerViewport();
   }
 
   loadData(data, refresh: boolean = false) {

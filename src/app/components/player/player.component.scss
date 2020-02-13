@@ -72,6 +72,8 @@
   align-self: end;
   height: 17px;
   display: flex;
+  padding-left: 20px;
+  position: relative;
 }
 
 button[mat-button] {
@@ -81,6 +83,11 @@ button[mat-button] {
     width: inherit;
     font-size: 15px;
   }
+}
+
+.zoom-icon {
+  margin: 0px 1px;
+  padding: 0px;
 }
 .mat-button {
   min-width: 30px;
@@ -99,13 +106,6 @@ button[mat-menu-item] {
   grid-template-columns: auto 1fr;
   grid-auto-rows: 1fr;
   background-color: $scrollbar-color;
-}
-.zoom-input {
-  height: initial;
-  border-left: 0px;
-  border-bottom: 0px;
-  width: 100px;
-  max-width: 100px;
 }
 
 .scroll-container {
@@ -150,4 +150,12 @@ button[mat-menu-item] {
   font-size: 15px;
   padding: 0px;
   overflow: hidden;
+}
+
+.zoom-input {
+  height: initial;
+  border: 0px;
+  width: 70px;
+  max-width: 70px;
+  padding: 0px;
 }
