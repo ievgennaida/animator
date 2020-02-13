@@ -7,12 +7,39 @@ export const consts = {
     height: 480
   },
   rulerSize: 20,
+  /**
+   * Automatically pan when drag by mouse
+   */
   autoPanSpeed: 10,
   wheelPanSpeed: 15,
   zoom: {
     sensitivityWheel: 0.04,
     sensitivityMouse: 0.1,
+    /**
+     * Min zoom absolute size where 1 is 100%.
+     */
     min: 0.1,
+    /**
+     * Max absolute size where 1 is 100%.
+     */
     max: 4
+  },
+  ruler: {
+    /**
+     * approximate big ruler step in px for 1 tick
+     */
+    tickPx: 120,
+    /**
+     * approximate smal ruler step in px for 1 tick
+     */
+    smallTickPx: 80,
+    smallTickColor: "#D5D5D5",
+    color: "#D5D5D5",
+    tickColor: "#D5D5D5",
+    font: "11px sans-serif",
+  },
+  gridLines: {
+    color: "#D5D5D5",
+    smallColor: "#D5D5D5",
   }
 };

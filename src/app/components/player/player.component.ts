@@ -26,6 +26,7 @@ import { ViewportService } from "src/app/services/viewport-tools/viewport.servic
 import { ScrollbarsPanTool } from "src/app/services/viewport-tools/scrollbars-pan.tool";
 import { consts } from "src/environments/consts";
 import { ZoomTool } from "src/app/services/viewport-tools/zoom.tool";
+import { CanvasAdornersRenderer } from 'src/app/services/viewport-tools/renderers/canvas-adorners.renderer copy';
 
 @Component({
   selector: "app-player",
@@ -51,10 +52,22 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   @ViewChild("scrollContainer", { static: true })
   scrollBarsRef: ElementRef<HTMLElement>;
+
+  @ViewChild("rulerH", { static: true })
+  rulerHRef: ElementRef<HTMLCanvasElement>;
+
+  @ViewChild("rulerW", { static: true })
+  rulerWRef: ElementRef<HTMLCanvasElement>;
+
+  @ViewChild("canvasAdorners", { static: true })
+  canvasAdornersRef: ElementRef<HTMLCanvasElement>;
+
   @ViewChild("svgViewport", { static: true })
   svgViewPortRef: ElementRef<SVGGraphicsElement>;
+
   @ViewChild("svg", { static: true })
   svgRef: ElementRef<SVGSVGElement>;
+
   @ViewChild("resetButton", { static: true })
   resetButton: ElementRef;
 
@@ -87,7 +100,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private zoomTool: ZoomTool,
     private selectionTool: BaseSelectionTool,
     private cdRef: ChangeDetectorRef,
-    private scrollbarsPanTool: ScrollbarsPanTool
+    private scrollbarsPanTool: ScrollbarsPanTool,
+    private adornersRenderer: CanvasAdornersRenderer
   ) {}
 
   scrollbarSize = 17;
@@ -197,6 +211,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
           this.scrollbarInputValue = "";
         }
       });
+
+      this.adornersRenderer.init(
+        this.canvasAdornersRef.nativeElement,
+        this.rulerHRef.nativeElement,
+        this.rulerWRef.nativeElement);
   }
 
   onScroll() {
@@ -208,7 +227,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  toogleGridLines() {}
+  toogleGridLines() {
+
+  }
+
   setZoomLevel(){
 
   }

@@ -31,6 +31,8 @@ export class PanTool extends BaseTool {
     if (!this.viewportService.isInit()) {
       return;
     }
+
+    event.preventDefault();
     event.handled = true;
     this.svgMatrix = this.viewportService.getCTM();
     const point = this.viewportService.toSvgPoint(event.clientX, event.clientY);
@@ -45,6 +47,7 @@ export class PanTool extends BaseTool {
       return;
     }
 
+    event.preventDefault();
     event.handled = true;
     const currentPoint = this.viewportService.toSvgPoint(
       event.clientX,
@@ -65,6 +68,7 @@ export class PanTool extends BaseTool {
 
   onWindowMouseUp(event: MouseEventArgs) {
     if (this.mouseDownPos) {
+      event.preventDefault();
       event.handled = true;
       const currentPoint = this.viewportService.toSvgPoint(
         event.clientX,

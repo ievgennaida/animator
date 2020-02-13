@@ -42,6 +42,10 @@ export class StateService {
   dataSubject = new Subject();
   nodesSubject = new BehaviorSubject<Node[]>([]);
   selectedSubject = new BehaviorSubject<SelectedData>(new SelectedData());
+
+  /**
+   * Outline tree view model.
+   */
   treeConrol = new FlatTreeControl<Node>(
     node => node.level,
     node => node.expandable

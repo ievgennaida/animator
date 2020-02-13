@@ -8,6 +8,7 @@ import { MouseEventArgs } from "./MouseEventArgs";
 export class ViewportService {
   constructor() {}
   public viewport: SVGGraphicsElement = null;
+
   workAreaRect: DOMRect = null;
   viewportTransformationSubject = new BehaviorSubject<DOMMatrix>(null);
   viewportResizedSubject = new Subject();
@@ -36,6 +37,7 @@ export class ViewportService {
     const ctm = this.getCTM();
     return ctm.a;
   }
+
   public getPan() {
     const ctm = this.getCTM();
     return { x: ctm.e, y: ctm.f };
@@ -103,6 +105,7 @@ export class ViewportService {
     }
     return this.viewport.ownerSVGElement.getBoundingClientRect();
   }
+
   getContainerSize(): DOMRect {
     if (!this.isInit()) {
       return;
@@ -110,11 +113,15 @@ export class ViewportService {
     const parent = this.viewport.ownerSVGElement;
     return new DOMRect(0, 0, parent.clientWidth, parent.clientHeight);
   }
+
   /**
    * Called once on the application start.
    * @param viewport svg application viewport.
    */
-  onViewportInit(viewport: SVGGraphicsElement, workAreaRect: DOMRect = null) {
+  onViewportInit(
+    viewport: SVGGraphicsElement,
+    workAreaRect: DOMRect = null
+  ) {
     this.viewport = viewport;
     if (viewport) {
       this.workAreaRect = workAreaRect;

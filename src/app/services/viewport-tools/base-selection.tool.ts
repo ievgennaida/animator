@@ -56,6 +56,7 @@ export class BaseSelectionTool extends BaseTool {
       return;
     }
 
+    event.preventDefault();
     this.currentArgs = event;
     this.trackMousePos(event);
     this.updateSelectorUi();

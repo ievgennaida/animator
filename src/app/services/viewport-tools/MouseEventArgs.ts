@@ -9,6 +9,11 @@ export class MouseEventArgs {
   deltaY = 0;
   handled = false;
   args: MouseEvent | TouchEvent | WheelEvent;
+  preventDefault() {
+    if (this.args) {
+      this.args.preventDefault();
+    }
+  }
 
   constructor(event: MouseEvent | WheelEvent | TouchEvent) {
     this.args = event;
@@ -17,8 +22,6 @@ export class MouseEventArgs {
       return;
     }
 
-    this.args.preventDefault();
-
     if (event instanceof WheelEvent) {
       const wheel = this.args as WheelEvent;
       if (wheel.deltaY < 0) {
@@ -26,7 +29,7 @@ export class MouseEventArgs {
       } else if (wheel.deltaY > 0) {
         this.deltaY = 1;
       }
-    // tslint:disable-next-line: no-string-literal
+      // tslint:disable-next-line: no-string-literal
     } else if (window["TouchEvent"] && event instanceof TouchEvent) {
       if (event.touches.length > 0) {
         this.clientX = event.touches[0].clientX;
@@ -34,7 +37,7 @@ export class MouseEventArgs {
       }
     }
 
-    if(event instanceof MouseEvent) {
+    if (event instanceof MouseEvent) {
       this.clientX = event.clientX;
       this.clientY = event.clientY;
     }

@@ -25,7 +25,7 @@ export class ZoomTool extends BaseSelectionTool {
     if (!this.viewportService.isInit()) {
       return;
     }
-
+    event.preventDefault();
     event.handled = true;
     const direction = event.deltaY;
     this.zoom(direction, consts.zoom.sensitivityWheel, event);

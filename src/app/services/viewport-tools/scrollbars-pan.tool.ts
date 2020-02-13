@@ -24,6 +24,8 @@ export class ScrollbarsPanTool extends BaseTool {
   scrollContentElement: HTMLElement;
 
   onViewportMouseWheel(event: MouseEventArgs) {
+    event.preventDefault();
+
     const whell = event.args as WheelEvent;
     const speed = -event.deltaY * consts.wheelPanSpeed;
     const pan = this.viewportService.getPan();
