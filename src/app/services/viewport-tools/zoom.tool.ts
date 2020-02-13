@@ -82,7 +82,15 @@ export class ZoomTool extends BaseSelectionTool {
           .matrixTransform(matrix.inverse());
       }
 
-      const expectedScale = matrix.a * scale;
+      // allow to set to the max
+      let expectedScale = matrix.a * scale;
+      if (expectedScale > consts.zoom.max) {
+        scale = consts.zoom.max / matrix.a;
+      } else if (expectedScale < consts.zoom.min) {
+        scale = consts.zoom.min/ matrix.a;
+      }
+
+      expectedScale = matrix.a * scale;
       if (
         expectedScale >= consts.zoom.min &&
         expectedScale <= consts.zoom.max
