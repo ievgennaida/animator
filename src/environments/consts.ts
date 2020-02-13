@@ -22,7 +22,7 @@ export const consts = {
     /**
      * Max absolute size where 1 is 100%.
      */
-    max: 4
+    max: 5
   },
   ruler: {
     /**

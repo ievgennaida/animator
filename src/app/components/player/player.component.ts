@@ -26,7 +26,7 @@ import { ViewportService } from "src/app/services/viewport-tools/viewport.servic
 import { ScrollbarsPanTool } from "src/app/services/viewport-tools/scrollbars-pan.tool";
 import { consts } from "src/environments/consts";
 import { ZoomTool } from "src/app/services/viewport-tools/zoom.tool";
-import { CanvasAdornersRenderer } from 'src/app/services/viewport-tools/renderers/canvas-adorners.renderer copy';
+import { CanvasAdornersRenderer } from "src/app/services/viewport-tools/renderers/canvas-adorners.renderer copy";
 
 @Component({
   selector: "app-player",
@@ -155,10 +155,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   centerViewport() {
     this.panTool.fit();
   }
-  zoomVieport(zoom: number) {
-    this.zoomTool.setDirectZoom(zoom);
-    this.centerViewport();
-  }
+
   fitViewport() {
     this.toolsService.fitViewport();
   }
@@ -206,16 +203,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
       .asObservable()
       .subscribe(p => {
         if (p) {
-          this.scrollbarInputValue = String(p.a * 100);
+          this.scrollbarInputValue = String((p.a * 100).toFixed(2));
         } else {
           this.scrollbarInputValue = "";
         }
+        this.cdRef.markForCheck();
       });
 
-      this.adornersRenderer.init(
-        this.canvasAdornersRef.nativeElement,
-        this.rulerHRef.nativeElement,
-        this.rulerWRef.nativeElement);
+    this.adornersRenderer.init(
+      this.canvasAdornersRef.nativeElement,
+      this.rulerHRef.nativeElement,
+      this.rulerWRef.nativeElement
+    );
   }
 
   onScroll() {
@@ -227,12 +226,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  toogleGridLines() {
+  toogleGridLines() {}
 
-  }
+  setZoomLevel(zoom: string, center = true) {
+    const newValue = parseFloat(zoom) / 100;
+    if (isNaN(newValue)) {
+      return;
+    }
 
-  setZoomLevel(){
-
+    this.zoomTool.setDirectZoom(newValue);
+    if (center) {
+      this.centerViewport();
+    }
   }
 
   loadData(data, refresh: boolean = false) {

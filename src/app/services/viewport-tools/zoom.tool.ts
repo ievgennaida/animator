@@ -97,8 +97,10 @@ export class ZoomTool extends BaseSelectionTool {
   }
   setDirectZoom(scale: number) {
     const matrix = this.viewportService.getCTM();
-    matrix.a = scale;
-    matrix.d = scale;
+    const zoom = Math.max(Math.min(scale, consts.zoom.max), consts.zoom.min);
+
+    matrix.a = zoom;
+    matrix.d = zoom;
     this.viewportService.setCTM(matrix);
   }
 
