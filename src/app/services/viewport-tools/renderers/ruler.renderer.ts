@@ -134,17 +134,17 @@ export class RulerRenderer {
     // Find a beautiful end point:
     const toVal = Math.ceil(to / step) * step + step;
 
-    const pixelRatio = 1;
+    const gridLineWidth = window.devicePixelRatio;
     ctx.save();
     let lastTextLim = null;
     let lastTextStart = 0;
     for (let i = fromVal; i <= toVal; i += step) {
       if (this.getDistance(i, toVal) > step / 4) {
         let pos = this.valToPx(from, to, i, viewportSizeA);
-        pos = this.getSharp(pos, pixelRatio);
+        pos = this.getSharp(pos, gridLineWidth);
         ctx.save();
         ctx.beginPath();
-        ctx.lineWidth = pixelRatio;
+        ctx.lineWidth = gridLineWidth;
         ctx.strokeStyle = consts.ruler.tickColor;
         if (horizontal) {
           this.drawLine(ctx, pos, 3, pos, viewportSizeB);
@@ -153,7 +153,7 @@ export class RulerRenderer {
         }
 
         if (drawGridLines) {
-          this.drawGridLine(adornersCTX, pos, horizontal, true);
+          this.drawGridLine(adornersCTX, pos, gridLineWidth, horizontal, true);
         }
         ctx.stroke();
         ctx.fillStyle = consts.ruler.color;
@@ -174,7 +174,7 @@ export class RulerRenderer {
           // Last node is always displayed
           if (!lastTextStart) {
             let lastNodePos = this.valToPx(from, to, toVal, viewportSizeA);
-            lastNodePos = this.getSharp(lastNodePos, pixelRatio);
+            lastNodePos = this.getSharp(lastNodePos, gridLineWidth);
             lastTextStart = lastNodePos;
           }
 
@@ -222,7 +222,7 @@ export class RulerRenderer {
         }
         ctx.stroke();
         if (drawGridLines) {
-          this.drawGridLine(adornersCTX, nextPos, horizontal, false);
+          this.drawGridLine(adornersCTX, nextPos, gridLineWidth, horizontal, false);
         }
       }
     }
@@ -232,12 +232,13 @@ export class RulerRenderer {
   drawGridLine(
     adornersCTX,
     pos: number,
+    gridLineWidth:number,
     horizontal: boolean,
     bigLine: boolean
   ) {
     adornersCTX.save();
     adornersCTX.beginPath();
-    adornersCTX.lineWidth = 1;
+    adornersCTX.lineWidth = gridLineWidth;
     adornersCTX.strokeStyle = bigLine
       ? consts.gridLines.color
       : consts.gridLines.smallColor;
@@ -246,9 +247,10 @@ export class RulerRenderer {
     } else {
       this.drawLine(adornersCTX, 0, pos, adornersCTX.canvas.width, pos);
     }
-    adornersCTX.restore();
     adornersCTX.stroke();
+    adornersCTX.restore();
   }
+
   clearBackground(ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
@@ -270,6 +272,7 @@ export class RulerRenderer {
   }
 
   getSharp(pos, thinkess) {
+    pos = Math.round(pos)+0.5;
     return pos;
     /*pos = Math.floor(pos)
 			return pos;

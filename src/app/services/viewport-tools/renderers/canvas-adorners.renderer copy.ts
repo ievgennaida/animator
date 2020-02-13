@@ -18,7 +18,6 @@ export class CanvasAdornersRenderer {
   rulerWCTX: CanvasRenderingContext2D = null;
   rulerHCTX: CanvasRenderingContext2D = null;
 
-  pixelRatio = 1;
   private showGridLines = true;
   constructor(
     protected viewportService: ViewportService,
@@ -70,11 +69,11 @@ export class CanvasAdornersRenderer {
     }
     if (!ctx && canvas) {
       ctx = canvas.getContext("2d");
-      ctx.translate(0.5, 0.5);
+      // ctx.translate(0.5, 0.5);
     }
-
-    const width = canvas.clientWidth * this.pixelRatio;
-    const height = canvas.clientHeight * this.pixelRatio;
+    let ratio = window.devicePixelRatio;
+    const width = canvas.clientWidth * ratio;
+    const height = canvas.clientHeight * ratio;
     if (width !== ctx.canvas.width) {
       ctx.canvas.width = width;
     }

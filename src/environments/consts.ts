@@ -39,7 +39,7 @@ export const consts = {
     font: "11px sans-serif",
   },
   gridLines: {
-    color: "#D5D5D5",
-    smallColor: "#D5D5D5",
+    color: "rgba(160, 160, 160, 0.4)",
+    smallColor: "rgba(160, 160, 160, 0.2)"
   }
 };
