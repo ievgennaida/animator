@@ -173,7 +173,8 @@ export class StateService {
       const message = `Document cannot be initializer ${document.title}.`;
       this.logger.log(message);
       this.dispose();
-      // TODO: popup
+      this.toolsService.fitViewport();
+      // TODO: error view
       alert(message);
     }
   }
