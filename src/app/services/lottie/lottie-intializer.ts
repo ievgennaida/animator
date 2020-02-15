@@ -34,7 +34,7 @@ export class LottieInitializer implements IInitializer {
       autoplay: false,
       animationData: data
     } as AnimationConfigWithData;
-
+    host.innerHTML = "";
     const player = lottie.loadAnimation(animParams);
     const results = new InitResults();
     results.player=  new LottiePlayer(player);
