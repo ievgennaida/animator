@@ -174,6 +174,7 @@ export class StateService {
       this.logger.log(message);
       this.dispose();
       this.toolsService.fitViewport();
+      this.documentSubject.next(null);
       // TODO: error view
       alert(message);
     }

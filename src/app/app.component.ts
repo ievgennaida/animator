@@ -4,7 +4,8 @@ import {
   HostListener,
   ElementRef,
   ViewChild,
-  NgZone
+  NgZone,
+  ChangeDetectorRef
 } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
 import { StateService } from "./services/state.service";
@@ -15,7 +16,7 @@ import { ToolsService } from "./services/viewport/tools.service";
 import { ViewportService } from "./services/viewport/viewport.service";
 import { InputDocument, InputDocumentType } from "./models/input-document";
 import { parseTemplate } from "@angular/compiler";
-import { LoggerService } from './services/logger.service';
+import { LoggerService } from "./services/logger.service";
 
 @Component({
   selector: "app-root",
@@ -38,7 +39,8 @@ export class AppComponent implements OnInit {
     private self: ElementRef,
     private viewportService: ViewportService,
     private toolsService: ToolsService,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   @ViewChild("footer", { static: true, read: ElementRef })
@@ -87,6 +89,7 @@ export class AppComponent implements OnInit {
   undo() {
     this.undoService.undo();
   }
+
   resize(size, maxSize) {
     const min = maxSize * 0.1;
     const max = maxSize * 0.9;
@@ -151,6 +154,16 @@ export class AppComponent implements OnInit {
     this.toolsService.onWindowMouseWheel(event);
   }
   ngOnInit() {
+    this.stateService.document.subscribe(p => {
+      if (p) {
+        this.title = p.title;
+      } else {
+        this.title = '';
+      }
+
+      this.cdRef.markForCheck();
+    });
+
     window.addEventListener(
       "wheel",
       e => {
@@ -196,7 +209,7 @@ export class AppComponent implements OnInit {
     if (parsed) {
       this.stateService.setDocument(parsed, title);
       const newData = {
-        name:  title,
+        name: title,
         str: data
       };
       this.setRecent(newData);
@@ -252,12 +265,11 @@ export class AppComponent implements OnInit {
     }
 
     const file: File = files[0];
-    this.title = file.name;
     const fileReader = new FileReader();
     fileReader.onload = () => {
       try {
         const str = fileReader.result.toString();
-        this.loadData(str,  file.name);
+        this.loadData(str, file.name);
       } catch (err) {
         alert(`File ${file.name} cannot be parsed!`);
         console.log(err);
