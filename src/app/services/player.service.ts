@@ -74,18 +74,24 @@ export class PlayerService {
     this.timeSubject.next(this.timeSubject.value);
   }
 
-  isReady() {
-    return this.player && this.player.isReady() && this.timeline;
+  isReady(): boolean {
+    return !!this.player && this.player.isReady() && !!this.timeline;
   }
 
-  isPlaying() {
+  isPlaying(): boolean {
+    if (this.isReady()) {
+      return false;
+    }
     return this.player.isPlaying();
   }
 
-  goTo(time: number) {
+  goTo(time: number): boolean {
     if (this.isReady() && this.player.goTo(time)) {
       this.emitTimeChanged(time);
+      return true;
     }
+
+    return false;
   }
 
   getTime(): number {
@@ -106,28 +112,31 @@ export class PlayerService {
     return this.player.frameToMs(frame);
   }
 
-  getStartPosition() {
+  getStartPosition(): number {
     if (!this.isReady()) {
       return 0;
     }
     return this.player.getStartPosition();
   }
 
-  getEndPosition() {
+  getEndPosition(): number {
     if (!this.isReady()) {
       return 0;
     }
     return this.player.getStartPosition();
   }
 
-  first() {
+  first(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
 
     if (this.player.first()) {
       this.syncornizeTimelineWithPlayer(true);
+      return true;
     }
+
+    return false;
   }
 
   tooglePlay() {
@@ -138,14 +147,17 @@ export class PlayerService {
     }
   }
 
-  prev() {
+  prev(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
 
     if (this.player.prev()) {
       this.syncornizeTimelineWithPlayer(true);
+      return true;
     }
+
+    return false;
   }
 
   play(): boolean {
@@ -153,30 +165,33 @@ export class PlayerService {
       return false;
     }
 
-    this.player.play();
+    return this.player.play();
   }
 
-  pause() {
+  pause(): boolean {
     if (!this.isReady()) {
       return;
     }
 
-    this.player.pause();
+    return this.player.pause();
   }
 
-  next() {
+  next(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
 
     if (this.player.next()) {
       this.syncornizeTimelineWithPlayer(true);
+      return true;
     }
+
+    return false;
   }
 
-  last() {
+  last(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
 
     if (this.player.last()) {
@@ -184,16 +199,20 @@ export class PlayerService {
     }
   }
 
-  loop() {
+  loop(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
+
+    return true;
   }
 
-  bounce() {
+  bounce(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
+
+    return true;
   }
 
   panMode() {
