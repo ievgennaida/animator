@@ -9,10 +9,10 @@
 <button (click)="prev()" mat-button>
     <mat-icon>keyboard_arrow_left</mat-icon>
 </button>
-<button (click)="play()" *ngIf="isPaused" mat-button>
+<button (click)="play()" *ngIf="!isPlaying" mat-button>
     <mat-icon>play_arrow</mat-icon>
 </button>
-<button (click)="pause()" *ngIf="!isPaused" mat-button>
+<button (click)="pause()" *ngIf="isPlaying" mat-button>
     <mat-icon>pause</mat-icon>
 </button>
 <button (click)="next()" mat-button>

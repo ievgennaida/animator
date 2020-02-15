@@ -1,10 +1,10 @@
 import { Property } from "./Property";
 import { PropertyType } from "./PropertyType";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 
 export class BoolProperty extends Property {
   constructor(
-    node: Node,
+    node: TreeNode,
     key: string,
     name: string,
     data,

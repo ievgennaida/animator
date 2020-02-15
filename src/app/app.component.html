@@ -5,10 +5,10 @@
       <button mat-menu-item (click)="file.click()">Open File...</button>
       <button mat-menu-item [matMenuTriggerFor]="recent">Recent</button>
       <button mat-menu-item>Save</button>
-      <input #file type='file' accept="application/json" style="display:none;" (change)="fileSelected($event)">
+      <input #file type='file' accept="" style="display:none;" (change)="fileSelected($event)">
     </mat-menu>
     <mat-menu #recent="matMenu">
-      <button mat-menu-item (click)="loadData(item, null)" *ngFor="let item of recentItems">{{item?.name}}</button>
+      <button mat-menu-item (click)="loadData(item.str, item.name)" *ngFor="let item of recentItems">{{item?.name}}</button>
     </mat-menu>
     <button mat-button (click)="undo()" [disabled]="undoDisabled"><mat-icon>undo</mat-icon></button>
     <button mat-button (click)="redo()" [disabled]="redoDisabled"><mat-icon>redo</mat-icon></button>

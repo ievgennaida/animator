@@ -1,12 +1,12 @@
 import { PropertyType } from "./PropertyType";
 import { PropertyDataType } from "./PropertyDataType";
 import { Keyframe } from "../keyframes/Keyframe";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 
 // Property view model.
 export class Property {
   constructor(
-    node: Node,
+    node: TreeNode,
     key: string,
     name: string,
     data,
@@ -19,7 +19,7 @@ export class Property {
     this.node = node;
   }
 
-  public node: Node;
+  public node: TreeNode;
   public readonly = false;
   public key: string;
   public name: string;

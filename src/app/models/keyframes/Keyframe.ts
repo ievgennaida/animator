@@ -1,5 +1,4 @@
 import { AnimationTimelineKeyframe } from "animation-timeline-js";
-import { Node } from "../Node";
 import { Property } from "../Properties/Property";
 import { LottieModel } from "../Lottie/LottieModel";
 
@@ -37,7 +36,7 @@ export class Keyframe implements TimelineKeyframe {
 
   set val(val: number) {
     if (this.property && this.model && this.model.fr) {
-      let value = Math.round((val / 1000) * this.model.fr);
+      const value = Math.round((val / 1000) * this.model.fr);
       if (this.container && this.key) {
         this.container[this.key] = value;
       } else {

@@ -1,11 +1,11 @@
 import { Property } from "./Property";
 import { PropertyType } from "./PropertyType";
 import { PropertyDataType } from "./PropertyDataType";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 
 export class ColorProperty extends Property {
   constructor(
-    node: Node,
+    node: TreeNode,
     key: string,
     name: string,
     data,

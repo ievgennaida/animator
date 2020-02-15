@@ -3,10 +3,10 @@ import { PropertyType } from "./PropertyType";
 import { PropertyDataType } from "./PropertyDataType";
 import { Keyframe } from "../keyframes/Keyframe";
 import { LottieModel } from "../Lottie/LottieModel";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 
 export class NumberProperty extends Property {
-  constructor(node: Node, key, name, data, description) {
+  constructor(node: TreeNode, key, name, data, description) {
     super(node, key, name, data, description);
     this.type = PropertyType.number;
     this.dataType = PropertyDataType.number;

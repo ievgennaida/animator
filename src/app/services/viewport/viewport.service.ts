@@ -1,27 +1,60 @@
 import { Injectable } from "@angular/core";
 import { Subject, BehaviorSubject, Observable } from "rxjs";
 import { MouseEventArgs } from "./MouseEventArgs";
+import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root"
 })
 export class ViewportService {
   constructor() {}
-  public viewport: SVGGraphicsElement = null;
 
-  workAreaRect: DOMRect = null;
   viewportTransformationSubject = new BehaviorSubject<DOMMatrix>(null);
+  viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
+  playerHost: SVGElement;
+  defaultSize = new DOMRect(
+    0,
+    0,
+    consts.defaultWorkArea.width,
+    consts.defaultWorkArea.height
+  );
+
+  // Expected view port size:
+  viewportSizeSubject = new BehaviorSubject<DOMRect | any>(this.defaultSize);
+
   viewportResizedSubject = new Subject();
+
+  /**
+   * On elements count of the svg is changed. deleted, added etc.
+   */
+  elementsChangedSubject = new Subject();
+
+  public get elementsChanged(): Observable<any> {
+    return this.elementsChangedSubject.asObservable();
+  }
+
+  public get viewportInitialized(): Observable<SVGGraphicsElement> {
+    return this.viewportSubject.asObservable();
+  }
+
+  public get viewport(): SVGGraphicsElement {
+    return this.viewportSubject.getValue();
+  }
+
+  public get viewportSize(): DOMRect {
+    return this.viewportSizeSubject.getValue();
+  }
 
   public get viewportResize(): Observable<any> {
     return this.viewportResizedSubject.asObservable();
   }
 
-  public onViewportResized() {
+  public emitViewportResized() {
     this.viewportResizedSubject.next();
+    this.onViewportResize();
   }
 
-  isInit() {
+  isInit(): boolean {
     return !!this.viewport;
   }
 
@@ -33,7 +66,7 @@ export class ViewportService {
     this.setCTMForElement(this.viewport, matrix);
   }
 
-  public getZoom() {
+  public getZoom(): number {
     const ctm = this.getCTM();
     return ctm.a;
   }
@@ -51,6 +84,14 @@ export class ViewportService {
     return this.getCTMForElement(this.viewport);
   }
 
+  public svgRoot(): SVGSVGElement {
+    if (!this.isInit()) {
+      return null;
+    }
+
+    return this.viewport.ownerSVGElement;
+  }
+
   public setCTMForElement(element: SVGElement | any, matrix: DOMMatrix) {
     const transform = element.ownerSVGElement.createSVGTransform();
     transform.setMatrix(matrix);
@@ -62,9 +103,9 @@ export class ViewportService {
     return element.getCTM();
   }
 
-  public toSvgPoint(x: number, y: number, translate = false) {
+  public toSvgPoint(x: number, y: number, translate = false): DOMPoint {
     if (!this.isInit()) {
-      return;
+      return null;
     }
 
     let point = this.convertSvgPoint(this.viewport, x, y);
@@ -80,8 +121,11 @@ export class ViewportService {
     svg: SVGSVGElement | SVGElement,
     x: number,
     y: number
-  ) {
-    if (svg instanceof SVGElement) svg = svg.ownerSVGElement;
+  ): DOMPoint {
+    if (svg instanceof SVGElement) {
+      svg = svg.ownerSVGElement;
+    }
+
     const toReturn = (svg as SVGSVGElement).createSVGPoint();
     toReturn.x = x;
     toReturn.y = y;
@@ -89,14 +133,14 @@ export class ViewportService {
   }
 
   onViewportResize() {
-    if (!this.workAreaRect) {
-      this.workAreaRect = this.viewport.getBBox();
+    if (!this.viewportSize) {
+      // this.viewportSize = this.viewport.getBBox();
     }
   }
 
   getWorkAreaSize(): DOMRect {
     this.onViewportResize();
-    return this.workAreaRect;
+    return this.viewportSize;
   }
 
   getContainerClientRect(): DOMRect | any {
@@ -118,14 +162,17 @@ export class ViewportService {
    * Called once on the application start.
    * @param viewport svg application viewport.
    */
-  onViewportInit(
-    viewport: SVGGraphicsElement,
-    workAreaRect: DOMRect = null
-  ) {
-    this.viewport = viewport;
-    if (viewport) {
-      this.workAreaRect = workAreaRect;
-      this.onViewportResize();
-    }
+  init(viewport: SVGGraphicsElement, host: SVGElement) {
+    this.viewportSubject.next(viewport);
+    this.playerHost = host;
+  }
+
+  setViewportSize(rect: DOMRect) {
+    this.viewportSizeSubject.next(rect);
+    this.onViewportResize();
+  }
+
+  dispose() {
+    this.setViewportSize(this.defaultSize);
   }
 }

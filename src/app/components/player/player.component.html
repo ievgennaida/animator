@@ -4,7 +4,8 @@
             <button mat-button class="zoom-icon" (click)="setZoomLevel(zoomInput.value, 1)">
                 <mat-icon>zoom_in</mat-icon>
             </button>
-            <input class="zoom-input" #zoomInput type="text" (blur)="setZoomLevel(zoomInput.value)" (keyup.enter)="setZoomLevel(zoomInput.value)" [value]="scrollbarInputValue">
+            <input class="zoom-input" #zoomInput type="text" (blur)="setZoomLevel(zoomInput.value)"
+                (keyup.enter)="setZoomLevel(zoomInput.value)" [value]="scrollbarInputValue">
             <button mat-button class="zoom-icon" (click)="setZoomLevel(zoomInput.value, -1)">
                 <mat-icon>zoom_out</mat-icon>
             </button>
@@ -43,12 +44,15 @@
             <g #svgViewport class="svg-viewport" fill="none">
 
                 <rect class="shadow-workarea" x="0" y="0" width="640" height="480" vector-effect="non-scaling-stroke"
-                    shape-rendering="crispEdges" [attr.x]="workAreaSize.x" [attr.y]="workAreaSize.y"
-                    [attr.width]="workAreaSize.shadowW" [attr.height]="workAreaSize.shadowH">
+                    shape-rendering="crispEdges" [attr.x]="shadowAreaSize.x" [attr.y]="shadowAreaSize.y"
+                    [attr.width]="shadowAreaSize.width" [attr.height]="shadowAreaSize.height">
                     <!--Shadow viewport used to add some extra scroll when svg is loaded-->
                 </rect>
-                <svg #player [attr.width]="workAreaSize.w" [attr.height]="workAreaSize.h" [attr.x]="workAreaSize.x"
+                <svg #player [attr.width]="workAreaSize.width" [attr.height]="workAreaSize.height" [attr.x]="workAreaSize.x"
                     [attr.y]="workAreaSize.y">
+                    <rect x="0" y="0" width="640" height="480" >
+
+                    </rect>
                 </svg>
                 <rect #selectionRectangleAdorner display="none" vector-effect="non-scaling-stroke"
                     shape-rendering="crispEdges" class="selection-rectangle" x="0" y="0" width="0" height="0" />

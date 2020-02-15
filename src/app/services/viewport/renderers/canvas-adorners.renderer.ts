@@ -71,7 +71,8 @@ export class CanvasAdornersRenderer {
       ctx = canvas.getContext("2d");
       // ctx.translate(0.5, 0.5);
     }
-    let ratio = window.devicePixelRatio;
+
+    const ratio = window.devicePixelRatio;
     const width = canvas.clientWidth * ratio;
     const height = canvas.clientHeight * ratio;
     if (width !== ctx.canvas.width) {

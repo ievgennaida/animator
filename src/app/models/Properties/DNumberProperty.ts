@@ -3,10 +3,10 @@ import { NumberProperty } from "./NumberProperty";
 import { LottieModel } from '../Lottie/LottieModel';
 import { PropertyType } from './PropertyType';
 import { PropertyDataType } from './PropertyDataType';
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 
 export class DNumberProperty extends Property {
-  constructor(node: Node, key, name, data, description, dynamicProperty) {
+  constructor(node: TreeNode, key, name, data, description, dynamicProperty) {
     super(node, key, name, data, description);
     this.type = PropertyType.dnumber;
     this.dataType = PropertyDataType.multi;

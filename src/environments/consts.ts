@@ -4,7 +4,8 @@ export const consts = {
   timelineScrollSpeed: 20,
   defaultWorkArea: {
     width: 640,
-    height: 480
+    height: 480,
+    offset: 0
   },
   rulerSize: 20,
   /**

@@ -272,31 +272,8 @@ export class RulerRenderer {
   }
 
   getSharp(pos, thinkess) {
-    pos = Math.round(pos)+0.5;
+    pos = pos;
     return pos;
-    /*pos = Math.floor(pos)
-			return pos;
-			if (!thinkess) {
-				thinkess = 1;
-			}
-
-			if (thinkess % 2 == 0) {
-				return pos;
-			}
-
-			return pos + this.pixelRatio / 2;*/
-  }
-
-  getPixelRatio(ctx) {
-    return 1;
-    /*const dpr = window.devicePixelRatio || 1,
-			bsr = ctx.webkitBackingStorePixelRatio ||
-				ctx.mozBackingStorePixelRatio ||
-				ctx.msBackingStorePixelRatio ||
-				ctx.oBackingStorePixelRatio ||
-				ctx.backingStorePixelRatio || 1;
-
-		return dpr / bsr;*/
   }
 
   format(ms) {

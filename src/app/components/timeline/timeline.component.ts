@@ -5,7 +5,8 @@ import {
   Output,
   EventEmitter,
   ViewChild,
-  ElementRef
+  ElementRef,
+  NgZone
 } from "@angular/core";
 import {
   default as timeline,
@@ -19,11 +20,11 @@ import { takeUntil } from "rxjs/operators";
 import { StateService } from "src/app/services/state.service";
 import { PlayerService } from "src/app/services/player.service";
 import { consts } from "src/environments/consts";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { ActionService } from 'src/app/services/actions/action.service';
 import { Keyframe } from 'src/app/models/keyframes/Keyframe';
-import { ViewportService } from 'src/app/services/viewport-tools/viewport.service';
+import { ViewportService } from 'src/app/services/viewport/viewport.service';
 
 @Component({
   selector: "app-timeline",
@@ -37,7 +38,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     private stateService: StateService,
     private viewportService: ViewportService,
     private playerService: PlayerService,
-    private actionService: ActionService
+    private actionService: ActionService,
   ) {}
 
   lanes: AnimationTimelineLane[] = [];
@@ -141,7 +142,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     }
   }
 
-  resolveLanesVisibilty(tc: any, node: Node, hidden: boolean) {
+  resolveLanesVisibilty(tc: any, node: TreeNode, hidden: boolean) {
     node.lane.hidden = hidden;
     if (!hidden) {
       if (tc.isExpandable(node)) {

@@ -5,21 +5,21 @@ import {
   AnimationTimelineLane
 } from "animation-timeline-js";
 import { baseLayer } from "./Lottie/layers/baseLayer";
-import { NodeType } from "./NodeType";
 import { Properties } from "./Properties/Properties";
 import { Property } from "./Properties/Property";
 import { shapeType } from "./Lottie/shapes/shapeType";
-import { LottieModel } from './Lottie/LottieModel';
+import { LottieModel } from "./Lottie/LottieModel";
+import { NodeType } from './Lottie/NodeType';
 
 /**
  * Application node view model.
  */
-export class Node {
+export class TreeNode {
   constructor() {
     this.lane = {} as AnimationTimelineLane;
   }
 
-  private _name: string = "";
+  private _name = "";
 
   get name(): string {
     return this._name || this.typeTitle;
@@ -35,9 +35,10 @@ export class Node {
 
   get typeTitle() {
     let typeTitle = NodeType[this.type];
-    if (this.type == NodeType.Shape && this.data) {
-      const typeSubtitle = Object.keys(shapeType)
-        .find(value => shapeType[value] === this.data.ty);
+    if (this.type === NodeType.Shape && this.data) {
+      const typeSubtitle = Object.keys(shapeType).find(
+        value => shapeType[value] === this.data.ty
+      );
       if (typeSubtitle) {
         typeTitle += ` (${typeSubtitle})`;
       }
@@ -48,12 +49,10 @@ export class Node {
   icon = "folder";
   nameProperty: Property;
   properties: Properties;
-  children?: Node[];
+  children?: TreeNode[];
   tag: any;
-  type: NodeType;
+  type: any;
   data: any;
-  // Lottie layer element
-  lottieLayer: any;
   model: LottieModel = null;
   selected = false;
   lane: AnimationTimelineLane;

@@ -11,7 +11,7 @@ import {
 } from "@angular/material/tree";
 import { StateService } from "src/app/services/state.service";
 import { Subject } from "rxjs";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 import { takeUntil } from "rxjs/operators";
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
@@ -43,7 +43,7 @@ export class OutlineComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  setSelected(event, node: Node) {
+  setSelected(event, node: TreeNode) {
     this.stateService.setSelectedNode(node, event.ctrlKey);
   }
 
@@ -52,5 +52,5 @@ export class OutlineComponent implements OnInit, OnDestroy {
     this.height = args.scrollHeight - consts.timelineHeaderHeight;
   }
 
-  hasChild = (_: number, node: Node) => node.expandable;
+  hasChild = (_: number, node: TreeNode) => node.expandable;
 }

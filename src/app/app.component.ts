@@ -11,8 +11,11 @@ import { StateService } from "./services/state.service";
 import { OutlineComponent } from "./components/outline/outline/outline.component";
 import { consts } from "src/environments/consts";
 import { UndoService } from "./services/actions/undo.service";
-import { ToolsService } from "./services/viewport-tools/tools.service";
-import { ViewportService } from "./services/viewport-tools/viewport.service";
+import { ToolsService } from "./services/viewport/tools.service";
+import { ViewportService } from "./services/viewport/viewport.service";
+import { InputDocument, InputDocumentType } from "./models/input-document";
+import { parseTemplate } from "@angular/compiler";
+import { LoggerService } from './services/logger.service';
 
 @Component({
   selector: "app-root",
@@ -34,7 +37,8 @@ export class AppComponent implements OnInit {
     private stateService: StateService,
     private self: ElementRef,
     private viewportService: ViewportService,
-    private toolsService: ToolsService
+    private toolsService: ToolsService,
+    private logger: LoggerService
   ) {}
 
   @ViewChild("footer", { static: true, read: ElementRef })
@@ -57,7 +61,7 @@ export class AppComponent implements OnInit {
       event.rectangle.width,
       this.self.nativeElement.clientWidth
     );
-    this.viewportService.onViewportResized();
+    this.viewportService.emitViewportResized();
   }
 
   onResizeProperties(event: ResizeEvent): void {
@@ -65,7 +69,7 @@ export class AppComponent implements OnInit {
       event.rectangle.width,
       this.self.nativeElement.clientWidth
     );
-    this.viewportService.onViewportResized();
+    this.viewportService.emitViewportResized();
   }
 
   onResizeFooter(event: ResizeEvent): void {
@@ -73,7 +77,7 @@ export class AppComponent implements OnInit {
       event.rectangle.height,
       this.self.nativeElement.clientHeight
     );
-    this.viewportService.onViewportResized();
+    this.viewportService.emitViewportResized();
   }
 
   redo() {
@@ -117,7 +121,7 @@ export class AppComponent implements OnInit {
       );
     }
 
-    this.viewportService.onViewportResized();
+    this.viewportService.emitViewportResized();
   }
 
   @HostListener("window:mousedown", ["$event"])
@@ -149,7 +153,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     window.addEventListener(
       "wheel",
-      (e) => {
+      e => {
         this.onWindowMouseWheel(e);
       },
       {
@@ -160,10 +164,43 @@ export class AppComponent implements OnInit {
     this.setRecent(null);
   }
 
-  loadData(item, title: string) {
-    const data = JSON.parse(item.str);
-    this.stateService.setData(data, title);
-    this.setRecent(item);
+  loadData(data, title: string) {
+    title = title || "";
+
+    let parsed: InputDocument = null;
+    try {
+      const lower = title.toLowerCase();
+      if (lower.endsWith("svg")) {
+        const parser = new DOMParser();
+        const document = parser.parseFromString(data, "image/svg+xml");
+        parsed = new InputDocument();
+        parsed.data = data;
+        parsed.title = title;
+        parsed.parsedData = document;
+        parsed.type = InputDocumentType.SVG;
+      } else if (lower.endsWith("json")) {
+        const parsedJson = JSON.parse(data);
+        parsed = new InputDocument();
+        parsed.data = data;
+        parsed.title = title;
+        parsed.parsedData = parsedJson;
+        parsed.type = InputDocumentType.JSON;
+      }
+    } catch (err) {
+      // TODO: popup
+      const message = `file '${title}' cannot be parsed`;
+      alert(message);
+      this.logger.log(message);
+    }
+
+    if (parsed) {
+      this.stateService.setDocument(parsed, title);
+      const newData = {
+        name:  title,
+        str: data
+      };
+      this.setRecent(newData);
+    }
   }
 
   onPropertiesDrawerPanelToogle(opened: boolean) {
@@ -173,7 +210,7 @@ export class AppComponent implements OnInit {
     } else {
       this.propertiesW = this.lastUsedPropertiesW;
     }
-    this.viewportService.onViewportResized();
+    this.viewportService.emitViewportResized();
   }
 
   setRecent(newRecentItem: any) {
@@ -220,12 +257,7 @@ export class AppComponent implements OnInit {
     fileReader.onload = () => {
       try {
         const str = fileReader.result.toString();
-        const newData = {
-          name: file.name,
-          str
-        };
-
-        this.loadData(newData, this.title);
+        this.loadData(str,  file.name);
       } catch (err) {
         alert(`File ${file.name} cannot be parsed!`);
         console.log(err);

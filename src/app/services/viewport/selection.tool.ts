@@ -7,12 +7,21 @@ import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
 
+/*const shapes = container.querySelectorAll("circle,ellipse,line,path,polygon,polyline,rect");
+
+if (shapes.length >= 2) {
+    return [
+        SvgShapes.element(shapes[0]),
+        SvgShapes.element(shapes[1])
+    ];
+}
+*/
+
 @Injectable({
   providedIn: "root"
 })
-export class ZoomTool extends BaseSelectionTool {
-  viewport: SVGElement = null;
-  iconName = "search";
+export class SelectionTool extends BaseSelectionTool {
+  iconName = "navigation";
   constructor(
     viewportService: ViewportService,
     logger: LoggerService,
@@ -87,7 +96,7 @@ export class ZoomTool extends BaseSelectionTool {
       if (expectedScale > consts.zoom.max) {
         scale = consts.zoom.max / matrix.a;
       } else if (expectedScale < consts.zoom.min) {
-        scale = consts.zoom.min/ matrix.a;
+        scale = consts.zoom.min / matrix.a;
       }
 
       expectedScale = matrix.a * scale;

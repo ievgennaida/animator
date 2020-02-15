@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { StateService } from "src/app/services/state.service";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { Keyframe } from "src/app/models/keyframes/Keyframe";
 import { SelectedData } from "src/app/models/SelectedData";
@@ -21,7 +21,7 @@ export class PropertiesComponent implements OnInit {
   ) {}
 
   private destroyed$ = new Subject();
-  node: Node = null;
+  node: TreeNode = null;
   icon: string = null;
   properties: Properties = null;
   nameProperty: Property = null;
@@ -55,7 +55,7 @@ export class PropertiesComponent implements OnInit {
             this.properties = null;
             this.nameProperty = null;
             this.name = `Selected (${p.nodes.length})`;
-            const uniqueTypes: Array<Node> = [];
+            const uniqueTypes: Array<TreeNode> = [];
             p.nodes.forEach(element => {
               if (!uniqueTypes.find(p => p.type == element.type)) {
                 uniqueTypes.push(element);

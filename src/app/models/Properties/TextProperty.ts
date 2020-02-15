@@ -1,5 +1,5 @@
 import { Property } from "./Property";
-import { Node } from "src/app/models/Node";
+import { TreeNode } from "src/app/models/tree-node";
 
 export class TextProperty extends Property {
 }

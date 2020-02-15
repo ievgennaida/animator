@@ -9,24 +9,15 @@ import {
   ChangeDetectorRef
 } from "@angular/core";
 
-import {
-  default as lottie,
-  AnimationItem,
-  AnimationConfigWithData
-} from "node_modules/lottie-web";
-import { StateService } from "src/app/services/state.service";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 import { PlayerService } from "src/app/services/player.service";
-import { PropertiesService } from "src/app/services/properties.service";
-import { ToolsService } from "src/app/services/viewport-tools/tools.service";
-import { PanTool } from "src/app/services/viewport-tools/pan.tool";
-import { BaseSelectionTool } from "src/app/services/viewport-tools/base-selection.tool";
-import { ViewportService } from "src/app/services/viewport-tools/viewport.service";
-import { ScrollbarsPanTool } from "src/app/services/viewport-tools/scrollbars-pan.tool";
-import { consts } from "src/environments/consts";
-import { ZoomTool } from "src/app/services/viewport-tools/zoom.tool";
-import { CanvasAdornersRenderer } from "src/app/services/viewport-tools/renderers/canvas-adorners.renderer copy";
+import { ToolsService } from "src/app/services/viewport/tools.service";
+import { PanTool } from "src/app/services/viewport/pan.tool";
+import { BaseSelectionTool } from "src/app/services/viewport/base-selection.tool";
+import { ViewportService } from "src/app/services/viewport/viewport.service";
+import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
+import { ZoomTool } from "src/app/services/viewport/zoom.tool";
+import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 
 @Component({
   selector: "app-player",
@@ -42,7 +33,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild("player", { static: true })
-  playerRef: ElementRef<HTMLElement>;
+  playerRef: ElementRef<SVGElement>;
 
   @ViewChild("scrollContent", { static: true })
   scrollContentRef: ElementRef<HTMLElement>;
@@ -76,24 +67,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
   selectionRectangleAdornerRef: ElementRef<HTMLElement>;
 
   private readonly defaultBrowserScrollSize = 17;
-  offset = 0;
-  scrollbarInputValue = "100";
-  workAreaSize = {
-    x: this.offset,
-    y: this.offset,
-    w: consts.defaultWorkArea.width,
-    shadowW: consts.defaultWorkArea.width + this.offset * 2,
-    shadowH: consts.defaultWorkArea.height + this.offset * 2,
-    h: consts.defaultWorkArea.height
-  };
 
-  animation: AnimationItem | any = null;
+  scrollbarInputValue = "100";
 
   private destroyed$ = new Subject();
   constructor(
-    private propertiesService: PropertiesService,
-    private stateService: StateService,
-    private playerService: PlayerService,
     private viewportService: ViewportService,
     private toolsService: ToolsService,
     private panTool: PanTool,
@@ -103,7 +81,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private scrollbarsPanTool: ScrollbarsPanTool,
     private adornersRenderer: CanvasAdornersRenderer
   ) {}
-
+  workAreaSize = this.viewportService.viewportSizeSubject.getValue();
+  shadowAreaSize = this.workAreaSize;
   scrollbarSize = 17;
   calcRealScrollBarSize() {
     const scrollBars = this.scrollBarsRef.nativeElement;
@@ -160,40 +139,22 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.toolsService.fitViewport();
   }
 
-  setWorkAreaSize() {
-    this.viewportService.onViewportInit(
-      this.svgViewPortRef.nativeElement,
-      new DOMRect(
-        this.workAreaSize.x,
-        this.workAreaSize.y,
-        this.workAreaSize.shadowW,
-        this.workAreaSize.shadowH
-      )
-    );
-  }
-
   ngOnInit() {
     this.calcRealScrollBarSize();
-    this.setWorkAreaSize();
 
-    this.loadData(null);
-
-    this.stateService.data.pipe(takeUntil(this.destroyed$)).subscribe(p => {
-      this.loadData(p);
-    });
-
-    this.propertiesService.сhanged
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(p => {
-        if (this.animation) {
-          this.loadData(this.animation.animationData, true);
-        }
-      });
-
+    this.viewportService.init(this.svgViewPortRef.nativeElement, this.playerRef.nativeElement);
     this.scrollbarsPanTool.init(
       this.scrollBarsRef.nativeElement,
       this.scrollContentRef.nativeElement
     );
+
+    this.viewportService.viewportSizeSubject.subscribe(p => {
+      this.workAreaSize = p;
+      // TODO: offsets
+      this.shadowAreaSize = this.workAreaSize;
+      // Check whether required.
+      this.cdRef.markForCheck();
+    });
 
     this.zoomTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
@@ -202,12 +163,15 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.viewportService.viewportTransformationSubject
       .asObservable()
       .subscribe(p => {
+        let value = "";
         if (p) {
-          this.scrollbarInputValue = String((p.a * 100).toFixed(2));
-        } else {
-          this.scrollbarInputValue = "";
+          value = String((p.a * 100).toFixed(2));
         }
-        this.cdRef.markForCheck();
+
+        if (value !== this.scrollbarInputValue) {
+          this.scrollbarInputValue = value;
+          this.cdRef.markForCheck();
+        }
       });
 
     this.adornersRenderer.init(
@@ -238,44 +202,5 @@ export class PlayerComponent implements OnInit, OnDestroy {
     newValue = newValue / 100;
     this.zoomTool.setDirectZoom(newValue);
     this.centerViewport();
-  }
-
-  loadData(data, refresh: boolean = false) {
-    if (this.animation) {
-      this.animation.destroy();
-    }
-
-    if (!data) {
-      return;
-    }
-
-    this.playerRef.nativeElement.innerHTML = null;
-    // Order of this calls is strict due to bugs in external libs!
-    this.workAreaSize.x = -this.offset;
-    this.workAreaSize.y = -this.offset;
-    this.workAreaSize.w = data.w;
-    this.workAreaSize.h = data.h;
-    this.workAreaSize.shadowW = data.w + this.offset * 2;
-    this.workAreaSize.shadowH = data.h + this.offset * 2;
-
-    const animParams = {
-      container: this.playerRef.nativeElement,
-      renderer: "svg",
-      loop: true,
-      prerender: true,
-      autoplay: false,
-      animationData: data
-    } as AnimationConfigWithData;
-
-    this.animation = lottie.loadAnimation(animParams);
-    this.playerService.setPlayer(this.animation);
-    if (!refresh) {
-      this.stateService.onDataParsed(this.animation, animParams.animationData);
-    }
-
-    this.setWorkAreaSize();
-
-    this.toolsService.fitViewport();
-    this.cdRef.markForCheck();
   }
 }

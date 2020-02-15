@@ -1,24 +1,38 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { PlayerService } from 'src/app/services/player.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
+} from "@angular/core";
+import { PlayerService } from "src/app/services/player.service";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
-  selector: 'app-controls',
-  templateUrl: './controls.component.html',
-  styleUrls: ['./controls.component.scss']
+  selector: "app-controls",
+  templateUrl: "./controls.component.html",
+  styleUrls: ["./controls.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ControlsComponent implements OnInit, OnDestroy {
-
-  constructor(private playerService: PlayerService) { }
-  isPaused = true;
+  constructor(
+    private playerService: PlayerService,
+    private cdRef: ChangeDetectorRef
+  ) {}
+  isPlaying = true;
   isPan = false;
   private destroyed$ = new Subject();
 
   ngOnInit() {
-    this.playerService.playSubject.pipe(takeUntil(this.destroyed$)).subscribe(p => {
-      this.isPaused = !p;
-    })
+    this.playerService.playSubject
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(p => {
+        if (this.isPlaying !== p) {
+          this.isPlaying = p;
+          this.cdRef.markForCheck();
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -32,8 +46,7 @@ export class ControlsComponent implements OnInit, OnDestroy {
     this.playerService.prev();
   }
   play() {
-    this.isPaused = false;
-    this.playerService.play();
+    this.playerService.tooglePlay();
   }
   pause() {
     this.playerService.pause();
@@ -59,5 +72,4 @@ export class ControlsComponent implements OnInit, OnDestroy {
     this.isPan = false;
     this.playerService.selectMode();
   }
-
 }

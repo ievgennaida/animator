@@ -1,7 +1,8 @@
-import { Node } from './Node';
+
 import { Keyframe } from './keyframes/Keyframe';
+import { TreeNode } from './tree-node';
 
 export class SelectedData {
-    public nodes: Array<Node> = [];
+    public nodes: Array<TreeNode> = [];
     public keyframes: Array<Keyframe> = [];
 }
