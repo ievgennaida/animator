@@ -79,7 +79,7 @@ export class PlayerService {
   }
 
   isPlaying(): boolean {
-    if (this.isReady()) {
+    if (!this.isReady()) {
       return false;
     }
     return this.player.isPlaying();
