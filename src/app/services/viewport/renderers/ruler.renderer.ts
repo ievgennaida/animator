@@ -204,25 +204,19 @@ export class RulerRenderer {
         ctx.strokeStyle = consts.ruler.smallTickColor;
         const margin = Math.floor(viewportSizeB * 0.8);
         if (horizontal) {
-          this.drawLine(
-            ctx,
-            nextPos,
-            margin,
-            nextPos,
-            viewportSizeB
-          );
+          this.drawLine(ctx, nextPos, margin, nextPos, viewportSizeB);
         } else {
-          this.drawLine(
-            ctx,
-            margin,
-            nextPos,
-            viewportSizeB,
-            nextPos,
-          );
+          this.drawLine(ctx, margin, nextPos, viewportSizeB, nextPos);
         }
         ctx.stroke();
         if (drawGridLines) {
-          this.drawGridLine(adornersCTX, nextPos, gridLineWidth, horizontal, false);
+          this.drawGridLine(
+            adornersCTX,
+            nextPos,
+            gridLineWidth,
+            horizontal,
+            false
+          );
         }
       }
     }
@@ -232,7 +226,7 @@ export class RulerRenderer {
   drawGridLine(
     adornersCTX,
     pos: number,
-    gridLineWidth:number,
+    gridLineWidth: number,
     horizontal: boolean,
     bigLine: boolean
   ) {
@@ -271,13 +265,21 @@ export class RulerRenderer {
     }
   }
 
-  getSharp(pos, thinkess) {
+  getSharp(pos: number, thinkess): number {
     pos = pos;
     return pos;
   }
 
-  format(ms) {
-    return ms + "";
+  format(ms: number): string {
+    // round two after coma:
+    ms = Math.round(ms * 100) / 100;
+    let postfix = "";
+    if (Math.abs(ms) >= 1000) {
+      ms = ms / 1000;
+      postfix = "k";
+    }
+
+    return ms + postfix;
   }
 
   getDistance(x1: number, y1: number, x2?: number, y2?: number) {
