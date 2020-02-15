@@ -173,6 +173,9 @@ export class ViewportService {
   }
 
   dispose() {
+    if (this.playerHost) {
+      this.playerHost.innerHTML = "";
+    }
     this.setViewportSize(this.defaultSize);
   }
 }

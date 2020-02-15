@@ -3,42 +3,67 @@ import { TreeNode } from "../../models/tree-node";
 import { InputDocument } from "src/app/models/input-document";
 
 export class SvgTreeParser {
-  parse(document: InputDocument): TreeNode[] {
-    return this.parseData(document.parsedData as HTMLElement);
-  }
+  allowed = [
+    "a",
+    "circle",
+    "ellipse",
+    "foreignObject",
+    "g",
+    "image",
+    "line",
+    "mesh",
+    "path",
+    "polygon",
+    "polyline",
+    "rect",
+    "svg",
+    "switch",
+    "symbol",
+    "text",
+    "textPath",
+    "tspan",
+    "unknown",
+    "use"
+  ];
 
-  parseData(element: HTMLElement) {
+  parse(document: InputDocument): TreeNode[] {
+    const element = document.parsedData as HTMLElement;
     if (!element) {
       return;
     }
 
     const root = new TreeNode();
-    this.addChildNodes(root, root, element);
-    return [root];
+    root.tag = document;
+    root.name = document.title;
+    const collection = [root];
+    this.addChildNodes(root, collection, element);
+    return collection;
   }
 
-  addChildNodes(root: TreeNode, parent: TreeNode, element: HTMLElement) {
+  addChildNodes(parent: TreeNode, collection, element: HTMLElement) {
     if (!element) {
-      return root;
+      return;
     }
+
     const converted = element as HTMLElement;
     if (!converted) {
       return;
     }
 
     element.childNodes.forEach(childElement => {
+      if (childElement.nodeType !== 1) {
+        return;
+      }
+
       const el = childElement as HTMLElement;
-      if (!el) {
+      if (!el || !this.allowed.includes(el.nodeName)) {
         return;
       }
 
       const currentNode = new TreeNode();
-      if (!parent.children) {
-        parent.children = [];
-      }
-
-      parent.children.push(currentNode);
-      this.addChildNodes(root, currentNode, el);
+      currentNode.name = el.nodeName;
+      this.addChildNodes(parent, currentNode.children, el);
+      collection.push(currentNode);
     });
   }
 }

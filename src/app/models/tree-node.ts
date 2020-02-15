@@ -17,6 +17,7 @@ import { NodeType } from './Lottie/NodeType';
 export class TreeNode {
   constructor() {
     this.lane = {} as AnimationTimelineLane;
+    this.children = [];
   }
 
   private _name = "";
@@ -49,7 +50,7 @@ export class TreeNode {
   icon = "folder";
   nameProperty: Property;
   properties: Properties;
-  children?: TreeNode[];
+  children: TreeNode[];
   tag: any;
   type: any;
   data: any;

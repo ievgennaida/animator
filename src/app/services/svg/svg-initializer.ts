@@ -32,7 +32,7 @@ export class SvgInitializer implements IInitializer {
 
     host.innerHTML = "";
     host.append(svgcontent);
-
+    document.parsedData = svgcontent;
     const results = new InitResults();
     results.player = new SvgPlayer(svgcontent);
     results.size = svgcontent.getBBox();
