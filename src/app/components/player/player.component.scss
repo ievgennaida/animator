@@ -36,7 +36,7 @@
 .viewport-units {
   grid-column: 1;
   grid-row: 1;
-  color:#D5D5D5;
+  color: #d5d5d5;
   text-align: center;
   height: 100%;
   width: 100%;
@@ -111,6 +111,13 @@ button[mat-menu-item] {
 .scroll-container {
   touch-action: none;
   overflow: scroll;
+}
+
+.svg-viewport {
+}
+
+.player {
+  fill: initial;
 }
 
 #selection-rectangle {

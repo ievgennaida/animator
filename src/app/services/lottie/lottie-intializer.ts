@@ -1,4 +1,3 @@
-import { ViewportService } from "../viewport/viewport.service";
 import {
   InputDocument
 } from "src/app/models/input-document";
@@ -9,31 +8,26 @@ import {
   AnimationItem,
   AnimationConfigWithData
 } from "node_modules/lottie-web";
-import { IInitializer } from "../interfaces/intializer";
-import { IPlayer } from "../interfaces/player";
+import { IInitializer, InitResults } from "../interfaces/intializer";
 import { LottiePlayer } from "./lottie-player";
 
-@Injectable({
-  providedIn: "root"
-})
 export class LottieInitializer implements IInitializer {
   constructor(
-    private viewportService: ViewportService
+
   ) {}
 
   initOnRefresh(){
       return true;
   }
 
-  intialize(document: InputDocument, viewport: SVGElement): IPlayer {
+  intialize(document: InputDocument, host: SVGElement): InitResults {
     const data = document.parsedData as LottieModel;
     if (data == null) {
       return null;
     }
 
-    this.viewportService.setViewportSize(new DOMRect(0, 0, data.w, data.h));
     const animParams = {
-      container: viewport,
+      container: host,
       renderer: "svg",
       loop: true,
       prerender: true,
@@ -42,6 +36,9 @@ export class LottieInitializer implements IInitializer {
     } as AnimationConfigWithData;
 
     const player = lottie.loadAnimation(animParams);
-    return new LottiePlayer(player);
+    const results = new InitResults();
+    results.player=  new LottiePlayer(player);
+    results.size = new DOMRect(0, 0, data.w, data.h);
+    return results;
   }
 }

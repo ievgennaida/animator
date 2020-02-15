@@ -157,12 +157,13 @@ export class StateService {
 
     this.dispose(refresh);
     try {
-      const player = initializer.intialize(
+      const data = initializer.intialize(
         document,
         this.viewportService.playerHost
       );
 
-      this.playerService.setPlayer(player);
+      this.viewportService.setViewportSize(data.size);
+      this.playerService.setPlayer(data.player);
       if (!refresh) {
         this.parseDocumentOutline(document);
       }

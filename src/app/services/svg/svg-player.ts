@@ -4,13 +4,13 @@ export class SvgPlayer implements IPlayer {
   // Model has limited list of the described properties.
   private player: SVGSVGElement;
   constructor(player: SVGSVGElement) {
-    this.player = player as SVGSVGElement;
+    this.player = player;
   }
 
   dispose() {}
 
   isReady(): boolean {
-    return !!this.player;
+    return !!this.player && !!this.player.animationsPaused;
   }
 
   isPlaying(): boolean {
