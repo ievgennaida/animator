@@ -1,20 +1,7 @@
 import { Injectable } from "@angular/core";
-import { Subject, Observable, BehaviorSubject } from "rxjs";
-import { TreeNode } from "../models/tree-node";
-
-import {
-  MatTreeFlatDataSource,
-  MatTreeFlattener
-} from "@angular/material/tree";
-import { FlatTreeControl } from "@angular/cdk/tree";
+import { Observable, BehaviorSubject } from "rxjs";
 import { PropertiesService } from "./properties.service";
-import { Property } from "../models/Properties/Property";
-import { Properties } from "../models/Properties/Properties";
-import { AnimationTimelineKeyframe } from "animation-timeline-js";
 import { PlayerService } from "./player.service";
-import { AnimationItem } from "lottie-web";
-import { SelectedData } from "../models/SelectedData";
-import { Keyframe } from "../models/keyframes/Keyframe";
 import { InputDocument } from "../models/input-document";
 import { AppFactory } from "./app-factory";
 import { ViewportService } from "./viewport/viewport.service";

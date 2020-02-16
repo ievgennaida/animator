@@ -39,6 +39,11 @@ export class CanvasAdornersRenderer extends BaseRenderer {
     this.outlineService.selected.subscribe(() => {
       this.adornersInvalidate();
     });
+
+    this.outlineService.mouseOverSubject.subscribe(() => {
+      this.adornersInvalidate();
+    });
+
     this.viewportService.viewportTransformationSubject
       .asObservable()
       .subscribe(() => {

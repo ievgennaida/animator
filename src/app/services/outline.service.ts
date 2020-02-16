@@ -7,20 +7,12 @@ import {
   MatTreeFlattener
 } from "@angular/material/tree";
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { PropertiesService } from "./properties.service";
-import { Property } from "../models/Properties/Property";
-import { Properties } from "../models/Properties/Properties";
-import { AnimationTimelineKeyframe } from "animation-timeline-js";
-import { PlayerService } from "./player.service";
-import { AnimationItem } from "lottie-web";
 import { SelectedData } from "../models/SelectedData";
 import { Keyframe } from "../models/keyframes/Keyframe";
 import { InputDocument } from "../models/input-document";
 import { AppFactory } from "./app-factory";
-import { ViewportService } from "./viewport/viewport.service";
 import { LoggerService } from "./logger.service";
-import { ToolsService } from "./viewport/tools.service";
-import { CanvasAdornersRenderer } from "./viewport/renderers/canvas-adorners.renderer";
+
 export enum InteractionSource {
   Outline,
   Adorners
@@ -30,14 +22,10 @@ export enum InteractionSource {
   providedIn: "root"
 })
 export class OutlineService {
-  constructor(
-    private appFactory: AppFactory,
-    private logger: LoggerService
-  ) {}
-
+  constructor(private appFactory: AppFactory, private logger: LoggerService) {}
+  mouseOverSubject = new Subject<TreeNode>();
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
   selectedSubject = new BehaviorSubject<SelectedData>(new SelectedData());
-  mouseOverSubject = new BehaviorSubject<SelectedData>(new SelectedData());
   /**
    * Outline tree view model.
    */
@@ -71,6 +59,20 @@ export class OutlineService {
     return array;
   }
 
+  setMouseOver(node: TreeNode) {
+    if (!node.mouseOver) {
+      node.mouseOver = true;
+      this.mouseOverSubject.next(node);
+    }
+  }
+
+  setMouseLeave(node: TreeNode) {
+    if (node.mouseOver) {
+      node.mouseOver = false;
+      this.mouseOverSubject.next(node);
+    }
+  }
+
   // Allow to select tree node, but list of avaliable might be extended.
   setSelectedNode(
     node: TreeNode,
@@ -78,16 +80,34 @@ export class OutlineService {
     source: InteractionSource = InteractionSource.Adorners
   ) {
     const currentSelected = this.selectedSubject.getValue();
+    currentSelected.changed.length = 0;
     if (isAdd) {
       if (currentSelected.nodes.includes(node)) {
-        node.selected = false;
+        if (node.selected) {
+          node.selected = false;
+          currentSelected.changed.push(node);
+        }
+
         this.deleteElement(currentSelected.nodes, node);
       } else {
-        node.selected = true;
+        if (!node.selected) {
+          node.selected = true;
+          currentSelected.changed.push(node);
+        }
       }
     } else {
-      node.selected = true;
-      currentSelected.nodes.forEach(p => (p.selected = false));
+      if (!node.selected) {
+        node.selected = true;
+        currentSelected.changed.push(node);
+      }
+
+      currentSelected.nodes.forEach(p => {
+        if (node.selected) {
+          node.selected = false;
+          currentSelected.changed.push(node);
+        }
+      });
+
       currentSelected.nodes.length = 0;
     }
 
@@ -103,7 +123,7 @@ export class OutlineService {
     // this.selectedSubject.next(this.selectedSubject.value);
   }
 
-  public get mouseOver(): Observable<SelectedData> {
+  public get mouseOver(): Observable<TreeNode> {
     return this.mouseOverSubject.asObservable();
   }
 

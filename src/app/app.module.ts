@@ -27,6 +27,7 @@ import { TextComponent } from './components/properties/text/text.component';
 import { BoolComponent } from './components/properties/bool/bool.component';
 import { ComboComponent } from './components/properties/combo/combo.component';
 import { ColorComponent } from './components/properties/color/color.component';
+import { OutlineNodeComponent } from './components/outline/outline-node/outline-node.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { ColorComponent } from './components/properties/color/color.component';
     TextComponent,
     BoolComponent,
     ComboComponent,
-    ColorComponent
+    ColorComponent,
+    OutlineNodeComponent
   ],
   imports: [
     ResizableModule,

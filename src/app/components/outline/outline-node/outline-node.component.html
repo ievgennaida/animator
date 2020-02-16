@@ -1,0 +1,14 @@
+<div matTreeNodePadding [matTreeNodePaddingIndent]="node.expandable? 5: 10" class="container" (mouseenter)="mouseEnter(node)" (mouseleave)="mouseLeave(node)" (click)="setSelected($event, node)"
+    [ngClass]="{ 'selected': node.selected, 'hover': node.mouseOver }">
+    <button [disabled]="!node.expandable" mat-icon-button matTreeNodeToggle>
+        <mat-icon *ngIf="node.expandable">
+            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+        </mat-icon>
+    </button>
+    <mat-icon class="content" *ngIf="node.icon">
+        {{node.icon || 'folder'}}
+    </mat-icon>
+    <div class="content text">
+        {{node.name}}
+    </div>
+</div>

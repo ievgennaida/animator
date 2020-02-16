@@ -2,24 +2,24 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { Subject } from "rxjs";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
-import { SelectedData } from 'src/app/models/SelectedData';
-import { OutlineService } from 'src/app/services/outline.service';
+import { SelectedData } from "src/app/models/SelectedData";
+import { OutlineService } from "src/app/services/outline.service";
 
 @Component({
   selector: "app-outline",
   templateUrl: "./outline.component.html",
-  styleUrls: ["./outline.component.scss"]
+  styleUrls: ["./outline.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OutlineComponent implements OnInit, OnDestroy {
-  constructor(
-    private outlineService: OutlineService
-  ) {}
+  constructor(private outlineService: OutlineService) {}
 
   scrollTop: any = 0;
   height: any = "";
@@ -36,14 +36,8 @@ export class OutlineComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  setSelected(event, node: TreeNode) {
-    this.outlineService.setSelectedNode(node, event.ctrlKey);
-  }
-
   public setSize(args: ScrollEventArgs) {
     this.scrollTop = args.scrollTop;
     this.height = args.scrollHeight - consts.timelineHeaderHeight;
   }
-
-  hasChild = (_: number, node: TreeNode) => node.expandable;
 }

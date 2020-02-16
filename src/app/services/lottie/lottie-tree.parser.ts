@@ -14,7 +14,6 @@ import { NodeType } from "../../models/Lottie/NodeType";
 import { shapeType, anyShape } from "../../models/Lottie/shapes/shapeType";
 import { group } from "../../models/Lottie/shapes/group";
 import { Properties } from "../../models/Properties/Properties";
-import { AnimationItem } from "lottie-web";
 import { LottiePropertiesParser } from "./lottie-properties.parser";
 import { InputDocument } from "src/app/models/input-document";
 import { PlayerService } from "../player.service";
