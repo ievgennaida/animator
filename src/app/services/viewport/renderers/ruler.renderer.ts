@@ -3,15 +3,18 @@ import { ViewportService } from "./../viewport.service";
 import { LoggerService } from "../../logger.service";
 import { PanTool } from "./../pan.tool";
 import { consts } from "src/environments/consts";
+import { BaseRenderer } from './base.renderer';
 
 @Injectable({
   providedIn: "root"
 })
-export class RulerRenderer {
+export class RulerRenderer extends BaseRenderer {
   constructor(
     protected viewportService: ViewportService,
     protected logger: LoggerService
-  ) {}
+  ) {
+    super();
+  }
 
   options = {
     keysPerSecond: 60,
@@ -25,17 +28,6 @@ export class RulerRenderer {
     marginRight: 0,
     denominators: [1, 2, 5, 10]
   };
-
-  drawLine(
-    ctx: CanvasRenderingContext2D,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-  ) {
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-  }
 
   valToPx(min, max, val, displaySize) {
     const distance = this.getDistance(min, max);
@@ -134,7 +126,7 @@ export class RulerRenderer {
     // Find a beautiful end point:
     const toVal = Math.ceil(to / step) * step + step;
 
-    const gridLineWidth = window.devicePixelRatio;
+    const gridLineWidth = this.onePixel;
     ctx.save();
     let lastTextLim = null;
     let lastTextStart = 0;
@@ -197,10 +189,10 @@ export class RulerRenderer {
 
       // Draw small steps
       for (let x = i + smallStep; x < i + step; x += smallStep) {
-        let nextPos = this.valToPx(from, to, x, viewportSizeA);
-        nextPos = this.getSharp(nextPos, 1);
+        const nextPos = this.valToPx(from, to, x, viewportSizeA);
+        // nextPos = this.getSharp(nextPos, gridLineWidth);
         ctx.beginPath();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = gridLineWidth;
         ctx.strokeStyle = consts.ruler.smallTickColor;
         const margin = Math.floor(viewportSizeB * 0.8);
         if (horizontal) {
@@ -263,11 +255,6 @@ export class RulerRenderer {
       this.drawTicks(ctx, rulerWCTX, bounds.from.x, bounds.to.x, drawGridLines);
       this.drawTicks(ctx, rulerHCTX, bounds.from.y, bounds.to.y, drawGridLines);
     }
-  }
-
-  getSharp(pos: number, thinkess): number {
-    pos = pos;
-    return pos;
   }
 
   format(ms: number): string {

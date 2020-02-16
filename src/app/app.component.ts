@@ -8,8 +8,7 @@ import {
   ChangeDetectorRef
 } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
-import { StateService } from "./services/state.service";
-import { OutlineComponent } from "./components/outline/outline/outline.component";
+import { DocumentService } from "./services/document.service";
 import { consts } from "src/environments/consts";
 import { UndoService } from "./services/actions/undo.service";
 import { ToolsService } from "./services/viewport/tools.service";
@@ -35,7 +34,7 @@ export class AppComponent implements OnInit {
   constructor(
     private ngZone: NgZone,
     private undoService: UndoService,
-    private stateService: StateService,
+    private stateService: DocumentService,
     private self: ElementRef,
     private viewportService: ViewportService,
     private toolsService: ToolsService,
@@ -153,16 +152,27 @@ export class AppComponent implements OnInit {
     event.preventDefault();
     this.toolsService.onWindowMouseWheel(event);
   }
+
   ngOnInit() {
     this.stateService.document.subscribe(p => {
       if (p) {
         this.title = p.title;
       } else {
-        this.title = '';
+        this.title = "";
       }
 
       this.cdRef.markForCheck();
     });
+
+    document.addEventListener(
+      "visibilitychange",
+      event => {
+        if (document.hidden) {
+          this.toolsService.onWindowBlur(event);
+        }
+      },
+      false
+    );
 
     window.addEventListener(
       "wheel",

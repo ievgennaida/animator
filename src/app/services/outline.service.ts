@@ -20,29 +20,24 @@ import { AppFactory } from "./app-factory";
 import { ViewportService } from "./viewport/viewport.service";
 import { LoggerService } from "./logger.service";
 import { ToolsService } from "./viewport/tools.service";
+import { CanvasAdornersRenderer } from "./viewport/renderers/canvas-adorners.renderer";
+export enum InteractionSource {
+  Outline,
+  Adorners
+}
 
 @Injectable({
   providedIn: "root"
 })
-export class StateService {
+export class OutlineService {
   constructor(
     private appFactory: AppFactory,
-    private propertiesService: PropertiesService,
-    private viewportService: ViewportService,
-    private logger: LoggerService,
-    private playerService: PlayerService,
-    private toolsService: ToolsService
-  ) {
-    this.propertiesService.сhanged.subscribe(p => {
-      const doc = this.documentSubject.getValue();
-      this.onDocumentChanged(doc, true);
-    });
-  }
+    private logger: LoggerService
+  ) {}
 
-  documentSubject = new BehaviorSubject<InputDocument>(null);
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
   selectedSubject = new BehaviorSubject<SelectedData>(new SelectedData());
-
+  mouseOverSubject = new BehaviorSubject<SelectedData>(new SelectedData());
   /**
    * Outline tree view model.
    */
@@ -64,6 +59,10 @@ export class StateService {
     )
   );
 
+  get flatList() {
+    return this.flatDataSource._flattenedData.asObservable();
+  }
+
   deleteElement(array, element) {
     const index: number = array.indexOf(element);
     if (index !== -1) {
@@ -73,7 +72,11 @@ export class StateService {
   }
 
   // Allow to select tree node, but list of avaliable might be extended.
-  setSelectedNode(node: TreeNode, isAdd: boolean = false) {
+  setSelectedNode(
+    node: TreeNode,
+    isAdd: boolean = false,
+    source: InteractionSource = InteractionSource.Adorners
+  ) {
     const currentSelected = this.selectedSubject.getValue();
     if (isAdd) {
       if (currentSelected.nodes.includes(node)) {
@@ -91,12 +94,24 @@ export class StateService {
     if (node.selected) {
       currentSelected.nodes.push(node);
     }
+
     this.selectedSubject.next(currentSelected);
   }
 
   setSelectedKeyframes(keyframe: Keyframe) {
     // this.selectedSubject.value.keyframe = keyframe;
     // this.selectedSubject.next(this.selectedSubject.value);
+  }
+
+  public get mouseOver(): Observable<SelectedData> {
+    return this.mouseOverSubject.asObservable();
+  }
+
+  public get selected(): Observable<SelectedData> {
+    return this.selectedSubject.asObservable();
+  }
+  public get nodes(): Observable<TreeNode[]> {
+    return this.nodesSubject.asObservable();
   }
 
   public parseDocumentOutline(document: InputDocument) {
@@ -116,80 +131,6 @@ export class StateService {
     this.nodesSubject.next(nodes);
   }
 
-  public get selected(): Observable<SelectedData> {
-    return this.selectedSubject.asObservable();
-  }
-  public get nodes(): Observable<TreeNode[]> {
-    return this.nodesSubject.asObservable();
-  }
-
-  public get document(): Observable<InputDocument> {
-    return this.documentSubject.asObservable();
-  }
-
-  public setDocument(document: InputDocument, title: string) {
-    this.onDocumentChanged(document);
-  }
-
-  onDocumentChanged(document: InputDocument, refresh: boolean = false) {
-    if (!this.viewportService.isInit()) {
-      this.logger.log(
-        `Viewport is not ready to open the document: ${document.title}.`
-      );
-      return;
-    }
-
-    const initializer = this.appFactory.getViewportIntializer(document);
-    if (!initializer) {
-      this.logger.log(
-        `Cannot open document ${document.title}. Cannot find a parser for file.`
-      );
-      return;
-    }
-
-    if (refresh && !initializer.initOnRefresh()) {
-      return;
-    }
-
-    if (!document) {
-      return;
-    }
-
-    this.dispose(refresh);
-    try {
-      const data = initializer.intialize(
-        document,
-        this.viewportService.playerHost
-      );
-
-      this.viewportService.setViewportSize(data.size);
-      this.playerService.setPlayer(data.player);
-      if (!refresh) {
-        this.parseDocumentOutline(document);
-      }
-
-      this.toolsService.fitViewport();
-      this.documentSubject.next(document);
-    } catch (err) {
-      const message = `Document cannot be initializer ${document.title}.`;
-      this.logger.log(message);
-      this.dispose();
-      this.toolsService.fitViewport();
-      this.documentSubject.next(null);
-      // TODO: error view
-      alert(message);
-    }
-  }
-
-  dispose(refresh = false) {
-    this.deselectAll();
-    if (!refresh) {
-      this.flatDataSource.data = [];
-      this.viewportService.dispose();
-    }
-    this.playerService.dispose();
-  }
-
   public deselectAll() {
     const currentSelection = this.selectedSubject.value;
     if (!currentSelection) {
@@ -198,5 +139,9 @@ export class StateService {
     }
 
     this.selectedSubject.next(currentSelection);
+  }
+
+  dispose() {
+    this.flatDataSource.data = [];
   }
 }

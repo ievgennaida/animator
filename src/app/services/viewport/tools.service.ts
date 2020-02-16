@@ -4,7 +4,7 @@ import { MouseEventArgs } from "./MouseEventArgs";
 import { BaseTool } from "./base.tool";
 import { ZoomTool } from "./zoom.tool";
 import { BehaviorSubject } from "rxjs";
-import { BaseSelectionTool } from "./base-selection.tool";
+import { SelectionTool } from "./selection.tool";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 
 /**
@@ -21,7 +21,7 @@ export class ToolsService {
   constructor(
     private panTool: PanTool,
     private zoomTool: ZoomTool,
-    private selectionTool: BaseSelectionTool,
+    private selectionTool: SelectionTool,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {

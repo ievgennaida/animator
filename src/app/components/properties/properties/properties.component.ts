@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { StateService } from "src/app/services/state.service";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { TreeNode } from "src/app/models/tree-node";
@@ -8,16 +8,17 @@ import { Keyframe } from "src/app/models/keyframes/Keyframe";
 import { SelectedData } from "src/app/models/SelectedData";
 import { Properties } from "src/app/models/Properties/Properties";
 import { Property } from "src/app/models/Properties/Property";
+import { OutlineService } from "src/app/services/outline.service";
 
 @Component({
   selector: "app-properties",
   templateUrl: "./properties.component.html",
   styleUrls: ["./properties.component.scss"]
 })
-export class PropertiesComponent implements OnInit {
+export class PropertiesComponent implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
-    private stateService: StateService
+    private outlineService: OutlineService
   ) {}
 
   private destroyed$ = new Subject();
@@ -29,7 +30,7 @@ export class PropertiesComponent implements OnInit {
   type: string = null;
   namePropertiesVisible = false;
   ngOnInit() {
-    this.stateService.selected
+    this.outlineService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p: SelectedData) => {
         if (p.nodes) {
@@ -57,11 +58,15 @@ export class PropertiesComponent implements OnInit {
             this.name = `Selected (${p.nodes.length})`;
             const uniqueTypes: Array<TreeNode> = [];
             p.nodes.forEach(element => {
-              if (!uniqueTypes.find(p => p.type == element.type)) {
+              if (
+                !uniqueTypes.find(
+                  uniqueType => uniqueType.type === element.type
+                )
+              ) {
                 uniqueTypes.push(element);
               }
             });
-            if (uniqueTypes.length == 1) {
+            if (uniqueTypes.length === 1) {
               this.type = uniqueTypes[0].typeTitle;
               this.icon = uniqueTypes[0].icon;
             } else {

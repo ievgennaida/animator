@@ -2,6 +2,7 @@ export const consts = {
   recentItemsCount: 7,
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
+  showGridLines: true,
   defaultWorkArea: {
     width: 640,
     height: 480,
@@ -37,7 +38,10 @@ export const consts = {
     smallTickColor: "#D5D5D5",
     color: "#D5D5D5",
     tickColor: "#D5D5D5",
-    font: "11px sans-serif",
+    font: "11px sans-serif"
+  },
+  adorners: {
+    mouseOverBoundsColor: "#3399FF"
   },
   gridLines: {
     color: "rgba(160, 160, 160, 0.4)",

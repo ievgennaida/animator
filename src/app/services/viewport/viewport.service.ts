@@ -7,7 +7,9 @@ import { consts } from "src/environments/consts";
   providedIn: "root"
 })
 export class ViewportService {
-  constructor() {}
+  constructor() {
+   
+  }
 
   viewportTransformationSubject = new BehaviorSubject<DOMMatrix>(null);
   viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);

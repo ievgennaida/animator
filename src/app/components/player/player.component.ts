@@ -13,11 +13,12 @@ import { Subject } from "rxjs";
 import { PlayerService } from "src/app/services/player.service";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
-import { BaseSelectionTool } from "src/app/services/viewport/base-selection.tool";
+import { SelectionTool } from "src/app/services/viewport/selection.tool";
 import { ViewportService } from "src/app/services/viewport/viewport.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
+import { consts } from "src/environments/consts";
 
 @Component({
   selector: "app-player",
@@ -76,14 +77,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private toolsService: ToolsService,
     private panTool: PanTool,
     private zoomTool: ZoomTool,
-    private selectionTool: BaseSelectionTool,
+    private selectionTool: SelectionTool,
     private cdRef: ChangeDetectorRef,
     private scrollbarsPanTool: ScrollbarsPanTool,
     private adornersRenderer: CanvasAdornersRenderer
   ) {}
+
   workAreaSize = this.viewportService.viewportSizeSubject.getValue();
   shadowAreaSize = this.workAreaSize;
   scrollbarSize = 17;
+  showGridLines = this.adornersRenderer.showGridLinesSubject.getValue();
+
   calcRealScrollBarSize() {
     const scrollBars = this.scrollBarsRef.nativeElement;
     const offsetElement = this.svgContainer.nativeElement;
@@ -142,7 +146,19 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.calcRealScrollBarSize();
 
-    this.viewportService.init(this.svgViewPortRef.nativeElement, this.playerRef.nativeElement);
+    this.adornersRenderer.showGridLinesSubject
+      .asObservable()
+      .subscribe(gridLines => {
+        if (gridLines !== this.showGridLines) {
+          this.showGridLines = gridLines;
+          this.cdRef.markForCheck();
+        }
+      });
+
+    this.viewportService.init(
+      this.svgViewPortRef.nativeElement,
+      this.playerRef.nativeElement
+    );
     this.scrollbarsPanTool.init(
       this.scrollBarsRef.nativeElement,
       this.scrollContentRef.nativeElement
@@ -190,7 +206,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  toogleGridLines() {}
+  toogleGridLines() {
+    this.adornersRenderer.toogleShowGridLines();
+  }
 
   setZoomLevel(zoom: any, direction = 0) {
     let newValue = parseFloat(zoom);

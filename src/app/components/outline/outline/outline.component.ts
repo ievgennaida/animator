@@ -2,21 +2,14 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  ElementRef,
-  ViewChild
 } from "@angular/core";
-import {
-  MatTreeFlatDataSource,
-  MatTreeFlattener
-} from "@angular/material/tree";
-import { StateService } from "src/app/services/state.service";
 import { Subject } from "rxjs";
 import { TreeNode } from "src/app/models/tree-node";
-import { takeUntil } from "rxjs/operators";
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
 import { SelectedData } from 'src/app/models/SelectedData';
+import { OutlineService } from 'src/app/services/outline.service';
 
 @Component({
   selector: "app-outline",
@@ -25,13 +18,13 @@ import { SelectedData } from 'src/app/models/SelectedData';
 })
 export class OutlineComponent implements OnInit, OnDestroy {
   constructor(
-    private stateService: StateService
+    private outlineService: OutlineService
   ) {}
 
   scrollTop: any = 0;
   height: any = "";
-  dataSource = this.stateService.flatDataSource;
-  treeControl = this.stateService.treeConrol;
+  dataSource = this.outlineService.flatDataSource;
+  treeControl = this.outlineService.treeConrol;
   private destroyed$ = new Subject();
   // Allow to use enums in the template:
   shapeType = shapeType;
@@ -44,7 +37,7 @@ export class OutlineComponent implements OnInit, OnDestroy {
   }
 
   setSelected(event, node: TreeNode) {
-    this.stateService.setSelectedNode(node, event.ctrlKey);
+    this.outlineService.setSelectedNode(node, event.ctrlKey);
   }
 
   public setSize(args: ScrollEventArgs) {

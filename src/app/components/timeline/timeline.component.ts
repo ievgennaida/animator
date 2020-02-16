@@ -17,7 +17,6 @@ import {
 } from "animation-timeline-js";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { StateService } from "src/app/services/state.service";
 import { PlayerService } from "src/app/services/player.service";
 import { consts } from "src/environments/consts";
 import { TreeNode } from "src/app/models/tree-node";
@@ -25,6 +24,7 @@ import { PropertiesService } from "src/app/services/properties.service";
 import { ActionService } from 'src/app/services/actions/action.service';
 import { Keyframe } from 'src/app/models/keyframes/Keyframe';
 import { ViewportService } from 'src/app/services/viewport/viewport.service';
+import { OutlineService } from 'src/app/services/outline.service';
 
 @Component({
   selector: "app-timeline",
@@ -35,7 +35,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
   constructor(
     private propertiesService: PropertiesService,
-    private stateService: StateService,
+    private outlineService: OutlineService,
     private viewportService: ViewportService,
     private playerService: PlayerService,
     private actionService: ActionService,
@@ -97,8 +97,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
     });
 
 
-    const ds = this.stateService.flatDataSource;
-    const tc = this.stateService.treeConrol;
+    const ds = this.outlineService.flatDataSource;
+    const tc = this.outlineService.treeConrol;
 
     ds._flattenedData.pipe(takeUntil(this.destroyed$)).subscribe(flatItems => {
       this.lanes.length = 0;

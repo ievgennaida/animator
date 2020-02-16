@@ -62,6 +62,7 @@ export class SvgTreeParser {
 
       const currentNode = new TreeNode();
       currentNode.name = el.nodeName;
+      currentNode.tag = el;
       this.addChildNodes(parent, currentNode.children, el);
       collection.push(currentNode);
     });
