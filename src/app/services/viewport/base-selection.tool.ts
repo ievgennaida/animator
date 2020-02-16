@@ -6,7 +6,7 @@ import { LoggerService } from "../logger.service";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
-import { ZoomTool } from './zoom.tool';
+import { ZoomTool } from "./zoom.tool";
 
 @Injectable({
   providedIn: "root"
@@ -42,14 +42,23 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   onWindowMouseUp(e: MouseEventArgs) {
-    this.currentArgs = e;
-    this.trackMousePos(e);
-    this.selectionEnded(e, this.selectionRect);
-    this.cleanUp();
+    if (!this.startPos) {
+      return;
+    }
+
+    try {
+      this.currentArgs = e;
+      this.trackMousePos(e);
+      this.selectionUpdate(e, this.selectionRect);
+      this.selectionEnded(e, this.selectionRect);
+    } finally {
+      this.cleanUp();
+    }
   }
 
-  selectionEnded(e: MouseEventArgs, selectedArea:DOMRect){
-  }
+  selectionUpdate(e: MouseEventArgs, selectedArea: DOMRect) {}
+
+  selectionEnded(e: MouseEventArgs, selectedArea: DOMRect) {}
 
   onWindowMouseMove(event: MouseEventArgs) {
     if (!this.startPos) {
@@ -61,6 +70,7 @@ export class BaseSelectionTool extends BaseTool {
     this.trackMousePos(event);
     this.updateSelectorUi();
     this.startAutoPan();
+    this.selectionUpdate(event, this.selectionRect);
   }
 
   cleanUp() {
@@ -80,7 +90,8 @@ export class BaseSelectionTool extends BaseTool {
     const pan = this.viewportService.getPan();
     let done = false;
     // TODO: determine autopan automatically.
-    const panByMouseSpeed = consts.autoPanSpeed * this.viewportService.getZoom();
+    const panByMouseSpeed =
+      consts.autoPanSpeed * this.viewportService.getZoom();
     if (mousePosition.x < 0) {
       pan.x += panByMouseSpeed;
       done = true;
@@ -137,16 +148,19 @@ export class BaseSelectionTool extends BaseTool {
     const matrix = this.viewportService.viewport.ownerSVGElement
       .createSVGMatrix()
       .inverse()
-      .translate(Math.round(this.selectionRect.x), Math.round(this.selectionRect.y));
+      .translate(
+        this.selectionRect.x,
+        this.selectionRect.y
+      );
     this.viewportService.setCTMForElement(this.selectionRectElement, matrix);
     this.selectionRectElement.setAttribute("display", "initial");
     this.selectionRectElement.setAttribute(
       "width",
-      Math.round(this.selectionRect.width).toString()
+      this.selectionRect.width.toString()
     );
     this.selectionRectElement.setAttribute(
       "height",
-      Math.round(this.selectionRect.height).toString()
+      this.selectionRect.height.toString()
     );
   }
 
