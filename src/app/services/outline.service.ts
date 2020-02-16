@@ -102,9 +102,9 @@ export class OutlineService {
       }
 
       currentSelected.nodes.forEach(p => {
-        if (node.selected) {
-          node.selected = false;
-          currentSelected.changed.push(node);
+        if (p.selected) {
+          p.selected = false;
+          currentSelected.changed.push(p);
         }
       });
 
