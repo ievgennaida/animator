@@ -66,26 +66,6 @@ export class RulerRenderer extends BaseRenderer {
     return step;
   }
 
-  calcViewportBounds(viewport: SVGGraphicsElement) {
-    if (!viewport) {
-      return null;
-    }
-    const svg = viewport.ownerSVGElement;
-    const matrix = viewport.getCTM().inverse();
-    let fromPoint = svg.createSVGPoint();
-    fromPoint = fromPoint.matrixTransform(matrix);
-
-    let toPoint = svg.createSVGPoint();
-    toPoint.x = svg.clientWidth;
-    toPoint.y = svg.clientHeight;
-    toPoint = toPoint.matrixTransform(matrix);
-
-    return {
-      from: fromPoint,
-      to: toPoint
-    };
-  }
-
   drawTicks(
     adornersCTX: CanvasRenderingContext2D,
     ctx: CanvasRenderingContext2D,
@@ -250,7 +230,7 @@ export class RulerRenderer extends BaseRenderer {
     this.clearBackground(ctx);
     this.clearBackground(rulerWCTX);
     this.clearBackground(rulerHCTX);
-    const bounds = this.calcViewportBounds(this.viewportService.viewport);
+    const bounds = this.viewportService.getDisplayedBounds();
     if (bounds) {
       this.drawTicks(ctx, rulerWCTX, bounds.from.x, bounds.to.x, drawGridLines);
       this.drawTicks(ctx, rulerHCTX, bounds.from.y, bounds.to.y, drawGridLines);

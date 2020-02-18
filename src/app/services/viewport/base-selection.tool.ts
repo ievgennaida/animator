@@ -41,13 +41,20 @@ export class BaseSelectionTool extends BaseTool {
   protected currentArgs: MouseEventArgs = null;
   private updating = false;
   private autoPanIntervalRef = null;
+  autoPanSpeed = 0;
   init(element: HTMLElement) {
     this.selectionRectElement = element;
   }
 
+
   onViewportMouseDown(e: MouseEventArgs) {
     this.startPos = this.trackMousePos(e);
     this.containerRect = this.viewportService.getContainerClientRect();
+    const bounds = this.viewportService.getDisplayedBounds();
+    if(bounds){
+      const zoom = this.viewportService.getZoom();
+      this.autoPanSpeed =consts.autoPanSpeed *zoom*  Math.abs(bounds.from.x - bounds.to.x);
+    }
   }
 
   onWindowBlur() {
@@ -62,7 +69,6 @@ export class BaseSelectionTool extends BaseTool {
     try {
       this.currentArgs = e;
       this.trackMousePos(e);
-      this.selectionUpdate(e, this.selectionRect);
       this.selectionEnded(e, this.selectionRect);
     } finally {
       this.cleanUp();
@@ -97,15 +103,14 @@ export class BaseSelectionTool extends BaseTool {
 
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect) {
     // Pan by scroll
-    if (!mousePosition) {
+    if (!mousePosition || !this.autoPanSpeed) {
       return;
     }
 
     const pan = this.viewportService.getPan();
     let done = false;
     // TODO: determine autopan automatically.
-    const panByMouseSpeed =
-      consts.autoPanSpeed * this.viewportService.getZoom();
+    const panByMouseSpeed = this.autoPanSpeed;
     if (mousePosition.x < containerSize.left) {
       pan.x += panByMouseSpeed;
       done = true;

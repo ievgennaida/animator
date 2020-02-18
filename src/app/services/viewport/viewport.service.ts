@@ -76,6 +76,26 @@ export class ViewportService {
     return { x: ctm.e, y: ctm.f };
   }
 
+  public getDisplayedBounds() {
+    if (!this.viewport) {
+      return null;
+    }
+    const svg = this.viewport.ownerSVGElement;
+    const matrix = this.viewport.getCTM().inverse();
+    let fromPoint = svg.createSVGPoint();
+    fromPoint = fromPoint.matrixTransform(matrix);
+
+    let toPoint = svg.createSVGPoint();
+    toPoint.x = svg.clientWidth;
+    toPoint.y = svg.clientHeight;
+    toPoint = toPoint.matrixTransform(matrix);
+
+    return {
+      from: fromPoint,
+      to: toPoint
+    };
+  }
+
   public matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect {
     const start = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
     const end = new DOMPoint(

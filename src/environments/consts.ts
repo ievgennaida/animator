@@ -10,9 +10,10 @@ export const consts = {
   },
   rulerSize: 20,
   /**
-   * Automatically pan when drag by mouse
+   * Automatically pan when drag by mouse.
+   * 0 - 1 Percents from the current width
    */
-  autoPanSpeed: 10,
+  autoPanSpeed: 0.006,
   wheelPanSpeed: 15,
   zoom: {
     sensitivityWheel: 0.04,
