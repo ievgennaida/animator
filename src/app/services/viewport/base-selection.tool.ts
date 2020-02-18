@@ -18,7 +18,20 @@ export class BaseSelectionTool extends BaseTool {
     protected panTool: PanTool
   ) {
     super();
+    this.viewportService.viewportTransformationSubject
+      .asObservable()
+      .subscribe(() => {
+        this.screenMatrix = this.viewportService.getCTM();
+        this.trackMousePos(this.currentArgs);
+        this.updateSelectorUi();
+      });
+
+    this.viewportService.viewportResize.subscribe(() => {
+      this.updateSelectorUi();
+    });
   }
+
+  screenMatrix: DOMMatrix = null;
   iconName = "navigation";
   selectionRectElement: HTMLElement;
 
@@ -26,7 +39,7 @@ export class BaseSelectionTool extends BaseTool {
   protected selectionRect: DOMRect = null;
   protected startPos: DOMPoint = null;
   protected currentArgs: MouseEventArgs = null;
-
+  private updating = false;
   private autoPanIntervalRef = null;
   init(element: HTMLElement) {
     this.selectionRectElement = element;
@@ -83,6 +96,7 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect) {
+    // Pan by scroll
     if (!mousePosition) {
       return;
     }
@@ -92,18 +106,18 @@ export class BaseSelectionTool extends BaseTool {
     // TODO: determine autopan automatically.
     const panByMouseSpeed =
       consts.autoPanSpeed * this.viewportService.getZoom();
-    if (mousePosition.x < 0) {
+    if (mousePosition.x < containerSize.left) {
       pan.x += panByMouseSpeed;
       done = true;
-    } else if (mousePosition.x > containerSize.width) {
+    } else if (mousePosition.x > containerSize.left + containerSize.width) {
       pan.x -= panByMouseSpeed;
       done = true;
     }
 
-    if (mousePosition.y < 0) {
+    if (mousePosition.y < containerSize.top) {
       pan.y += panByMouseSpeed;
       done = true;
-    } else if (mousePosition.y > containerSize.height) {
+    } else if (mousePosition.y > containerSize.top + containerSize.height) {
       pan.y -= panByMouseSpeed;
       done = true;
     }
@@ -140,28 +154,38 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   updateSelectorUi() {
-    if (!this.selectionRect) {
-      this.selectionRectElement.setAttribute("display", "none");
+    if (this.updating || !this.screenMatrix) {
       return;
     }
-    // TODO: run outside angular
+
+    this.updating = true;
+
+    if (!this.selectionRect) {
+      if (
+        this.selectionRectElement &&
+        this.selectionRectElement.getAttribute("display") !== "none"
+      ) {
+        this.selectionRectElement.setAttribute("display", "none");
+      }
+      this.updating = false;
+      return;
+    }
+
+    const rect = this.viewportService.matrixRectTransform(
+      this.selectionRect,
+      this.screenMatrix
+    );
     const matrix = this.viewportService.viewport.ownerSVGElement
       .createSVGMatrix()
-      .inverse()
-      .translate(
-        this.selectionRect.x,
-        this.selectionRect.y
-      );
+      .translate(rect.x, rect.y);
+
     this.viewportService.setCTMForElement(this.selectionRectElement, matrix);
     this.selectionRectElement.setAttribute("display", "initial");
-    this.selectionRectElement.setAttribute(
-      "width",
-      this.selectionRect.width.toString()
-    );
-    this.selectionRectElement.setAttribute(
-      "height",
-      this.selectionRect.height.toString()
-    );
+    const w = (Math.round(rect.width * 100) / 100).toString();
+    this.selectionRectElement.setAttribute("width", w);
+    const h = (Math.round(rect.height * 100) / 100).toString();
+    this.selectionRectElement.setAttribute("height", h);
+    this.updating = false;
   }
 
   getMousePos(event: MouseEventArgs) {
@@ -174,6 +198,10 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   trackMousePos(event: MouseEventArgs) {
+    if(!event){
+      return;
+    }
+
     if (!this.containerRect) {
       this.containerRect = this.viewportService.getContainerClientRect();
     }

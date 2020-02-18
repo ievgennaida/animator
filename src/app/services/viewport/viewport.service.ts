@@ -7,9 +7,7 @@ import { consts } from "src/environments/consts";
   providedIn: "root"
 })
 export class ViewportService {
-  constructor() {
-   
-  }
+  constructor() {}
 
   viewportTransformationSubject = new BehaviorSubject<DOMMatrix>(null);
   viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
@@ -78,6 +76,16 @@ export class ViewportService {
     return { x: ctm.e, y: ctm.f };
   }
 
+  public matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect {
+    const start = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
+    const end = new DOMPoint(
+      rect.x + rect.width,
+      rect.y + rect.height
+    ).matrixTransform(matrix);
+
+    return new DOMRect(start.x, start.y, end.x - start.x, end.y - start.y);
+  }
+
   public getCTM(): DOMMatrix {
     if (!this.isInit()) {
       return null;
@@ -110,7 +118,7 @@ export class ViewportService {
       return null;
     }
 
-    let point = this.convertSvgPoint(this.viewport, x, y);
+    let point = this.convertSvgPoint(x, y);
     if (translate) {
       const matrix = this.getCTM();
       point = point.matrixTransform(matrix.inverse());
@@ -119,19 +127,8 @@ export class ViewportService {
     return point;
   }
 
-  private convertSvgPoint(
-    svg: SVGSVGElement | SVGElement,
-    x: number,
-    y: number
-  ): DOMPoint {
-    if (svg instanceof SVGElement) {
-      svg = svg.ownerSVGElement;
-    }
-
-    const toReturn = (svg as SVGSVGElement).createSVGPoint();
-    toReturn.x = x;
-    toReturn.y = y;
-    return toReturn;
+  private convertSvgPoint(x: number, y: number): DOMPoint {
+    return new DOMPoint(x, y);
   }
 
   onViewportResize() {

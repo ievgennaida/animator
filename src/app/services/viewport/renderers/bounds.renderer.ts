@@ -64,17 +64,17 @@ export class BoundsRenderer extends BaseRenderer {
     const parentCTM = parent.getScreenCTM().inverse();
     if (this.renderableElements && this.renderableElements.length > 0) {
       this.renderableElements.forEach((node: TreeNode) => {
-        if(!node.tag){
+        if (!node.tag) {
           return;
         }
         let renderable = node.tag as SVGGraphicsElement;
-        if(renderable && !(renderable instanceof SVGGraphicsElement)){
+        if (renderable && !(renderable instanceof SVGGraphicsElement)) {
           renderable = node.tag.layerElement as SVGGraphicsElement;
         }
-        if (renderable &&
+        if (
+          renderable &&
           renderable instanceof SVGGraphicsElement &&
-          (node.mouseOver ||
-          node.selected)
+          (node.mouseOver || node.selected)
         ) {
           let thikness = this.onePixel;
           if (node.mouseOver) {

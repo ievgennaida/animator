@@ -60,14 +60,14 @@ export class OutlineService {
   }
 
   setMouseOver(node: TreeNode) {
-    if (!node.mouseOver) {
+    if (node && !node.mouseOver) {
       node.mouseOver = true;
       this.mouseOverSubject.next(node);
     }
   }
 
   setMouseLeave(node: TreeNode) {
-    if (node.mouseOver) {
+    if (node && node.mouseOver) {
       node.mouseOver = false;
       this.mouseOverSubject.next(node);
     }

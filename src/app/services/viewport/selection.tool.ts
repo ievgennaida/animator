@@ -17,6 +17,7 @@ import { OutlineService } from "../outline.service";
 export class SelectionTool extends BaseSelectionTool {
   iconName = "navigation";
   renderableElements: Array<TreeNode> = [];
+  cachedMouse: TreeNode = null;
   constructor(
     viewportService: ViewportService,
     logger: LoggerService,
@@ -32,7 +33,7 @@ export class SelectionTool extends BaseSelectionTool {
   /**
    * Override
    */
-  selectionUpdate(e: MouseEventArgs, selectedArea: DOMRect) {
+  selectionUpdate(e: MouseEventArgs) {
     if (this.renderableElements && this.renderableElements.length > 0) {
       this.renderableElements.forEach((node: TreeNode) => {
         const renderable = node.tag as SVGElement;
@@ -42,8 +43,7 @@ export class SelectionTool extends BaseSelectionTool {
               return;
             }
             const rect = renderable.getBoundingClientRect();
-            node.selected = true;
-
+            // node.selected = true;
           } catch (err) {
             this.logger.warn("Cannot check intersection");
           }
@@ -52,10 +52,27 @@ export class SelectionTool extends BaseSelectionTool {
     }
   }
 
+  onPlayerMouseOut(event: MouseEventArgs) {
+    if (this.cachedMouse && this.cachedMouse.tag !== event.args.target) {
+      const node = this.renderableElements.find(p => p.tag === event.args.target);
+      this.outlineService.setMouseLeave(node);
+    } else {
+      this.outlineService.setMouseLeave(this.cachedMouse);
+      this.cachedMouse = null;
+    }
+  }
+
+  onPlayerMouseOver(event: MouseEventArgs) {
+    const node = this.renderableElements.find(p => p.tag === event.args.target);
+    if (!node) {
+      return;
+    }
+    this.cachedMouse = node;
+    this.outlineService.setMouseOver(node);
+  }
+
   /**
    * Override
    */
-  selectionEnded(e: MouseEventArgs, selectedArea: DOMRect) {
-
-  }
+  selectionEnded(e: MouseEventArgs) {}
 }

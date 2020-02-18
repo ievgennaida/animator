@@ -135,6 +135,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.toolsService.onViewportBlur(event);
   }
 
+  onPlayerMouseOut(event: MouseEvent) {
+    this.toolsService.onPlayerMouseOut(event);
+  }
+
+  onPlayerMouseOver(event: MouseEvent) {
+    this.toolsService.onPlayerMouseOver(event);
+  }
+
   centerViewport() {
     this.panTool.fit();
   }

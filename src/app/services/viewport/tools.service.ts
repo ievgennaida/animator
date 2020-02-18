@@ -16,7 +16,7 @@ import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 export class ToolsService {
   activeToolSubject = new BehaviorSubject<BaseTool>(null);
   public tools: Array<BaseTool> = [];
-  private activeTool = null;
+  private activeTool: BaseTool = null;
 
   constructor(
     private panTool: PanTool,
@@ -90,6 +90,15 @@ export class ToolsService {
   onViewportBlur(event: Event) {
     this.activeTool.onViewportBlur(event);
   }
+
+  onPlayerMouseOut(event: MouseEvent) {
+    this.activeTool.onPlayerMouseOut(new MouseEventArgs(event));
+  }
+
+  onPlayerMouseOver(event: MouseEvent) {
+    this.activeTool.onPlayerMouseOver(new MouseEventArgs(event));
+  }
+
   onWindowMouseLeave(event: MouseEvent) {
     this.activeTool.onWindowMouseLeave(new MouseEventArgs(event));
   }

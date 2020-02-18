@@ -117,13 +117,6 @@ button[mat-menu-item] {
   fill: initial;
 }
 
-#selection-rectangle {
-  stroke-width: 1;
-  stroke: black;
-  fill: none;
-  stroke-dasharray: 10 4;
-}
-
 #adorners {
   pointer-events: none;
   grid-column: 1;
@@ -133,7 +126,7 @@ button[mat-menu-item] {
 .selection-rectangle {
   stroke-width: 1;
   stroke: black;
-  fill: rgba(60, 100, 255, 0.2);
+  fill: rgba(0, 127, 255, 0.4);
   stroke-dasharray: 10 4;
 }
 
