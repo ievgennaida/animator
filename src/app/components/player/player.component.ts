@@ -6,7 +6,8 @@ import {
   ViewChild,
   ElementRef,
   ChangeDetectionStrategy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  NgZone
 } from "@angular/core";
 
 import { Subject } from "rxjs";
@@ -79,9 +80,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private zoomTool: ZoomTool,
     private selectionTool: SelectionTool,
     private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
     private adornersRenderer: CanvasAdornersRenderer
-  ) {}
+  ) {
+    this.cdRef.detach();
+  }
 
   workAreaSize = this.viewportService.viewportSizeSubject.getValue();
   shadowAreaSize = this.workAreaSize;
@@ -105,42 +109,66 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   onViewportTouchStart(event: TouchEvent) {
-    this.toolsService.onViewportTouchStart(event);
+    this.ngZone.runOutsideAngular(() =>
+      this.toolsService.onViewportTouchStart(event)
+    );
   }
   onViewportTouchEnd(event: TouchEvent) {
-    this.toolsService.onViewportTouchEnd(event);
+    this.ngZone.runOutsideAngular(() =>
+      this.toolsService.onViewportTouchEnd(event)
+    );
   }
   onViewportTouchMove(event: TouchEvent) {
-    this.toolsService.onViewportTouchMove(event);
+    this.ngZone.runOutsideAngular(() =>
+      this.toolsService.onViewportTouchMove(event)
+    );
   }
   onViewportTouchLeave(event: TouchEvent) {
-    this.toolsService.onViewportTouchLeave(event);
+    this.ngZone.runOutsideAngular(() =>
+      this.toolsService.onViewportTouchLeave(event)
+    );
   }
   onViewportTouchCancel(event: TouchEvent) {
-    this.toolsService.onViewportTouchCancel(event);
+    this.ngZone.runOutsideAngular(() =>
+      this.toolsService.onViewportTouchCancel(event)
+    );
   }
   onViewportMouseLeave(event: MouseEvent) {
-    this.toolsService.onViewportMouseLeave(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onViewportMouseLeave(event);
+    });
   }
   onViewportMouseDown(event: MouseEvent) {
-    this.toolsService.onViewportMouseDown(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onViewportMouseDown(event);
+    });
   }
   onViewportMouseUp(event: MouseEvent) {
-    this.toolsService.onViewportMouseUp(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onViewportMouseUp(event);
+    });
   }
   onViewportMouseWheel(event: WheelEvent) {
-    this.toolsService.onViewportMouseWheel(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onViewportMouseWheel(event);
+    });
   }
   onViewportBlur(event: Event) {
-    this.toolsService.onViewportBlur(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onViewportBlur(event);
+    });
   }
 
   onPlayerMouseOut(event: MouseEvent) {
-    this.toolsService.onPlayerMouseOut(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onPlayerMouseOut(event);
+    });
   }
 
   onPlayerMouseOver(event: MouseEvent) {
-    this.toolsService.onPlayerMouseOver(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onPlayerMouseOver(event);
+    });
   }
 
   centerViewport() {
@@ -159,7 +187,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       .subscribe(gridLines => {
         if (gridLines !== this.showGridLines) {
           this.showGridLines = gridLines;
-          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
         }
       });
 
@@ -177,7 +205,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       // TODO: offsets
       this.shadowAreaSize = this.workAreaSize;
       // Check whether required.
-      this.cdRef.markForCheck();
+      this.cdRef.detectChanges();
     });
 
     this.zoomTool.init(this.selectionRectangleAdornerRef.nativeElement);
@@ -194,7 +222,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
         if (value !== this.scrollbarInputValue) {
           this.scrollbarInputValue = value;
-          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
         }
       });
 
