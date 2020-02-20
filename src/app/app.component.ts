@@ -122,35 +122,46 @@ export class AppComponent implements OnInit {
         this.self.nativeElement.clientWidth
       );
     }
-
-    this.viewportService.emitViewportResized();
+    this.ngZone.runOutsideAngular(() => {
+      this.viewportService.emitViewportResized();
+    });
   }
 
   @HostListener("window:mousedown", ["$event"])
   onWindowMouseDown(event: MouseEvent) {
-    this.toolsService.onWindowMouseDown(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onWindowMouseDown(event);
+    });
   }
 
   @HostListener("window:mousemove", ["$event"])
   onWindowMouseMove(event: MouseEvent) {
-    this.toolsService.onWindowMouseMove(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onWindowMouseMove(event);
+    });
   }
 
   @HostListener("window:mouseup", ["$event"])
   onWindowMouseUp(event: MouseEvent) {
-    this.toolsService.onWindowMouseUp(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onWindowMouseUp(event);
+    });
   }
 
   @HostListener("window:blur", ["$event"])
   onWindowBlur(event: Event) {
-    this.toolsService.onWindowBlur(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onWindowBlur(event);
+    });
   }
 
   onWindowMouseWheel(event: WheelEvent) {
     // Method is used becaus HostListener doesnot have
     // 'passive' option support.
     event.preventDefault();
-    this.toolsService.onWindowMouseWheel(event);
+    this.ngZone.runOutsideAngular(() => {
+      this.toolsService.onWindowMouseWheel(event);
+    });
   }
 
   ngOnInit() {
