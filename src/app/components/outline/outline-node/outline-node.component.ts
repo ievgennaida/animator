@@ -4,7 +4,8 @@ import {
   Input,
   ChangeDetectionStrategy,
   OnDestroy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  NgZone
 } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import { Subject } from "rxjs";
@@ -20,38 +21,50 @@ import { takeUntil } from "rxjs/operators";
 export class OutlineNodeComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
 
-  @Input()
-  node: TreeNode = null;
+  node: TreeNode;
+  @Input("node") set setNode(node: TreeNode) {
+    if (this.node !== node) {
+      this.node = node;
+      this.cdRef.detectChanges();
+    }
+  }
+
   treeControl = this.outlineService.treeConrol;
   constructor(
     private outlineService: OutlineService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
+    this.cdRef.detach();
     outlineService.selected.pipe(takeUntil(this.destroyed$)).subscribe(data => {
       // Track only changed items:
       if (data && data.changed && data.changed.includes(this.node)) {
-        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
       }
     });
 
     this.outlineService.mouseOver.subscribe(node => {
       if (node === this.node) {
         // TODO: performance: if source != outline node.
-        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
       }
     });
   }
 
   setSelected(event, node: TreeNode) {
-    this.outlineService.setSelectedNode(node, event.ctrlKey);
+    this.ngZone.runOutsideAngular(() =>
+      this.outlineService.setSelectedNode(node, event.ctrlKey)
+    );
   }
 
   mouseEnter(node: TreeNode) {
-    this.outlineService.setMouseOver(node);
+    this.ngZone.runOutsideAngular(() => this.outlineService.setMouseOver(node));
   }
 
   mouseLeave(node: TreeNode) {
-    this.outlineService.setMouseLeave(node);
+    this.ngZone.runOutsideAngular(() =>
+      this.outlineService.setMouseLeave(node)
+    );
   }
 
   ngOnInit(): void {}
