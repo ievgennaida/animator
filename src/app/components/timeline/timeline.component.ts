@@ -6,7 +6,9 @@ import {
   EventEmitter,
   ViewChild,
   ElementRef,
-  NgZone
+  NgZone,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import {
   default as timeline,
@@ -21,15 +23,16 @@ import { PlayerService } from "src/app/services/player.service";
 import { consts } from "src/environments/consts";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
-import { ActionService } from 'src/app/services/actions/action.service';
-import { Keyframe } from 'src/app/models/keyframes/Keyframe';
-import { ViewportService } from 'src/app/services/viewport/viewport.service';
-import { OutlineService } from 'src/app/services/outline.service';
+import { ActionService } from "src/app/services/actions/action.service";
+import { Keyframe } from "src/app/models/keyframes/Keyframe";
+import { ViewportService } from "src/app/services/viewport/viewport.service";
+import { OutlineService } from "src/app/services/outline.service";
 
 @Component({
   selector: "app-timeline",
   templateUrl: "./timeline.component.html",
-  styleUrls: ["./timeline.component.scss"]
+  styleUrls: ["./timeline.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
@@ -39,7 +42,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
     private viewportService: ViewportService,
     private playerService: PlayerService,
     private actionService: ActionService,
-  ) {}
+    private cdRef: ChangeDetectorRef
+  ) {
+    this.cdRef.detach();
+  }
 
   lanes: AnimationTimelineLane[] = [];
   options: AnimationTimelineOptions;
@@ -96,7 +102,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
       }
     });
 
-
     const ds = this.outlineService.flatDataSource;
     const tc = this.outlineService.treeConrol;
 
@@ -116,12 +121,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
       }
     });
 
-    tc.expansionModel.changed
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(() => {
-        ds.data.forEach(p => this.resolveLanesVisibilty(tc, p, false));
-        this.redraw();
-      });
+    tc.expansionModel.changed.pipe(takeUntil(this.destroyed$)).subscribe(() => {
+      ds.data.forEach(p => this.resolveLanesVisibilty(tc, p, false));
+      this.redraw();
+    });
 
     this.propertiesService.сhanged
       .pipe(takeUntil(this.destroyed$))
@@ -129,9 +132,11 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.redraw();
       });
 
-    this.viewportService.viewportResize.pipe(takeUntil(this.destroyed$)).subscribe(p => {
-      this.redraw();
-    });
+    this.viewportService.viewportResize
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(p => {
+        this.redraw();
+      });
   }
 
   public onWheel(event: WheelEvent) {
