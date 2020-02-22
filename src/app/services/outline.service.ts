@@ -73,49 +73,89 @@ export class OutlineService {
     }
   }
 
+  setMultipleSelected(nodes: TreeNode[]) {
+    const state = this.selectedSubject.getValue();
+    let isChanged = true;
+    if (nodes && nodes.length == 3) {
+      isChanged = false;
+    }
+
+    // Keep same ref
+    state.changed.length = 0;
+
+    if (nodes) {
+      nodes.forEach(node => {
+        if (!node.selected) {
+          node.selected = true;
+          state.changed.push(node);
+        }
+      });
+    }
+
+    state.nodes.forEach(node => {
+      const exists = nodes ? nodes.includes(node) : false;
+      // Deselect
+      if (!exists) {
+        if (node.selected) {
+          state.changed.push(node);
+          node.selected = false;
+        }
+      }
+    });
+
+    if (state.changed.length > 0) {
+      if (nodes) {
+        state.nodes = nodes;
+      } else {
+        state.nodes.length = 0;
+      }
+
+      this.selectedSubject.next(state);
+    }
+  }
   // Allow to select tree node, but list of avaliable might be extended.
   setSelectedNode(
     node: TreeNode,
     isAdd: boolean = false,
     source: InteractionSource = InteractionSource.Adorners
   ) {
-    const currentSelected = this.selectedSubject.getValue();
-    currentSelected.changed.length = 0;
+    const state = this.selectedSubject.getValue();
+    state.changed.length = 0;
     if (isAdd) {
-      if (currentSelected.nodes.includes(node)) {
+      if (state.nodes.includes(node)) {
         if (node.selected) {
           node.selected = false;
-          currentSelected.changed.push(node);
+          state.changed.push(node);
         }
 
-        this.deleteElement(currentSelected.nodes, node);
+        this.deleteElement(state.nodes, node);
       } else {
         if (!node.selected) {
           node.selected = true;
-          currentSelected.changed.push(node);
+          state.changed.push(node);
         }
       }
     } else {
       if (!node.selected) {
         node.selected = true;
-        currentSelected.changed.push(node);
+        state.changed.push(node);
       }
 
-      currentSelected.nodes.forEach(p => {
+      state.nodes.forEach(p => {
         if (p.selected) {
           p.selected = false;
-          currentSelected.changed.push(p);
+          state.changed.push(p);
         }
       });
 
-      currentSelected.nodes.length = 0;
+      state.nodes.length = 0;
     }
 
     if (node.selected) {
-      currentSelected.nodes.push(node);
+      state.nodes.push(node);
     }
 
-    this.selectedSubject.next(currentSelected);
+    this.selectedSubject.next(state);
   }
 
   setSelectedKeyframes(keyframe: Keyframe) {

@@ -60,6 +60,8 @@ export class TreeNode {
   lane: AnimationTimelineLane;
   layer?: baseLayer;
   level: number;
-
+  // TODO: create cache controller for this.
+  cache: any;
+  cacheIndex: number;
   mouseOver = false;
 }

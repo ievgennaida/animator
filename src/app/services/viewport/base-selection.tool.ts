@@ -12,6 +12,7 @@ import { ZoomTool } from "./zoom.tool";
   providedIn: "root"
 })
 export class BaseSelectionTool extends BaseTool {
+  cacheIndex = 0;
   constructor(
     protected viewportService: ViewportService,
     protected logger: LoggerService,
@@ -21,7 +22,7 @@ export class BaseSelectionTool extends BaseTool {
     this.viewportService.viewportTransformationSubject
       .asObservable()
       .subscribe(() => {
-        this.screenMatrix = this.viewportService.getCTM();
+        this.cacheIndex++;
         this.trackMousePos(this.currentArgs);
         this.updateSelectorUi();
       });
@@ -31,7 +32,6 @@ export class BaseSelectionTool extends BaseTool {
     });
   }
 
-  screenMatrix: DOMMatrix = null;
   iconName = "navigation";
   selectionRectElement: HTMLElement;
 
@@ -46,14 +46,14 @@ export class BaseSelectionTool extends BaseTool {
     this.selectionRectElement = element;
   }
 
-
   onViewportMouseDown(e: MouseEventArgs) {
     this.startPos = this.trackMousePos(e);
     this.containerRect = this.viewportService.getContainerClientRect();
     const bounds = this.viewportService.getDisplayedBounds();
-    if(bounds){
+    if (bounds) {
       const zoom = this.viewportService.getZoom();
-      this.autoPanSpeed =consts.autoPanSpeed *zoom*  Math.abs(bounds.from.x - bounds.to.x);
+      this.autoPanSpeed =
+        consts.autoPanSpeed * zoom * Math.abs(bounds.from.x - bounds.to.x);
     }
   }
 
@@ -159,7 +159,7 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   updateSelectorUi() {
-    if (this.updating || !this.screenMatrix) {
+    if (this.updating) {
       return;
     }
 
@@ -178,7 +178,7 @@ export class BaseSelectionTool extends BaseTool {
 
     const rect = this.viewportService.matrixRectTransform(
       this.selectionRect,
-      this.screenMatrix
+      this.viewportService.getCTM()
     );
     const matrix = this.viewportService.viewport.ownerSVGElement
       .createSVGMatrix()
@@ -203,7 +203,7 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   trackMousePos(event: MouseEventArgs) {
-    if(!event){
+    if (!event) {
       return;
     }
 

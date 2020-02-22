@@ -7,8 +7,13 @@ import { consts } from "src/environments/consts";
   providedIn: "root"
 })
 export class ViewportService {
-  constructor() {}
+  constructor() {
+    this.viewportTransformationSubject.subscribe(() => {
+      this.ctm = this.getCTMForElement(this.viewport);
+    });
+  }
 
+  ctm: DOMMatrix = null;
   viewportTransformationSubject = new BehaviorSubject<DOMMatrix>(null);
   viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
   playerHost: SVGElement;
@@ -81,7 +86,7 @@ export class ViewportService {
       return null;
     }
     const svg = this.viewport.ownerSVGElement;
-    const matrix = this.viewport.getCTM().inverse();
+    const matrix = this.getCTM().inverse();
     let fromPoint = svg.createSVGPoint();
     fromPoint = fromPoint.matrixTransform(matrix);
 
@@ -111,6 +116,10 @@ export class ViewportService {
       return null;
     }
 
+    if (this.ctm) {
+      return this.ctm;
+    }
+
     return this.getCTMForElement(this.viewport);
   }
 
@@ -130,6 +139,9 @@ export class ViewportService {
   }
 
   public getCTMForElement(element: SVGElement | any): DOMMatrix {
+    if (!element) {
+      return null;
+    }
     return element.getCTM();
   }
 

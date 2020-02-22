@@ -14,7 +14,6 @@ import { UndoService } from "./services/actions/undo.service";
 import { ToolsService } from "./services/viewport/tools.service";
 import { ViewportService } from "./services/viewport/viewport.service";
 import { InputDocument, InputDocumentType } from "./models/input-document";
-import { parseTemplate } from "@angular/compiler";
 import { LoggerService } from "./services/logger.service";
 
 @Component({
@@ -122,35 +121,35 @@ export class AppComponent implements OnInit {
         this.self.nativeElement.clientWidth
       );
     }
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.viewportService.emitViewportResized();
     });
   }
 
   @HostListener("window:mousedown", ["$event"])
   onWindowMouseDown(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onWindowMouseDown(event);
     });
   }
 
   @HostListener("window:mousemove", ["$event"])
   onWindowMouseMove(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onWindowMouseMove(event);
     });
   }
 
   @HostListener("window:mouseup", ["$event"])
   onWindowMouseUp(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onWindowMouseUp(event);
     });
   }
 
   @HostListener("window:blur", ["$event"])
   onWindowBlur(event: Event) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onWindowBlur(event);
     });
   }
@@ -159,9 +158,13 @@ export class AppComponent implements OnInit {
     // Method is used becaus HostListener doesnot have
     // 'passive' option support.
     event.preventDefault();
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onWindowMouseWheel(event);
     });
+  }
+
+  out(callback) {
+    this.ngZone.runOutsideAngular(callback);
   }
 
   ngOnInit() {

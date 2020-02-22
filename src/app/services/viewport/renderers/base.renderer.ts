@@ -13,6 +13,17 @@ export class BaseRenderer {
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
   }
+  clearBackground(ctx: CanvasRenderingContext2D) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+
+  getDistance(x1: number, y1: number, x2?: number, y2?: number) {
+    if (x2 !== undefined && y2 !== undefined) {
+      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    } else {
+      return Math.abs(x1 - y1);
+    }
+  }
 
   getSharpPos(point: DOMPoint, thinkess = 1) {
     point.x = this.getSharp(point.x, thinkess);

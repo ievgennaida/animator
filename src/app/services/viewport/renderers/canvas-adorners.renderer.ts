@@ -18,8 +18,10 @@ export class CanvasAdornersRenderer extends BaseRenderer {
   rulerHElement: HTMLCanvasElement = null;
   rulerWElement: HTMLCanvasElement = null;
   canvasElement: HTMLCanvasElement = null;
+  gridElement: HTMLCanvasElement = null;
   ctx: CanvasRenderingContext2D = null;
   rulerWCTX: CanvasRenderingContext2D = null;
+  gridCTX: CanvasRenderingContext2D = null;
   rulerHCTX: CanvasRenderingContext2D = null;
   showGridLinesSubject = new BehaviorSubject<boolean>(consts.showGridLines);
 
@@ -40,10 +42,6 @@ export class CanvasAdornersRenderer extends BaseRenderer {
       this.adornersInvalidate();
     });
 
-    this.outlineService.mouseOverSubject.subscribe(() => {
-      this.adornersInvalidate();
-    });
-
     this.viewportService.viewportTransformationSubject
       .asObservable()
       .subscribe(() => {
@@ -57,9 +55,11 @@ export class CanvasAdornersRenderer extends BaseRenderer {
 
   init(
     canvasElement: HTMLCanvasElement,
+    gridElement: HTMLCanvasElement,
     rulerHElement: HTMLCanvasElement,
     rulerWElement: HTMLCanvasElement
   ) {
+    this.gridElement = gridElement;
     this.rulerHElement = rulerHElement;
     this.rulerWElement = rulerWElement;
     this.canvasElement = canvasElement;
@@ -73,22 +73,33 @@ export class CanvasAdornersRenderer extends BaseRenderer {
 
   adornersInvalidate() {
     // Same call but can be handled separatelly for the performance.
-    this.invalidate();
+    this.invalidate(false);
   }
 
-  invalidate() {
-    this.rescale();
+  invalidate(redrawGrid: boolean = true) {
+    // TODO: list! implement dynamic leyers
+    this.canvasCTM.a = this.onePixel;
+    this.canvasCTM.d = this.onePixel;
+    this.ctx = this.initCanvas(this.canvasElement, this.ctx);
+    this.rescaleCanvas(this.gridElement, this.ctx);
 
-    if (this.ctx) {
-      this.redraw();
-    }
+    this.gridCTX = this.initCanvas(this.gridElement, this.gridCTX);
+    this.rulerWCTX = this.initCanvas(this.rulerWElement, this.rulerWCTX);
+    this.rulerHCTX = this.initCanvas(this.rulerHElement, this.rulerHCTX);
+    let changed = this.rescaleCanvas(this.gridElement, this.gridCTX);
+    redrawGrid = redrawGrid || changed;
+    changed = this.rescaleCanvas(this.rulerWElement, this.rulerWCTX);
+    redrawGrid = redrawGrid || changed;
+    changed = this.rescaleCanvas(this.rulerHElement, this.rulerHCTX);
+    redrawGrid = redrawGrid || changed;
+
+    this.redraw(redrawGrid);
   }
 
-  isInit() {
-    return !!this.ctx;
-  }
-
-  initCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+  initCanvas(
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D
+  ): CanvasRenderingContext2D {
     if (!canvas) {
       return null;
     }
@@ -97,55 +108,64 @@ export class CanvasAdornersRenderer extends BaseRenderer {
       // ctx.translate(this.devicePixelRatio/2, 0.5);
     }
 
+    return ctx;
+  }
+
+  rescaleCanvas(
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D
+  ): boolean {
+    let changed = false;
+    if (!canvas) {
+      return null;
+    }
+
     // TODO: skip before creating an object.
     const point = this.canvasCTM.transformPoint(
       new DOMPoint(canvas.clientWidth, canvas.clientHeight)
     );
 
-    if (Math.round(point.x) !== ctx.canvas.width) {
-      ctx.canvas.width = point.x;
+    const newX = Math.floor(point.x);
+
+    if (newX !== ctx.canvas.width) {
+      ctx.canvas.width = newX;
+      changed = true;
     }
 
-    if (Math.round(point.y) !== ctx.canvas.height) {
-      ctx.canvas.height = point.y;
+    const newY = Math.floor(point.y);
+    if (newY !== ctx.canvas.height) {
+      ctx.canvas.height = newY;
+      changed = true;
     }
 
-    return ctx;
+    return changed;
   }
 
-  rescale() {
-    if (!this.canvasElement) {
-      return;
-    }
-    // set zoom
-    this.canvasCTM.a = this.onePixel;
-    this.canvasCTM.d = this.onePixel;
-    this.ctx = this.initCanvas(this.canvasElement, this.ctx);
-    this.rulerWCTX = this.initCanvas(this.rulerWElement, this.rulerWCTX);
-    this.rulerHCTX = this.initCanvas(this.rulerHElement, this.rulerHCTX);
-  }
-
-  redraw() {
+  redraw(redrawGrid: boolean = true) {
     this.ngZone.runOutsideAngular(() => {
       if (window.requestAnimationFrame) {
         window.requestAnimationFrame(() => {
-          this.redrawInternal();
+          this.redrawInternal(redrawGrid);
         });
       } else {
-        this.redrawInternal();
+        this.redrawInternal(redrawGrid);
       }
     });
   }
 
-  redrawInternal() {
-    this.rulerRenderer.redraw(
-      this.ctx,
-      this.rulerWCTX,
-      this.rulerHCTX,
-      this.showGridLinesSubject.getValue()
-    );
+  redrawInternal(redrawGrid: boolean = true) {
+    if (redrawGrid && this.gridCTX) {
+      this.rulerRenderer.redraw(
+        this.gridCTX,
+        this.rulerWCTX,
+        this.rulerHCTX,
+        this.showGridLinesSubject.getValue()
+      );
+    }
     this.boundsRenderer.canvasCTM = this.canvasCTM;
-    // TODO: this renderer can be displated on the separate canvas for the performance.
-    this.boundsRenderer.redraw(this.ctx);
+    if (this.ctx) {
+      // TODO: this renderer can be displated on the separate canvas for the performance.
+      this.boundsRenderer.redraw(this.ctx);
+    }
   }
 }

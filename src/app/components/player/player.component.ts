@@ -51,6 +51,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   @ViewChild("rulerW", { static: true })
   rulerWRef: ElementRef<HTMLCanvasElement>;
+  @ViewChild("gridLinesAdorner", { static: true })
+  gridLinesAdornerRef: ElementRef<HTMLCanvasElement>;
 
   @ViewChild("canvasAdorners", { static: true })
   canvasAdornersRef: ElementRef<HTMLCanvasElement>;
@@ -109,68 +111,61 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   onViewportTouchStart(event: TouchEvent) {
-    this.ngZone.runOutsideAngular(() =>
-      this.toolsService.onViewportTouchStart(event)
-    );
+    this.out(() => this.toolsService.onViewportTouchStart(event));
   }
   onViewportTouchEnd(event: TouchEvent) {
-    this.ngZone.runOutsideAngular(() =>
-      this.toolsService.onViewportTouchEnd(event)
-    );
+    this.out(() => this.toolsService.onViewportTouchEnd(event));
   }
   onViewportTouchMove(event: TouchEvent) {
-    this.ngZone.runOutsideAngular(() =>
-      this.toolsService.onViewportTouchMove(event)
-    );
+    this.out(() => this.toolsService.onViewportTouchMove(event));
   }
   onViewportTouchLeave(event: TouchEvent) {
-    this.ngZone.runOutsideAngular(() =>
-      this.toolsService.onViewportTouchLeave(event)
-    );
+    this.out(() => this.toolsService.onViewportTouchLeave(event));
   }
   onViewportTouchCancel(event: TouchEvent) {
-    this.ngZone.runOutsideAngular(() =>
-      this.toolsService.onViewportTouchCancel(event)
-    );
+    this.out(() => this.toolsService.onViewportTouchCancel(event));
   }
   onViewportMouseLeave(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onViewportMouseLeave(event);
     });
   }
   onViewportMouseDown(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onViewportMouseDown(event);
     });
   }
   onViewportMouseUp(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onViewportMouseUp(event);
     });
   }
   onViewportMouseWheel(event: WheelEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onViewportMouseWheel(event);
     });
   }
   onViewportBlur(event: Event) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onViewportBlur(event);
     });
   }
 
   onPlayerMouseOut(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onPlayerMouseOut(event);
     });
   }
 
   onPlayerMouseOver(event: MouseEvent) {
-    this.ngZone.runOutsideAngular(() => {
+    this.out(() => {
       this.toolsService.onPlayerMouseOver(event);
     });
   }
 
+  out(callback) {
+    this.ngZone.runOutsideAngular(callback);
+  }
   centerViewport() {
     this.panTool.fit();
   }
@@ -228,6 +223,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
     this.adornersRenderer.init(
       this.canvasAdornersRef.nativeElement,
+      this.gridLinesAdornerRef.nativeElement,
       this.rulerHRef.nativeElement,
       this.rulerWRef.nativeElement
     );

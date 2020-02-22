@@ -217,10 +217,6 @@ export class RulerRenderer extends BaseRenderer {
     adornersCTX.restore();
   }
 
-  clearBackground(ctx: CanvasRenderingContext2D) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  }
-
   redraw(
     ctx: CanvasRenderingContext2D,
     rulerWCTX: CanvasRenderingContext2D,
@@ -247,14 +243,6 @@ export class RulerRenderer extends BaseRenderer {
     }
 
     return ms + postfix;
-  }
-
-  getDistance(x1: number, y1: number, x2?: number, y2?: number) {
-    if (x2 !== undefined && y2 !== undefined) {
-      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-    } else {
-      return Math.abs(x1 - y1);
-    }
   }
 
   getPowArgument(toCheck) {

@@ -30,6 +30,8 @@ export class BoundsRenderer extends BaseRenderer {
     renderable: SVGGraphicsElement,
     thikness: number
   ) {
+    // TODO: create global cache for the CTM and bounds.
+    // Update on matrix transform.
     const bounds = renderable.getBBox();
     const currentCTM = renderable.getScreenCTM();
     // Convert element position on zoomed parent and then to a canvas coordites.
@@ -59,9 +61,12 @@ export class BoundsRenderer extends BaseRenderer {
     ctx.restore();
   }
   redraw(ctx: CanvasRenderingContext2D) {
+    this.clearBackground(ctx);
     const parent = this.viewportService.viewport
       .ownerSVGElement as SVGSVGElement;
     const parentCTM = parent.getScreenCTM().inverse();
+    // let selectedRect:DOMRect = null;
+    // TODO: performance iterate only selected and active
     if (this.renderableElements && this.renderableElements.length > 0) {
       this.renderableElements.forEach((node: TreeNode) => {
         if (!node.tag) {
@@ -77,11 +82,13 @@ export class BoundsRenderer extends BaseRenderer {
           (node.mouseOver || node.selected)
         ) {
           let thikness = this.onePixel;
-          if (node.mouseOver) {
+          if (node.mouseOver && !node.selected) {
             thikness = 2;
+            this.drawRect(ctx, parentCTM, renderable, thikness);
+          }else{
+            thikness = 3;
+            this.drawRect(ctx, parentCTM, renderable, thikness);
           }
-
-          this.drawRect(ctx, parentCTM, renderable, thikness);
         }
       });
     }
