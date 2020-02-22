@@ -3,7 +3,7 @@ import { MouseEventArgs } from "./MouseEventArgs";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewportService } from "./viewport.service";
-import { consts } from "src/environments/consts";
+import { CursorService, CursorType } from '../cursor.service';
 
 @Injectable({
   providedIn: "root"
@@ -15,11 +15,17 @@ export class PanTool extends BaseTool {
 
   constructor(
     private viewportService: ViewportService,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private cursor: CursorService
   ) {
     super();
   }
-
+  onActivate(){
+    this.cursor.setCursor(CursorType.Grab);
+  }
+  onDeactivate(){
+    this.cursor.setCursor(CursorType.Default);
+  }
   onViewportResize() {}
 
   onWindowBlur(event: Event) {
@@ -37,9 +43,11 @@ export class PanTool extends BaseTool {
     this.svgMatrix = this.viewportService.getCTM();
     const point = this.viewportService.toSvgPoint(event.clientX, event.clientY);
     this.mouseDownPos = point.matrixTransform(this.svgMatrix.inverse());
+    this.cursor.setCursor(CursorType.Grabbing);
   }
 
   cleanUp() {
+    this.cursor.setCursor(CursorType.Grab);
     this.mouseDownPos = null;
   }
   onWindowMouseMove(event: MouseEventArgs) {

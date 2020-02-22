@@ -3,6 +3,8 @@ import { MouseEventArgs } from "./MouseEventArgs";
 export class BaseTool {
   icon = "";
 
+  onActivate(){}
+  onDeactivate(){}
   onAnimationFrame() {}
   onViewportMouseLeave(event: MouseEventArgs) {}
   onViewportMouseDown(event: MouseEventArgs) {}
@@ -18,4 +20,7 @@ export class BaseTool {
   onWindowMouseMove(event: MouseEventArgs) {}
   onWindowMouseUp(event: MouseEventArgs) {}
   onWindowMouseWheel(event: MouseEventArgs) {}
+  onWindowKeyDown(event: KeyboardEvent){}
+  onWindowKeyUp(event: KeyboardEvent){}
+
 }

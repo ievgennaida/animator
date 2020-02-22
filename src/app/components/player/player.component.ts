@@ -19,7 +19,8 @@ import { ViewportService } from "src/app/services/viewport/viewport.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
-import { consts } from "src/environments/consts";
+import { CursorService, CursorType } from "src/app/services/cursor.service";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
   selector: "app-player",
@@ -84,7 +85,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
-    private adornersRenderer: CanvasAdornersRenderer
+    private adornersRenderer: CanvasAdornersRenderer,
+    private cursor: CursorService
   ) {
     this.cdRef.detach();
   }
@@ -175,10 +177,20 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.calcRealScrollBarSize();
-
+    this.out(() => {
+      this.calcRealScrollBarSize();
+      this.cursor.сhanged
+        .pipe(takeUntil(this.destroyed$))
+        .subscribe((cursor: CursorType) => {
+          const el = this.svgContainer.nativeElement;
+          if (el && el.style.cursor !== cursor) {
+            el.style.cursor = cursor;
+          }
+        });
+    });
     this.adornersRenderer.showGridLinesSubject
       .asObservable()
+      .pipe(takeUntil(this.destroyed$))
       .subscribe(gridLines => {
         if (gridLines !== this.showGridLines) {
           this.showGridLines = gridLines;
@@ -195,13 +207,15 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.scrollContentRef.nativeElement
     );
 
-    this.viewportService.viewportSizeSubject.subscribe(p => {
-      this.workAreaSize = p;
-      // TODO: offsets
-      this.shadowAreaSize = this.workAreaSize;
-      // Check whether required.
-      this.cdRef.detectChanges();
-    });
+    this.viewportService.viewportSizeSubject
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(p => {
+        this.workAreaSize = p;
+        // TODO: offsets
+        this.shadowAreaSize = this.workAreaSize;
+        // Check whether required.
+        this.cdRef.detectChanges();
+      });
 
     this.zoomTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
@@ -209,6 +223,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
     this.viewportService.viewportTransformationSubject
       .asObservable()
+      .pipe(takeUntil(this.destroyed$))
       .subscribe(p => {
         let value = "";
         if (p) {

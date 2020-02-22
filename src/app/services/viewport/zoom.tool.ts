@@ -6,6 +6,7 @@ import { ViewportService } from "./viewport.service";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
+import { CursorService, CursorType } from "../cursor.service";
 
 @Injectable({
   providedIn: "root"
@@ -15,9 +16,28 @@ export class ZoomTool extends BaseSelectionTool {
   constructor(
     viewportService: ViewportService,
     logger: LoggerService,
-    panTool: PanTool
+    panTool: PanTool,
+    private cursor: CursorService
   ) {
     super(viewportService, logger, panTool);
+  }
+
+  onActivate() {
+    this.cursor.setCursor(CursorType.ZoomIn);
+  }
+
+  onDeactivate() {
+    this.cursor.setCursor(CursorType.Default);
+  }
+
+  onWindowKeyDown(event: KeyboardEvent) {
+    if (event.ctrlKey) {
+      this.cursor.setCursor(CursorType.ZoomOut);
+    }
+  }
+
+  onWindowKeyUp(event: KeyboardEvent) {
+    this.cursor.setCursor(CursorType.ZoomIn);
   }
 
   onViewportMouseWheel(event: MouseEventArgs) {
@@ -29,6 +49,11 @@ export class ZoomTool extends BaseSelectionTool {
     const direction = event.deltaY;
     this.zoom(direction, consts.zoom.sensitivityWheel, event);
   }
+
+  cleanUp() {
+    super.cleanUp();
+  }
+
   /**
    * Override base method.
    */
@@ -86,7 +111,7 @@ export class ZoomTool extends BaseSelectionTool {
       if (expectedScale > consts.zoom.max) {
         scale = consts.zoom.max / matrix.a;
       } else if (expectedScale < consts.zoom.min) {
-        scale = consts.zoom.min/ matrix.a;
+        scale = consts.zoom.min / matrix.a;
       }
 
       expectedScale = matrix.a * scale;

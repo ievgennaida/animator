@@ -41,7 +41,13 @@ export class ToolsService {
 
   setActiveTool(tool: BaseTool) {
     if (this.activeTool !== tool) {
+      if (this.activeTool) {
+        this.activeTool.onDeactivate();
+      }
       this.activeTool = tool;
+      if (this.activeTool) {
+        this.activeTool.onActivate();
+      }
       this.activeToolSubject.next(this.activeTool);
     }
   }
@@ -101,6 +107,12 @@ export class ToolsService {
 
   onWindowMouseLeave(event: MouseEvent) {
     this.activeTool.onWindowMouseLeave(new MouseEventArgs(event));
+  }
+  onWindowKeyDown(event: KeyboardEvent){
+    this.activeTool.onWindowKeyDown(event);
+  }
+  onWindowKeyUp(event: KeyboardEvent){
+    this.activeTool.onWindowKeyUp(event);
   }
   onWindowMouseDown(event: MouseEvent) {
     this.activeTool.onWindowMouseDown(new MouseEventArgs(event));

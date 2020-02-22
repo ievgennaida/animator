@@ -42,7 +42,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
     private viewportService: ViewportService,
     private playerService: PlayerService,
     private actionService: ActionService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
     this.cdRef.detach();
   }
@@ -57,8 +58,13 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   @Output()
   public timelineScroll: EventEmitter<any> = new EventEmitter();
-
   ngOnInit() {
+    this.ngZone.runOutsideAngular(() => {
+      this.init();
+    });
+  }
+
+  init() {
     const onDraw = () => {
       this.playerService.syncornizeTimelineWithPlayer();
       window.requestAnimationFrame(onDraw);

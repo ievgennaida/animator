@@ -133,13 +133,6 @@ export class AppComponent implements OnInit {
     });
   }
 
-  @HostListener("window:mousemove", ["$event"])
-  onWindowMouseMove(event: MouseEvent) {
-    this.out(() => {
-      this.toolsService.onWindowMouseMove(event);
-    });
-  }
-
   @HostListener("window:mouseup", ["$event"])
   onWindowMouseUp(event: MouseEvent) {
     this.out(() => {
@@ -178,25 +171,50 @@ export class AppComponent implements OnInit {
       this.cdRef.markForCheck();
     });
 
-    document.addEventListener(
-      "visibilitychange",
-      event => {
-        if (document.hidden) {
-          this.toolsService.onWindowBlur(event);
-        }
-      },
-      false
-    );
+    this.out(() => {
+      document.addEventListener(
+        "keydown",
+        (event: KeyboardEvent) => {
+          this.toolsService.onWindowKeyDown(event);
+        },
+        false
+      );
+      document.addEventListener(
+        "keyup",
+        (event: KeyboardEvent) => {
+          this.toolsService.onWindowKeyUp(event);
+        },
+        false
+      );
 
-    window.addEventListener(
-      "wheel",
-      e => {
-        this.onWindowMouseWheel(e);
-      },
-      {
-        passive: false
-      }
-    );
+      document.addEventListener(
+        "mousemove",
+        (event: MouseEvent) => {
+          this.toolsService.onWindowMouseMove(event);
+        },
+        false
+      );
+
+      document.addEventListener(
+        "visibilitychange",
+        event => {
+          if (document.hidden) {
+            this.toolsService.onWindowBlur(event);
+          }
+        },
+        false
+      );
+
+      window.addEventListener(
+        "wheel",
+        e => {
+          this.onWindowMouseWheel(e);
+        },
+        {
+          passive: false
+        }
+      );
+    });
 
     this.setRecent(null);
   }

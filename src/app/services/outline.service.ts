@@ -76,7 +76,7 @@ export class OutlineService {
   setMultipleSelected(nodes: TreeNode[]) {
     const state = this.selectedSubject.getValue();
     let isChanged = true;
-    if (nodes && nodes.length == 3) {
+    if (nodes && nodes.length === 3) {
       isChanged = false;
     }
 

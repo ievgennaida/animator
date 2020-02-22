@@ -55,6 +55,8 @@ export class BaseSelectionTool extends BaseTool {
       this.autoPanSpeed =
         consts.autoPanSpeed * zoom * Math.abs(bounds.from.x - bounds.to.x);
     }
+
+    this.selectionStarted(e);
   }
 
   onWindowBlur() {
@@ -75,6 +77,7 @@ export class BaseSelectionTool extends BaseTool {
     }
   }
 
+  selectionStarted(e: MouseEventArgs) {}
   selectionUpdate(e: MouseEventArgs, selectedArea: DOMRect) {}
 
   selectionEnded(e: MouseEventArgs, selectedArea: DOMRect) {}
