@@ -3,6 +3,7 @@ export const consts = {
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
   showGridLines: true,
+  defaultPropertiesPanelSize: "250px",
   defaultWorkArea: {
     width: 640,
     height: 480,

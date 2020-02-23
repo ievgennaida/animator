@@ -19,7 +19,6 @@ import { MatListModule } from "@angular/material/list";
 import { ResizableModule } from "angular-resizable-element";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { MatSidenavModule } from "@angular/material/sidenav";
 
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ControlsComponent } from './components/timeline/controls/controls.component';
@@ -53,7 +52,6 @@ import { OutlineNodeComponent } from './components/outline/outline-node/outline-
     MatIconModule,
     MatListModule,
     MatMenuModule,
-    MatSidenavModule,
     MatButtonToggleModule,
     NoopAnimationsModule,
     MatButtonModule,

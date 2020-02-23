@@ -24,10 +24,9 @@ import { LoggerService } from "./services/logger.service";
 export class AppComponent implements OnInit {
   title = "animation";
   outlineW: number | string = null;
-  propertiesW: number | string = 215;
-  lastUsedPropertiesW = this.propertiesW;
   footerH: number | string = null;
   recentItems = [];
+  lastUsedPropertiesW = 0;
   undoDisabled = false;
   redoDisabled = false;
   constructor(
@@ -65,10 +64,9 @@ export class AppComponent implements OnInit {
   }
 
   onResizeProperties(event: ResizeEvent): void {
-    this.propertiesW = this.resize(
-      event.rectangle.width,
-      this.self.nativeElement.clientWidth
-    );
+    this.properties.nativeElement.style.width =
+      this.resize(event.rectangle.width, this.self.nativeElement.clientWidth) +
+      "px";
     this.viewportService.emitViewportResized();
   }
 
@@ -115,11 +113,13 @@ export class AppComponent implements OnInit {
       this.self.nativeElement.clientWidth
     );
 
-    if (this.propertiesW !== 0) {
-      this.propertiesW = this.resize(
-        this.properties.nativeElement.clientWidth,
-        this.self.nativeElement.clientWidth
-      );
+    const style = this.properties.nativeElement.style;
+    if (style.width && style !== "0px") {
+      this.properties.nativeElement.style.width =
+        this.resize(
+          this.properties.nativeElement.clientWidth,
+          this.self.nativeElement.clientWidth
+        ) + "px";
     }
     this.out(() => {
       this.viewportService.emitViewportResized();
@@ -161,17 +161,10 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.stateService.document.subscribe(p => {
-      if (p) {
-        this.title = p.title;
-      } else {
-        this.title = "";
-      }
-
-      this.cdRef.markForCheck();
-    });
-
     this.out(() => {
+      const defaultSize = consts.defaultPropertiesPanelSize;
+      this.properties.nativeElement.style.width = defaultSize;
+      this.lastUsedPropertiesW = this.properties.nativeElement.style.width;
       document.addEventListener(
         "keydown",
         (event: KeyboardEvent) => {
@@ -216,6 +209,16 @@ export class AppComponent implements OnInit {
       );
     });
 
+    this.stateService.document.subscribe(p => {
+      if (p) {
+        this.title = p.title;
+      } else {
+        this.title = "";
+      }
+
+      this.cdRef.markForCheck();
+    });
+
     this.setRecent(null);
   }
 
@@ -258,14 +261,18 @@ export class AppComponent implements OnInit {
     }
   }
 
-  onPropertiesDrawerPanelToogle(opened: boolean) {
-    if (!opened) {
-      this.lastUsedPropertiesW = this.propertiesW;
-      this.propertiesW = 0;
-    } else {
-      this.propertiesW = this.lastUsedPropertiesW;
-    }
-    this.viewportService.emitViewportResized();
+  toogleProperties() {
+    this.out(()=>{
+      const style = this.properties.nativeElement.style;
+      if (style.width && style.width !== "0px") {
+        this.lastUsedPropertiesW = style.width;
+        style.width = "0px";
+      } else {
+        style.width = this.lastUsedPropertiesW;
+      }
+
+      this.viewportService.emitViewportResized();
+    })
   }
 
   setRecent(newRecentItem: any) {

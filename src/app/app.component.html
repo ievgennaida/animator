@@ -8,34 +8,33 @@
       <input #file type='file' accept="" style="display:none;" (change)="fileSelected($event)">
     </mat-menu>
     <mat-menu #recent="matMenu">
-      <button mat-menu-item (click)="loadData(item.str, item.name)" *ngFor="let item of recentItems">{{item?.name}}</button>
+      <button mat-menu-item (click)="loadData(item.str, item.name)"
+        *ngFor="let item of recentItems">{{item?.name}}</button>
     </mat-menu>
-    <button mat-button (click)="undo()" [disabled]="undoDisabled"><mat-icon>undo</mat-icon></button>
-    <button mat-button (click)="redo()" [disabled]="redoDisabled"><mat-icon>redo</mat-icon></button>
+    <button mat-button (click)="undo()" [disabled]="undoDisabled">
+      <mat-icon>undo</mat-icon>
+    </button>
+    <button mat-button (click)="redo()" [disabled]="redoDisabled">
+      <mat-icon>redo</mat-icon>
+    </button>
     <span class="toolbar-center"> {{title}}</span>
-    <button (click)="drawer.toggle()" mat-button>
+    <button (click)="toogleProperties()" mat-button>
       <mat-icon class="example-icon" aria-hidden="false">menu</mat-icon>
     </button>
-  </mat-toolbar> 
+  </mat-toolbar>
   <div class="player-container" #main>
     <app-toolbox></app-toolbox>
-
-    <mat-drawer-container>
-      <mat-drawer (openedChange)="onPropertiesDrawerPanelToogle($event)" #drawer mode="side" opened="true" position="end" #properties mwlResizable [style.width.px]="propertiesW"
+    <div class="drawer">
+      <app-player></app-player>
+      <app-properties class="properties" #properties mode="side" opened="true" position="end" mwlResizable
         [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }" (resizing)="onResizeProperties($event)"
-        (resizeEnd)="onResizeProperties($event)">
-        <app-properties> </app-properties>
-      </mat-drawer>
-      <mat-drawer-content [style.marginRight.px]="propertiesW">
-        <app-player></app-player>
-      </mat-drawer-content>
-    </mat-drawer-container>
+        (resizeEnd)="onResizeProperties($event)"> </app-properties>
+    </div>
   </div>
   <app-controls></app-controls>
 </main>
-<footer #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6"
-  (resizing)="onResizeFooter($event)" (resizeEnd)="onResizeFooter($event)" [enableGhostResize]="false"
-  [resizeEdges]="{ top: true }">
+<footer #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6" (resizing)="onResizeFooter($event)"
+  (resizeEnd)="onResizeFooter($event)" [enableGhostResize]="false" [resizeEdges]="{ top: true }">
   <app-outline (mousewheel)="timeline.onWheel($event)" #outline mwlResizable [style.width.px]="outlineW"
     [resizeCursorPrecision]="6" (resizing)="onResizeOutline($event)" (resizeEnd)="onResizeOutline($event)"
     [enableGhostResize]="false" [resizeEdges]="{ right: true }">
