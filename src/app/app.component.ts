@@ -150,7 +150,6 @@ export class AppComponent implements OnInit {
   onWindowMouseWheel(event: WheelEvent) {
     // Method is used becaus HostListener doesnot have
     // 'passive' option support.
-    event.preventDefault();
     this.out(() => {
       this.toolsService.onWindowMouseWheel(event);
     });

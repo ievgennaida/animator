@@ -53,7 +53,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   scrollTop = 0;
   timeline: Timeline;
 
-  @ViewChild("timeline", { read: ElementRef })
+  @ViewChild("timeline", { static: true })
   timelineElement: ElementRef;
 
   @Output()
@@ -62,6 +62,13 @@ export class TimelineComponent implements OnInit, OnDestroy {
     this.ngZone.runOutsideAngular(() => {
       this.init();
     });
+
+    if (this.timeline) {
+      // Sync scroll between outline and tree view.
+      this.timeline.on("scroll", (args: ScrollEventArgs) => {
+        this.timelineScroll.emit(args);
+      });
+    }
   }
 
   init() {
@@ -86,11 +93,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
       if (args.source === "user") {
         this.playerService.goTo(args.val);
       }
-    });
-
-    // Sync scroll between outline and tree view.
-    this.timeline.on("scroll", (args: ScrollEventArgs) => {
-      this.timelineScroll.emit(args);
     });
 
     this.timeline.on("dragStarted", args => {
@@ -147,7 +149,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   public onWheel(event: WheelEvent) {
     // Wire wheel events with other divs over the app.
-    if (this.timelineElement.nativeElement) {
+    if (this.timelineElement && this.timelineElement.nativeElement) {
       const scroll = Math.sign(event.deltaY) * consts.timelineScrollSpeed;
       this.timelineElement.nativeElement.scrollTop += scroll;
     }

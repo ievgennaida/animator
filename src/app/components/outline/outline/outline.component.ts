@@ -2,7 +2,8 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
 } from "@angular/core";
 import { Subject } from "rxjs";
 import { TreeNode } from "src/app/models/tree-node";
@@ -19,7 +20,10 @@ import { OutlineService } from "src/app/services/outline.service";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OutlineComponent implements OnInit, OnDestroy {
-  constructor(private outlineService: OutlineService) {}
+  constructor(
+    private outlineService: OutlineService,
+    private cdRef: ChangeDetectorRef
+  ) {}
 
   scrollTop: any = 0;
   height: any = "";
@@ -37,7 +41,18 @@ export class OutlineComponent implements OnInit, OnDestroy {
   }
 
   public setSize(args: ScrollEventArgs) {
-    this.scrollTop = args.scrollTop;
-    this.height = args.scrollHeight - consts.timelineHeaderHeight;
+    let changed = false;
+    if (this.scrollTop !== args.scrollTop) {
+      this.scrollTop = args.scrollTop;
+      changed = true;
+    }
+    const headerHeight = args.scrollHeight - consts.timelineHeaderHeight;
+    if (this.height !== headerHeight) {
+      this.height = headerHeight;
+      changed = true;
+    }
+    if (changed) {
+      this.cdRef.detectChanges();
+    }
   }
 }
