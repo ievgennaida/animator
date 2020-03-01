@@ -3,10 +3,8 @@ import { BaseTool } from "./base.tool";
 import { MouseEventArgs } from "./MouseEventArgs";
 import { ViewportService } from "./viewport.service";
 import { LoggerService } from "../logger.service";
-import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
-import { ZoomTool } from "./zoom.tool";
 
 @Injectable({
   providedIn: "root"
@@ -19,8 +17,7 @@ export class BaseSelectionTool extends BaseTool {
     protected panTool: PanTool
   ) {
     super();
-    this.viewportService.viewportTransformationSubject
-      .asObservable()
+    this.viewportService.transformed
       .subscribe(() => {
         this.cacheIndex++;
         this.trackMousePos(this.currentArgs);
@@ -59,7 +56,11 @@ export class BaseSelectionTool extends BaseTool {
     this.selectionStarted(e);
   }
 
-  onWindowBlur() {
+  onWindowBlur(e) {
+    if (this.startPos) {
+      this.selectionEnded(e, this.selectionRect);
+    }
+
     this.cleanUp();
   }
 
@@ -227,6 +228,10 @@ export class BaseSelectionTool extends BaseTool {
         Math.max(this.startPos.x, pos.x) - this.selectionRect.x;
       this.selectionRect.height =
         Math.max(this.startPos.y, pos.y) - this.selectionRect.y;
+    } else {
+      if (!this.selectionRect) {
+        this.selectionRect = new DOMRect(pos.x, pos.y, 1, 1);
+      }
     }
 
     return pos;
