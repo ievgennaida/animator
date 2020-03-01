@@ -48,8 +48,7 @@ export class ScrollbarsPanTool extends BaseTool {
   ) {
     this.scrollBarElement = scrollBarElement;
     this.scrollContentElement = scrollContentElement;
-    this.viewportService.viewportTransformationSubject
-      .asObservable()
+    this.viewportService.transformed
       .subscribe(() => {
         if (this.panChangedProgramatically) {
           this.panChangedProgramatically = false;

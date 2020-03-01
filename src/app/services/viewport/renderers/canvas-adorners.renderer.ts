@@ -42,8 +42,7 @@ export class CanvasAdornersRenderer extends BaseRenderer {
       this.adornersInvalidate();
     });
 
-    this.viewportService.viewportTransformationSubject
-      .asObservable()
+    this.viewportService.transformed
       .subscribe(() => {
         this.invalidate();
       });

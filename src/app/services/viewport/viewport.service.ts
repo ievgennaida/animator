@@ -8,13 +8,13 @@ import { consts } from "src/environments/consts";
 })
 export class ViewportService {
   constructor() {
-    this.viewportTransformationSubject.subscribe(() => {
+    this.transformed.subscribe(() => {
       this.ctm = this.getCTMForElement(this.viewport);
     });
   }
 
   ctm: DOMMatrix = null;
-  viewportTransformationSubject = new BehaviorSubject<DOMMatrix>(null);
+  viewportTransformationSubject = new BehaviorSubject(null);
   viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
   playerHost: SVGElement;
   defaultSize = new DOMRect(
@@ -28,7 +28,10 @@ export class ViewportService {
   viewportSizeSubject = new BehaviorSubject<DOMRect | any>(this.defaultSize);
 
   viewportResizedSubject = new Subject();
-
+  public get transformed(){
+    return this.viewportTransformationSubject
+      .asObservable();
+  }
   /**
    * On elements count of the svg is changed. deleted, added etc.
    */
@@ -134,8 +137,12 @@ export class ViewportService {
   public setCTMForElement(element: SVGElement | any, matrix: DOMMatrix) {
     const transform = element.ownerSVGElement.createSVGTransform();
     transform.setMatrix(matrix);
-    element.transform.baseVal.initialize(transform);
-    this.viewportTransformationSubject.next(matrix);
+    this.setTransformElement(element, transform);
+  }
+
+  public setTransformElement(element: SVGElement | any, tranform: SVGTransform ) {
+    element.transform.baseVal.initialize(tranform);
+    this.viewportTransformationSubject.next(tranform);
   }
 
   public getCTMForElement(element: SVGElement | any): DOMMatrix {

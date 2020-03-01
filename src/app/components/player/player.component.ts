@@ -221,13 +221,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.toolsService.fitViewport();
 
-    this.viewportService.viewportTransformationSubject
-      .asObservable()
+    this.viewportService.transformed
       .pipe(takeUntil(this.destroyed$))
-      .subscribe(p => {
+      .subscribe(() => {
         let value = "";
-        if (p) {
-          value = String((p.a * 100).toFixed(2));
+        const ctm = this.viewportService.getCTM();
+        if (ctm) {
+          value = String((ctm.a * 100).toFixed(2));
         }
 
         if (value !== this.scrollbarInputValue) {
