@@ -15,6 +15,10 @@ export class MouseEventArgs {
     }
   }
 
+  getDOMPoint() {
+    return new DOMPoint(this.clientX, this.clientY);
+  }
+
   constructor(event: MouseEvent | WheelEvent | TouchEvent) {
     this.args = event;
 
