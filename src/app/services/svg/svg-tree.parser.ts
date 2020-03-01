@@ -61,7 +61,8 @@ export class SvgTreeParser {
       }
 
       const currentNode = new TreeNode();
-      currentNode.name = el.nodeName;
+      // custom label attribute:
+      currentNode.name = el.getAttribute('label') || el.id || `[${el.nodeName}]`;
       currentNode.tag = el;
       this.addChildNodes(parent, currentNode.children, el);
       collection.push(currentNode);
