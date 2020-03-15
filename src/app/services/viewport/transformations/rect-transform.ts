@@ -7,19 +7,12 @@ export class RectTransform extends MatrixTransform {
     super(element);
   }
 
-  moveToScreenPoint(element: SVGGraphicsElement, clientPoint: DOMPoint) {
-    // const current = this.screenToElement(element, clientPoint);
-    // this.translate(element, current);
-  }
-
   beginMouseTransaction(mousePos: DOMPoint) {
     this.consolidate(this.element);
     super.beginMouseTransaction(mousePos);
     this.offset.x -= this.getX();
     this.offset.y -= this.getY();
   }
-
-  beginTransaction() {}
 
   /**
    * Convert transformation matrix to the X, Y coords as a preferable way to handle rect coords.
@@ -41,6 +34,7 @@ export class RectTransform extends MatrixTransform {
       for (let i = 0; i <= transformList.numberOfItems; i++) {
         const tr = transformList[i];
         if (
+          tr &&
           (tr.type === tr.SVG_TRANSFORM_TRANSLATE ||
             tr.type === tr.SVG_TRANSFORM_MATRIX) &&
           tr.matrix.e &&
@@ -57,11 +51,13 @@ export class RectTransform extends MatrixTransform {
         offsetY = transform.matrix.f;
 
         // Remove x and y from the matrix:
-        transform.matrix.e = transform.matrix.f = 0;
-        transform.setMatrix(transform.matrix);
-        // TODO: set transform back
-        // element.setAttribute('transform', JSON.stringify(transform.matrix)
-        // element.transform.baseVal.initialize(transform);
+        const toSet = transform.matrix.translate(
+          -transform.matrix.e,
+          -transform.matrix.f
+        );
+
+        transform.setMatrix(toSet);
+        element.transform.baseVal.initialize(transform);
       }
     }
 

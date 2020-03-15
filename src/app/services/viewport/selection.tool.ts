@@ -67,7 +67,11 @@ export class SelectionTool extends BaseSelectionTool {
       );
 
       if (this.transformation) {
-        this.transformation.beginMouseTransaction(event.getDOMPoint());
+        if (event.args.ctrlKey) {
+          this.transformation.beginMouseTransaction(event.getDOMPoint());
+        } else {
+          this.transformation.beginMouseRotateTransaction(event.getDOMPoint());
+        }
       }
     }
     // Use when accurate selection will be implemented, or to select groups:
@@ -123,10 +127,6 @@ export class SelectionTool extends BaseSelectionTool {
     super.cleanUp();
   }
 
-  angle(p1: DOMPoint, p2: DOMPoint): number {
-    return (Math.atan2(p1.y - p2.y, p2.x - p1.x) * 180) / Math.PI;
-  }
-
   onWindowMouseMove(event: MouseEventArgs) {
     if (!this.nodeTransform) {
       super.onWindowMouseMove(event);
@@ -142,55 +142,13 @@ export class SelectionTool extends BaseSelectionTool {
   moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {
     const screenPos = event.getDOMPoint();
 
-    // this.rotateByMouseMove(event,element );
     if (this.transformation) {
-      // this.transformation.moveByMouse(screenPos);
+      if (this.transformation.offset) {
+         this.transformation.moveByMouse(screenPos);
+      } else {
+         this.transformation.rotateByMouseMove(screenPos);
+      }
     }
-  }
-  rotateByMouseMove(event: MouseEventArgs, element: SVGGraphicsElement) {
-    const ctm = element.getCTM();
-    const box = element.getBBox();
-    let centerBox = new DOMPoint(box.x + box.width / 2, box.y + box.height / 2);
-
-    const tranformedCenter = centerBox.matrixTransform(ctm);
-    let deg = -this.angle(tranformedCenter, this.getMousePos(event));
-    if (this.lastDeg === null) {
-      this.lastDeg = deg;
-      // TODO: show current bounds
-      return;
-    }
-    if (false) {
-      // TODO: set only rotation if nothing else is set.
-      /* if (element.transform.baseVal.numberOfItems === 0) {
-        const rotation = element.ownerSVGElement.createSVGTransform();
-        rotation.setRotate(set, centerBox.x, centerBox.y);
-        element.transform.baseVal.appendItem(rotation);
-        return;
-      } else if (element.transform.baseVal.numberOfItems === 1) {
-        const rotation = element.transform.baseVal[0] as SVGTransform;
-        if (rotation.type === rotation.SVG_TRANSFORM_ROTATE) {
-          rotation.setRotate(set, centerBox.x, centerBox.y);
-          return;
-        }
-      } */
-    }
-    const degoffset = deg - this.lastDeg;
-    this.lastDeg = deg;
-    deg = degoffset;
-
-    const transform =
-      element.transform.baseVal.consolidate() ||
-      element.ownerSVGElement.createSVGTransform();
-    centerBox = centerBox.matrixTransform(transform.matrix);
-
-    const matrix = element.ownerSVGElement
-      .createSVGMatrix()
-      .translate(centerBox.x, centerBox.y)
-      .rotate(deg, 0, 0)
-      .translate(-centerBox.x, -centerBox.y)
-      .multiply(transform.matrix);
-
-    this.viewportService.setCTMForElement(element, matrix);
   }
 
   /**
@@ -234,5 +192,5 @@ export class SelectionTool extends BaseSelectionTool {
   /**
    * Override
    */
-  selectionEnded(e: MouseEventArgs) {}
+  selectionEnded(event: MouseEventArgs) {}
 }
