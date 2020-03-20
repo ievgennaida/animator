@@ -11,6 +11,10 @@ export class DecomposedMatrix {
   translateX = 0;
   translateY = 0;
   matrix: DOMMatrix;
+  /**
+   * https://www.w3.org/TR/css-transforms-1/
+   * @param m matrix to be decomposed.
+   */
   static decomposeMatrix(m: DOMMatrix): DecomposedMatrix {
     let row0x = m.a;
     let row0y = m.b;
@@ -23,10 +27,15 @@ export class DecomposedMatrix {
     // If determinant is negative, one axis was flipped.
     const determinant = row0x * row1y - row0y * row1x;
     if (determinant < 0)
-      if (row0x < row1y)
+      if (row0x < row1y) {
         // Flip axis with minimum unit vector dot product.
         scaleX = -scaleX;
-      else scaleY = -scaleY;
+      } else {
+        scaleY = -scaleY;
+      }
+
+    // Compute rotation and renormalize matrix.
+    let angle = Math.atan2(row0y, row0x);
 
     // Renormalize matrix to remove scale.
     if (scaleX) {
@@ -38,9 +47,6 @@ export class DecomposedMatrix {
       row1x *= 1 / scaleY;
       row1y *= 1 / scaleY;
     }
-
-    // Compute rotation and renormalize matrix.
-    let angle = Math.atan2(row0y, row0x);
 
     if (angle) {
       // Rotate(-angle) = [cos(angle), sin(angle), -sin(angle), cos(angle)]
