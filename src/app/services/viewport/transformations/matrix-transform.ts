@@ -1,4 +1,5 @@
 import { DecomposedMatrix } from "./decompose-matrix";
+import { Utils } from '../../utils/utils';
 
 export class MatrixTransform {
   offset: DOMPoint = null;
@@ -21,7 +22,7 @@ export class MatrixTransform {
       this.element.getScreenCTM()
     );
 
-    this.startAngleOffset = -this.angle(tranformedCenter, mousePos);
+    this.startAngleOffset = -Utils.angle(tranformedCenter, mousePos);
 
     const matrix = this.transformToElement(
       this.element,
@@ -29,7 +30,6 @@ export class MatrixTransform {
     );
 
     const decomposed = this.decomposeMatrix(matrix);
-    console.log(JSON.stringify(decomposed));
     this.startAngleOffset -= decomposed.rotateZ;
   }
 
@@ -85,23 +85,13 @@ export class MatrixTransform {
     this.element.transform.baseVal.initialize(transform);
   }
 
-  angle(p1: DOMPoint, p2: DOMPoint): number {
-    return (Math.atan2(p1.y - p2.y, p2.x - p1.x) * 180) / Math.PI;
-  }
-
   decomposeMatrix(matrix: DOMMatrix): DecomposedMatrix {
     const dec2 = DecomposedMatrix.decomposeMatrix(matrix);
     return dec2;
   }
 
   getTransformOrigin(): DOMPoint {
-    const box = this.element.getBBox();
-    const transformPoint = new DOMPoint(
-      box.x + box.width / 2,
-      box.y + box.height / 2
-    );
-
-    return transformPoint;
+    return Utils.getCenterTransform(this.element);
   }
 
   rotateByMouseMove(currentViewPoint: DOMPoint) {
@@ -111,7 +101,7 @@ export class MatrixTransform {
       this.element.getScreenCTM()
     );
 
-    let angle = -this.angle(screenTransformOrigin, currentViewPoint);
+    let angle = -Utils.angle(screenTransformOrigin, currentViewPoint);
 
     angle -= this.startAngleOffset;
     this.rotate(angle, transformPoint);
@@ -139,7 +129,6 @@ export class MatrixTransform {
     const currentAngle = this.decomposeMatrix(transform.matrix).rotateZ;
 
     const offset = -(currentAngle - angle);
-    console.log(currentAngle);
     const matrix = this.element.ownerSVGElement
       .createSVGMatrix()
       .translate(transformPoint.x, transformPoint.y)

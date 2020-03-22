@@ -43,7 +43,11 @@ export const consts = {
     font: "11px sans-serif"
   },
   adorners: {
-    mouseOverBoundsColor: "#3399FF"
+    mouseOverBoundsColor: "#3399FF",
+    handleFillColor: "#3399FF",
+    handleStrokeSize: 0,
+    handleStrokeColor: '',
+    handleSize: 6
   },
   gridLines: {
     color: "rgba(160, 160, 160, 0.4)",
