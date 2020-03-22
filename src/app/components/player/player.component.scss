@@ -156,3 +156,9 @@ button[mat-menu-item] {
   max-width: 70px;
   padding: 0px;
 }
+
+g {
+  /*Supported only in chrome, should be fixed.
+  Used to capture mouse over events for the g containers.*/
+  pointer-events: bounding-box;
+}
