@@ -44,6 +44,7 @@ export const consts = {
   },
   adorners: {
     mouseOverBoundsColor: "#3399FF",
+    mouseOverBorderThikness:1,
     handleFillColor: "#3399FF",
     handleStrokeSize: 0,
     handleStrokeColor: '',

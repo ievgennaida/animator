@@ -88,7 +88,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private adornersRenderer: CanvasAdornersRenderer,
     private cursor: CursorService
   ) {
-    this.cdRef.detach();
+    //this.cdRef.detach();
   }
 
   workAreaSize = this.viewportService.viewportSizeSubject.getValue();
@@ -194,7 +194,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       .subscribe(gridLines => {
         if (gridLines !== this.showGridLines) {
           this.showGridLines = gridLines;
-          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
         }
       });
 
@@ -214,7 +214,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         // TODO: offsets
         this.shadowAreaSize = this.workAreaSize;
         // Check whether required.
-        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
       });
 
     this.zoomTool.init(this.selectionRectangleAdornerRef.nativeElement);
@@ -232,7 +232,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
         if (value !== this.scrollbarInputValue) {
           this.scrollbarInputValue = value;
-          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
         }
       });
 

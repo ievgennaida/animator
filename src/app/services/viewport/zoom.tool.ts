@@ -1,5 +1,5 @@
 import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "./MouseEventArgs";
+import { MouseEventArgs } from "./mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewportService } from "./viewport.service";

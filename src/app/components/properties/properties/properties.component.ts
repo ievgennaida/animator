@@ -4,8 +4,7 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
-import { Keyframe } from "src/app/models/keyframes/Keyframe";
-import { SelectedData } from "src/app/models/SelectedData";
+import { ChangedArgs } from "src/app/models/changed-args";
 import { Properties } from "src/app/models/Properties/Properties";
 import { Property } from "src/app/models/Properties/Property";
 import { OutlineService } from "src/app/services/outline.service";
@@ -32,7 +31,7 @@ export class PropertiesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.outlineService.selected
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((p: SelectedData) => {
+      .subscribe((p: ChangedArgs) => {
         if (p.nodes) {
           if (p.nodes.length === 0) {
             this.properties = null;

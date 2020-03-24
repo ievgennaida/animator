@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BaseTool } from "./base.tool";
 import { ViewportService } from "./viewport.service";
-import { MouseEventArgs } from "./MouseEventArgs";
+import { MouseEventArgs } from "./mouse-event-args";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
 

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { PanTool } from "./pan.tool";
-import { MouseEventArgs } from "./MouseEventArgs";
+import { MouseEventArgs } from "./mouse-event-args";
 import { BaseTool } from "./base.tool";
 import { ZoomTool } from "./zoom.tool";
 import { BehaviorSubject } from "rxjs";

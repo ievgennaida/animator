@@ -7,8 +7,8 @@ import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
 import { AdornersDataService } from "../adorners/adorners-data.service";
 import { Utils } from "../../utils/utils";
-import { fill } from "src/app/models/Lottie/effects/fill";
 import { AdornerData } from "../adorners/adorner-data";
+import { constants } from "buffer";
 
 /**
  * Elements bounds renderer
@@ -33,16 +33,9 @@ export class BoundsRenderer extends BaseRenderer {
     ctx: CanvasRenderingContext2D,
     parentCTM: DOMMatrix,
     element: SVGGraphicsElement,
-    thikness: number
+    thikness: number,
+    adornerData: AdornerData
   ) {
-    const currentCTM = element.getScreenCTM();
-    // Convert element position on zoomed parent and then to a canvas coordites.
-    const ctm = this.canvasCTM.multiply(parentCTM.multiply(currentCTM));
-    let adornerData = this.adornersDataService.getElementAdornerData(element);
-    adornerData = adornerData.getTransformed(ctm);
-    ctx.save();
-    ctx.beginPath();
-
     this.drawPath(
       ctx,
       thikness,
@@ -53,11 +46,6 @@ export class BoundsRenderer extends BaseRenderer {
       adornerData.bottomRight,
       adornerData.bottomLeft
     );
-
-    // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
-    // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-    this.drawAdornersHandles(ctx, adornerData);
-    this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
   }
 
   drawAdornersHandles(ctx: CanvasRenderingContext2D, adornerData: AdornerData) {
@@ -72,14 +60,20 @@ export class BoundsRenderer extends BaseRenderer {
     // top right
     this.drawAdornerHandle(ctx, adornerData.topRight, alongHR, alongW);
     // bottom left
-    this.drawAdornerHandle(ctx, adornerData.bottomLeft, alongWR,  alongH);
+    this.drawAdornerHandle(ctx, adornerData.bottomLeft, alongWR, alongH);
     // bottom right
     this.drawAdornerHandle(ctx, adornerData.bottomRight, alongWR, alongHR);
 
     // top center
     this.drawAdornerHandle(ctx, adornerData.topCenter, alongW, alongH, true);
     // bottom center
-    this.drawAdornerHandle(ctx, adornerData.bottomCenter, alongWR, alongH, true);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.bottomCenter,
+      alongWR,
+      alongH,
+      true
+    );
     // left center
     this.drawAdornerHandle(ctx, adornerData.leftCenter, alongH, alongW, true);
     // right center
@@ -202,45 +196,63 @@ export class BoundsRenderer extends BaseRenderer {
     ctx.lineTo(p.x, p.y + centerSize);
     ctx.stroke();
     ctx.closePath();
-
-    /*ctx.beginPath();
-    ctx.ellipse(p.x, p.y, 2, 2, 0, 0, 360);
-    ctx.fill();
-    ctx.closePath();
-    ctx.restore();*/
   }
 
   redraw(ctx: CanvasRenderingContext2D) {
     this.clearBackground(ctx);
     const parent = this.viewportService.viewport
       .ownerSVGElement as SVGSVGElement;
-    const parentCTM = parent.getScreenCTM().inverse();
+    const parentCTM =  this.canvasCTM.multiply(parent.getScreenCTM().inverse());
+  
     // let selectedRect:DOMRect = null;
     // TODO: performance iterate only selected and active
     if (this.renderableElements && this.renderableElements.length > 0) {
-      this.renderableElements.forEach((node: TreeNode) => {
-        if (!node.tag) {
-          return;
-        }
-        let renderable = node.tag as SVGGraphicsElement;
-        if (renderable && !(renderable instanceof SVGGraphicsElement)) {
-          renderable = node.tag.layerElement as SVGGraphicsElement;
-        }
-        if (
-          renderable &&
-          renderable instanceof SVGGraphicsElement &&
-          (node.mouseOver || node.selected)
-        ) {
-          let thikness = this.onePixel;
-          if (node.mouseOver && !node.selected) {
-            thikness = 2;
-            this.drawRect(ctx, parentCTM, renderable, thikness);
-          } else {
-            thikness = 3;
-            this.drawRect(ctx, parentCTM, renderable, thikness);
+      const renderable = this.renderableElements.filter(
+        p =>
+          p.tag &&
+          (p.tag instanceof SVGGraphicsElement ||
+            p.tag.layerElement instanceof SVGGraphicsElement)
+      );
+
+      renderable
+        .forEach((node: TreeNode) => {
+          let element = node.tag as SVGGraphicsElement;
+          if (element && !(element instanceof SVGGraphicsElement)) {
+            element = node.tag.layerElement as SVGGraphicsElement;
           }
-        }
-      });
+
+          if (
+            element &&
+            element instanceof SVGGraphicsElement &&
+            (node.mouseOver || node.selected)
+          ) {
+            if (node.mouseOver && !node.selected) {
+              let adornerData = this.adornersDataService.getElementAdornerData(
+                element
+              );
+              // Convert element position on zoomed parent and then to a canvas coordites.
+              const ctm = parentCTM.multiply(element.getScreenCTM());
+              adornerData = adornerData.getTransformed(ctm);
+
+              const thikness =
+                consts.adorners.mouseOverBorderThikness * this.onePixel;
+              this.drawRect(ctx, parentCTM, element, thikness, adornerData);
+            } else {
+              const thikness = 2;
+              let adornerData = this.adornersDataService.getElementAdornerData(
+                element
+              );
+              const ctm = parentCTM.multiply(element.getScreenCTM());
+              adornerData = adornerData.getTransformed(ctm);
+              this.drawRect(ctx, parentCTM, element, thikness, adornerData);
+                            // draw when resized.
+              // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
+              // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
+              // this.drawAdornersHandles(ctx, adornerData);
+              // this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
+            }
+          }
+        });
     }
   }
 }

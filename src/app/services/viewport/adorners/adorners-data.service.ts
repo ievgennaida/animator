@@ -5,7 +5,9 @@ import { Utils } from '../../utils/utils';
   providedIn: "root"
 })
 export class AdornersDataService {
-  constructor() {}
+  constructor() {
+
+  }
 
   getElementAdornerData(renderable: SVGGraphicsElement): AdornerData {
     if (!renderable) {

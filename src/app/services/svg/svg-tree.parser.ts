@@ -61,10 +61,11 @@ export class SvgTreeParser {
       }
 
       const currentNode = new TreeNode();
+      currentNode.parent = parent;
       // custom label attribute:
       currentNode.name = el.getAttribute('label') || el.id || `[${el.nodeName}]`;
       currentNode.tag = el;
-      this.addChildNodes(parent, currentNode.children, el);
+      this.addChildNodes(currentNode, currentNode.children, el);
       collection.push(currentNode);
     });
   }

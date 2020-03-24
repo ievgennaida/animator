@@ -101,6 +101,7 @@ export class LottieTreeParser {
             parentNode.children = [];
           }
 
+          node.parent = parentNode;
           parentNode.children.push(node);
           parentFound = true;
         }
@@ -182,6 +183,7 @@ export class LottieTreeParser {
         node.properties = new Properties();
         node.properties.items.push(p);
         this.setKeyframes(node);
+        folder.parent = node;
         folder.children.push(node);
       });
     }
@@ -247,6 +249,7 @@ export class LottieTreeParser {
       node.properties = this.propertiesService.getProperties(node);
       this.getTransformNode(node, model);
       this.setKeyframes(node);
+      node.parent = parentNode;
       parentNode.children.push(node);
     }
 

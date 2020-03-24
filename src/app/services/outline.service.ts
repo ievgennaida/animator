@@ -7,7 +7,7 @@ import {
   MatTreeFlattener
 } from "@angular/material/tree";
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { SelectedData } from "../models/SelectedData";
+import { ChangedArgs } from "../models/changed-args";
 import { Keyframe } from "../models/keyframes/Keyframe";
 import { InputDocument } from "../models/input-document";
 import { AppFactory } from "./app-factory";
@@ -18,6 +18,12 @@ export enum InteractionSource {
   Adorners
 }
 
+export enum SelectionMode {
+  Normal,
+  Add,
+  Revert
+}
+
 @Injectable({
   providedIn: "root"
 })
@@ -25,7 +31,7 @@ export class OutlineService {
   constructor(private appFactory: AppFactory, private logger: LoggerService) {}
   mouseOverSubject = new BehaviorSubject<TreeNode>(null);
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
-  selectedSubject = new BehaviorSubject<SelectedData>(new SelectedData());
+  selectedSubject = new BehaviorSubject<ChangedArgs>(new ChangedArgs());
   /**
    * Outline tree view model.
    */
@@ -69,7 +75,7 @@ export class OutlineService {
   setMouseLeave(node: TreeNode) {
     if (node && node.mouseOver) {
       node.mouseOver = false;
-      // update current view
+      // update current view with node selected = false;
       this.mouseOverSubject.next(node);
       this.mouseOverSubject.next(null);
     } else if (this.mouseOverSubject.getValue() !== null) {
@@ -77,89 +83,80 @@ export class OutlineService {
     }
   }
 
-  setMultipleSelected(nodes: TreeNode[]) {
-    const state = this.selectedSubject.getValue();
-    let isChanged = true;
-    if (nodes && nodes.length === 3) {
-      isChanged = false;
+  private changeNodeState(
+    state: ChangedArgs,
+    node: TreeNode,
+    value: boolean
+  ): boolean {
+    if (node.selected !== value) {
+      node.selected = value;
+      state.changed.push(node);
+      return true;
     }
 
+    return false;
+  }
+
+  setSelected(
+    nodes: TreeNode[] | TreeNode,
+    mode: SelectionMode = SelectionMode.Normal
+  ) {
+    if (!nodes) {
+      nodes = [];
+    }
+    if (nodes instanceof TreeNode) {
+      nodes = [nodes];
+    }
+
+    nodes = nodes as TreeNode[];
+    const state = this.selectedSubject.getValue();
     // Keep same ref
     state.changed.length = 0;
 
-    if (nodes) {
+    if (nodes && mode === SelectionMode.Add) {
       nodes.forEach(node => {
-        if (!node.selected) {
-          node.selected = true;
-          state.changed.push(node);
+        const changed = this.changeNodeState(state, node, true);
+        if (changed) {
+          state.nodes.push(node);
         }
       });
-    }
+    } else if (nodes && mode === SelectionMode.Revert) {
+      nodes.forEach(node => {
+        if (state.nodes.includes(node)) {
+          this.changeNodeState(state, node, false);
+          this.deleteElement(state.nodes, node);
+        } else {
+          this.changeNodeState(state, node, true);
+          state.nodes.push(node);
+        }
+      });
+    } else if (mode === SelectionMode.Normal) {
+      if (nodes) {
+        nodes.forEach(node => {
+          this.changeNodeState(state, node, true);
+        });
+      }
 
-    state.nodes.forEach(node => {
-      const exists = nodes ? nodes.includes(node) : false;
-      // Deselect
-      if (!exists) {
-        if (node.selected) {
-          state.changed.push(node);
-          node.selected = false;
+      state.nodes.forEach(node => {
+        const exists = (nodes as TreeNode[]).includes(node);
+        // Deselect
+        if (!exists) {
+          this.changeNodeState(state, node, false);
+        }
+      });
+
+      if (state.changed.length > 0) {
+        if (nodes) {
+          state.nodes = nodes;
+        } else {
+          state.nodes.length = 0;
         }
       }
-    });
+    }
 
     if (state.changed.length > 0) {
-      if (nodes) {
-        state.nodes = nodes;
-      } else {
-        state.nodes.length = 0;
-      }
-
       this.selectedSubject.next(state);
     }
-  }
-  // Allow to select tree node, but list of avaliable might be extended.
-  setSelectedNode(
-    node: TreeNode,
-    isAdd: boolean = false,
-    source: InteractionSource = InteractionSource.Adorners
-  ) {
-    const state = this.selectedSubject.getValue();
-    state.changed.length = 0;
-    if (isAdd) {
-      if (state.nodes.includes(node)) {
-        if (node.selected) {
-          node.selected = false;
-          state.changed.push(node);
-        }
-
-        this.deleteElement(state.nodes, node);
-      } else {
-        if (!node.selected) {
-          node.selected = true;
-          state.changed.push(node);
-        }
-      }
-    } else {
-      if (!node.selected) {
-        node.selected = true;
-        state.changed.push(node);
-      }
-
-      state.nodes.forEach(p => {
-        if (p.selected) {
-          p.selected = false;
-          state.changed.push(p);
-        }
-      });
-
-      state.nodes.length = 0;
-    }
-
-    if (node.selected) {
-      state.nodes.push(node);
-    }
-
-    this.selectedSubject.next(state);
   }
 
   setSelectedKeyframes(keyframe: Keyframe) {
@@ -171,7 +168,7 @@ export class OutlineService {
     return this.mouseOverSubject.asObservable();
   }
 
-  public get selected(): Observable<SelectedData> {
+  public get selected(): Observable<ChangedArgs> {
     return this.selectedSubject.asObservable();
   }
   public get nodes(): Observable<TreeNode[]> {
@@ -196,13 +193,7 @@ export class OutlineService {
   }
 
   public deselectAll() {
-    const currentSelection = this.selectedSubject.value;
-    if (!currentSelection) {
-      currentSelection.nodes.length = 0;
-      currentSelection.keyframes.length = 0;
-    }
-
-    this.selectedSubject.next(currentSelection);
+    this.setSelected(null);
   }
 
   dispose() {

@@ -36,8 +36,9 @@ export class MouseEventArgs {
       // tslint:disable-next-line: no-string-literal
     } else if (window["TouchEvent"] && event instanceof TouchEvent) {
       if (event.touches.length > 0) {
-        this.clientX = event.touches[0].clientX;
-        this.clientY = event.touches[0].clientX;
+        const touch = event.touches[0];
+        this.clientX = touch.clientX;
+        this.clientY = touch.clientX;
       }
     }
 

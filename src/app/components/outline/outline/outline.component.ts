@@ -6,11 +6,9 @@ import {
   ChangeDetectorRef
 } from "@angular/core";
 import { Subject } from "rxjs";
-import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
-import { SelectedData } from "src/app/models/SelectedData";
 import { OutlineService } from "src/app/services/outline.service";
 
 @Component({

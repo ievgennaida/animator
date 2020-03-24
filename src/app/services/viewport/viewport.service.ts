@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { Subject, BehaviorSubject, Observable } from "rxjs";
-import { MouseEventArgs } from "./MouseEventArgs";
 import { consts } from "src/environments/consts";
 
 @Injectable({

@@ -51,12 +51,12 @@ export class TreeNode {
   nameProperty: Property;
   properties: Properties;
   children: TreeNode[];
+  parent: TreeNode;
   tag: any;
   shape: any;
   type: any;
   data: any;
   model: LottieModel = null;
-  selected = false;
   lane: AnimationTimelineLane;
   layer?: baseLayer;
   level: number;
@@ -64,4 +64,6 @@ export class TreeNode {
   cache: any;
   cacheIndex: number;
   mouseOver = false;
+  preselected = false;
+  selected = false;
 }

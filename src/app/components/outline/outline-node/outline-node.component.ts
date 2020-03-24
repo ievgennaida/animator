@@ -9,7 +9,10 @@ import {
 } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import { Subject } from "rxjs";
-import { OutlineService } from "src/app/services/outline.service";
+import {
+  OutlineService,
+  SelectionMode
+} from "src/app/services/outline.service";
 import { takeUntil } from "rxjs/operators";
 
 @Component({
@@ -19,8 +22,8 @@ import { takeUntil } from "rxjs/operators";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OutlineNodeComponent implements OnInit, OnDestroy {
+  private static lastSelected: TreeNode = null;
   private destroyed$ = new Subject();
-
   node: TreeNode;
   @Input("node") set setNode(node: TreeNode) {
     if (this.node !== node) {
@@ -51,10 +54,46 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
     });
   }
 
-  setSelected(event, node: TreeNode) {
-    this.ngZone.runOutsideAngular(() =>
-      this.outlineService.setSelectedNode(node, event.ctrlKey)
-    );
+  setSelected(event: MouseEvent, node: TreeNode) {
+    let mode = SelectionMode.Normal;
+    const nodes = [];
+    if (event.ctrlKey) {
+      nodes.push(node);
+      mode = SelectionMode.Revert;
+      OutlineNodeComponent.lastSelected = node;
+    } else if (event.shiftKey) {
+      const selected = OutlineNodeComponent.lastSelected;
+      if (
+        selected &&
+        selected.parent &&
+        node.parent &&
+        selected.parent === node.parent &&
+        selected.parent.children
+      ) {
+        const currentCollection = selected.parent.children;
+        const a = currentCollection.indexOf(selected);
+        const b = currentCollection.indexOf(node);
+        const from = Math.min(a, b);
+        const to = Math.max(a, b);
+        if (from !== -1 && to !== -1) {
+          for (let i = from; i <= to; i++) {
+            nodes.push(currentCollection[i]);
+          }
+        }
+      }
+
+      if (!nodes.length) {
+        OutlineNodeComponent.lastSelected = node;
+        nodes.push(node);
+      }
+    } else {
+      nodes.push(node);
+      OutlineNodeComponent.lastSelected = node;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
+      this.outlineService.setSelected(nodes, mode);
+    });
   }
 
   mouseEnter(node: TreeNode) {
@@ -70,6 +109,7 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {}
 
   ngOnDestroy() {
+    OutlineNodeComponent.lastSelected = null;
     this.destroyed$.next(true);
     this.destroyed$.complete();
     this.destroyed$ = null;

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "./MouseEventArgs";
+import { MouseEventArgs } from "./mouse-event-args";
 import { ViewportService } from "./viewport.service";
 import { LoggerService } from "../logger.service";
 import { PanTool } from "./pan.tool";
@@ -80,7 +80,6 @@ export class BaseSelectionTool extends BaseTool {
 
   selectionStarted(e: MouseEventArgs) {}
   selectionUpdate(e: MouseEventArgs, selectedArea: DOMRect) {}
-
   selectionEnded(e: MouseEventArgs, selectedArea: DOMRect) {}
 
   onWindowMouseMove(event: MouseEventArgs) {

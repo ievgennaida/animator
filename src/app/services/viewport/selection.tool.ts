@@ -1,12 +1,11 @@
-import { MouseEventArgs } from "./MouseEventArgs";
+import { MouseEventArgs } from "./mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewportService } from "./viewport.service";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
-import { consts } from "src/environments/consts";
 import { TreeNode } from "src/app/models/tree-node";
-import { OutlineService } from "../outline.service";
+import { OutlineService, SelectionMode } from "../outline.service";
 import { TransformFactory } from "./transformations/transform-factory";
 
 /**
@@ -141,12 +140,11 @@ export class SelectionTool extends BaseSelectionTool {
 
   moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {
     const screenPos = event.getDOMPoint();
-
     if (this.transformation) {
       if (this.transformation.offset) {
-         this.transformation.moveByMouse(screenPos);
+        this.transformation.moveByMouse(screenPos);
       } else {
-         this.transformation.rotateByMouseMove(screenPos);
+        this.transformation.rotateByMouseMove(screenPos);
       }
     }
   }
@@ -160,7 +158,7 @@ export class SelectionTool extends BaseSelectionTool {
     }
 
     const selected = this.getIntersects() as TreeNode[];
-    this.outlineService.setMultipleSelected(selected);
+   // this.outlineService.setSelected(selected);
   }
 
   onPlayerMouseOut(event: MouseEventArgs) {
@@ -192,5 +190,20 @@ export class SelectionTool extends BaseSelectionTool {
   /**
    * Override
    */
-  selectionEnded(event: MouseEventArgs) {}
+  selectionEnded(event: MouseEventArgs) {
+    let mode = SelectionMode.Normal;
+    if (event.args.ctrlKey) {
+      mode = SelectionMode.Revert;
+    } else if (event.args.shiftKey) {
+      mode = SelectionMode.Add;
+    }
+
+    if (this.selectionRect && this.selectionRect.width <= 1 && this.selectionRect.height <= 1) {
+      const selected = this.getIntersects(true) as TreeNode[];
+      this.outlineService.setSelected(selected, mode);
+    } else {
+      const selected = this.getIntersects() as TreeNode[];
+      this.outlineService.setSelected(selected, mode);
+    }
+  }
 }
