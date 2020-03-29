@@ -75,11 +75,7 @@ export class OutlineService {
             p.tag.layerElement instanceof SVGGraphicsElement)
       );
 
-    return renderable.map(
-      p =>
-        (p.tag as SVGGraphicsElement) ||
-        (p.tag.layerElement as SVGGraphicsElement)
-    );
+    return renderable.map(p => p.getElement());
   }
 
   setMouseOver(node: TreeNode) {

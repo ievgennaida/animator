@@ -46,7 +46,7 @@ export class Utils {
     let maxY;
 
     for (const element of elements) {
-      let size = clientRect
+      const size = clientRect
         ? element.getBoundingClientRect()
         : element.getBBox();
 

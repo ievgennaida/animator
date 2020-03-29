@@ -9,7 +9,7 @@ import { Properties } from "./Properties/Properties";
 import { Property } from "./Properties/Property";
 import { shapeType } from "./Lottie/shapes/shapeType";
 import { LottieModel } from "./Lottie/LottieModel";
-import { NodeType } from './Lottie/NodeType';
+import { NodeType } from "./Lottie/NodeType";
 
 /**
  * Application node view model.
@@ -32,6 +32,12 @@ export class TreeNode {
 
   get expandable(): boolean {
     return !!this.children && this.children.length > 0;
+  }
+  getElement(): SVGGraphicsElement {
+    return (
+      (this.tag as SVGGraphicsElement) ||
+      (this.tag.layerElement as SVGGraphicsElement)
+    );
   }
 
   get typeTitle() {

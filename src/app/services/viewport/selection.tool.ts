@@ -7,7 +7,7 @@ import { PanTool } from "./pan.tool";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService, SelectionMode } from "../outline.service";
 import { TransformFactory } from "./transformations/transform-factory";
-import { Utils } from '../utils/utils';
+import { Utils } from "../utils/utils";
 
 /**
  * Select elements by a mouse move move.
@@ -59,9 +59,14 @@ export class SelectionTool extends BaseSelectionTool {
     this.lastDeg = null;
     super.selectionStarted(event);
 
-    this.nodeTransform = this.outlineService.mouseOverSubject.getValue();
-    if (this.nodeTransform) {
-      const element = this.nodeTransform.tag as SVGGraphicsElement;
+    const nodeTransform = this.outlineService.mouseOverSubject.getValue();
+    if (nodeTransform) {
+      this.nodeTransform = nodeTransform;
+      if(!nodeTransform || !nodeTransform.selected){
+        return;
+      }
+
+      const element = nodeTransform.getElement();
       this.transformation = this.transformFactory.getTransformForElement(
         element
       );
@@ -69,9 +74,9 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.transformation) {
         // this.transformation.beginSkewTransaction(event.getDOMPoint());
         if (event.args.ctrlKey) {
-          this.transformation.beginMouseTransaction(event.getDOMPoint());
-        } else {
           this.transformation.beginMouseRotateTransaction(event.getDOMPoint());
+        } else {
+          this.transformation.beginMouseTransaction(event.getDOMPoint());
         }
       }
     }
@@ -83,10 +88,7 @@ export class SelectionTool extends BaseSelectionTool {
 
   getIntersects(onlyFirst: boolean = false): TreeNode[] | TreeNode {
     const matrix = this.viewportService.getCTM();
-    const transformed = Utils.matrixRectTransform(
-      this.selectionRect,
-      matrix
-    );
+    const transformed = Utils.matrixRectTransform(this.selectionRect, matrix);
 
     let selected: TreeNode[] = null;
     if (this.renderableElements && this.renderableElements.length > 0) {
@@ -129,10 +131,10 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   onWindowMouseMove(event: MouseEventArgs) {
-    if (!this.nodeTransform) {
+    if (!this.nodeTransform || !this.nodeTransform.selected) {
       super.onWindowMouseMove(event);
     } else if (this.containerRect) {
-      const element = this.nodeTransform.tag as SVGGraphicsElement;
+      const element = this.nodeTransform.getElement();
       if (element) {
         // this.rotateByMouse(event, element);
         this.moveByMouse(event, element);
@@ -160,7 +162,7 @@ export class SelectionTool extends BaseSelectionTool {
       return;
     }
 
-    const selected = this.getIntersects() as TreeNode[];
+    // const selected = this.getIntersects() as TreeNode[];
     // this.outlineService.setSelected(selected);
   }
 
@@ -194,6 +196,11 @@ export class SelectionTool extends BaseSelectionTool {
    * override
    */
   selectionEnded(event: MouseEventArgs) {
+    if (this.nodeTransform && this.nodeTransform.selected) {
+      // transformations were applied.
+      return;
+    }
+
     let mode = SelectionMode.Normal;
     if (event.args.ctrlKey) {
       mode = SelectionMode.Revert;

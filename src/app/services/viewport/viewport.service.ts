@@ -190,8 +190,8 @@ export class ViewportService {
    * @param viewport svg application viewport.
    */
   init(viewport: SVGGraphicsElement, host: SVGElement) {
-    this.viewportSubject.next(viewport);
     this.playerHost = host;
+    this.viewportSubject.next(viewport);
   }
 
   setViewportSize(rect: DOMRect) {

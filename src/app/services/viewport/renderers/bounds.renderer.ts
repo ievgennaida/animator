@@ -217,10 +217,7 @@ export class BoundsRenderer extends BaseRenderer {
 
       renderable
         .forEach((node: TreeNode) => {
-          let element = node.tag as SVGGraphicsElement;
-          if (element && !(element instanceof SVGGraphicsElement)) {
-            element = node.tag.layerElement as SVGGraphicsElement;
-          }
+          const element = node.getElement()
 
           if (
             element &&
