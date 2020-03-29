@@ -8,7 +8,7 @@ import { consts } from "src/environments/consts";
 import { AdornersDataService } from "../adorners/adorners-data.service";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
-import { constants } from "buffer";
+import { ElementContainerService } from '../../element-container.service';
 
 /**
  * Elements bounds renderer
@@ -22,7 +22,8 @@ export class BoundsRenderer extends BaseRenderer {
     private viewportService: ViewportService,
     private adornersDataService: AdornersDataService,
     protected outlineService: OutlineService,
-    protected logger: LoggerService
+    protected logger: LoggerService,
+    private elements:ElementContainerService
   ) {
     super();
     outlineService.flatList.subscribe(flatItems => {
@@ -162,7 +163,7 @@ export class BoundsRenderer extends BaseRenderer {
     const textHeight = 10;
     ctx.save();
 
-    const center = Utils.getCenter(l1, l2);
+    const center = Utils.getCenterPoint(l1, l2);
     const measured = ctx.measureText(text);
     ctx.translate(center.x, center.y);
     if (Utils.getDirection(l1, l2, opositeSidePoint) > 0) {
@@ -203,7 +204,7 @@ export class BoundsRenderer extends BaseRenderer {
     const parent = this.viewportService.viewport
       .ownerSVGElement as SVGSVGElement;
     const parentCTM =  this.canvasCTM.multiply(parent.getScreenCTM().inverse());
-  
+
     // let selectedRect:DOMRect = null;
     // TODO: performance iterate only selected and active
     if (this.renderableElements && this.renderableElements.length > 0) {

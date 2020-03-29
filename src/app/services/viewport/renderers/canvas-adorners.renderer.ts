@@ -42,10 +42,13 @@ export class CanvasAdornersRenderer extends BaseRenderer {
       this.adornersInvalidate();
     });
 
-    this.viewportService.transformed
-      .subscribe(() => {
+    this.viewportService.transformed.subscribe(element => {
+      if (element === this.viewportService.viewport) {
         this.invalidate();
-      });
+      } else {
+        this.redraw(false);
+      }
+    });
 
     this.viewportService.viewportResize.subscribe(() => {
       this.invalidate();

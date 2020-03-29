@@ -17,12 +17,11 @@ export class BaseSelectionTool extends BaseTool {
     protected panTool: PanTool
   ) {
     super();
-    this.viewportService.transformed
-      .subscribe(() => {
-        this.cacheIndex++;
-        this.trackMousePos(this.currentArgs);
-        this.updateSelectorUi();
-      });
+    this.viewportService.transformed.subscribe(() => {
+      this.cacheIndex++;
+      this.trackMousePos(this.currentArgs);
+      this.updateSelectorUi();
+    });
 
     this.viewportService.viewportResize.subscribe(() => {
       this.updateSelectorUi();
@@ -31,14 +30,14 @@ export class BaseSelectionTool extends BaseTool {
 
   iconName = "navigation";
   selectionRectElement: HTMLElement;
-
   protected containerRect: DOMRect = null;
   protected selectionRect: DOMRect = null;
   protected startPos: DOMPoint = null;
   protected currentArgs: MouseEventArgs = null;
+  protected click = false;
   private updating = false;
   private autoPanIntervalRef = null;
-  autoPanSpeed = 0;
+  autoPanSpeed = 0; 
   init(element: HTMLElement) {
     this.selectionRectElement = element;
   }
@@ -52,7 +51,7 @@ export class BaseSelectionTool extends BaseTool {
       this.autoPanSpeed =
         consts.autoPanSpeed * zoom * Math.abs(bounds.from.x - bounds.to.x);
     }
-
+    this.click = true;
     this.selectionStarted(e);
   }
 
@@ -100,6 +99,7 @@ export class BaseSelectionTool extends BaseTool {
     this.startPos = null;
     this.currentArgs = null;
     this.containerRect = null;
+    this.click = false;
     this.stopAutoPan();
     this.updateSelectorUi();
   }
@@ -227,6 +227,10 @@ export class BaseSelectionTool extends BaseTool {
         Math.max(this.startPos.x, pos.x) - this.selectionRect.x;
       this.selectionRect.height =
         Math.max(this.startPos.y, pos.y) - this.selectionRect.y;
+      if (this.click) {
+        this.click =
+          this.selectionRect.width <= 1 && this.selectionRect.height <= 1;
+      }
     } else {
       if (!this.selectionRect) {
         this.selectionRect = new DOMRect(pos.x, pos.y, 1, 1);

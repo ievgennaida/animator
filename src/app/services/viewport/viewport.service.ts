@@ -13,7 +13,7 @@ export class ViewportService {
   }
 
   ctm: DOMMatrix = null;
-  viewportTransformationSubject = new BehaviorSubject(null);
+  transformedSubject = new BehaviorSubject(null);
   viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
   playerHost: SVGElement;
   defaultSize = new DOMRect(
@@ -28,7 +28,7 @@ export class ViewportService {
 
   viewportResizedSubject = new Subject();
   public get transformed(){
-    return this.viewportTransformationSubject
+    return this.transformedSubject
       .asObservable();
   }
   /**
@@ -141,7 +141,7 @@ export class ViewportService {
 
   public setTransformElement(element: SVGElement | any, tranform: SVGTransform ) {
     element.transform.baseVal.initialize(tranform);
-    this.viewportTransformationSubject.next(tranform);
+    this.transformedSubject.next(element);
   }
 
   public getCTMForElement(element: SVGElement | any): DOMMatrix {

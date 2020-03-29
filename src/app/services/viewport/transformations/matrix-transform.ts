@@ -1,10 +1,12 @@
 import { DecomposedMatrix } from "./decompose-matrix";
-import { Utils } from '../../utils/utils';
+import { Utils } from "../../utils/utils";
 
 export class MatrixTransform {
   offset: DOMPoint = null;
-  startAngleOffset = 0;
+  startOffset = 0;
   element: SVGGraphicsElement = null;
+  vertical = true;
+
   /**
    *
    */
@@ -12,17 +14,28 @@ export class MatrixTransform {
     this.element = element;
   }
 
-  beginMouseTransaction(mousePos: DOMPoint) {
-    this.offset = this.transformScreenToElement(this.element, mousePos);
+  beginMouseTransaction(pos: DOMPoint) {
+    this.offset = this.transformScreenToElement(this.element, pos);
   }
 
-  beginMouseRotateTransaction(mousePos: DOMPoint) {
+  beginSkewTransaction(pos: DOMPoint, vertical: boolean = false) {
+    this.vertical = vertical;
+    const centerBox = Utils.getCenterTransform(this.element);
+    this.offset = pos;
+    const tranformedCenter = centerBox.matrixTransform(
+      this.element.getScreenCTM()
+    );
+    this.startOffset = vertical
+      ? tranformedCenter.x - pos.x
+      : tranformedCenter.y - pos.y;
+  }
+  beginMouseRotateTransaction(pos: DOMPoint) {
     const transformOrigin = this.getTransformOrigin();
     const tranformedCenter = transformOrigin.matrixTransform(
       this.element.getScreenCTM()
     );
 
-    this.startAngleOffset = -Utils.angle(tranformedCenter, mousePos);
+    this.startOffset = -Utils.angle(tranformedCenter, pos);
 
     const matrix = this.transformToElement(
       this.element,
@@ -30,7 +43,7 @@ export class MatrixTransform {
     );
 
     const decomposed = this.decomposeMatrix(matrix);
-    this.startAngleOffset -= decomposed.rotateZ;
+    this.startOffset -= decomposed.rotateZ;
   }
 
   transformElementToScreen(
@@ -94,7 +107,7 @@ export class MatrixTransform {
     return Utils.getCenterTransform(this.element);
   }
 
-  rotateByMouseMove(currentViewPoint: DOMPoint) {
+  rotateByMouse(currentViewPoint: DOMPoint) {
     const transformPoint = this.getTransformOrigin();
 
     const screenTransformOrigin = transformPoint.matrixTransform(
@@ -103,7 +116,7 @@ export class MatrixTransform {
 
     let angle = -Utils.angle(screenTransformOrigin, currentViewPoint);
 
-    angle -= this.startAngleOffset;
+    angle -= this.startOffset;
     this.rotate(angle, transformPoint);
   }
 
@@ -134,6 +147,46 @@ export class MatrixTransform {
       .translate(transformPoint.x, transformPoint.y)
       .rotate(offset, 0, 0)
       .translate(-transformPoint.x, -transformPoint.y)
+      .multiply(transform.matrix);
+
+    transform.setMatrix(matrix);
+    this.element.transform.baseVal.initialize(transform);
+  }
+
+  skewByMouse(pos: DOMPoint) {
+    const tranformedCenter = new DOMPoint(
+      this.vertical ? pos.x + this.startOffset : this.offset.x,
+      this.vertical ? this.offset.y : pos.y + this.startOffset
+    );
+
+    let deg = -Utils.angle(tranformedCenter, pos);
+    if (!this.vertical) {
+      deg = -deg - 90;
+    }
+
+    this.offset = pos;
+    this.skewOffset(deg, this.vertical);
+  }
+
+  skewOffset(deg: number, vertical: boolean) {
+    const transform =
+      this.element.transform.baseVal.consolidate() ||
+      this.element.ownerSVGElement.createSVGTransform();
+    const centerBox = this.getTransformOrigin().matrixTransform(
+      transform.matrix
+    );
+    let matrix = this.element.ownerSVGElement
+      .createSVGMatrix()
+      .translate(centerBox.x, centerBox.y);
+
+    if (vertical) {
+      matrix = matrix.skewY(deg);
+    } else {
+      matrix = matrix.skewX(deg);
+    }
+
+    matrix = matrix
+      .translate(-centerBox.x, -centerBox.y)
       .multiply(transform.matrix);
 
     transform.setMatrix(matrix);

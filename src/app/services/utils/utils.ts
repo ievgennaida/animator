@@ -19,7 +19,7 @@ export class Utils {
     return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
   }
 
-  static getCenter(a: DOMPoint, b: DOMPoint): DOMPoint {
+  static getCenterPoint(a: DOMPoint, b: DOMPoint): DOMPoint {
     const vector = new DOMPoint((a.x + b.x) / 2, (a.y + b.y) / 2);
     return vector;
   }

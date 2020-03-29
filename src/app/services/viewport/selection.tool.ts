@@ -66,6 +66,7 @@ export class SelectionTool extends BaseSelectionTool {
       );
 
       if (this.transformation) {
+        // this.transformation.beginSkewTransaction(event.getDOMPoint());
         if (event.args.ctrlKey) {
           this.transformation.beginMouseTransaction(event.getDOMPoint());
         } else {
@@ -132,7 +133,7 @@ export class SelectionTool extends BaseSelectionTool {
     } else if (this.containerRect) {
       const element = this.nodeTransform.tag as SVGGraphicsElement;
       if (element) {
-        // this.rotateByMouseMove(event, element);
+        // this.rotateByMouse(event, element);
         this.moveByMouse(event, element);
       }
     }
@@ -141,10 +142,11 @@ export class SelectionTool extends BaseSelectionTool {
   moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {
     const screenPos = event.getDOMPoint();
     if (this.transformation) {
+      // this.transformation.skewByMouse(screenPos);
       if (this.transformation.offset) {
         this.transformation.moveByMouse(screenPos);
       } else {
-        this.transformation.rotateByMouseMove(screenPos);
+        this.transformation.rotateByMouse(screenPos);
       }
     }
   }
@@ -198,7 +200,7 @@ export class SelectionTool extends BaseSelectionTool {
       mode = SelectionMode.Add;
     }
 
-    if (this.selectionRect && this.selectionRect.width <= 1 && this.selectionRect.height <= 1) {
+    if (this.click) {
       const selected = this.getIntersects(true) as TreeNode[];
       this.outlineService.setSelected(selected, mode);
     } else {
