@@ -4,7 +4,7 @@ export class Utils {
     return vector;
   }
 
-  static shrink(rect: DOMRect, percent: number): DOMRect {
+  static shrinkRect(rect: DOMRect, percent: number): DOMRect {
     if (!percent) {
       return rect;
     }

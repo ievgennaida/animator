@@ -181,7 +181,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     let bounds = Utils.getBoundingClientRect(...selectedItems);
     if (bounds) {
       bounds = Utils.matrixRectTransform(bounds, this.viewportService.viewport.getScreenCTM().inverse());
-      bounds = Utils.shrink(bounds, consts.fitToSelectedExtraBounds);
+      bounds = Utils.shrinkRect(bounds, consts.fitToSelectedExtraBounds);
       this.toolsService.fitViewport(bounds);
     }
   }
