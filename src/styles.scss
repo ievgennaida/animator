@@ -7,6 +7,12 @@ body {
   color: #adadad;
   font-size: 12px;
 }
+.player {
+  overflow: visible !important;
+  > svg {
+    overflow: visible !important;
+  }
+}
 
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
