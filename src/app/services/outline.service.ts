@@ -65,6 +65,23 @@ export class OutlineService {
     return array;
   }
 
+  getSelectedElements(): SVGGraphicsElement[] {
+    const renderable = this.selectedSubject
+      .getValue()
+      .nodes.filter(
+        p =>
+          p.tag &&
+          (p.tag instanceof SVGGraphicsElement ||
+            p.tag.layerElement instanceof SVGGraphicsElement)
+      );
+
+    return renderable.map(
+      p =>
+        (p.tag as SVGGraphicsElement) ||
+        (p.tag.layerElement as SVGGraphicsElement)
+    );
+  }
+
   setMouseOver(node: TreeNode) {
     if (node && !node.mouseOver) {
       node.mouseOver = true;

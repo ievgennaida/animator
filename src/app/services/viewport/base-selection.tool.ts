@@ -5,6 +5,7 @@ import { ViewportService } from "./viewport.service";
 import { LoggerService } from "../logger.service";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
+import { Utils } from '../utils/utils';
 
 @Injectable({
   providedIn: "root"
@@ -37,7 +38,7 @@ export class BaseSelectionTool extends BaseTool {
   protected click = false;
   private updating = false;
   private autoPanIntervalRef = null;
-  autoPanSpeed = 0; 
+  autoPanSpeed = 0;
   init(element: HTMLElement) {
     this.selectionRectElement = element;
   }
@@ -179,7 +180,7 @@ export class BaseSelectionTool extends BaseTool {
       return;
     }
 
-    const rect = this.viewportService.matrixRectTransform(
+    const rect = Utils.matrixRectTransform(
       this.selectionRect,
       this.viewportService.getCTM()
     );

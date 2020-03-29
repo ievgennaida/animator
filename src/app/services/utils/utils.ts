@@ -4,6 +4,74 @@ export class Utils {
     return vector;
   }
 
+  static shrink(rect: DOMRect, percent: number): DOMRect {
+    if (!percent) {
+      return rect;
+    }
+
+    const offsetX = rect.width * percent;
+    const offsetY = rect.height * percent;
+    return new DOMRect(
+      rect.x - offsetX / 2,
+      rect.y - offsetY / 2,
+      rect.width + offsetX,
+      rect.height + offsetY
+    );
+  }
+
+  static matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect {
+    const start = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
+    const end = new DOMPoint(
+      rect.x + rect.width,
+      rect.y + rect.height
+    ).matrixTransform(matrix);
+
+    return new DOMRect(start.x, start.y, end.x - start.x, end.y - start.y);
+  }
+
+  static getBoundingClientRect(...elements: SVGGraphicsElement[]): DOMRect {
+    return Utils.getBounds(true, ...elements);
+  }
+
+  private static getBounds(
+    clientRect: boolean,
+    ...elements: SVGGraphicsElement[]
+  ): DOMRect {
+    if (!elements) {
+      return null;
+    }
+    let minX;
+    let maxX;
+    let minY;
+    let maxY;
+
+    for (const element of elements) {
+      let size = clientRect
+        ? element.getBoundingClientRect()
+        : element.getBBox();
+
+      minX = minX === undefined ? size.x : Math.min(minX, size.x);
+      maxX =
+        maxX === undefined
+          ? size.x + size.width
+          : Math.max(maxX, size.x + size.width);
+      minY = minY === undefined ? size.y : Math.min(minY, size.y);
+      maxY =
+        maxY === undefined
+          ? size.y + size.height
+          : Math.max(maxY, size.y + size.height);
+    }
+    if (minX === undefined) {
+      return;
+    }
+
+    return new DOMRect(minX, minY, maxX - minX, maxY - minY);
+  }
+
+  static getBBoxBounds(...elements: SVGGraphicsElement[]): DOMRect {
+    return Utils.getBounds(false, ...elements);
+  }
+
   static reverseVector(a: DOMPoint): DOMPoint {
     const vector = new DOMPoint(-a.x, -a.y);
     return vector;

@@ -21,6 +21,9 @@ import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 import { CursorService, CursorType } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
+import { OutlineService } from "src/app/services/outline.service";
+import { Utils } from "src/app/services/utils/utils";
+import { consts } from 'src/environments/consts';
 
 @Component({
   selector: "app-player",
@@ -86,6 +89,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
     private adornersRenderer: CanvasAdornersRenderer,
+    private outlineService: OutlineService,
     private cursor: CursorService
   ) {
     //this.cdRef.detach();
@@ -170,6 +174,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
   centerViewport() {
     this.panTool.fit();
+  }
+
+  fitViewportSelected() {
+    const selectedItems = this.outlineService.getSelectedElements();
+    let bounds = Utils.getBoundingClientRect(...selectedItems);
+    if (bounds) {
+      bounds = Utils.matrixRectTransform(bounds, this.viewportService.viewport.getScreenCTM().inverse());
+      bounds = Utils.shrink(bounds, consts.fitToSelectedExtraBounds);
+      this.toolsService.fitViewport(bounds);
+    }
   }
 
   fitViewport() {

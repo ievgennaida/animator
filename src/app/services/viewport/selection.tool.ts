@@ -7,6 +7,7 @@ import { PanTool } from "./pan.tool";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService, SelectionMode } from "../outline.service";
 import { TransformFactory } from "./transformations/transform-factory";
+import { Utils } from '../utils/utils';
 
 /**
  * Select elements by a mouse move move.
@@ -82,7 +83,7 @@ export class SelectionTool extends BaseSelectionTool {
 
   getIntersects(onlyFirst: boolean = false): TreeNode[] | TreeNode {
     const matrix = this.viewportService.getCTM();
-    const transformed = this.viewportService.matrixRectTransform(
+    const transformed = Utils.matrixRectTransform(
       this.selectionRect,
       matrix
     );
@@ -152,7 +153,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   /**
-   * Override
+   * override
    */
   selectionUpdate(event: MouseEventArgs) {
     if (!this.selectionRect) {
@@ -160,7 +161,7 @@ export class SelectionTool extends BaseSelectionTool {
     }
 
     const selected = this.getIntersects() as TreeNode[];
-   // this.outlineService.setSelected(selected);
+    // this.outlineService.setSelected(selected);
   }
 
   onPlayerMouseOut(event: MouseEventArgs) {
@@ -190,7 +191,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   /**
-   * Override
+   * override
    */
   selectionEnded(event: MouseEventArgs) {
     let mode = SelectionMode.Normal;
@@ -201,8 +202,8 @@ export class SelectionTool extends BaseSelectionTool {
     }
 
     if (this.click) {
-      const selected = this.getIntersects(true) as TreeNode[];
-      this.outlineService.setSelected(selected, mode);
+      const mouseOverTransform = this.outlineService.mouseOverSubject.getValue();
+      this.outlineService.setSelected(mouseOverTransform, mode);
     } else {
       const selected = this.getIntersects() as TreeNode[];
       this.outlineService.setSelected(selected, mode);

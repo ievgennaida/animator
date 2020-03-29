@@ -103,16 +103,6 @@ export class ViewportService {
     };
   }
 
-  public matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect {
-    const start = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
-    const end = new DOMPoint(
-      rect.x + rect.width,
-      rect.y + rect.height
-    ).matrixTransform(matrix);
-
-    return new DOMRect(start.x, start.y, end.x - start.x, end.y - start.y);
-  }
-
   public getCTM(): DOMMatrix {
     if (!this.isInit()) {
       return null;
