@@ -24,7 +24,7 @@
     "angular-resizable-element": "3.3.0",
     "animation-timeline-js": "1.1.4",
     "file-saver": "2.0.2",
-    "lottie-web": "5.6.2",
+    "lottie-web": "5.6.7",
     "rxjs": "~6.5.4",
     "tslib": "1.11.1",
     "zone.js": "~0.10.3"
