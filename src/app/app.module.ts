@@ -27,6 +27,8 @@ import { BoolComponent } from './components/properties/bool/bool.component';
 import { ComboComponent } from './components/properties/combo/combo.component';
 import { ColorComponent } from './components/properties/color/color.component';
 import { OutlineNodeComponent } from './components/outline/outline-node/outline-node.component';
+import { MainToolbarComponent } from './components/main-toolbar/main-toolbar.component';
+import { PlayerToolbarComponent } from './components/player/player-toolbar/player-toolbar.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +45,9 @@ import { OutlineNodeComponent } from './components/outline/outline-node/outline-
     BoolComponent,
     ComboComponent,
     ColorComponent,
-    OutlineNodeComponent
+    OutlineNodeComponent,
+    MainToolbarComponent,
+    PlayerToolbarComponent
   ],
   imports: [
     ResizableModule,

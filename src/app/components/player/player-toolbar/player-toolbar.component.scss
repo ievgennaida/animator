@@ -1,0 +1,32 @@
+.zoom-input {
+  height: initial;
+  border: 0px;
+  width: 70px;
+  max-width: 70px;
+  padding: 0px;
+}
+.zoom-icon {
+  margin: 0px 1px;
+  padding: 0px;
+}
+.mat-button {
+  min-width: 30px;
+}
+button[mat-menu-item] {
+  padding: 0px 10px;
+  height: 27px;
+  line-height: 27px;
+}
+
+.displayed{
+background-color: 1F1F1F;
+}
+
+button[mat-button] {
+  line-height: initial;
+  .mat-icon {
+    height: inherit;
+    width: inherit;
+    font-size: 15px;
+  }
+}

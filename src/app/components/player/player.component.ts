@@ -11,9 +11,7 @@ import {
 } from "@angular/core";
 
 import { Subject } from "rxjs";
-import { PlayerService } from "src/app/services/player.service";
 import { ToolsService } from "src/app/services/viewport/tools.service";
-import { PanTool } from "src/app/services/viewport/pan.tool";
 import { SelectionTool } from "src/app/services/viewport/selection.tool";
 import { ViewportService } from "src/app/services/viewport/viewport.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
@@ -21,10 +19,6 @@ import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 import { CursorService, CursorType } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
-import { OutlineService } from "src/app/services/outline.service";
-import { Utils } from "src/app/services/utils/utils";
-import { consts } from 'src/environments/consts';
-
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
@@ -75,30 +69,24 @@ export class PlayerComponent implements OnInit, OnDestroy {
   selectionRectangleAdornerRef: ElementRef<HTMLElement>;
 
   private readonly defaultBrowserScrollSize = 17;
-
-  scrollbarInputValue = "100";
-
   private destroyed$ = new Subject();
   constructor(
     private viewportService: ViewportService,
     private toolsService: ToolsService,
-    private panTool: PanTool,
     private zoomTool: ZoomTool,
     private selectionTool: SelectionTool,
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
     private adornersRenderer: CanvasAdornersRenderer,
-    private outlineService: OutlineService,
     private cursor: CursorService
   ) {
-    //this.cdRef.detach();
+    // this.cdRef.detach();
   }
 
   workAreaSize = this.viewportService.viewportSizeSubject.getValue();
   shadowAreaSize = this.workAreaSize;
   scrollbarSize = 17;
-  showGridLines = this.adornersRenderer.showGridLinesSubject.getValue();
 
   calcRealScrollBarSize() {
     const scrollBars = this.scrollBarsRef.nativeElement;
@@ -172,23 +160,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
   out(callback) {
     this.ngZone.runOutsideAngular(callback);
   }
-  centerViewport() {
-    this.panTool.fit();
-  }
-
-  fitViewportSelected() {
-    const selectedItems = this.outlineService.getSelectedElements();
-    let bounds = Utils.getBoundingClientRect(...selectedItems);
-    if (bounds) {
-      bounds = Utils.matrixRectTransform(bounds, this.viewportService.viewport.getScreenCTM().inverse());
-      bounds = Utils.shrinkRect(bounds, consts.fitToSelectedExtraBounds);
-      this.toolsService.fitViewport(bounds);
-    }
-  }
-
-  fitViewport() {
-    this.toolsService.fitViewport();
-  }
 
   ngOnInit() {
     this.out(() => {
@@ -202,15 +173,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
           }
         });
     });
-    this.adornersRenderer.showGridLinesSubject
-      .asObservable()
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(gridLines => {
-        if (gridLines !== this.showGridLines) {
-          this.showGridLines = gridLines;
-          this.cdRef.markForCheck();
-        }
-      });
 
     this.viewportService.init(
       this.svgViewPortRef.nativeElement,
@@ -235,21 +197,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
     this.toolsService.fitViewport();
 
-    this.viewportService.transformed
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(() => {
-        let value = "";
-        const ctm = this.viewportService.getCTM();
-        if (ctm) {
-          value = String((ctm.a * 100).toFixed(2));
-        }
-
-        if (value !== this.scrollbarInputValue) {
-          this.scrollbarInputValue = value;
-          this.cdRef.markForCheck();
-        }
-      });
-
     this.adornersRenderer.init(
       this.canvasAdornersRef.nativeElement,
       this.gridLinesAdornerRef.nativeElement,
@@ -262,24 +209,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.scrollbarsPanTool.onScroll();
   }
 
+  fitViewport() {
+    this.toolsService.fitViewport();
+  }
+
   ngOnDestroy() {
     this.destroyed$.next(true);
     this.destroyed$.complete();
-  }
-
-  toogleGridLines() {
-    this.adornersRenderer.toogleShowGridLines();
-  }
-
-  setZoomLevel(zoom: any, direction = 0) {
-    let newValue = parseFloat(zoom);
-    if (isNaN(newValue)) {
-      return;
-    }
-
-    newValue += direction * 10;
-    newValue = newValue / 100;
-    this.zoomTool.setDirectZoom(newValue);
-    this.centerViewport();
   }
 }

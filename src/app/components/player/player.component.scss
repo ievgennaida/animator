@@ -68,34 +68,12 @@
   grid-row: 2;
 }
 
-.scroll-area-controls {
+app-player-toolbar {
   align-self: end;
   height: 17px;
   display: flex;
   padding-left: 20px;
   position: relative;
-}
-
-button[mat-button] {
-  line-height: initial;
-  .mat-icon {
-    height: inherit;
-    width: inherit;
-    font-size: 15px;
-  }
-}
-
-.zoom-icon {
-  margin: 0px 1px;
-  padding: 0px;
-}
-.mat-button {
-  min-width: 30px;
-}
-button[mat-menu-item] {
-  padding: 0px 10px;
-  height: 27px;
-  line-height: 27px;
 }
 
 .scroll-and-controls-container {
@@ -147,14 +125,12 @@ button[mat-menu-item] {
   font-size: 15px;
   padding: 0px;
   overflow: hidden;
-}
-
-.zoom-input {
-  height: initial;
-  border: 0px;
-  width: 70px;
-  max-width: 70px;
-  padding: 0px;
+  line-height: initial;
+  .mat-icon {
+    height: inherit;
+    width: inherit;
+    font-size: 15px;
+  }
 }
 
 g {

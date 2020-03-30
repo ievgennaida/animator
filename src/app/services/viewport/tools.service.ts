@@ -6,6 +6,10 @@ import { ZoomTool } from "./zoom.tool";
 import { BehaviorSubject } from "rxjs";
 import { SelectionTool } from "./selection.tool";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
+import { Utils } from "../utils/utils";
+import { OutlineService } from "../outline.service";
+import { ViewportService } from "./viewport.service";
+import { consts } from "src/environments/consts";
 
 /**
  * Handle current active tool and services.
@@ -22,6 +26,8 @@ export class ToolsService {
     private panTool: PanTool,
     private zoomTool: ZoomTool,
     private selectionTool: SelectionTool,
+    private outlineService: OutlineService,
+    private viewportService: ViewportService,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {
@@ -108,10 +114,10 @@ export class ToolsService {
   onWindowMouseLeave(event: MouseEvent) {
     this.activeTool.onWindowMouseLeave(new MouseEventArgs(event));
   }
-  onWindowKeyDown(event: KeyboardEvent){
+  onWindowKeyDown(event: KeyboardEvent) {
     this.activeTool.onWindowKeyDown(event);
   }
-  onWindowKeyUp(event: KeyboardEvent){
+  onWindowKeyUp(event: KeyboardEvent) {
     this.activeTool.onWindowKeyUp(event);
   }
   onWindowMouseDown(event: MouseEvent) {
@@ -132,6 +138,19 @@ export class ToolsService {
   }
 
   getPan() {}
+  fitViewportToSelected() {
+    const selectedItems = this.outlineService.getSelectedElements();
+    let bounds = Utils.getBoundingClientRect(...selectedItems);
+    if (bounds) {
+      bounds = Utils.matrixRectTransform(
+        bounds,
+        this.viewportService.viewport.getScreenCTM().inverse()
+      );
+      bounds = Utils.shrinkRect(bounds, consts.fitToSelectedExtraBounds);
+      this.fitViewport(bounds);
+    }
+  }
+
   /**
    * Fit zoom and pan.
    */

@@ -95,6 +95,12 @@ export class ZoomTool extends BaseSelectionTool {
     this.zoom(direction, consts.zoom.sensitivityMouse, event);
   }
 
+  zoomIn() {
+    this.zoom(-1, consts.zoom.sensitivityMouse);
+  }
+  zoomOut() {
+    this.zoom(1, consts.zoom.sensitivityMouse);
+  }
   zoom(direction = 1, scale = 1, event: MouseEventArgs = null) {
     scale = 1 - direction * scale;
     if (scale !== 0) {
@@ -127,6 +133,7 @@ export class ZoomTool extends BaseSelectionTool {
       }
     }
   }
+
   setDirectZoom(scale: number) {
     const matrix = this.viewportService.getCTM();
     const zoom = Math.max(Math.min(scale, consts.zoom.max), consts.zoom.min);

@@ -10,11 +10,9 @@ import {
 import { ResizeEvent } from "angular-resizable-element";
 import { DocumentService } from "./services/document.service";
 import { consts } from "src/environments/consts";
-import { UndoService } from "./services/actions/undo.service";
 import { ToolsService } from "./services/viewport/tools.service";
 import { ViewportService } from "./services/viewport/viewport.service";
-import { InputDocument, InputDocumentType } from "./models/input-document";
-import { LoggerService } from "./services/logger.service";
+import { ViewService } from "./services/view.service";
 
 @Component({
   selector: "app-root",
@@ -22,22 +20,16 @@ import { LoggerService } from "./services/logger.service";
   styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit {
-  title = "animation";
   outlineW: number | string = null;
   footerH: number | string = null;
-  recentItems = [];
   lastUsedPropertiesW = 0;
-  undoDisabled = false;
-  redoDisabled = false;
+
   constructor(
     private ngZone: NgZone,
-    private undoService: UndoService,
-    private stateService: DocumentService,
     private self: ElementRef,
     private viewportService: ViewportService,
     private toolsService: ToolsService,
-    private logger: LoggerService,
-    private cdRef: ChangeDetectorRef
+    private viewService: ViewService
   ) {}
 
   @ViewChild("footer", { static: true, read: ElementRef })
@@ -76,14 +68,6 @@ export class AppComponent implements OnInit {
       this.self.nativeElement.clientHeight
     );
     this.viewportService.emitViewportResized();
-  }
-
-  redo() {
-    this.undoService.redo();
-  }
-
-  undo() {
-    this.undoService.undo();
   }
 
   resize(size, maxSize) {
@@ -208,60 +192,7 @@ export class AppComponent implements OnInit {
       );
     });
 
-    this.stateService.document.subscribe(p => {
-      if (p) {
-        this.title = p.title;
-      } else {
-        this.title = "";
-      }
-
-      this.cdRef.markForCheck();
-    });
-
-    this.setRecent(null);
-  }
-
-  loadData(data, title: string) {
-    title = title || "";
-
-    let parsed: InputDocument = null;
-    try {
-      const lower = title.toLowerCase();
-      if (lower.endsWith("svg")) {
-        const parser = new DOMParser();
-        const document = parser.parseFromString(data, "image/svg+xml");
-        parsed = new InputDocument();
-        parsed.data = data;
-        parsed.title = title;
-        parsed.parsedData = document;
-        parsed.type = InputDocumentType.SVG;
-      } else if (lower.endsWith("json")) {
-        const parsedJson = JSON.parse(data);
-        parsed = new InputDocument();
-        parsed.data = data;
-        parsed.title = title;
-        parsed.parsedData = parsedJson;
-        parsed.type = InputDocumentType.JSON;
-      }
-    } catch (err) {
-      // TODO: popup
-      const message = `file '${title}' cannot be parsed`;
-      alert(message);
-      this.logger.log(message);
-    }
-
-    if (parsed) {
-      this.stateService.setDocument(parsed, title);
-      const newData = {
-        name: title,
-        str: data
-      };
-      this.setRecent(newData);
-    }
-  }
-
-  toogleProperties() {
-    this.out(()=>{
+    this.viewService.viewPropertiesSubject.asObservable().subscribe(() => {
       const style = this.properties.nativeElement.style;
       if (style.width && style.width !== "0px") {
         this.lastUsedPropertiesW = style.width;
@@ -271,61 +202,6 @@ export class AppComponent implements OnInit {
       }
 
       this.viewportService.emitViewportResized();
-    })
-  }
-
-  setRecent(newRecentItem: any) {
-    const stored = localStorage.getItem("recent");
-    let parsed = null;
-
-    if (stored) {
-      parsed = JSON.parse(stored);
-    }
-
-    if (!Array.isArray(parsed)) {
-      parsed = [];
-    }
-
-    this.recentItems = parsed;
-
-    if (newRecentItem) {
-      let index = this.recentItems.indexOf(
-        this.recentItems.find(p => p.name === newRecentItem.name)
-      );
-
-      if (index >= 0 || this.recentItems.length > consts.recentItemsCount) {
-        if (index <= 0) {
-          index = 0;
-        }
-
-        this.recentItems.splice(index, 1);
-      }
-
-      this.recentItems.push(newRecentItem);
-      localStorage.setItem("recent", JSON.stringify(this.recentItems));
-    }
-  }
-
-  fileSelected(event) {
-    const files = event.target.files;
-    if (!files || event.target.files.length === 0) {
-      return;
-    }
-
-    const file: File = files[0];
-    const fileReader = new FileReader();
-    fileReader.onload = () => {
-      try {
-        const str = fileReader.result.toString();
-        this.loadData(str, file.name);
-      } catch (err) {
-        alert(`File ${file.name} cannot be parsed!`);
-        console.log(err);
-      }
-    };
-
-    fileReader.readAsText(file);
-
-    // after here 'file' can be accessed and used for further process
+    });
   }
 }
