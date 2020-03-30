@@ -3,7 +3,10 @@ export const consts = {
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
   showGridLines: true,
-  defaultPropertiesPanelSize: "250px",
+  appearance: {
+    propertiesOpened: false,
+    propertiesPanelSize: "250px",
+  },
   fitToSelectedExtraBounds: 0.2,
   defaultWorkArea: {
     width: 640,

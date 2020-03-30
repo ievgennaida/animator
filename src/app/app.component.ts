@@ -97,8 +97,8 @@ export class AppComponent implements OnInit {
       this.self.nativeElement.clientWidth
     );
 
-    const style = this.properties.nativeElement.style;
-    if (style.width && style !== "0px") {
+    const isVisible = this.viewService.viewPropertiesSubject.getValue();
+    if (isVisible) {
       this.properties.nativeElement.style.width =
         this.resize(
           this.properties.nativeElement.clientWidth,
@@ -145,7 +145,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.out(() => {
-      const defaultSize = consts.defaultPropertiesPanelSize;
+      const defaultSize = consts.appearance.propertiesPanelSize;
       this.properties.nativeElement.style.width = defaultSize;
       this.lastUsedPropertiesW = this.properties.nativeElement.style.width;
       document.addEventListener(
@@ -192,13 +192,19 @@ export class AppComponent implements OnInit {
       );
     });
 
-    this.viewService.viewPropertiesSubject.asObservable().subscribe(() => {
+    this.viewService.viewPropertiesSubject.asObservable().subscribe(visible => {
       const style = this.properties.nativeElement.style;
-      if (style.width && style.width !== "0px") {
-        this.lastUsedPropertiesW = style.width;
-        style.width = "0px";
-      } else {
+      if (visible) {
+        if (!this.lastUsedPropertiesW) {
+          this.lastUsedPropertiesW = style.width;
+        }
+
         style.width = this.lastUsedPropertiesW;
+      } else {
+        if (style.width !== "0px") {
+          this.lastUsedPropertiesW = style.width;
+        }
+        style.width = "0px";
       }
 
       this.viewportService.emitViewportResized();
