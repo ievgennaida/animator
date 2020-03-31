@@ -5,18 +5,19 @@ import {
   ElementRef,
   ViewChild,
   NgZone,
-  ChangeDetectorRef
+  ChangeDetectorRef,
 } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
 import { DocumentService } from "./services/document.service";
 import { consts } from "src/environments/consts";
 import { ToolsService } from "./services/viewport/tools.service";
 import { ViewService } from "./services/view.service";
+import { HotkeysService } from "./services/hotkeys.service";
 
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.scss"]
+  styleUrls: ["./app.component.scss"],
 })
 export class AppComponent implements OnInit {
   outlineW: number | string = null;
@@ -27,7 +28,8 @@ export class AppComponent implements OnInit {
     private ngZone: NgZone,
     private self: ElementRef,
     private viewService: ViewService,
-    private toolsService: ToolsService
+    private toolsService: ToolsService,
+    private hotkeys: HotkeysService
   ) {}
 
   @ViewChild("footer", { static: true, read: ElementRef })
@@ -171,7 +173,7 @@ export class AppComponent implements OnInit {
 
       document.addEventListener(
         "visibilitychange",
-        event => {
+        (event) => {
           if (document.hidden) {
             this.toolsService.onWindowBlur(event);
           }
@@ -181,31 +183,35 @@ export class AppComponent implements OnInit {
 
       window.addEventListener(
         "wheel",
-        e => {
+        (e) => {
           this.onWindowMouseWheel(e);
         },
         {
-          passive: false
+          passive: false,
         }
       );
     });
 
-    this.viewService.viewPropertiesSubject.asObservable().subscribe(visible => {
-      const style = this.properties.nativeElement.style;
-      if (visible) {
-        if (!this.lastUsedPropertiesW) {
-          this.lastUsedPropertiesW = style.width;
+    this.viewService.viewPropertiesSubject
+      .asObservable()
+      .subscribe((visible) => {
+        const style = this.properties.nativeElement.style;
+        if (visible) {
+          if (!this.lastUsedPropertiesW) {
+            this.lastUsedPropertiesW = style.width;
+          }
+
+          style.width = this.lastUsedPropertiesW;
+        } else {
+          if (style.width !== "0px") {
+            this.lastUsedPropertiesW = style.width;
+          }
+          style.width = "0px";
         }
 
-        style.width = this.lastUsedPropertiesW;
-      } else {
-        if (style.width !== "0px") {
-          this.lastUsedPropertiesW = style.width;
-        }
-        style.width = "0px";
-      }
+        this.viewService.emitViewportResized();
+      });
 
-      this.viewService.emitViewportResized();
-    });
+    this.hotkeys.initialize();
   }
 }

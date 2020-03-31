@@ -70,6 +70,13 @@ export class OutlineService {
     return selector.nodes;
   }
 
+  selectAll() {
+    this.setSelected(
+      this.flatDataSource._flattenedData.getValue(),
+      SelectionMode.Add
+    );
+  }
+
   getSelectedElements(): SVGGraphicsElement[] {
     const renderable = this.getSelectedNodes().filter(
       (p) =>
