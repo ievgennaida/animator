@@ -70,14 +70,15 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   selectionStarted(e: MouseEventArgs) {}
-  selectionUpdate(e: MouseEventArgs, selectedArea: DOMRect) {}
+  selectionUpdate(event: MouseEventArgs, selectedArea: DOMRect) {
+
+  }
   selectionEnded(e: MouseEventArgs, selectedArea: DOMRect) {}
 
   onWindowMouseMove(event: MouseEventArgs) {
     if (!this.startPos) {
       return;
     }
-
     event.preventDefault();
     this.currentArgs = event;
     this.trackMousePos(event);

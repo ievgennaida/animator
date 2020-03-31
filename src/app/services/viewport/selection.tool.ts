@@ -8,14 +8,15 @@ import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService, SelectionMode } from "../outline.service";
 import { TransformsService } from "./transformations/transforms.service";
 import { Utils } from "../utils/utils";
-import { SelectorRenderer } from './renderers/selector.renderer';
-import { CursorService, CursorType } from '../cursor.service';
+import { SelectorRenderer } from "./renderers/selector.renderer";
+import { CursorService, CursorType } from "../cursor.service";
+import { MatrixTransform } from "./transformations/matrix-transform";
 
 /**
  * Select elements by a mouse move move.
  */
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class SelectionTool extends BaseSelectionTool {
   iconName = "navigation";
@@ -23,19 +24,20 @@ export class SelectionTool extends BaseSelectionTool {
   cachedMouse: TreeNode = null;
   nodeTransform: TreeNode = null;
   lastDeg: number = null;
-  transformation = null;
+  transformation: MatrixTransform = null;
+  transformations = null;
   constructor(
     transformsService: TransformsService,
     viewService: ViewService,
     logger: LoggerService,
     panTool: PanTool,
-    selectorRenderer:SelectorRenderer,
+    selectorRenderer: SelectorRenderer,
     private transformFactory: TransformsService,
     private outlineService: OutlineService,
     private cursor: CursorService
   ) {
     super(selectorRenderer, transformsService, viewService, logger, panTool);
-    outlineService.flatList.subscribe(flatItems => {
+    outlineService.flatList.subscribe((flatItems) => {
       this.renderableElements = flatItems;
     });
   }
@@ -67,9 +69,25 @@ export class SelectionTool extends BaseSelectionTool {
     const nodeTransform = this.outlineService.mouseOverSubject.getValue();
     if (nodeTransform) {
       this.nodeTransform = nodeTransform;
-      if(!nodeTransform || !nodeTransform.selected){
+      if (!nodeTransform || !nodeTransform.selected) {
         return;
       }
+
+      const nodesToSelect = this.outlineService
+        .getSelectedNodes()
+        .map((item) => this.getTopSelectedNode(item))
+        .filter((value, index, self) => self.indexOf(value) === index);
+
+      const transformations = nodesToSelect.map((p) => {
+        const transformation = this.transformFactory.getTransformForElement(
+          p.getElement()
+        );
+        transformation.beginMouseTransaction(event.getDOMPoint());
+        return transformation;
+      });
+
+      transformations.forEach((p) => p.moveByMouse(event.getDOMPoint()));
+      this.transformations = transformations;
 
       const element = nodeTransform.getElement();
       this.transformation = this.transformFactory.getTransformForElement(
@@ -137,15 +155,39 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   onWindowMouseMove(event: MouseEventArgs) {
-    if (!this.nodeTransform || !this.nodeTransform.selected) {
-      super.onWindowMouseMove(event);
-    } else if (this.containerRect) {
+    if (
+      this.nodeTransform &&
+      this.nodeTransform.selected &&
+      this.containerRect
+    ) {
       const element = this.nodeTransform.getElement();
       if (element) {
         // this.rotateByMouse(event, element);
         this.moveByMouse(event, element);
       }
+    } else {
+      if (this.nodeTransform) {
+        this.cursor.setCursor(CursorType.NotAllowed);
+      } else {
+        super.onWindowMouseMove(event);
+      }
     }
+  }
+
+  getTopSelectedNode(node: TreeNode) {
+    if (!node.selected) {
+      return null;
+    }
+
+    let toReturn = node;
+    while (node != null) {
+      node = node.parent;
+      if (node && node.selected) {
+        toReturn = node;
+      }
+    }
+
+    return toReturn;
   }
 
   moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {
@@ -153,7 +195,12 @@ export class SelectionTool extends BaseSelectionTool {
     if (this.transformation) {
       // this.transformation.skewByMouse(screenPos);
       if (this.transformation.offset) {
-        this.transformation.moveByMouse(screenPos);
+        this.transformations.forEach((transformation) => {
+          transformation.moveByMouse(screenPos);
+        });
+        //this.transformFactory.getTransformForElement();
+        //elementsToTransform.forEach((transformation) => transformation.moveByMouse(screenPos));
+        //this.transformation.;
       } else {
         this.transformation.rotateByMouse(screenPos);
       }
@@ -175,7 +222,7 @@ export class SelectionTool extends BaseSelectionTool {
   onPlayerMouseOut(event: MouseEventArgs) {
     if (this.cachedMouse && this.cachedMouse.tag !== event.args.target) {
       const node = this.renderableElements.find(
-        p => p.tag === event.args.target
+        (p) => p.tag === event.args.target
       );
       this.outlineService.setMouseLeave(node);
     } else {
@@ -189,7 +236,9 @@ export class SelectionTool extends BaseSelectionTool {
       return;
     }
 
-    const node = this.renderableElements.find(p => p.tag === event.args.target);
+    const node = this.renderableElements.find(
+      (p) => p.tag === event.args.target
+    );
     if (!node) {
       return;
     }
@@ -202,11 +251,6 @@ export class SelectionTool extends BaseSelectionTool {
    * override
    */
   selectionEnded(event: MouseEventArgs) {
-    if (this.nodeTransform && this.nodeTransform.selected) {
-      // transformations were applied.
-      return;
-    }
-
     let mode = SelectionMode.Normal;
     if (event.args.ctrlKey) {
       mode = SelectionMode.Revert;
@@ -217,7 +261,7 @@ export class SelectionTool extends BaseSelectionTool {
     if (this.click) {
       const mouseOverTransform = this.outlineService.mouseOverSubject.getValue();
       this.outlineService.setSelected(mouseOverTransform, mode);
-    } else {
+    } else if (!this.nodeTransform) {
       const selected = this.getIntersects() as TreeNode[];
       this.outlineService.setSelected(selected, mode);
     }

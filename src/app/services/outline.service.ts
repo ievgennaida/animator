@@ -4,7 +4,7 @@ import { TreeNode } from "../models/tree-node";
 
 import {
   MatTreeFlatDataSource,
-  MatTreeFlattener
+  MatTreeFlattener,
 } from "@angular/material/tree";
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { ChangedArgs } from "../models/changed-args";
@@ -15,17 +15,17 @@ import { LoggerService } from "./logger.service";
 
 export enum InteractionSource {
   Outline,
-  Adorners
+  Adorners,
 }
 
 export enum SelectionMode {
   Normal,
   Add,
-  Revert
+  Revert,
 }
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class OutlineService {
   constructor(private appFactory: AppFactory, private logger: LoggerService) {}
@@ -36,8 +36,8 @@ export class OutlineService {
    * Outline tree view model.
    */
   treeConrol = new FlatTreeControl<TreeNode>(
-    node => node.level,
-    node => node.expandable
+    (node) => node.level,
+    (node) => node.expandable
   );
 
   flatDataSource = new MatTreeFlatDataSource<TreeNode, TreeNode>(
@@ -47,9 +47,9 @@ export class OutlineService {
         node.level = level;
         return node;
       },
-      node => node.level,
-      node => node.expandable,
-      node => node.children
+      (node) => node.level,
+      (node) => node.expandable,
+      (node) => node.children
     )
   );
 
@@ -65,17 +65,20 @@ export class OutlineService {
     return array;
   }
 
-  getSelectedElements(): SVGGraphicsElement[] {
-    const renderable = this.selectedSubject
-      .getValue()
-      .nodes.filter(
-        p =>
-          p.tag &&
-          (p.tag instanceof SVGGraphicsElement ||
-            p.tag.layerElement instanceof SVGGraphicsElement)
-      );
+  getSelectedNodes(): TreeNode[] {
+    const selector = this.selectedSubject.getValue();
+    return selector.nodes;
+  }
 
-    return renderable.map(p => p.getElement());
+  getSelectedElements(): SVGGraphicsElement[] {
+    const renderable = this.getSelectedNodes().filter(
+      (p) =>
+        p.tag &&
+        (p.tag instanceof SVGGraphicsElement ||
+          p.tag.layerElement instanceof SVGGraphicsElement)
+    );
+
+    return renderable.map((p) => p.getElement());
   }
 
   setMouseOver(node: TreeNode) {
@@ -127,14 +130,14 @@ export class OutlineService {
     state.changed.length = 0;
 
     if (nodes && mode === SelectionMode.Add) {
-      nodes.forEach(node => {
+      nodes.forEach((node) => {
         const changed = this.changeNodeState(state, node, true);
         if (changed) {
           state.nodes.push(node);
         }
       });
     } else if (nodes && mode === SelectionMode.Revert) {
-      nodes.forEach(node => {
+      nodes.forEach((node) => {
         if (state.nodes.includes(node)) {
           this.changeNodeState(state, node, false);
           this.deleteElement(state.nodes, node);
@@ -145,12 +148,12 @@ export class OutlineService {
       });
     } else if (mode === SelectionMode.Normal) {
       if (nodes) {
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
           this.changeNodeState(state, node, true);
         });
       }
 
-      state.nodes.forEach(node => {
+      state.nodes.forEach((node) => {
         const exists = (nodes as TreeNode[]).includes(node);
         // Deselect
         if (!exists) {
