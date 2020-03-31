@@ -25,7 +25,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { ActionService } from "src/app/services/actions/action.service";
 import { Keyframe } from "src/app/models/keyframes/Keyframe";
-import { ViewportService } from "src/app/services/viewport/viewport.service";
+import { ViewService } from "src/app/services/view.service";
 import { OutlineService } from "src/app/services/outline.service";
 
 @Component({
@@ -39,7 +39,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private outlineService: OutlineService,
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     private playerService: PlayerService,
     private actionService: ActionService,
     private cdRef: ChangeDetectorRef,
@@ -140,7 +140,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.redraw();
       });
 
-    this.viewportService.viewportResize
+    this.viewService.viewportResize
       .pipe(takeUntil(this.destroyed$))
       .subscribe(p => {
         this.redraw();

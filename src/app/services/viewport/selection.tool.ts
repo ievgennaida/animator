@@ -1,13 +1,15 @@
 import { MouseEventArgs } from "./mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
-import { ViewportService } from "./viewport.service";
+import { ViewService } from "../view.service";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService, SelectionMode } from "../outline.service";
-import { TransformFactory } from "./transformations/transform-factory";
+import { TransformsService } from "./transformations/transforms.service";
 import { Utils } from "../utils/utils";
+import { SelectorRenderer } from './renderers/selector.renderer';
+import { CursorService, CursorType } from '../cursor.service';
 
 /**
  * Select elements by a mouse move move.
@@ -23,13 +25,16 @@ export class SelectionTool extends BaseSelectionTool {
   lastDeg: number = null;
   transformation = null;
   constructor(
-    viewportService: ViewportService,
+    transformsService: TransformsService,
+    viewService: ViewService,
     logger: LoggerService,
     panTool: PanTool,
-    private transformFactory: TransformFactory,
-    private outlineService: OutlineService
+    selectorRenderer:SelectorRenderer,
+    private transformFactory: TransformsService,
+    private outlineService: OutlineService,
+    private cursor: CursorService
   ) {
-    super(viewportService, logger, panTool);
+    super(selectorRenderer, transformsService, viewService, logger, panTool);
     outlineService.flatList.subscribe(flatItems => {
       this.renderableElements = flatItems;
     });
@@ -87,7 +92,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   getIntersects(onlyFirst: boolean = false): TreeNode[] | TreeNode {
-    const matrix = this.viewportService.getCTM();
+    const matrix = this.viewService.getCTM();
     const transformed = Utils.matrixRectTransform(this.selectionRect, matrix);
 
     let selected: TreeNode[] = null;
@@ -128,6 +133,7 @@ export class SelectionTool extends BaseSelectionTool {
     this.lastDeg = null;
     this.nodeTransform = null;
     super.cleanUp();
+    this.cursor.setCursor(CursorType.Default);
   }
 
   onWindowMouseMove(event: MouseEventArgs) {

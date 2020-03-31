@@ -1,18 +1,19 @@
 import { DecomposedMatrix } from "./decompose-matrix";
 import { Utils } from "../../utils/utils";
+import { TransformsService } from "./transforms.service";
 
 export class MatrixTransform {
   offset: DOMPoint = null;
   startOffset = 0;
-  element: SVGGraphicsElement = null;
   vertical = true;
 
   /**
    *
    */
-  constructor(element: SVGGraphicsElement) {
-    this.element = element;
-  }
+  constructor(
+    protected element: SVGGraphicsElement,
+    protected transformsService: TransformsService
+  ) {}
 
   beginMouseTransaction(pos: DOMPoint) {
     this.offset = this.transformScreenToElement(this.element, pos);
@@ -96,6 +97,7 @@ export class MatrixTransform {
     transform.setMatrix(matrix);
 
     this.element.transform.baseVal.initialize(transform);
+    this.transformsService.emitTransformed(this.element);
   }
 
   decomposeMatrix(matrix: DOMMatrix): DecomposedMatrix {
@@ -126,11 +128,13 @@ export class MatrixTransform {
       const rotation = this.element.ownerSVGElement.createSVGTransform();
       rotation.setRotate(angle, transformPoint.x, transformPoint.y);
       transformList.baseVal.appendItem(rotation);
+      this.transformsService.emitTransformed(this.element);
       return;
     } else if (transformList.baseVal.numberOfItems === 1) {
       const rotation = transformList.baseVal[0];
       if (rotation.type === rotation.SVG_TRANSFORM_ROTATE) {
         rotation.setRotate(angle, transformPoint.x, transformPoint.y);
+        this.transformsService.emitTransformed(this.element);
         return;
       }
     }
@@ -151,6 +155,7 @@ export class MatrixTransform {
 
     transform.setMatrix(matrix);
     this.element.transform.baseVal.initialize(transform);
+    this.transformsService.emitTransformed(this.element);
   }
 
   skewByMouse(pos: DOMPoint) {
@@ -191,5 +196,6 @@ export class MatrixTransform {
 
     transform.setMatrix(matrix);
     this.element.transform.baseVal.initialize(transform);
+    this.transformsService.emitTransformed(this.element);
   }
 }

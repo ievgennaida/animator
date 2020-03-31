@@ -4,7 +4,7 @@ import { PropertiesService } from "./properties.service";
 import { PlayerService } from "./player.service";
 import { InputDocument } from "../models/input-document";
 import { AppFactory } from "./app-factory";
-import { ViewportService } from "./viewport/viewport.service";
+import { ViewService } from "./view.service";
 import { LoggerService } from "./logger.service";
 import { ToolsService } from "./viewport/tools.service";
 import { OutlineService } from './outline.service';
@@ -16,7 +16,7 @@ export class DocumentService {
   constructor(
     private appFactory: AppFactory,
     private propertiesService: PropertiesService,
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     private logger: LoggerService,
     private playerService: PlayerService,
     private toolsService: ToolsService,
@@ -48,7 +48,7 @@ export class DocumentService {
   }
 
   onDocumentChanged(document: InputDocument, refresh: boolean = false) {
-    if (!this.viewportService.isInit()) {
+    if (!this.viewService.isInit()) {
       this.logger.log(
         `Viewport is not ready to open the document: ${document.title}.`
       );
@@ -75,10 +75,10 @@ export class DocumentService {
     try {
       const data = initializer.intialize(
         document,
-        this.viewportService.playerHost
+        this.viewService.playerHost
       );
 
-      this.viewportService.setViewportSize(data.size);
+      this.viewService.setViewportSize(data.size);
       this.playerService.setPlayer(data.player);
       if (!refresh) {
         this.outlineService.parseDocumentOutline(document);
@@ -101,7 +101,7 @@ export class DocumentService {
     this.outlineService.deselectAll();
     if (!refresh) {
       this.outlineService.dispose();
-      this.viewportService.dispose();
+      this.viewService.dispose();
     }
     this.playerService.dispose();
   }

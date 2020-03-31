@@ -7,23 +7,24 @@ import {
   ElementRef,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  NgZone
+  NgZone,
 } from "@angular/core";
 
 import { Subject } from "rxjs";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { SelectionTool } from "src/app/services/viewport/selection.tool";
-import { ViewportService } from "src/app/services/viewport/viewport.service";
+import { ViewService } from "src/app/services/view.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 import { CursorService, CursorType } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
+import { SelectorRenderer } from "src/app/services/viewport/renderers/selector.renderer";
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
   styleUrls: ["./player.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerComponent implements OnInit, OnDestroy {
   @Input("isPlaying")
@@ -71,7 +72,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   private readonly defaultBrowserScrollSize = 17;
   private destroyed$ = new Subject();
   constructor(
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     private toolsService: ToolsService,
     private zoomTool: ZoomTool,
     private selectionTool: SelectionTool,
@@ -79,12 +80,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
     private adornersRenderer: CanvasAdornersRenderer,
-    private cursor: CursorService
+    private cursor: CursorService,
+    private selectorRenderer: SelectorRenderer
   ) {
     // this.cdRef.detach();
   }
 
-  workAreaSize = this.viewportService.viewportSizeSubject.getValue();
+  workAreaSize = this.viewService.viewportSizeSubject.getValue();
   shadowAreaSize = this.workAreaSize;
   scrollbarSize = 17;
 
@@ -128,6 +130,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.out(() => {
       this.toolsService.onViewportMouseDown(event);
     });
+  }
+  onContextMenu(event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
   }
   onViewportMouseUp(event: MouseEvent) {
     this.out(() => {
@@ -174,7 +180,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         });
     });
 
-    this.viewportService.init(
+    this.viewService.init(
       this.svgViewPortRef.nativeElement,
       this.playerRef.nativeElement
     );
@@ -183,9 +189,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.scrollContentRef.nativeElement
     );
 
-    this.viewportService.viewportSizeSubject
+    this.viewService.viewportSizeSubject
       .pipe(takeUntil(this.destroyed$))
-      .subscribe(p => {
+      .subscribe((p) => {
         this.workAreaSize = p;
         // TODO: offsets
         this.shadowAreaSize = this.workAreaSize;
@@ -193,8 +199,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.cdRef.markForCheck();
       });
 
-    this.zoomTool.init(this.selectionRectangleAdornerRef.nativeElement);
-    this.selectionTool.init(this.selectionRectangleAdornerRef.nativeElement);
+    this.selectorRenderer.init(this.selectionRectangleAdornerRef.nativeElement);
     this.toolsService.fitViewport();
 
     this.adornersRenderer.init(

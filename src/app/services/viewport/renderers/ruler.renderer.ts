@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from "@angular/core";
-import { ViewportService } from "./../viewport.service";
+import { ViewService } from "../../view.service";
 import { LoggerService } from "../../logger.service";
 import { PanTool } from "./../pan.tool";
 import { consts } from "src/environments/consts";
@@ -10,7 +10,7 @@ import { BaseRenderer } from './base.renderer';
 })
 export class RulerRenderer extends BaseRenderer {
   constructor(
-    protected viewportService: ViewportService,
+    protected viewService: ViewService,
     protected logger: LoggerService
   ) {
     super();
@@ -226,7 +226,7 @@ export class RulerRenderer extends BaseRenderer {
     this.clearBackground(ctx);
     this.clearBackground(rulerWCTX);
     this.clearBackground(rulerHCTX);
-    const bounds = this.viewportService.getDisplayedBounds();
+    const bounds = this.viewService.getDisplayedBounds();
     if (bounds) {
       this.drawTicks(ctx, rulerWCTX, bounds.from.x, bounds.to.x, drawGridLines);
       this.drawTicks(ctx, rulerHCTX, bounds.from.y, bounds.to.y, drawGridLines);

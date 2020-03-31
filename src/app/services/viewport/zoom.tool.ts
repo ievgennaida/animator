@@ -2,24 +2,28 @@ import { BaseTool } from "./base.tool";
 import { MouseEventArgs } from "./mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
-import { ViewportService } from "./viewport.service";
+import { ViewService } from "../view.service";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
 import { CursorService, CursorType } from "../cursor.service";
+import { TransformsService } from "./transformations/transforms.service";
+import { SelectorRenderer } from "./renderers/selector.renderer";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class ZoomTool extends BaseSelectionTool {
   iconName = "search";
   constructor(
-    viewportService: ViewportService,
+    transformService: TransformsService,
+    viewService: ViewService,
     logger: LoggerService,
     panTool: PanTool,
+    selectorRenderer: SelectorRenderer,
     private cursor: CursorService
   ) {
-    super(viewportService, logger, panTool);
+    super(selectorRenderer, transformService, viewService, logger, panTool);
   }
 
   onActivate() {
@@ -41,7 +45,7 @@ export class ZoomTool extends BaseSelectionTool {
   }
 
   onViewportMouseWheel(event: MouseEventArgs) {
-    if (!this.viewportService.isInit()) {
+    if (!this.viewService.isInit()) {
       return;
     }
     event.preventDefault();
@@ -69,7 +73,7 @@ export class ZoomTool extends BaseSelectionTool {
       this.panTool.fit(selectedArea);
     } else {
       // check the bounds while it's window events:
-      const area = this.viewportService.getContainerClientRect();
+      const area = this.viewService.getContainerClientRect();
       if (
         event.clientX >= area.left &&
         event.clientX <= area.right &&
@@ -82,7 +86,7 @@ export class ZoomTool extends BaseSelectionTool {
   }
 
   zoomByMouseEvent(event: MouseEventArgs) {
-    if (!this.viewportService.isInit()) {
+    if (!this.viewService.isInit()) {
       return;
     }
 
@@ -93,6 +97,7 @@ export class ZoomTool extends BaseSelectionTool {
     }
 
     this.zoom(direction, consts.zoom.sensitivityMouse, event);
+    event.preventDefault();
   }
 
   zoomIn() {
@@ -104,10 +109,10 @@ export class ZoomTool extends BaseSelectionTool {
   zoom(direction = 1, scale = 1, event: MouseEventArgs = null) {
     scale = 1 - direction * scale;
     if (scale !== 0) {
-      let matrix = this.viewportService.getCTM();
+      let matrix = this.viewService.getCTM();
       let point = new DOMPoint(1, 1, 1, 1);
       if (event) {
-        point = this.viewportService
+        point = this.viewService
           .toSvgPoint(event.clientX, event.clientY)
           .matrixTransform(matrix.inverse());
       }
@@ -129,30 +134,30 @@ export class ZoomTool extends BaseSelectionTool {
           .translate(point.x, point.y)
           .scale(scale, scale, scale)
           .translate(-point.x, -point.y);
-        this.viewportService.setCTM(matrix);
+        this.viewService.setCTM(matrix);
       }
     }
   }
 
   setDirectZoom(scale: number) {
-    const matrix = this.viewportService.getCTM();
+    const matrix = this.viewService.getCTM();
     const zoom = Math.max(Math.min(scale, consts.zoom.max), consts.zoom.min);
 
     matrix.a = zoom;
     matrix.d = zoom;
-    this.viewportService.setCTM(matrix);
+    this.viewService.setCTM(matrix);
   }
 
   fit(rect: DOMRect = null) {
-    if (!this.viewportService.isInit()) {
+    if (!this.viewService.isInit()) {
       return;
     }
 
     if (!rect) {
-      rect = this.viewportService.getWorkAreaSize();
+      rect = this.viewService.getWorkAreaSize();
     }
 
-    const parentSize = this.viewportService.getContainerSize();
+    const parentSize = this.viewService.getContainerSize();
 
     let fitProportion = Math.min(
       parentSize.width / rect.width,

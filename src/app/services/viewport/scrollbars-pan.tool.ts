@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BaseTool } from "./base.tool";
-import { ViewportService } from "./viewport.service";
+import { ViewService } from "../view.service";
 import { MouseEventArgs } from "./mouse-event-args";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
@@ -10,7 +10,7 @@ import { consts } from "src/environments/consts";
 })
 export class ScrollbarsPanTool extends BaseTool {
   constructor(
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     private panTool: PanTool
   ) {
     super();
@@ -28,7 +28,7 @@ export class ScrollbarsPanTool extends BaseTool {
 
     const whell = event.args as WheelEvent;
     const speed = -event.deltaY * consts.wheelPanSpeed;
-    const pan = this.viewportService.getPan();
+    const pan = this.viewService.getPan();
     if (speed === 0) {
       return;
     }
@@ -48,7 +48,7 @@ export class ScrollbarsPanTool extends BaseTool {
   ) {
     this.scrollBarElement = scrollBarElement;
     this.scrollContentElement = scrollContentElement;
-    this.viewportService.transformed
+    this.viewService.transformed
       .subscribe(() => {
         if (this.panChangedProgramatically) {
           this.panChangedProgramatically = false;
@@ -98,16 +98,16 @@ export class ScrollbarsPanTool extends BaseTool {
     return Math.abs(x1 - y1);
   }
   rescaleScrollbars() {
-    if (!this.viewportService.isInit()) {
+    if (!this.viewService.isInit()) {
       return;
     }
 
-    const svgContentElement = this.viewportService.viewport as SVGElement;
+    const svgContentElement = this.viewService.viewport as SVGElement;
     const viewPortRect = svgContentElement.getBoundingClientRect();
 
     // TODO: This data should be cached until the browser resize:
-    const parentPos = this.viewportService.getContainerClientRect();
-    const pan = this.viewportService.getPan();
+    const parentPos = this.viewService.getContainerClientRect();
+    const pan = this.viewService.getPan();
 
     const relativePos = {
       width: viewPortRect.width,

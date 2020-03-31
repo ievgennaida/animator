@@ -1,5 +1,4 @@
 import { Injectable, NgZone } from "@angular/core";
-import { ViewportService } from "./../viewport.service";
 import { LoggerService } from "../../logger.service";
 import { consts } from "src/environments/consts";
 import { RulerRenderer } from "./ruler.renderer";
@@ -7,9 +6,11 @@ import { BoundsRenderer } from "./bounds.renderer";
 import { BaseRenderer } from "./base.renderer";
 import { BehaviorSubject } from "rxjs";
 import { OutlineService } from "../../outline.service";
+import { TransformsService } from "../transformations/transforms.service";
+import { ViewService } from '../../view.service';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 /**
  * Service to control the order of the canvas adorners renderings services.
@@ -27,7 +28,8 @@ export class CanvasAdornersRenderer extends BaseRenderer {
 
   constructor(
     private boundsRenderer: BoundsRenderer,
-    private viewportService: ViewportService,
+    private transformsService: TransformsService,
+    private viewService: ViewService,
     protected logger: LoggerService,
     private ngZone: NgZone,
     private rulerRenderer: RulerRenderer,
@@ -42,15 +44,17 @@ export class CanvasAdornersRenderer extends BaseRenderer {
       this.adornersInvalidate();
     });
 
-    this.viewportService.transformed.subscribe(element => {
-      if (element === this.viewportService.viewport) {
-        this.invalidate();
-      } else {
-        this.redraw(false);
-      }
+    // Individual element is transformed.
+    this.transformsService.transformed.subscribe(() => {
+      this.redraw(false);
     });
 
-    this.viewportService.viewportResize.subscribe(() => {
+    // view is transformed
+    this.viewService.transformed.subscribe(() => {
+      this.invalidate();
+    });
+
+    this.viewService.viewportResize.subscribe(() => {
       this.invalidate();
     });
   }

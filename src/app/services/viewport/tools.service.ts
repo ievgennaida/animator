@@ -8,7 +8,7 @@ import { SelectionTool } from "./selection.tool";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 import { Utils } from "../utils/utils";
 import { OutlineService } from "../outline.service";
-import { ViewportService } from "./viewport.service";
+import { ViewService } from "../view.service";
 import { consts } from "src/environments/consts";
 
 /**
@@ -27,7 +27,7 @@ export class ToolsService {
     private zoomTool: ZoomTool,
     private selectionTool: SelectionTool,
     private outlineService: OutlineService,
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {
@@ -144,7 +144,7 @@ export class ToolsService {
     if (bounds) {
       bounds = Utils.matrixRectTransform(
         bounds,
-        this.viewportService.viewport.getScreenCTM().inverse()
+        this.viewService.viewport.getScreenCTM().inverse()
       );
       bounds = Utils.shrinkRect(bounds, consts.fitToSelectedExtraBounds);
       this.fitViewport(bounds);

@@ -1,10 +1,14 @@
 import { MatrixTransform } from "./matrix-transform";
+import { TransformsService } from "./transforms.service";
 
 export class RectTransform extends MatrixTransform {
   tranformPropertyX = "x";
   tranformPropertyY = "y";
-  constructor(element: SVGGraphicsElement) {
-    super(element);
+  constructor(
+    element: SVGGraphicsElement,
+    transformsService: TransformsService
+  ) {
+    super(element, transformsService);
   }
 
   beginMouseTransaction(mousePos: DOMPoint) {
@@ -21,6 +25,7 @@ export class RectTransform extends MatrixTransform {
     let offsetX = 0;
     let offsetY = 0;
     const transformList = element.transform.baseVal;
+    let changed = false;
     if (transformList.numberOfItems === 1) {
       const transform = transformList[0];
       if (transform.type === transform.SVG_TRANSFORM_TRANSLATE) {
@@ -28,6 +33,7 @@ export class RectTransform extends MatrixTransform {
         offsetX = transform.matrix.e;
         offsetY = transform.matrix.f;
         element.removeAttribute("transform");
+        changed = true;
       }
     } else if (transformList.numberOfItems > 1) {
       let consilidationRequired = true;
@@ -58,15 +64,22 @@ export class RectTransform extends MatrixTransform {
 
         transform.setMatrix(toSet);
         element.transform.baseVal.initialize(transform);
+        changed = true;
       }
     }
 
     if (offsetX) {
       this.setX(this.element[this.tranformPropertyX].baseVal.value + offsetX);
+      changed = true;
     }
 
     if (offsetY) {
       this.setY(this.element[this.tranformPropertyY].baseVal.value + offsetY);
+      changed = true;
+    }
+
+    if (changed) {
+      this.transformsService.emitTransformed(this.element);
     }
   }
   /**
@@ -97,5 +110,6 @@ export class RectTransform extends MatrixTransform {
   translate(point: DOMPoint) {
     this.setX(point.x);
     this.setY(point.y);
+    this.transformsService.emitTransformed(this.element);
   }
 }

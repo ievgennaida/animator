@@ -32,6 +32,24 @@ export class Utils {
   static getBoundingClientRect(...elements: SVGGraphicsElement[]): DOMRect {
     return Utils.getBounds(true, ...elements);
   }
+  public static getDOMPoint(x: number, y: number): DOMPoint {
+    return new DOMPoint(x, y);
+  }
+  public static RoundTwo(num: number) {
+    return Math.round(num * 100) / 100;
+  }
+  public static setCTM(element: SVGElement | any, matrix: DOMMatrix) {
+    const transform = element.ownerSVGElement.createSVGTransform();
+    transform.setMatrix(matrix);
+    element.transform.baseVal.initialize(transform);
+  }
+
+  public static getCTM(element: SVGElement | any): DOMMatrix {
+    if (!element) {
+      return null;
+    }
+    return element.getCTM();
+  }
 
   private static getBounds(
     clientRect: boolean,

@@ -2,7 +2,7 @@ import { Injectable, NgZone } from "@angular/core";
 import { LoggerService } from "../../logger.service";
 import { OutlineService } from "../../outline.service";
 import { TreeNode } from "src/app/models/tree-node";
-import { ViewportService } from "../viewport.service";
+import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
 import { AdornersDataService } from "../adorners/adorners-data.service";
@@ -19,7 +19,7 @@ import { ElementContainerService } from '../../element-container.service';
 export class BoundsRenderer extends BaseRenderer {
   renderableElements = [];
   constructor(
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     private adornersDataService: AdornersDataService,
     protected outlineService: OutlineService,
     protected logger: LoggerService,
@@ -201,7 +201,7 @@ export class BoundsRenderer extends BaseRenderer {
 
   redraw(ctx: CanvasRenderingContext2D) {
     this.clearBackground(ctx);
-    const parent = this.viewportService.viewport
+    const parent = this.viewService.viewport
       .ownerSVGElement as SVGSVGElement;
     const parentCTM =  this.canvasCTM.multiply(parent.getScreenCTM().inverse());
 

@@ -2,7 +2,7 @@ import { BaseTool } from "./base.tool";
 import { MouseEventArgs } from "./mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
-import { ViewportService } from "./viewport.service";
+import { ViewService } from "../view.service";
 import { CursorService, CursorType } from '../cursor.service';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class PanTool extends BaseTool {
   iconName = "pan_tool";
 
   constructor(
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     private logger: LoggerService,
     private cursor: CursorService
   ) {
@@ -34,14 +34,14 @@ export class PanTool extends BaseTool {
   }
 
   onViewportMouseDown(event: MouseEventArgs) {
-    if (!this.viewportService.isInit()) {
+    if (!this.viewService.isInit()) {
       return;
     }
 
     event.preventDefault();
     event.handled = true;
-    this.svgMatrix = this.viewportService.getCTM();
-    const point = this.viewportService.toSvgPoint(event.clientX, event.clientY);
+    this.svgMatrix = this.viewService.getCTM();
+    const point = this.viewService.toSvgPoint(event.clientX, event.clientY);
     this.mouseDownPos = point.matrixTransform(this.svgMatrix.inverse());
     this.cursor.setCursor(CursorType.Grabbing);
   }
@@ -51,13 +51,13 @@ export class PanTool extends BaseTool {
     this.mouseDownPos = null;
   }
   onWindowMouseMove(event: MouseEventArgs) {
-    if (!this.viewportService.isInit() || !this.mouseDownPos) {
+    if (!this.viewService.isInit() || !this.mouseDownPos) {
       return;
     }
 
     event.preventDefault();
     event.handled = true;
-    const currentPoint = this.viewportService.toSvgPoint(
+    const currentPoint = this.viewService.toSvgPoint(
       event.clientX,
       event.clientY
     );
@@ -71,14 +71,14 @@ export class PanTool extends BaseTool {
       point.y - this.mouseDownPos.y
     );
 
-    this.viewportService.setCTM(this.svgMatrix);
+    this.viewService.setCTM(this.svgMatrix);
   }
 
   onWindowMouseUp(event: MouseEventArgs) {
     if (this.mouseDownPos) {
       event.preventDefault();
       event.handled = true;
-      const currentPoint = this.viewportService.toSvgPoint(
+      const currentPoint = this.viewService.toSvgPoint(
         event.clientX,
         event.clientY
       );
@@ -89,10 +89,10 @@ export class PanTool extends BaseTool {
   }
 
   pan(panX: number, panY: number) {
-    const matrix = this.viewportService.getCTM();
+    const matrix = this.viewService.getCTM();
     matrix.e = panX;
     matrix.f = panY;
-    this.viewportService.setCTM(matrix);
+    this.viewService.setCTM(matrix);
   }
 
   /**
@@ -100,17 +100,16 @@ export class PanTool extends BaseTool {
    * @param rect rectagle to fit view for. use player svg if null.
    */
   fit(rect: DOMRect = null) {
-    if (!this.viewportService.isInit()) {
+    if (!this.viewService.isInit()) {
       this.logger.log(
         "Pan: cannot center content. vieport should be initiazed first."
       );
       return;
     }
 
-    const matrix = this.viewportService.getCTM();
-    const zoom = matrix.a;
+    const zoom = this.viewService.getZoom()
     if (!rect) {
-      rect = this.viewportService.getWorkAreaSize();
+      rect = this.viewService.getWorkAreaSize();
     }
 
     const h = rect.height * zoom;
@@ -118,7 +117,7 @@ export class PanTool extends BaseTool {
     const x = rect.x * zoom;
     const y = rect.y * zoom;
 
-    const parent = this.viewportService.viewport.ownerSVGElement;
+    const parent = this.viewService.viewport.ownerSVGElement;
     const parentWidth = parent.clientWidth;
     const parentHeight = parent.clientHeight;
 

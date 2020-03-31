@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   OnDestroy,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
@@ -11,20 +11,20 @@ import { takeUntil } from "rxjs/operators";
 import { Subject } from "rxjs";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
-import { ViewportService } from "src/app/services/viewport/viewport.service";
+import { ViewService } from "src/app/services/view.service";
 
 @Component({
   selector: "app-player-toolbar",
   templateUrl: "./player-toolbar.component.html",
   styleUrls: ["./player-toolbar.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerToolbarComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
   showGridLines = this.adornersRenderer.showGridLinesSubject.getValue();
 
   constructor(
-    private viewportService: ViewportService,
+    private viewService: ViewService,
     private zoomTool: ZoomTool,
     private cdRef: ChangeDetectorRef,
     private toolsService: ToolsService,
@@ -38,22 +38,17 @@ export class PlayerToolbarComponent implements OnInit, OnDestroy {
     this.adornersRenderer.showGridLinesSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
-      .subscribe(gridLines => {
+      .subscribe((gridLines) => {
         if (gridLines !== this.showGridLines) {
           this.showGridLines = gridLines;
           this.cdRef.markForCheck();
         }
       });
 
-    this.viewportService.transformed
+    this.viewService.transformed
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
-        let value = "";
-        const ctm = this.viewportService.getCTM();
-        if (ctm) {
-          value = String((ctm.a * 100).toFixed(2));
-        }
-
+        const value = String((this.viewService.getZoom() * 100).toFixed(2));
         if (value !== this.scrollbarInputValue) {
           this.scrollbarInputValue = value;
           this.cdRef.markForCheck();

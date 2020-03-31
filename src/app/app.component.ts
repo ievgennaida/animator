@@ -11,7 +11,6 @@ import { ResizeEvent } from "angular-resizable-element";
 import { DocumentService } from "./services/document.service";
 import { consts } from "src/environments/consts";
 import { ToolsService } from "./services/viewport/tools.service";
-import { ViewportService } from "./services/viewport/viewport.service";
 import { ViewService } from "./services/view.service";
 
 @Component({
@@ -27,9 +26,8 @@ export class AppComponent implements OnInit {
   constructor(
     private ngZone: NgZone,
     private self: ElementRef,
-    private viewportService: ViewportService,
-    private toolsService: ToolsService,
-    private viewService: ViewService
+    private viewService: ViewService,
+    private toolsService: ToolsService
   ) {}
 
   @ViewChild("footer", { static: true, read: ElementRef })
@@ -52,14 +50,14 @@ export class AppComponent implements OnInit {
       event.rectangle.width,
       this.self.nativeElement.clientWidth
     );
-    this.viewportService.emitViewportResized();
+    this.viewService.emitViewportResized();
   }
 
   onResizeProperties(event: ResizeEvent): void {
     this.properties.nativeElement.style.width =
       this.resize(event.rectangle.width, this.self.nativeElement.clientWidth) +
       "px";
-    this.viewportService.emitViewportResized();
+    this.viewService.emitViewportResized();
   }
 
   onResizeFooter(event: ResizeEvent): void {
@@ -67,7 +65,7 @@ export class AppComponent implements OnInit {
       event.rectangle.height,
       this.self.nativeElement.clientHeight
     );
-    this.viewportService.emitViewportResized();
+    this.viewService.emitViewportResized();
   }
 
   resize(size, maxSize) {
@@ -106,7 +104,7 @@ export class AppComponent implements OnInit {
         ) + "px";
     }
     this.out(() => {
-      this.viewportService.emitViewportResized();
+      this.viewService.emitViewportResized();
     });
   }
 
@@ -207,7 +205,7 @@ export class AppComponent implements OnInit {
         style.width = "0px";
       }
 
-      this.viewportService.emitViewportResized();
+      this.viewService.emitViewportResized();
     });
   }
 }

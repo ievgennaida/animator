@@ -1,54 +1,45 @@
-import { Injectable } from "@angular/core";
 import { BaseTool } from "./base.tool";
 import { MouseEventArgs } from "./mouse-event-args";
-import { ViewportService } from "./viewport.service";
+import { ViewService } from "../view.service";
 import { LoggerService } from "../logger.service";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
-import { Utils } from '../utils/utils';
+import { TransformsService } from "./transformations/transforms.service";
+import { SelectorRenderer } from "./renderers/selector.renderer";
 
-@Injectable({
-  providedIn: "root"
-})
 export class BaseSelectionTool extends BaseTool {
   cacheIndex = 0;
+
   constructor(
-    protected viewportService: ViewportService,
+    protected selectorRenderer: SelectorRenderer,
+    protected transformsService: TransformsService,
+    protected viewService: ViewService,
     protected logger: LoggerService,
     protected panTool: PanTool
   ) {
     super();
-    this.viewportService.transformed.subscribe(() => {
+    this.viewService.viewportResize.subscribe(() => {
       this.cacheIndex++;
       this.trackMousePos(this.currentArgs);
-      this.updateSelectorUi();
-    });
-
-    this.viewportService.viewportResize.subscribe(() => {
-      this.updateSelectorUi();
+      this.selectorRenderer.drawSelector(this.selectionRect);
     });
   }
 
   iconName = "navigation";
-  selectionRectElement: HTMLElement;
   protected containerRect: DOMRect = null;
   protected selectionRect: DOMRect = null;
   protected startPos: DOMPoint = null;
   protected currentArgs: MouseEventArgs = null;
   protected click = false;
-  private updating = false;
   private autoPanIntervalRef = null;
   autoPanSpeed = 0;
-  init(element: HTMLElement) {
-    this.selectionRectElement = element;
-  }
 
   onViewportMouseDown(e: MouseEventArgs) {
     this.startPos = this.trackMousePos(e);
-    this.containerRect = this.viewportService.getContainerClientRect();
-    const bounds = this.viewportService.getDisplayedBounds();
+    this.containerRect = this.viewService.getContainerClientRect();
+    const bounds = this.viewService.getDisplayedBounds();
     if (bounds) {
-      const zoom = this.viewportService.getZoom();
+      const zoom = this.viewService.getZoom();
       this.autoPanSpeed =
         consts.autoPanSpeed * zoom * Math.abs(bounds.from.x - bounds.to.x);
     }
@@ -90,7 +81,7 @@ export class BaseSelectionTool extends BaseTool {
     event.preventDefault();
     this.currentArgs = event;
     this.trackMousePos(event);
-    this.updateSelectorUi();
+    this.selectorRenderer.drawSelector(this.selectionRect);
     this.startAutoPan();
     this.selectionUpdate(event, this.selectionRect);
   }
@@ -102,7 +93,7 @@ export class BaseSelectionTool extends BaseTool {
     this.containerRect = null;
     this.click = false;
     this.stopAutoPan();
-    this.updateSelectorUi();
+    this.selectorRenderer.drawSelector(this.selectionRect);
   }
 
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect) {
@@ -111,7 +102,7 @@ export class BaseSelectionTool extends BaseTool {
       return;
     }
 
-    const pan = this.viewportService.getPan();
+    const pan = this.viewService.getPan();
     let done = false;
     // TODO: determine autopan automatically.
     const panByMouseSpeed = this.autoPanSpeed;
@@ -162,43 +153,8 @@ export class BaseSelectionTool extends BaseTool {
     }
   }
 
-  updateSelectorUi() {
-    if (this.updating) {
-      return;
-    }
-
-    this.updating = true;
-
-    if (!this.selectionRect) {
-      if (
-        this.selectionRectElement &&
-        this.selectionRectElement.getAttribute("display") !== "none"
-      ) {
-        this.selectionRectElement.setAttribute("display", "none");
-      }
-      this.updating = false;
-      return;
-    }
-
-    const rect = Utils.matrixRectTransform(
-      this.selectionRect,
-      this.viewportService.getCTM()
-    );
-    const matrix = this.viewportService.viewport.ownerSVGElement
-      .createSVGMatrix()
-      .translate(rect.x, rect.y);
-
-    this.viewportService.setCTMForElement(this.selectionRectElement, matrix);
-    this.selectionRectElement.setAttribute("display", "initial");
-    const w = (Math.round(rect.width * 100) / 100).toString();
-    this.selectionRectElement.setAttribute("width", w);
-    const h = (Math.round(rect.height * 100) / 100).toString();
-    this.selectionRectElement.setAttribute("height", h);
-    this.updating = false;
-  }
-
   getMousePos(event: MouseEventArgs) {
-    const point = this.viewportService.toSvgPoint(
+    const point = this.viewService.toSvgPoint(
       event.clientX - this.containerRect.left,
       event.clientY - this.containerRect.top,
       true
@@ -212,7 +168,7 @@ export class BaseSelectionTool extends BaseTool {
     }
 
     if (!this.containerRect) {
-      this.containerRect = this.viewportService.getContainerClientRect();
+      this.containerRect = this.viewService.getContainerClientRect();
     }
 
     const pos = this.getMousePos(event);
