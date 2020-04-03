@@ -8,6 +8,8 @@ export class MouseEventArgs {
   // Normalized deltaY
   deltaY = 0;
   handled = false;
+  ctrlKey = false;
+  shiftKey = false;
   args: MouseEvent | TouchEvent | WheelEvent;
   preventDefault() {
     if (this.args) {
@@ -25,7 +27,8 @@ export class MouseEventArgs {
     if (!event) {
       return;
     }
-
+    this.ctrlKey = this.args.ctrlKey;
+    this.shiftKey = this.args.shiftKey;
     if (event instanceof WheelEvent) {
       const wheel = this.args as WheelEvent;
       if (wheel.deltaY < 0) {

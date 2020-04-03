@@ -57,11 +57,11 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
   setSelected(event: MouseEvent, node: TreeNode) {
     let mode = SelectionMode.Normal;
     const nodes = [];
-    if (event.ctrlKey) {
+    if (event && event.ctrlKey) {
       nodes.push(node);
       mode = SelectionMode.Revert;
       OutlineNodeComponent.lastSelected = node;
-    } else if (event.shiftKey) {
+    } else if (event && event.shiftKey) {
       const selected = OutlineNodeComponent.lastSelected;
       if (
         selected &&

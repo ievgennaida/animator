@@ -92,7 +92,7 @@ export class ZoomTool extends BaseSelectionTool {
 
     let direction = -1;
     const e = event.args as MouseEvent;
-    if (e.shiftKey || e.ctrlKey || e.button === 2) {
+    if (e || e.shiftKey || e.ctrlKey || e.button === 2) {
       direction = 1;
     }
 
