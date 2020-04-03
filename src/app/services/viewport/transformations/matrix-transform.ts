@@ -1,11 +1,16 @@
 import { DecomposedMatrix } from "./decompose-matrix";
 import { Utils } from "../../utils/utils";
 import { TransformsService } from "./transforms.service";
-
+export enum TransformationMode {
+  Skew,
+  Translate,
+  Rotate,
+}
 export class MatrixTransform {
   offset: DOMPoint = null;
   startOffset = 0;
   vertical = true;
+  mode: TransformationMode = TransformationMode.Translate;
 
   /**
    *
@@ -17,9 +22,11 @@ export class MatrixTransform {
 
   beginMouseTransaction(pos: DOMPoint) {
     this.offset = this.transformScreenToElement(this.element, pos);
+    this.mode = TransformationMode.Translate;
   }
 
   beginSkewTransaction(pos: DOMPoint, vertical: boolean = false) {
+    this.mode = TransformationMode.Skew;
     this.vertical = vertical;
     const centerBox = Utils.getCenterTransform(this.element);
     this.offset = pos;
@@ -30,7 +37,9 @@ export class MatrixTransform {
       ? tranformedCenter.x - pos.x
       : tranformedCenter.y - pos.y;
   }
+
   beginMouseRotateTransaction(pos: DOMPoint) {
+    this.mode = TransformationMode.Rotate;
     const transformOrigin = this.getTransformOrigin();
     const tranformedCenter = transformOrigin.matrixTransform(
       this.element.getScreenCTM()
@@ -77,6 +86,16 @@ export class MatrixTransform {
       element.getScreenCTM().inverse()
     );
     return current;
+  }
+
+  transformByMouse(screenPos: DOMPoint) {
+    if (this.mode === TransformationMode.Rotate) {
+      this.rotateByMouse(screenPos);
+    } else if (this.mode === TransformationMode.Skew) {
+      this.skewByMouse(screenPos);
+    } else if (this.mode === TransformationMode.Translate) {
+      this.moveByMouse(screenPos);
+    }
   }
 
   moveByMouse(screenPos: DOMPoint) {

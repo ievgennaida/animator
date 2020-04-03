@@ -22,10 +22,9 @@ export class SelectionTool extends BaseSelectionTool {
   iconName = "navigation";
   renderableElements: Array<TreeNode> = [];
   cachedMouse: TreeNode = null;
-  nodeTransform: TreeNode = null;
+  startedNode: TreeNode = null;
   lastDeg: number = null;
-  transformation: MatrixTransform = null;
-  transformations = null;
+  transformations: Array<MatrixTransform> = null;
   constructor(
     transformsService: TransformsService,
     viewService: ViewService,
@@ -66,10 +65,10 @@ export class SelectionTool extends BaseSelectionTool {
     this.lastDeg = null;
     super.selectionStarted(event);
 
-    const nodeTransform = this.outlineService.mouseOverSubject.getValue();
-    if (nodeTransform) {
-      this.nodeTransform = nodeTransform;
-      if (!nodeTransform || !nodeTransform.selected) {
+    const startedNode = this.outlineService.mouseOverSubject.getValue();
+    if (startedNode) {
+      this.startedNode = startedNode;
+      if (!startedNode || !startedNode.selected) {
         return;
       }
 
@@ -88,24 +87,10 @@ export class SelectionTool extends BaseSelectionTool {
 
       transformations.forEach((p) => p.moveByMouse(event.getDOMPoint()));
       this.transformations = transformations;
-
-      const element = nodeTransform.getElement();
-      this.transformation = this.transformFactory.getTransformForElement(
-        element
-      );
-
-      if (this.transformation) {
-        // this.transformation.beginSkewTransaction(event.getDOMPoint());
-        if (event.args.ctrlKey) {
-          this.transformation.beginMouseRotateTransaction(event.getDOMPoint());
-        } else {
-          this.transformation.beginMouseTransaction(event.getDOMPoint());
-        }
-      }
     }
     // Use when accurate selection will be implemented, or to select groups:
-    /* if (!this.nodeTransform) {
-      this.nodeTransform = this.getIntersects(true) as TreeNode;
+    /* if (!this.startedNode) {
+      this.startedNode = this.getIntersects(true) as TreeNode;
     } */
   }
 
@@ -149,24 +134,20 @@ export class SelectionTool extends BaseSelectionTool {
 
   cleanUp() {
     this.lastDeg = null;
-    this.nodeTransform = null;
+    this.startedNode = null;
     super.cleanUp();
     this.cursor.setCursor(CursorType.Default);
   }
 
   onWindowMouseMove(event: MouseEventArgs) {
-    if (
-      this.nodeTransform &&
-      this.nodeTransform.selected &&
-      this.containerRect
-    ) {
-      const element = this.nodeTransform.getElement();
+    if (this.startedNode && this.startedNode.selected && this.containerRect) {
+      const element = this.startedNode.getElement();
       if (element) {
         // this.rotateByMouse(event, element);
         this.moveByMouse(event, element);
       }
     } else {
-      if (this.nodeTransform) {
+      if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
         super.onWindowMouseMove(event);
@@ -191,19 +172,10 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {
-    const screenPos = event.getDOMPoint();
-    if (this.transformation) {
-      // this.transformation.skewByMouse(screenPos);
-      if (this.transformation.offset) {
-        this.transformations.forEach((transformation) => {
-          transformation.moveByMouse(screenPos);
-        });
-        //this.transformFactory.getTransformForElement();
-        //elementsToTransform.forEach((transformation) => transformation.moveByMouse(screenPos));
-        //this.transformation.;
-      } else {
-        this.transformation.rotateByMouse(screenPos);
-      }
+    if (this.transformations) {
+      const screenPos = event.getDOMPoint();
+      // TODO: update adorners only once:
+      this.transformations.forEach((p) => p.transformByMouse(screenPos));
     }
   }
 
@@ -232,7 +204,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   onPlayerMouseOver(event: MouseEventArgs) {
-    if (this.nodeTransform) {
+    if (this.startedNode) {
       return;
     }
 
@@ -261,7 +233,7 @@ export class SelectionTool extends BaseSelectionTool {
     if (this.click) {
       const mouseOverTransform = this.outlineService.mouseOverSubject.getValue();
       this.outlineService.setSelected(mouseOverTransform, mode);
-    } else if (!this.nodeTransform) {
+    } else if (!this.startedNode) {
       const selected = this.getIntersects() as TreeNode[];
       this.outlineService.setSelected(selected, mode);
     }
