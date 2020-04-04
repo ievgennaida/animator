@@ -27,7 +27,7 @@ export class MouseOverRenderer extends BaseRenderer {
     this.clear();
     if (this.node && this.node.mouseOver && !this.node.selected) {
       const element = this.node.getElement();
-      if(!element){
+      if (!element) {
         return;
       }
       let adornerData = this.adornersDataService.getElementAdornerData(element);
