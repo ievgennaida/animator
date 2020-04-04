@@ -35,6 +35,7 @@ export class SvgTreeParser {
     const root = new TreeNode();
     root.tag = document;
     root.name = document.title;
+    root.transformable = false;
     const collection = [root];
     this.addChildNodes(root, collection, element);
     return collection;

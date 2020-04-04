@@ -66,6 +66,7 @@ export class TreeNode {
   lane: AnimationTimelineLane;
   layer?: baseLayer;
   level: number;
+  transformable = true;
   // TODO: create cache controller for this.
   cache: any;
   cacheIndex: number;

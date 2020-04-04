@@ -24,7 +24,6 @@ export class SvgInitializer implements IInitializer {
 
     let root: any = toSet.documentElement;
     root = root as SVGSVGElement;
-    const rect = root.getBBox();
 
     const svgcontent = host.ownerDocument.adoptNode<SVGSVGElement>(
       root as SVGSVGElement

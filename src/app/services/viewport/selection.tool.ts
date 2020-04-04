@@ -12,7 +12,7 @@ import { SelectorRenderer } from "./renderers/selector.renderer";
 import { CursorService, CursorType } from "../cursor.service";
 import { MatrixTransform } from "./transformations/matrix-transform";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
-import { MouseOverRenderer } from './renderers/mouse-over.renderer';
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 
 /**
  * Select elements by a mouse move move.
@@ -81,7 +81,7 @@ export class SelectionTool extends BaseSelectionTool {
       const nodesToSelect = this.outlineService
         .getSelectedNodes()
         .map((item) => this.getTopSelectedNode(item))
-        .filter((value, index, self) => self.indexOf(value) === index);
+        .filter((value, index, self) => value && self.indexOf(value) === index);
 
       const transformations = nodesToSelect.map((p) => {
         const transformation = this.transformFactory.getTransformForElement(
@@ -163,15 +163,19 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   getTopSelectedNode(node: TreeNode) {
-    if (!node.selected) {
+    if (!node.selected || !node.transformable) {
       return null;
     }
 
     let toReturn = node;
     while (node != null) {
       node = node.parent;
-      if (node && node.selected) {
-        toReturn = node;
+      if (node) {
+        if (node.selected && node.transformable) {
+          toReturn = node;
+        } else if (!node.transformable) {
+          break;
+        }
       }
     }
 

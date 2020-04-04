@@ -1,7 +1,6 @@
 import {
   InputDocument
 } from "src/app/models/input-document";
-import { Injectable } from "@angular/core";
 import { LottieModel } from "../../models/Lottie/LottieModel";
 import {
   default as lottie,
