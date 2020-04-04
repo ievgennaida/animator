@@ -12,6 +12,7 @@ import { SelectorRenderer } from "./renderers/selector.renderer";
 import { CursorService, CursorType } from "../cursor.service";
 import { MatrixTransform } from "./transformations/matrix-transform";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
+import { MouseOverRenderer } from './renderers/mouse-over.renderer';
 
 /**
  * Select elements by a mouse move move.
@@ -35,6 +36,7 @@ export class SelectionTool extends BaseSelectionTool {
     private boundsRenderer: BoundsRenderer,
     private transformFactory: TransformsService,
     private outlineService: OutlineService,
+    private mouseOverRenderer: MouseOverRenderer,
     private cursor: CursorService
   ) {
     super(selectorRenderer, transformsService, viewService, logger, panTool);
@@ -66,7 +68,9 @@ export class SelectionTool extends BaseSelectionTool {
   selectionStarted(event: MouseEventArgs) {
     this.lastDeg = null;
     super.selectionStarted(event);
-
+    // Dont draw mouse over when transformation is started:
+    this.mouseOverRenderer.clear();
+    this.mouseOverRenderer.suspend();
     const startedNode = this.outlineService.mouseOverSubject.getValue();
     if (startedNode) {
       this.startedNode = startedNode;
@@ -135,6 +139,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   cleanUp() {
+    this.mouseOverRenderer.resume();
     this.lastDeg = null;
     this.startedNode = null;
     super.cleanUp();
@@ -210,10 +215,6 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   onPlayerMouseOver(event: MouseEventArgs) {
-    if (this.startedNode) {
-      return;
-    }
-
     const node = this.renderableElements.find(
       (p) => p.tag === event.args.target
     );

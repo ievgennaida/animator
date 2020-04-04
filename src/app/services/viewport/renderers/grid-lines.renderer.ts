@@ -1,12 +1,12 @@
 import { Injectable, NgZone } from "@angular/core";
 import { ViewService } from "../../view.service";
 import { LoggerService } from "../../logger.service";
-import { PanTool } from "../pan.tool";
 import { consts } from "src/environments/consts";
-import { BaseRenderer } from './base.renderer';
+import { BaseRenderer } from "./base.renderer";
+import { BehaviorSubject } from "rxjs";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class GridLinesRenderer extends BaseRenderer {
   constructor(
@@ -16,18 +16,39 @@ export class GridLinesRenderer extends BaseRenderer {
     super();
   }
 
-  options = {
-    keysPerSecond: 60,
-    snapsPerSeconds: 5, // from 1 to 60
-    // approximate step in px for 1 tick
-    tickPx: 120,
-    smallTickPx: 75,
-    smallSteps: 50,
-    // additional left margin to start the gauge from
-    marginLeft: 0,
-    marginRight: 0,
-    denominators: [1, 2, 5, 10]
-  };
+  showGridLinesSubject = new BehaviorSubject<boolean>(consts.showGridLines);
+  rulerVCTX: CanvasRenderingContext2D = null;
+  rulerHCTX: CanvasRenderingContext2D = null;
+
+  denominators = [1, 2, 5, 10];
+  toogleShowGridLines() {
+    this.showGridLinesSubject.next(!this.showGridLinesSubject.getValue());
+    this.invalidate();
+  }
+  showGridLines() {
+    return this.showGridLinesSubject.getValue();
+  }
+  setRulers(
+    rulerHElement: HTMLCanvasElement,
+    rulerVElement: HTMLCanvasElement
+  ) {
+    this.rulerVCTX = this.initContext(rulerVElement);
+    this.rulerHCTX = this.initContext(rulerHElement);
+    this.onViewportSizeChanged();
+  }
+
+  public onViewportSizeChanged() {
+    this.suspend();
+    super.onViewportSizeChanged();
+    if (
+      this.rescaleCanvas(this.rulerHCTX) ||
+      this.rescaleCanvas(this.rulerVCTX)
+    ) {
+      this.invalidate();
+    }
+
+    this.resume();
+  }
 
   valToPx(min, max, val, displaySize) {
     const distance = this.getDistance(min, max);
@@ -36,7 +57,8 @@ export class GridLinesRenderer extends BaseRenderer {
     const ratioDistances = distanceOnLine / distance;
 
     let pointOnLine = -ratioDistances * 0 + ratioDistances * displaySize;
-    pointOnLine += this.options.marginLeft;
+    // Margin left:
+    pointOnLine += 0;
     return pointOnLine;
   }
 
@@ -44,7 +66,7 @@ export class GridLinesRenderer extends BaseRenderer {
     let step = originaStep;
     let lastDistance = null;
     const pow = this.getPowArgument(originaStep);
-    const denominators = this.options.denominators;
+    const denominators = this.denominators;
     for (const denominator of denominators) {
       const calculatedStep = denominator * Math.pow(10, pow);
       if (divisionCheck && divisionCheck % calculatedStep !== 0) {
@@ -217,20 +239,30 @@ export class GridLinesRenderer extends BaseRenderer {
     adornersCTX.restore();
   }
 
-  redraw(
-    ctx: CanvasRenderingContext2D,
-    rulerWCTX: CanvasRenderingContext2D,
-    rulerHCTX: CanvasRenderingContext2D,
-    drawGridLines: boolean = true
-  ) {
+  redraw() {
+    if (!this.rulerVCTX || !this.rulerHCTX || !this.ctx) {
+      return;
+    }
     this.invalidated = false;
-    this.clearBackground(ctx);
-    this.clearBackground(rulerWCTX);
-    this.clearBackground(rulerHCTX);
+    this.clear();
+    this.clearBackground(this.rulerVCTX);
+    this.clearBackground(this.rulerHCTX);
     const bounds = this.viewService.getDisplayedBounds();
     if (bounds) {
-      this.drawTicks(ctx, rulerWCTX, bounds.from.x, bounds.to.x, drawGridLines);
-      this.drawTicks(ctx, rulerHCTX, bounds.from.y, bounds.to.y, drawGridLines);
+      this.drawTicks(
+        this.ctx,
+        this.rulerVCTX,
+        bounds.from.x,
+        bounds.to.x,
+        this.showGridLines()
+      );
+      this.drawTicks(
+        this.ctx,
+        this.rulerHCTX,
+        bounds.from.y,
+        bounds.to.y,
+        this.showGridLines()
+      );
     }
   }
 

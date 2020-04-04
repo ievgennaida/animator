@@ -29,6 +29,8 @@ import { ColorComponent } from './components/properties/color/color.component';
 import { OutlineNodeComponent } from './components/outline/outline-node/outline-node.component';
 import { MainToolbarComponent } from './components/main-toolbar/main-toolbar.component';
 import { PlayerToolbarComponent } from './components/player/player-toolbar/player-toolbar.component';
+import { PlayerAdornersComponent } from './components/player/player-adorners/player-adorners.component';
+import { PlayerAdornerComponent } from './components/player/player-adorners/player-adorner/player-adorner.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,9 @@ import { PlayerToolbarComponent } from './components/player/player-toolbar/playe
     ColorComponent,
     OutlineNodeComponent,
     MainToolbarComponent,
-    PlayerToolbarComponent
+    PlayerToolbarComponent,
+    PlayerAdornersComponent,
+    PlayerAdornerComponent
   ],
   imports: [
     ResizableModule,

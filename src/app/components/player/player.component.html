@@ -12,8 +12,7 @@
             (mousedown)="onViewportMouseDown($event)" (mouseup)="onViewportMouseUp($event)"
             (touchend)="onViewportTouchEnd($event)" (touchmove)="onViewportTouchMove($event)"
             (mouseleave)="onViewportMouseLeave($event)" (touchleave)="onViewportTouchLeave($event)"
-            (blur)="onViewportBlur($event)" (wheel)="onViewportMouseWheel($event)"
-            (contextmenu)="onContextMenu($event)"
+            (blur)="onViewportBlur($event)" (wheel)="onViewportMouseWheel($event)" (contextmenu)="onContextMenu($event)"
             (touchcancel)="onViewportTouchCancel($event)">
             <g #svgViewport class="svg-viewport">
                 <rect class="shadow-workarea" x="0" y="0" width="640" height="480" vector-effect="non-scaling-stroke"
@@ -25,30 +24,16 @@
                     [attr.x]="workAreaSize.x" (mouseout)="onPlayerMouseOut($event)"
                     (mouseover)="onPlayerMouseOver($event)" [attr.y]="workAreaSize.y">
                     <rect fill="white" x="0" y="0" width="640" height="480">
-
                     </rect>
                 </svg>
-            </g>
-            <g>
-                <rect #selectionRectangleAdorner display="none" vector-effect="non-scaling-stroke"
-                    shape-rendering="crispEdges" class="selection-rectangle" x="0" y="0" width="0" height="0" />
             </g>
         </svg>
         <div class="viewport-units">
             px
         </div>
-        <canvas #rulerH class="canvas-ruler-h">
-
-        </canvas>
-        <canvas #rulerW class="canvas-ruler-w">
-
-        </canvas>
-        <canvas #gridLinesAdorner class="canvas-adorners">
-
-        </canvas>
-        <canvas #canvasAdorners class="canvas-adorners">
-
-        </canvas>
+        <canvas #rulerH class="canvas-ruler-h"></canvas>
+        <canvas #rulerV class="canvas-ruler-v"></canvas>
+        <app-player-adorners></app-player-adorners>
     </div>
     <button [style.height.px]="scrollbarSize" [style.width.px]="scrollbarSize" mat-button #resetButton
         class="reset-button" (click)="fitViewport()">

@@ -12,6 +12,7 @@ import { Keyframe } from "../models/keyframes/Keyframe";
 import { InputDocument } from "../models/input-document";
 import { AppFactory } from "./app-factory";
 import { LoggerService } from "./logger.service";
+import { MouseOverRenderer } from './viewport/renderers/mouse-over.renderer';
 
 export enum InteractionSource {
   Outline,
@@ -28,7 +29,15 @@ export enum SelectionMode {
   providedIn: "root",
 })
 export class OutlineService {
-  constructor(private appFactory: AppFactory, private logger: LoggerService) {}
+  constructor(
+    private appFactory: AppFactory,
+    private logger: LoggerService,
+    private mouseOverRenderer: MouseOverRenderer
+  ) {
+    this.mouseOver.subscribe((treeNode:TreeNode)=>{
+      mouseOverRenderer.invalidate();
+    })
+  }
   mouseOverSubject = new BehaviorSubject<TreeNode>(null);
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
   selectedSubject = new BehaviorSubject<ChangedArgs>(new ChangedArgs());

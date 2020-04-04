@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   OnDestroy,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { UndoService } from "src/app/services/actions/undo.service";
 import { DocumentService } from "src/app/services/document.service";
@@ -11,20 +11,20 @@ import { LoggerService } from "src/app/services/logger.service";
 import { consts } from "src/environments/consts";
 import {
   InputDocument,
-  InputDocumentType
+  InputDocumentType,
 } from "src/app/models/input-document";
 import { ViewService } from "src/app/services/view.service";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { PanTool } from "src/app/services/viewport/pan.tool";
 import { ToolsService } from "src/app/services/viewport/tools.service";
-import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 import { Subject } from "rxjs";
+import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 
 @Component({
   selector: "app-main-toolbar",
   templateUrl: "./main-toolbar.component.html",
   styleUrls: ["./main-toolbar.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainToolbarComponent implements OnInit, OnDestroy {
   title = "animation";
@@ -32,7 +32,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   redoDisabled = false;
   recentItems = [];
   private destroyed$ = new Subject();
-  showGridLines = this.adornersRenderer.showGridLinesSubject.getValue();
+  showGridLines = this.gridLinesRenderer.showGridLines();
   constructor(
     private undoService: UndoService,
     private stateService: DocumentService,
@@ -41,7 +41,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private viewService: ViewService,
     private zoomTool: ZoomTool,
     private panTool: PanTool,
-    private adornersRenderer: CanvasAdornersRenderer,
+    private gridLinesRenderer: GridLinesRenderer,
     private toolsService: ToolsService
   ) {}
 
@@ -49,7 +49,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     // Load current recent items.
     this.setRecent(null);
 
-    this.stateService.document.subscribe(p => {
+    this.stateService.document.subscribe((p) => {
       if (p) {
         this.title = p.title;
       } else {
@@ -98,7 +98,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
 
     if (newRecentItem) {
       let index = this.recentItems.indexOf(
-        this.recentItems.find(p => p.name === newRecentItem.name)
+        this.recentItems.find((p) => p.name === newRecentItem.name)
       );
 
       if (index >= 0 || this.recentItems.length > consts.recentItemsCount) {
@@ -146,7 +146,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       this.stateService.setDocument(parsed, title);
       const newData = {
         name: title,
-        str: data
+        str: data,
       };
       this.setRecent(newData);
     }
@@ -173,7 +173,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.toolsService.fitViewport();
   }
   toogleGridLines() {
-    this.adornersRenderer.toogleShowGridLines();
+    this.gridLinesRenderer.toogleShowGridLines();
   }
 
   fitViewportSelected() {

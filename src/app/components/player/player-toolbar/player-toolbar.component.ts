@@ -5,13 +5,13 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { takeUntil } from "rxjs/operators";
 import { Subject } from "rxjs";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
 import { ViewService } from "src/app/services/view.service";
+import { GridLinesRenderer } from 'src/app/services/viewport/renderers/grid-lines.renderer';
 
 @Component({
   selector: "app-player-toolbar",
@@ -21,7 +21,7 @@ import { ViewService } from "src/app/services/view.service";
 })
 export class PlayerToolbarComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
-  showGridLines = this.adornersRenderer.showGridLinesSubject.getValue();
+  showGridLines = this.gridLinesRenderer.showGridLines();
 
   constructor(
     private viewService: ViewService,
@@ -29,13 +29,13 @@ export class PlayerToolbarComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef,
     private toolsService: ToolsService,
     private panTool: PanTool,
-    private adornersRenderer: CanvasAdornersRenderer
+    private gridLinesRenderer: GridLinesRenderer
   ) {}
 
   scrollbarInputValue = "100";
 
   ngOnInit(): void {
-    this.adornersRenderer.showGridLinesSubject
+    this.gridLinesRenderer.showGridLinesSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((gridLines) => {
@@ -57,7 +57,7 @@ export class PlayerToolbarComponent implements OnInit, OnDestroy {
   }
 
   toogleGridLines() {
-    this.adornersRenderer.toogleShowGridLines();
+    this.gridLinesRenderer.toogleShowGridLines();
   }
 
   setZoomLevel(zoom: any, direction = 0) {

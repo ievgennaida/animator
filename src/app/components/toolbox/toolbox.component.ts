@@ -3,7 +3,7 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectorRef,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
@@ -16,7 +16,7 @@ import { takeUntil } from "rxjs/operators";
   selector: "app-toolbox",
   templateUrl: "./toolbox.component.html",
   styleUrls: ["./toolbox.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolboxComponent implements OnInit, OnDestroy {
   constructor(
@@ -32,7 +32,7 @@ export class ToolboxComponent implements OnInit, OnDestroy {
     this.toolsService
       .activeToolChanged()
       .pipe(takeUntil(this.destroyed$))
-      .subscribe(tool => {
+      .subscribe((tool) => {
         this.activeTool = tool;
         this.cd.markForCheck();
       });

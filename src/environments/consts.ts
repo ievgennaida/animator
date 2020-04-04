@@ -3,6 +3,11 @@ export const consts = {
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
   showGridLines: true,
+  selector: {
+    fill: 'RGBA(51,153,255,0.11)',
+    stroke: "#3399FF",
+    strokeThinkness: 1
+  },
   appearance: {
     propertiesOpened: false,
     propertiesPanelSize: "250px",

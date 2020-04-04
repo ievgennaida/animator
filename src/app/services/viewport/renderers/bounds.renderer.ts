@@ -8,13 +8,13 @@ import { consts } from "src/environments/consts";
 import { AdornersDataService } from "../adorners/adorners-data.service";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
-import { ElementContainerService } from '../../element-container.service';
+import { ElementContainerService } from "../../element-container.service";
 
 /**
  * Elements bounds renderer
  */
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class BoundsRenderer extends BaseRenderer {
   renderableElements = [];
@@ -23,30 +23,12 @@ export class BoundsRenderer extends BaseRenderer {
     private adornersDataService: AdornersDataService,
     protected outlineService: OutlineService,
     protected logger: LoggerService,
-    private elements:ElementContainerService
+    private elements: ElementContainerService
   ) {
     super();
-    outlineService.flatList.subscribe(flatItems => {
+    outlineService.flatList.subscribe((flatItems) => {
       this.renderableElements = flatItems;
     });
-  }
-  drawRect(
-    ctx: CanvasRenderingContext2D,
-    parentCTM: DOMMatrix,
-    element: SVGGraphicsElement,
-    thikness: number,
-    adornerData: AdornerData
-  ) {
-    this.drawPath(
-      ctx,
-      thikness,
-      consts.adorners.mouseOverBoundsColor,
-      null,
-      adornerData.topLeft,
-      adornerData.topRight,
-      adornerData.bottomRight,
-      adornerData.bottomLeft
-    );
   }
 
   drawAdornersHandles(ctx: CanvasRenderingContext2D, adornerData: AdornerData) {
@@ -79,41 +61,6 @@ export class BoundsRenderer extends BaseRenderer {
     this.drawAdornerHandle(ctx, adornerData.leftCenter, alongH, alongW, true);
     // right center
     this.drawAdornerHandle(ctx, adornerData.rightCenter, alongHR, alongW, true);
-  }
-  drawPath(
-    ctx: CanvasRenderingContext2D,
-    thikness: number,
-    stroke: string,
-    fillStyle: string,
-    ...points: Array<DOMPoint>
-  ) {
-    ctx.beginPath();
-
-    points.forEach((point, index) => {
-      const p = point;
-      // const p = this.getSharpPos(point);
-      if (index === 0) {
-        ctx.moveTo(p.x, p.y);
-      } else {
-        ctx.lineTo(p.x, p.y);
-      }
-    });
-
-    ctx.closePath();
-
-    if (fillStyle) {
-      ctx.fillStyle = fillStyle;
-      ctx.fill();
-    }
-
-    if (thikness) {
-      ctx.lineWidth = thikness;
-    }
-
-    if (stroke && thikness) {
-      ctx.strokeStyle = stroke;
-      ctx.stroke();
-    }
   }
 
   drawAdornerHandle(
@@ -199,59 +146,60 @@ export class BoundsRenderer extends BaseRenderer {
     ctx.closePath();
   }
 
-  redraw(ctx: CanvasRenderingContext2D) {
+  redraw() {
+    if (!this.ctx) {
+      return;
+    }
+    const ctx = this.ctx;
     this.invalidated = false;
-    this.clearBackground(ctx);
-    const parent = this.viewService.viewport
-      .ownerSVGElement as SVGSVGElement;
-    const parentCTM =  this.canvasCTM.multiply(parent.getScreenCTM().inverse());
+    this.clear();
+    const parentCTM = this.screenCTM;
 
     // let selectedRect:DOMRect = null;
     // TODO: performance iterate only selected and active
     if (this.renderableElements && this.renderableElements.length > 0) {
       const renderable = this.renderableElements.filter(
-        p =>
+        (p) =>
           p.tag &&
           (p.tag instanceof SVGGraphicsElement ||
             p.tag.layerElement instanceof SVGGraphicsElement)
       );
 
-      renderable
-        .forEach((node: TreeNode) => {
-          const element = node.getElement()
+      renderable.forEach((node: TreeNode) => {
+        const element = node.getElement();
 
-          if (
-            element &&
-            element instanceof SVGGraphicsElement &&
-            (node.mouseOver || node.selected)
-          ) {
-            if (node.mouseOver && !node.selected) {
-              let adornerData = this.adornersDataService.getElementAdornerData(
-                element
-              );
-              // Convert element position on zoomed parent and then to a canvas coordites.
-              const ctm = parentCTM.multiply(element.getScreenCTM());
-              adornerData = adornerData.getTransformed(ctm);
+        if (
+          element &&
+          element instanceof SVGGraphicsElement &&
+          (node.mouseOver || node.selected)
+        ) {
+          if (node.mouseOver && !node.selected) {
+            let adornerData = this.adornersDataService.getElementAdornerData(
+              element
+            );
+            // Convert element position on zoomed parent and then to a canvas coordites.
+            const ctm = parentCTM.multiply(element.getScreenCTM());
+            adornerData = adornerData.getTransformed(ctm);
 
-              const thikness =
-                consts.adorners.mouseOverBorderThikness * this.onePixel;
-              this.drawRect(ctx, parentCTM, element, thikness, adornerData);
-            } else {
-              const thikness = 2;
-              let adornerData = this.adornersDataService.getElementAdornerData(
-                element
-              );
-              const ctm = parentCTM.multiply(element.getScreenCTM());
-              adornerData = adornerData.getTransformed(ctm);
-              this.drawRect(ctx, parentCTM, element, thikness, adornerData);
-              // draw when resized.
-              // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
-              // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-              // this.drawAdornersHandles(ctx, adornerData);
-              // this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
-            }
+            const thikness =
+              consts.adorners.mouseOverBorderThikness * this.onePixel;
+            this.drawRect(ctx, thikness, adornerData);
+          } else {
+            const thikness = 2;
+            let adornerData = this.adornersDataService.getElementAdornerData(
+              element
+            );
+            const ctm = parentCTM.multiply(element.getScreenCTM());
+            adornerData = adornerData.getTransformed(ctm);
+            this.drawRect(ctx, thikness, adornerData);
+            // draw when resized.
+            // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
+            // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
+            // this.drawAdornersHandles(ctx, adornerData);
+            // this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
           }
-        });
+        }
+      });
     }
   }
 }

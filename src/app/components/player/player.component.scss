@@ -23,7 +23,7 @@
   grid-template-columns: 20px 1fr;
   background-color: #252526;
 }
-.canvas-ruler-w {
+.canvas-ruler-v {
   touch-action: none;
   pointer-events: none;
   grid-column: 2;
@@ -50,15 +50,6 @@
   height: 100%;
   width: 100%;
   background-color: $scrollbar-color;
-}
-
-.canvas-adorners {
-  touch-action: none;
-  pointer-events: none;
-  grid-column: 2;
-  grid-row: 2;
-  height: 100%;
-  width: 100%;
 }
 
 .svg-content {
@@ -95,17 +86,12 @@ app-player-toolbar {
   fill: initial;
 }
 
-#adorners {
+app-player-adorners {
   pointer-events: none;
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.selection-rectangle {
-  stroke-width: 1;
-  stroke: black;
-  fill: rgba(0, 127, 255, 0.4);
-  stroke-dasharray: 10 4;
+  grid-column: 2;
+  grid-row: 2;
+  height: 100%;
+  width: 100%;
 }
 
 .shadow-workarea {

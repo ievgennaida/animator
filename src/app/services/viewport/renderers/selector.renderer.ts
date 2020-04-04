@@ -3,6 +3,7 @@ import { LoggerService } from "../../logger.service";
 import { Utils } from "../../utils/utils";
 import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
+import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root",
@@ -28,34 +29,45 @@ export class SelectorRenderer extends BaseRenderer {
     this.invalidate();
   }
 
+  /**
+   * .selection-rectangle {
+  stroke-width: 1;
+  stroke: black;
+  fill: rgba(0, 127, 255, 0.4);
+  stroke-dasharray: 10 4;
+}
+   */
   redraw() {
-    if (!this.selectionRectElement) {
+    if (!this.ctx) {
       return;
     }
     this.invalidated = false;
+    this.clearBackground(this.ctx);
     if (!this.rect) {
-      if (
-        this.selectionRectElement &&
-        this.selectionRectElement.getAttribute("display") !== "none"
-      ) {
-        this.selectionRectElement.setAttribute("display", "none");
-      }
       return;
     }
 
-    const rect = Utils.matrixRectTransform(
+    //const transformed = Utils.matrixRectTransform(this.rect, this.screenCTM.inverse());
+
+    const transformed = Utils.matrixRectTransform(
       this.rect,
       this.viewService.getCTM()
     );
-    const matrix = this.viewService.viewport.ownerSVGElement
-      .createSVGMatrix()
-      .translate(Utils.RoundTwo(rect.x), Utils.RoundTwo(rect.y));
-
-    Utils.setCTM(this.selectionRectElement, matrix);
-    this.selectionRectElement.setAttribute("display", "initial");
-    const w = Utils.RoundTwo(rect.width).toString();
-    this.selectionRectElement.setAttribute("width", w);
-    const h = Utils.RoundTwo(rect.height).toString();
-    this.selectionRectElement.setAttribute("height", h);
+    this.ctx.strokeStyle = consts.selector.stroke;
+    this.ctx.fillStyle = consts.selector.fill;
+    this.ctx.lineWidth = consts.selector.strokeThinkness;
+    this.ctx.fillRect(
+      transformed.x,
+      transformed.y,
+      transformed.width,
+      transformed.height
+    );
+    this.ctx.strokeRect(
+      transformed.x,
+      transformed.y,
+      transformed.width,
+      transformed.height
+    );
+    this.ctx.stroke();
   }
 }

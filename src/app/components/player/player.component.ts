@@ -12,14 +12,11 @@ import {
 
 import { Subject } from "rxjs";
 import { ToolsService } from "src/app/services/viewport/tools.service";
-import { SelectionTool } from "src/app/services/viewport/selection.tool";
 import { ViewService } from "src/app/services/view.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
-import { ZoomTool } from "src/app/services/viewport/zoom.tool";
-import { CanvasAdornersRenderer } from "src/app/services/viewport/renderers/canvas-adorners.renderer";
 import { CursorService, CursorType } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
-import { SelectorRenderer } from "src/app/services/viewport/renderers/selector.renderer";
+import { GridLinesRenderer } from 'src/app/services/viewport/renderers/grid-lines.renderer';
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
@@ -45,17 +42,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
   @ViewChild("scrollContainer", { static: true })
   scrollBarsRef: ElementRef<HTMLElement>;
 
-  @ViewChild("rulerH", { static: true })
-  rulerHRef: ElementRef<HTMLCanvasElement>;
-
-  @ViewChild("rulerW", { static: true })
-  rulerWRef: ElementRef<HTMLCanvasElement>;
-  @ViewChild("gridLinesAdorner", { static: true })
-  gridLinesAdornerRef: ElementRef<HTMLCanvasElement>;
-
-  @ViewChild("canvasAdorners", { static: true })
-  canvasAdornersRef: ElementRef<HTMLCanvasElement>;
-
   @ViewChild("svgViewport", { static: true })
   svgViewPortRef: ElementRef<SVGGraphicsElement>;
 
@@ -65,23 +51,22 @@ export class PlayerComponent implements OnInit, OnDestroy {
   @ViewChild("resetButton", { static: true })
   resetButton: ElementRef;
 
-  // Some of the adorner are predefined for the performance.
-  @ViewChild("selectionRectangleAdorner", { static: true })
-  selectionRectangleAdornerRef: ElementRef<HTMLElement>;
+  @ViewChild("rulerH", { static: true })
+  rulerHRef: ElementRef<HTMLCanvasElement>;
+
+  @ViewChild("rulerV", { static: true })
+  rulerVRef: ElementRef<HTMLCanvasElement>;
 
   private readonly defaultBrowserScrollSize = 17;
   private destroyed$ = new Subject();
   constructor(
     private viewService: ViewService,
     private toolsService: ToolsService,
-    private zoomTool: ZoomTool,
-    private selectionTool: SelectionTool,
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
-    private adornersRenderer: CanvasAdornersRenderer,
-    private cursor: CursorService,
-    private selectorRenderer: SelectorRenderer
+    private gridLinesRenderer: GridLinesRenderer,
+    private cursor: CursorService
   ) {
     // this.cdRef.detach();
   }
@@ -199,14 +184,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.cdRef.markForCheck();
       });
 
-    this.selectorRenderer.init(this.selectionRectangleAdornerRef.nativeElement);
     this.toolsService.fitViewport();
 
-    this.adornersRenderer.init(
-      this.canvasAdornersRef.nativeElement,
-      this.gridLinesAdornerRef.nativeElement,
+    this.gridLinesRenderer.setRulers(
       this.rulerHRef.nativeElement,
-      this.rulerWRef.nativeElement
+      this.rulerVRef.nativeElement
     );
   }
 

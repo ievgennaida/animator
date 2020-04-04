@@ -1,0 +1,11 @@
+:host {
+  pointer-events: none;
+  touch-action: none;
+  position: relative;
+}
+
+app-player-adorner {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
