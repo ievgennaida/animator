@@ -6,8 +6,8 @@
         </div>
     </div>
 
-    <div #svgContainer class="svg-container">
-        <svg fill="transparent" #svg class="svg-content" xmlns="http://www.w3.org/2000/svg"
+    <div #svgContainer class="svg-container noselect">
+        <svg fill="transparent" #svg class="svg-content noselect" xmlns="http://www.w3.org/2000/svg"
             xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" (touchstart)="onViewportTouchStart($event)"
             (mousedown)="onViewportMouseDown($event)" (mouseup)="onViewportMouseUp($event)"
             (touchend)="onViewportTouchEnd($event)" (touchmove)="onViewportTouchMove($event)"
