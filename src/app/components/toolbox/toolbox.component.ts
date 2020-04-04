@@ -6,8 +6,6 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { ToolsService } from "src/app/services/viewport/tools.service";
-import { PanTool } from "src/app/services/viewport/pan.tool";
-import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { BaseTool } from "src/app/services/viewport/base.tool";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
