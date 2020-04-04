@@ -29,14 +29,6 @@ export class SelectorRenderer extends BaseRenderer {
     this.invalidate();
   }
 
-  /**
-   * .selection-rectangle {
-  stroke-width: 1;
-  stroke: black;
-  fill: rgba(0, 127, 255, 0.4);
-  stroke-dasharray: 10 4;
-}
-   */
   redraw() {
     if (!this.ctx) {
       return;
@@ -46,8 +38,6 @@ export class SelectorRenderer extends BaseRenderer {
     if (!this.rect) {
       return;
     }
-
-    //const transformed = Utils.matrixRectTransform(this.rect, this.screenCTM.inverse());
 
     const transformed = Utils.matrixRectTransform(
       this.rect,
