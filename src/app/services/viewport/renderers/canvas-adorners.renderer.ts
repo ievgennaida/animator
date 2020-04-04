@@ -1,19 +1,20 @@
 import { Injectable, NgZone } from "@angular/core";
 import { LoggerService } from "../../logger.service";
 import { consts } from "src/environments/consts";
-import { RulerRenderer } from "./ruler.renderer";
 import { BoundsRenderer } from "./bounds.renderer";
 import { BaseRenderer } from "./base.renderer";
 import { BehaviorSubject } from "rxjs";
 import { OutlineService } from "../../outline.service";
 import { TransformsService } from "../transformations/transforms.service";
-import { ViewService } from '../../view.service';
+import { ViewService } from "../../view.service";
+import { GridLinesRenderer } from "./grid-lines.renderer";
+import { SelectorRenderer } from "./selector.renderer";
 
 @Injectable({
   providedIn: "root",
 })
 /**
- * Service to control the order of the canvas adorners renderings services.
+ * Service to control the order of the canvas adorners renderers.
  */
 export class CanvasAdornersRenderer extends BaseRenderer {
   rulerHElement: HTMLCanvasElement = null;
@@ -28,11 +29,12 @@ export class CanvasAdornersRenderer extends BaseRenderer {
 
   constructor(
     private boundsRenderer: BoundsRenderer,
+    private selectorRenderer: SelectorRenderer,
     private transformsService: TransformsService,
     private viewService: ViewService,
     protected logger: LoggerService,
     private ngZone: NgZone,
-    private rulerRenderer: RulerRenderer,
+    private gridLinesRenderer: GridLinesRenderer,
     protected outlineService: OutlineService
   ) {
     super();
@@ -46,7 +48,7 @@ export class CanvasAdornersRenderer extends BaseRenderer {
 
     // Individual element is transformed.
     this.transformsService.transformed.subscribe(() => {
-      this.redraw(false);
+      this.boundsRenderer.invalidate();
     });
 
     // view is transformed
@@ -57,6 +59,8 @@ export class CanvasAdornersRenderer extends BaseRenderer {
     this.viewService.viewportResize.subscribe(() => {
       this.invalidate();
     });
+
+    this.startDrawLoop();
   }
 
   init(
@@ -83,11 +87,10 @@ export class CanvasAdornersRenderer extends BaseRenderer {
   }
 
   invalidate(redrawGrid: boolean = true) {
-    // TODO: list! implement dynamic leyers
     this.canvasCTM.a = this.onePixel;
     this.canvasCTM.d = this.onePixel;
     this.ctx = this.initCanvas(this.canvasElement, this.ctx);
-    this.rescaleCanvas(this.gridElement, this.ctx);
+    this.rescaleCanvas(this.canvasElement, this.ctx);
 
     this.gridCTX = this.initCanvas(this.gridElement, this.gridCTX);
     this.rulerWCTX = this.initCanvas(this.rulerWElement, this.rulerWCTX);
@@ -98,8 +101,11 @@ export class CanvasAdornersRenderer extends BaseRenderer {
     redrawGrid = redrawGrid || changed;
     changed = this.rescaleCanvas(this.rulerHElement, this.rulerHCTX);
     redrawGrid = redrawGrid || changed;
+    if (redrawGrid) {
+      this.gridLinesRenderer.invalidate();
+    }
 
-    this.redraw(redrawGrid);
+    this.boundsRenderer.invalidate();
   }
 
   initCanvas(
@@ -147,31 +153,44 @@ export class CanvasAdornersRenderer extends BaseRenderer {
     return changed;
   }
 
-  redraw(redrawGrid: boolean = true) {
+  startDrawLoop() {
     this.ngZone.runOutsideAngular(() => {
+      const draw = () => {
+        this.redraw();
+        if (window.requestAnimationFrame) {
+          window.requestAnimationFrame(draw);
+        }
+      };
+
       if (window.requestAnimationFrame) {
-        window.requestAnimationFrame(() => {
-          this.redrawInternal(redrawGrid);
-        });
+        window.requestAnimationFrame(draw);
       } else {
-        this.redrawInternal(redrawGrid);
+        setInterval(draw, 100);
       }
     });
   }
 
-  redrawInternal(redrawGrid: boolean = true) {
-    if (redrawGrid && this.gridCTX) {
-      this.rulerRenderer.redraw(
-        this.gridCTX,
-        this.rulerWCTX,
-        this.rulerHCTX,
-        this.showGridLinesSubject.getValue()
-      );
+  private redraw() {
+    // Ordered list to redraw:
+    if (this.gridCTX) {
+      if (this.gridLinesRenderer.redrawRequired()) {
+        this.gridLinesRenderer.redraw(
+          this.gridCTX,
+          this.rulerWCTX,
+          this.rulerHCTX,
+          this.showGridLinesSubject.getValue()
+        );
+      }
     }
     this.boundsRenderer.canvasCTM = this.canvasCTM;
     if (this.ctx) {
-      // TODO: this renderer can be displated on the separate canvas for the performance.
-      this.boundsRenderer.redraw(this.ctx);
+      if (this.boundsRenderer.redrawRequired()) {
+        this.boundsRenderer.redraw(this.ctx);
+      }
+    }
+
+    if (this.selectorRenderer.redrawRequired()) {
+      this.selectorRenderer.redraw();
     }
   }
 }

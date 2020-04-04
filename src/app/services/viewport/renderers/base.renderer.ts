@@ -3,6 +3,24 @@ export class BaseRenderer {
   devicePixelRatio = window.devicePixelRatio;
   // TODO: use one pixel for different devices to draw lines sharp
   onePixel = this.devicePixelRatio;
+  suspended = false;
+  invalidated = false;
+  public suspend() {
+    this.suspended = true;
+  }
+
+  public resume() {
+    this.suspended = false;
+  }
+
+  public invalidate() {
+    this.invalidated = true;
+  }
+
+  public redrawRequired() {
+    return this.invalidated && !this.suspended;
+  }
+
   drawLine(
     ctx: CanvasRenderingContext2D,
     x1: number,
@@ -13,6 +31,7 @@ export class BaseRenderer {
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
   }
+
   clearBackground(ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
@@ -24,7 +43,6 @@ export class BaseRenderer {
       return Math.abs(x1 - y1);
     }
   }
-
   getSharpPos(point: DOMPoint, thinkess = 1) {
     point.x = this.getSharp(point.x, thinkess);
     point.y = this.getSharp(point.y, thinkess);
@@ -32,7 +50,7 @@ export class BaseRenderer {
   }
 
   getSharp(pos: number, thinkess = this.devicePixelRatio): number {
-    const offset = this.onePixel/2;
+    const offset = this.onePixel / 2;
     pos = Math.floor(pos) + offset;
     return pos;
   }

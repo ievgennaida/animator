@@ -21,7 +21,7 @@ export class BaseSelectionTool extends BaseTool {
     this.viewService.viewportResize.subscribe(() => {
       this.cacheIndex++;
       this.trackMousePos(this.currentArgs);
-      this.selectorRenderer.drawSelector(this.selectionRect);
+      this.selectorRenderer.setRect(this.selectionRect);
     });
   }
 
@@ -71,9 +71,7 @@ export class BaseSelectionTool extends BaseTool {
   }
 
   selectionStarted(e: MouseEventArgs) {}
-  selectionUpdate(event: MouseEventArgs, selectedArea: DOMRect) {
-
-  }
+  selectionUpdate(event: MouseEventArgs, selectedArea: DOMRect) {}
   selectionEnded(e: MouseEventArgs, selectedArea: DOMRect) {}
 
   onWindowMouseMove(event: MouseEventArgs) {
@@ -81,11 +79,16 @@ export class BaseSelectionTool extends BaseTool {
       return;
     }
     event.preventDefault();
-    this.currentArgs = event;
-    this.trackMousePos(event);
-    this.selectorRenderer.drawSelector(this.selectionRect);
-    this.startAutoPan();
-    this.selectionUpdate(event, this.selectionRect);
+    try {
+      this.selectorRenderer.suspend();
+      this.selectorRenderer.setRect(this.selectionRect);
+      this.currentArgs = event;
+      this.trackMousePos(event);
+      this.startAutoPan();
+      this.selectionUpdate(event, this.selectionRect);
+    } finally {
+      this.selectorRenderer.resume();
+    }
   }
 
   cleanUp() {
@@ -95,7 +98,7 @@ export class BaseSelectionTool extends BaseTool {
     this.containerRect = null;
     this.click = false;
     this.stopAutoPan();
-    this.selectorRenderer.drawSelector(this.selectionRect);
+    this.selectorRenderer.setRect(this.selectionRect);
   }
 
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect) {
@@ -188,7 +191,8 @@ export class BaseSelectionTool extends BaseTool {
         Math.max(this.startPos.y, pos.y) - this.selectionRect.y;
       if (this.click) {
         this.click =
-          this.selectionRect.width <= this.clickThreshold && this.selectionRect.height <= this.clickThreshold;
+          this.selectionRect.width <= this.clickThreshold &&
+          this.selectionRect.height <= this.clickThreshold;
       }
     } else {
       if (!this.selectionRect) {

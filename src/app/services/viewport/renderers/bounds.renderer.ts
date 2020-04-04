@@ -200,6 +200,7 @@ export class BoundsRenderer extends BaseRenderer {
   }
 
   redraw(ctx: CanvasRenderingContext2D) {
+    this.invalidated = false;
     this.clearBackground(ctx);
     const parent = this.viewService.viewport
       .ownerSVGElement as SVGSVGElement;
@@ -243,7 +244,7 @@ export class BoundsRenderer extends BaseRenderer {
               const ctm = parentCTM.multiply(element.getScreenCTM());
               adornerData = adornerData.getTransformed(ctm);
               this.drawRect(ctx, parentCTM, element, thikness, adornerData);
-                            // draw when resized.
+              // draw when resized.
               // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
               // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
               // this.drawAdornersHandles(ctx, adornerData);

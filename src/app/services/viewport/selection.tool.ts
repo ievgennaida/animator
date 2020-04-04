@@ -11,6 +11,7 @@ import { Utils } from "../utils/utils";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { CursorService, CursorType } from "../cursor.service";
 import { MatrixTransform } from "./transformations/matrix-transform";
+import { BoundsRenderer } from "./renderers/bounds.renderer";
 
 /**
  * Select elements by a mouse move move.
@@ -31,6 +32,7 @@ export class SelectionTool extends BaseSelectionTool {
     logger: LoggerService,
     panTool: PanTool,
     selectorRenderer: SelectorRenderer,
+    private boundsRenderer: BoundsRenderer,
     private transformFactory: TransformsService,
     private outlineService: OutlineService,
     private cursor: CursorService
@@ -174,8 +176,12 @@ export class SelectionTool extends BaseSelectionTool {
   moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {
     if (this.transformations) {
       const screenPos = event.getDOMPoint();
-      // TODO: update adorners only once:
-      this.transformations.forEach((p) => p.transformByMouse(screenPos));
+      try {
+        this.boundsRenderer.suspend();
+        this.transformations.forEach((p) => p.transformByMouse(screenPos));
+      } finally {
+        this.boundsRenderer.resume();
+      }
     }
   }
 

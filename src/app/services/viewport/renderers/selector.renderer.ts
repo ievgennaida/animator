@@ -2,28 +2,38 @@ import { Injectable } from "@angular/core";
 import { LoggerService } from "../../logger.service";
 import { Utils } from "../../utils/utils";
 import { ViewService } from "../../view.service";
+import { BaseRenderer } from "./base.renderer";
 
 @Injectable({
   providedIn: "root",
 })
-export class SelectorRenderer {
+export class SelectorRenderer extends BaseRenderer {
   selectionRectElement: HTMLElement;
+  rect: DOMRect;
 
   constructor(
     protected viewService: ViewService,
     protected logger: LoggerService
-  ) {}
+  ) {
+    super();
+  }
 
   init(element: HTMLElement) {
     this.selectionRectElement = element;
+    this.invalidate();
   }
 
-  drawSelector(selectionRect: DOMRect) {
+  setRect(rect: DOMRect) {
+    this.rect = rect;
+    this.invalidate();
+  }
+
+  redraw() {
     if (!this.selectionRectElement) {
       return;
     }
-
-    if (!selectionRect) {
+    this.invalidated = false;
+    if (!this.rect) {
       if (
         this.selectionRectElement &&
         this.selectionRectElement.getAttribute("display") !== "none"
@@ -34,7 +44,7 @@ export class SelectorRenderer {
     }
 
     const rect = Utils.matrixRectTransform(
-      selectionRect,
+      this.rect,
       this.viewService.getCTM()
     );
     const matrix = this.viewService.viewport.ownerSVGElement

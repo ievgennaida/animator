@@ -1,14 +1,14 @@
 import { Injectable, NgZone } from "@angular/core";
 import { ViewService } from "../../view.service";
 import { LoggerService } from "../../logger.service";
-import { PanTool } from "./../pan.tool";
+import { PanTool } from "../pan.tool";
 import { consts } from "src/environments/consts";
 import { BaseRenderer } from './base.renderer';
 
 @Injectable({
   providedIn: "root"
 })
-export class RulerRenderer extends BaseRenderer {
+export class GridLinesRenderer extends BaseRenderer {
   constructor(
     protected viewService: ViewService,
     protected logger: LoggerService
@@ -223,6 +223,7 @@ export class RulerRenderer extends BaseRenderer {
     rulerHCTX: CanvasRenderingContext2D,
     drawGridLines: boolean = true
   ) {
+    this.invalidated = false;
     this.clearBackground(ctx);
     this.clearBackground(rulerWCTX);
     this.clearBackground(rulerHCTX);
