@@ -10,7 +10,7 @@ export class AdornersDataService {
   }
 
   getElementAdornerData(renderable: SVGGraphicsElement): AdornerData {
-    if (!renderable) {
+    if (!renderable || !renderable.getBBox) {
       return null;
     }
     const screenAdorner = new AdornerData();

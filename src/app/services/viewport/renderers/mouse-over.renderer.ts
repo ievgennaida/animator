@@ -3,6 +3,7 @@ import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
 import { AdornerData } from "../adorners/adorner-data";
 import { TreeNode } from "src/app/models/tree-node";
+import { AdornersDataService } from "../adorners/adorners-data.service";
 
 /**
  * Mouse over renderer
@@ -11,24 +12,10 @@ import { TreeNode } from "src/app/models/tree-node";
   providedIn: "root",
 })
 export class MouseOverRenderer extends BaseRenderer {
-  node: TreeNode;
-  drawRect(
-    ctx: CanvasRenderingContext2D,
-    thikness: number,
-    adornerData: AdornerData
-  ) {
-    this.drawPath(
-      ctx,
-      thikness,
-      consts.adorners.mouseOverBoundsColor,
-      null,
-      adornerData.topLeft,
-      adornerData.topRight,
-      adornerData.bottomRight,
-      adornerData.bottomLeft
-    );
+  constructor(private adornersDataService: AdornersDataService) {
+    super();
   }
-
+  node: TreeNode;
   setMouseOver(node: TreeNode) {
     if (this.node !== node) {
       this.node = node;
@@ -37,16 +24,15 @@ export class MouseOverRenderer extends BaseRenderer {
   }
   redraw() {
     this.invalidated = false;
-    /*this.clearBackground(ctx);
+    this.clear();
     if (this.node && this.node.mouseOver && !this.node.selected) {
-      const element = this.node.getElement()
+      const element = this.node.getElement();
       let adornerData = this.adornersDataService.getElementAdornerData(element);
+      const ctm = this.screenCTM.multiply(element.getScreenCTM());
       // Convert element position on zoomed parent and then to a canvas coordites.
-      const ctm = parentCTM.multiply(element.getScreenCTM());
       adornerData = adornerData.getTransformed(ctm);
-
       const thikness = consts.adorners.mouseOverBorderThikness * this.onePixel;
-      this.drawRect(ctx, parentCTM, element, thikness, adornerData);
-    }*/
+      this.drawAdornerRect(this.ctx, thikness, adornerData);
+    }
   }
 }

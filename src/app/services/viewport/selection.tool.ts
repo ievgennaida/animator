@@ -68,9 +68,6 @@ export class SelectionTool extends BaseSelectionTool {
   selectionStarted(event: MouseEventArgs) {
     this.lastDeg = null;
     super.selectionStarted(event);
-    // Dont draw mouse over when transformation is started:
-    this.mouseOverRenderer.clear();
-    this.mouseOverRenderer.suspend();
     const startedNode = this.outlineService.mouseOverSubject.getValue();
     if (startedNode) {
       this.startedNode = startedNode;
@@ -148,6 +145,11 @@ export class SelectionTool extends BaseSelectionTool {
 
   onWindowMouseMove(event: MouseEventArgs) {
     if (this.startedNode && this.startedNode.selected && this.containerRect) {
+      if (!this.click && !this.mouseOverRenderer.suspended) {
+        // Dont draw mouse over when transformation is started:
+        this.mouseOverRenderer.clear();
+        this.mouseOverRenderer.suspend();
+      }
       const element = this.startedNode.getElement();
       if (element) {
         // this.rotateByMouse(event, element);

@@ -153,51 +153,29 @@ export class BoundsRenderer extends BaseRenderer {
     const ctx = this.ctx;
     this.invalidated = false;
     this.clear();
-    const parentCTM = this.screenCTM;
-
     // let selectedRect:DOMRect = null;
     // TODO: performance iterate only selected and active
     if (this.renderableElements && this.renderableElements.length > 0) {
       const renderable = this.renderableElements.filter(
-        (p) =>
-          p.tag &&
-          (p.tag instanceof SVGGraphicsElement ||
-            p.tag.layerElement instanceof SVGGraphicsElement)
+        (node) => !!node.getElement()
       );
 
       renderable.forEach((node: TreeNode) => {
         const element = node.getElement();
 
-        if (
-          element &&
-          element instanceof SVGGraphicsElement &&
-          (node.mouseOver || node.selected)
-        ) {
-          if (node.mouseOver && !node.selected) {
-            let adornerData = this.adornersDataService.getElementAdornerData(
-              element
-            );
-            // Convert element position on zoomed parent and then to a canvas coordites.
-            const ctm = parentCTM.multiply(element.getScreenCTM());
-            adornerData = adornerData.getTransformed(ctm);
-
-            const thikness =
-              consts.adorners.mouseOverBorderThikness * this.onePixel;
-            this.drawRect(ctx, thikness, adornerData);
-          } else {
-            const thikness = 2;
-            let adornerData = this.adornersDataService.getElementAdornerData(
-              element
-            );
-            const ctm = parentCTM.multiply(element.getScreenCTM());
-            adornerData = adornerData.getTransformed(ctm);
-            this.drawRect(ctx, thikness, adornerData);
-            // draw when resized.
-            // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
-            // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-            // this.drawAdornersHandles(ctx, adornerData);
-            // this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
-          }
+        if (element && element instanceof SVGGraphicsElement && node.selected) {
+          const thikness = 2;
+          let adornerData = this.adornersDataService.getElementAdornerData(
+            element
+          );
+          const ctm = this.screenCTM.multiply(element.getScreenCTM());
+          adornerData = adornerData.getTransformed(ctm);
+          this.drawRect(ctx, thikness, adornerData);
+          // draw when resized.
+          // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
+          // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
+          // this.drawAdornersHandles(ctx, adornerData);
+          // this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
         }
       });
     }
