@@ -27,6 +27,9 @@ export class MouseOverRenderer extends BaseRenderer {
     this.clear();
     if (this.node && this.node.mouseOver && !this.node.selected) {
       const element = this.node.getElement();
+      if(!element){
+        return;
+      }
       let adornerData = this.adornersDataService.getElementAdornerData(element);
       const ctm = this.screenCTM.multiply(element.getScreenCTM());
       // Convert element position on zoomed parent and then to a canvas coordites.
