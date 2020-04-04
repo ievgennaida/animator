@@ -66,11 +66,14 @@ export class AdornersRenderer extends BaseRenderer {
   startDrawLoop() {
     this.ngZone.runOutsideAngular(() => {
       const draw = () => {
-        this.redraw();
-        if (window.requestAnimationFrame) {
-          window.requestAnimationFrame(draw);
-        } else {
-          setTimeout(draw, 100);
+        try {
+          this.redraw();
+        } finally {
+          if (window.requestAnimationFrame) {
+            window.requestAnimationFrame(draw);
+          } else {
+            setTimeout(draw, 100);
+          }
         }
       };
 
