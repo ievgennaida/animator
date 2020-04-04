@@ -1,14 +1,12 @@
-import { Injectable, NgZone } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { LoggerService } from "../../logger.service";
 import { OutlineService } from "../../outline.service";
 import { TreeNode } from "src/app/models/tree-node";
-import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
 import { AdornersDataService } from "../adorners/adorners-data.service";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
-import { ElementContainerService } from "../../element-container.service";
 
 /**
  * Elements bounds renderer
@@ -17,18 +15,12 @@ import { ElementContainerService } from "../../element-container.service";
   providedIn: "root",
 })
 export class BoundsRenderer extends BaseRenderer {
-  renderableElements = [];
   constructor(
-    private viewService: ViewService,
     private adornersDataService: AdornersDataService,
     protected outlineService: OutlineService,
-    protected logger: LoggerService,
-    private elements: ElementContainerService
+    protected logger: LoggerService
   ) {
     super();
-    outlineService.flatList.subscribe((flatItems) => {
-      this.renderableElements = flatItems;
-    });
   }
 
   drawAdornersHandles(ctx: CanvasRenderingContext2D, adornerData: AdornerData) {
@@ -153,12 +145,11 @@ export class BoundsRenderer extends BaseRenderer {
     const ctx = this.ctx;
     this.invalidated = false;
     this.clear();
+    const nodes = this.outlineService.getSelectedNodes();
     // let selectedRect:DOMRect = null;
     // TODO: performance iterate only selected and active
-    if (this.renderableElements && this.renderableElements.length > 0) {
-      const renderable = this.renderableElements.filter(
-        (node) => !!node.getElement()
-      );
+    if (nodes && nodes.length > 0) {
+      const renderable = nodes.filter((node) => !!node.getElement());
 
       renderable.forEach((node: TreeNode) => {
         const element = node.getElement();

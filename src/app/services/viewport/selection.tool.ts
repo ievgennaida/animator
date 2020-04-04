@@ -146,9 +146,9 @@ export class SelectionTool extends BaseSelectionTool {
   onWindowMouseMove(event: MouseEventArgs) {
     if (this.startedNode && this.startedNode.selected && this.containerRect) {
       if (!this.click && !this.mouseOverRenderer.suspended) {
+        this.mouseOverRenderer.suspend();
         // Dont draw mouse over when transformation is started:
         this.mouseOverRenderer.clear();
-        this.mouseOverRenderer.suspend();
       }
       const element = this.startedNode.getElement();
       if (element) {
