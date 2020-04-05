@@ -8,14 +8,14 @@ import {
   ElementRef,
   NgZone,
   ChangeDetectorRef,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   default as timeline,
   AnimationTimelineOptions,
   Timeline,
   AnimationTimelineLane,
-  ScrollEventArgs
+  ScrollEventArgs,
 } from "animation-timeline-js";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
@@ -32,7 +32,7 @@ import { OutlineService } from "src/app/services/outline.service";
   selector: "app-timeline",
   templateUrl: "./timeline.component.html",
   styleUrls: ["./timeline.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimelineComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
@@ -52,9 +52,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
   options: AnimationTimelineOptions;
   scrollTop = 0;
   timeline: Timeline;
-
-  @ViewChild("timeline", { static: true })
-  timelineElement: ElementRef;
 
   @Output()
   public timelineScroll: EventEmitter<any> = new EventEmitter();
@@ -83,19 +80,19 @@ export class TimelineComponent implements OnInit, OnDestroy {
       id: "timeline",
       laneColor: "#333333",
       laneHeightPx: consts.timelineHeaderHeight,
-      backgroundColor: "#252526"
+      backgroundColor: "#252526",
     } as AnimationTimelineOptions;
 
     this.timeline = timeline.initialize(this.options, this.lanes);
     this.playerService.setTimeline(this.timeline);
 
-    this.timeline.on("timeChanged", args => {
+    this.timeline.on("timeChanged", (args) => {
       if (args.source === "user") {
         this.playerService.goTo(args.val);
       }
     });
 
-    this.timeline.on("dragStarted", args => {
+    this.timeline.on("dragStarted", (args) => {
       if (args) {
         const keyframes = args.keyframes as Array<Keyframe>;
         this.actionService.StartTransaction(keyframes);
@@ -103,7 +100,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.timeline.on("dragFinished", args => {
+    this.timeline.on("dragFinished", (args) => {
       if (args) {
         this.propertiesService.emitPropertyChanged(null);
         this.actionService.Commit();
@@ -113,24 +110,24 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const ds = this.outlineService.flatDataSource;
     const tc = this.outlineService.treeConrol;
 
-    ds._flattenedData.pipe(takeUntil(this.destroyed$)).subscribe(flatItems => {
-      this.lanes.length = 0;
+    ds._flattenedData
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((flatItems) => {
+        this.lanes.length = 0;
 
-      flatItems.forEach(element => {
-        this.lanes.push(element.lane);
+        flatItems.forEach((element) => {
+          this.lanes.push(element.lane);
+        });
+
+        ds.data.forEach((p) => this.resolveLanesVisibilty(tc, p, false));
+        this.timeline.setLanes(this.lanes);
+        this.redraw();
+
+        this.timeline.setScrollTop(0);
       });
 
-      ds.data.forEach(p => this.resolveLanesVisibilty(tc, p, false));
-      this.timeline.setLanes(this.lanes);
-      this.redraw();
-
-      if (this.timelineElement && this.timelineElement.nativeElement) {
-        this.timelineElement.nativeElement.scrollTop = 0;
-      }
-    });
-
     tc.expansionModel.changed.pipe(takeUntil(this.destroyed$)).subscribe(() => {
-      ds.data.forEach(p => this.resolveLanesVisibilty(tc, p, false));
+      ds.data.forEach((p) => this.resolveLanesVisibilty(tc, p, false));
       this.redraw();
     });
 
@@ -140,18 +137,18 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.redraw();
       });
 
-    this.viewService.resized
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(p => {
-        this.redraw();
-      });
+    this.viewService.resized.pipe(takeUntil(this.destroyed$)).subscribe((p) => {
+      this.redraw();
+    });
   }
 
   public onWheel(event: WheelEvent) {
     // Wire wheel events with other divs over the app.
-    if (this.timelineElement && this.timelineElement.nativeElement) {
-      const scroll = Math.sign(event.deltaY) * consts.timelineScrollSpeed;
-      this.timelineElement.nativeElement.scrollTop += scroll;
+    if (this.timeline) {
+      const scroll =
+        this.timeline.getScrollTop() +
+        Math.sign(event.deltaY) * consts.timelineScrollSpeed;
+      this.timeline.setScrollTop(scroll);
     }
   }
 
@@ -165,7 +162,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     // node.lane.name = node.name + " " + node.lane.hidden;
     if (node.children) {
-      node.children.forEach(p => this.resolveLanesVisibilty(tc, p, hidden));
+      node.children.forEach((p) => this.resolveLanesVisibilty(tc, p, hidden));
     }
   }
 
