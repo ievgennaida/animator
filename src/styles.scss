@@ -13,7 +13,9 @@ body {
     overflow: visible !important;
   }
 }
-
+.mat-menu-panel{
+  border-radius: 1px;
+}
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */

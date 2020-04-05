@@ -19,6 +19,7 @@ import { PanTool } from "src/app/services/viewport/pan.tool";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { Subject } from "rxjs";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
   selector: "app-main-toolbar",
@@ -33,12 +34,13 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   recentItems = [];
   private destroyed$ = new Subject();
   showGridLines = this.gridLinesRenderer.showGridLines();
+  showProperties = this.viewService.viewPropertiesSubject.getValue();
   constructor(
+    private viewService: ViewService,
     private undoService: UndoService,
     private stateService: DocumentService,
     private logger: LoggerService,
     private cdRef: ChangeDetectorRef,
-    private viewService: ViewService,
     private zoomTool: ZoomTool,
     private panTool: PanTool,
     private gridLinesRenderer: GridLinesRenderer,
@@ -46,6 +48,25 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.viewService.viewPropertiesSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((value) => {
+        if (value !== this.showProperties) {
+          this.showProperties = value;
+          this.cdRef.markForCheck();
+        }
+      });
+    this.gridLinesRenderer.showGridLinesSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((gridLines) => {
+        if (gridLines !== this.showGridLines) {
+          this.showGridLines = gridLines;
+          this.cdRef.markForCheck();
+        }
+      });
+
     // Load current recent items.
     this.setRecent(null);
 
@@ -184,4 +205,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.destroyed$.next(true);
     this.destroyed$.complete();
   }
+  selectAll() {}
+  selectNone() {}
+  selectSameType() {}
+  selectInverse() {}
 }

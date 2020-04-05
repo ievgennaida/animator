@@ -6,3 +6,36 @@ mat-toolbar {
   flex: 1 1 auto;
   text-align: center;
 }
+.hotkey {
+  float: right;
+  text-align: right;
+}
+.menu-button{
+  min-width: 35px !important;
+  padding: 0px;
+  mat-icon {
+    margin: 0px;
+  }
+}
+.mat-menu-container {
+  background-color: red;
+  margin: 200px;
+  .mat-menu-content{
+    background-color: red;
+    margin: 200px;
+  }
+}
+button[mat-menu-item]{
+  padding-left: 10px;
+  padding-right: 10px;
+  min-width: 230px;
+  line-height: 45px;
+  height: 45px;
+}
+mat-icon {
+  font-size: 18px;
+  margin-right: 10px !important;
+  vertical-align: middle;
+  height: 20px;
+  width: 20px;
+}
