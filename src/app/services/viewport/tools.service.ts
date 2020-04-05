@@ -11,6 +11,7 @@ import { OutlineService } from "../outline.service";
 import { ViewService } from "../view.service";
 import { consts } from "src/environments/consts";
 import { SelectionService } from '../selection.service';
+import { PathTool } from './path.tool';
 
 /**
  * Handle current active tool and services.
@@ -27,12 +28,14 @@ export class ToolsService {
     private panTool: PanTool,
     private zoomTool: ZoomTool,
     selectionTool: SelectionTool,
+    pathTool:PathTool,
     private selectionService: SelectionService,
     private viewService: ViewService,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {
     this.tools.push(selectionTool);
+    this.tools.push(pathTool);
     this.tools.push(panTool);
     this.tools.push(zoomTool);
     this.setActiveTool(panTool);
