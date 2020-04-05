@@ -13,7 +13,7 @@ import { SelectionService } from '../selection.service';
 export class PathTool  extends BaseTool {
   svgMatrix: DOMMatrix = null;
   mouseDownPos: DOMPoint = null;
-  iconName = "navigation_outlined";
+  iconName = "navigation_outline";
   constructor(
     private selectionService: SelectionService,
     private logger: LoggerService,

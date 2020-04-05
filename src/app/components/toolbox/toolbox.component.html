@@ -1,5 +1,6 @@
 <mat-button-toggle-group *ngIf="tools" vertical="true" [value]="activeTool">
     <mat-button-toggle *ngFor="let tool of tools" [value]="tool" (click)="onToolSelected(tool)">
-        <mat-icon>{{tool.iconName}}</mat-icon>
+        <mat-icon [fontSet]="tool.iconName.includes('outline')?'material-icons-outlined':''">{{tool.iconName}}
+        </mat-icon>
     </mat-button-toggle>
 </mat-button-toggle-group>
