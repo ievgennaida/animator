@@ -112,14 +112,14 @@ export class TreeNode {
    * Get cached elements coordinates adorners.
    */
   getElementAdorner(): AdornerData {
-    if (this.cacheScreenAdorers) {
-      return this.cacheScreenAdorers;
+    if (this.cacheElementAdorers) {
+      return this.cacheElementAdorers;
     }
-    this.cacheScreenAdorers = AdornerData.create(
+    this.cacheElementAdorers = AdornerData.create(
       this.getElement(),
       this.getBBox()
     );
-    return this.cacheScreenAdorers;
+    return this.cacheElementAdorers;
   }
 
   /**
