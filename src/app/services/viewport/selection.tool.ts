@@ -235,9 +235,9 @@ export class SelectionTool extends BaseSelectionTool {
    */
   selectionEnded(event: MouseEventArgs) {
     let mode = SelectionMode.Normal;
-    if (event.args.ctrlKey) {
+    if (event.ctrlKey) {
       mode = SelectionMode.Revert;
-    } else if (event.args.shiftKey) {
+    } else if (event.shiftKey) {
       mode = SelectionMode.Add;
     }
 

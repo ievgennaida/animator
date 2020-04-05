@@ -23,6 +23,7 @@ export const consts = {
    * 0 - 1 Percents from the current width
    */
   autoPanSpeed: 0.006,
+  clickThreshold: 8,
   wheelPanSpeed: 15,
   zoom: {
     sensitivityWheel: 0.04,

@@ -30,7 +30,7 @@ export class BaseSelectionTool extends BaseTool {
   protected startPos: DOMPoint = null;
   protected currentArgs: MouseEventArgs = null;
   protected click = false;
-  protected clickThreshold = 5;
+
   private autoPanIntervalRef = null;
   autoPanSpeed = 0;
 
@@ -190,8 +190,8 @@ export class BaseSelectionTool extends BaseTool {
         Math.max(this.startPos.y, pos.y) - this.selectionRect.y;
       if (this.click) {
         this.click =
-          this.selectionRect.width <= this.clickThreshold &&
-          this.selectionRect.height <= this.clickThreshold;
+          this.selectionRect.width <= consts.clickThreshold &&
+          this.selectionRect.height <= consts.clickThreshold;
       }
     } else {
       if (!this.selectionRect) {

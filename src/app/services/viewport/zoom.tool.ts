@@ -62,11 +62,10 @@ export class ZoomTool extends BaseSelectionTool {
    * Override base method.
    */
   selectionEnded(event: MouseEventArgs, selectedArea: DOMRect) {
-    const clickThreshold = 8;
     if (
       selectedArea &&
-      selectedArea.width > clickThreshold &&
-      selectedArea.height > clickThreshold
+      selectedArea.width > consts.clickThreshold &&
+      selectedArea.height > consts.clickThreshold
     ) {
       // Zoom to area when selection is made:
       this.fit(selectedArea);
@@ -92,7 +91,7 @@ export class ZoomTool extends BaseSelectionTool {
 
     let direction = -1;
     const e = event.args as MouseEvent;
-    if (e || e.shiftKey || e.ctrlKey || e.button === 2) {
+    if (e && (e.shiftKey || e.ctrlKey || e.button === 2)) {
       direction = 1;
     }
 
