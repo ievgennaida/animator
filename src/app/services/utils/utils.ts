@@ -49,6 +49,13 @@ export class Utils {
     }
     return element.getCTM();
   }
+  public static deleteElement(array, element) {
+    const index: number = array.indexOf(element);
+    if (index !== -1) {
+      return array.splice(index, 1);
+    }
+    return array;
+  }
 
   private static getBounds(
     clientRect: boolean,

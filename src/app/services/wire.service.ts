@@ -8,6 +8,7 @@ import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
 import { TransformsService } from "./viewport/transformations/transforms.service";
 import { ViewService } from "./view.service";
 import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
+import { SelectionService } from './selection.service';
 
 /**
  * Wire services together
@@ -24,9 +25,10 @@ export class WireService {
     transformsService: TransformsService,
     gridLinesRenderer: GridLinesRenderer,
     adornersRenderer: AdornersRenderer,
+    selectionService:SelectionService,
     viewService: ViewService
   ) {
-    outlineService.selected.subscribe(() => {
+    selectionService.selected.subscribe(() => {
       boundsRenderer.invalidate();
     });
     // Individual element is transformed.

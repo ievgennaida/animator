@@ -5,7 +5,7 @@ import { ViewService } from "../view.service";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
 import { TreeNode } from "src/app/models/tree-node";
-import { OutlineService, SelectionMode } from "../outline.service";
+import { OutlineService } from "../outline.service";
 import { TransformsService } from "./transformations/transforms.service";
 import { Utils } from "../utils/utils";
 import { SelectorRenderer } from "./renderers/selector.renderer";
@@ -13,6 +13,7 @@ import { CursorService, CursorType } from "../cursor.service";
 import { MatrixTransform } from "./transformations/matrix-transform";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { SelectionService, SelectionMode } from '../selection.service';
 
 /**
  * Select elements by a mouse move move.
@@ -33,6 +34,7 @@ export class SelectionTool extends BaseSelectionTool {
     logger: LoggerService,
     panTool: PanTool,
     selectorRenderer: SelectorRenderer,
+    private selectionService: SelectionService,
     private boundsRenderer: BoundsRenderer,
     private transformFactory: TransformsService,
     private outlineService: OutlineService,
@@ -75,7 +77,7 @@ export class SelectionTool extends BaseSelectionTool {
         return;
       }
 
-      const nodesToSelect = this.outlineService
+      const nodesToSelect = this.selectionService
         .getSelectedNodes()
         .map((item) => this.getTopSelectedNode(item))
         .filter((value, index, self) => value && self.indexOf(value) === index);
@@ -243,10 +245,10 @@ export class SelectionTool extends BaseSelectionTool {
 
     if (this.click) {
       const mouseOverTransform = this.outlineService.mouseOverSubject.getValue();
-      this.outlineService.setSelected(mouseOverTransform, mode);
+      this.selectionService.setSelected(mouseOverTransform, mode);
     } else if (!this.startedNode) {
       const selected = this.getIntersects() as TreeNode[];
-      this.outlineService.setSelected(selected, mode);
+      this.selectionService.setSelected(selected, mode);
     }
   }
 }

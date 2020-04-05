@@ -20,6 +20,7 @@ import { ToolsService } from "src/app/services/viewport/tools.service";
 import { Subject } from "rxjs";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 import { takeUntil } from "rxjs/operators";
+import { SelectionService } from "src/app/services/selection.service";
 
 @Component({
   selector: "app-main-toolbar",
@@ -43,6 +44,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef,
     private zoomTool: ZoomTool,
     private panTool: PanTool,
+    private selectionService: SelectionService,
     private gridLinesRenderer: GridLinesRenderer,
     private toolsService: ToolsService
   ) {}
@@ -205,8 +207,16 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.destroyed$.next(true);
     this.destroyed$.complete();
   }
-  selectAll() {}
-  selectNone() {}
-  selectSameType() {}
-  selectInverse() {}
+  selectAll() {
+    this.selectionService.selectAll();
+  }
+  selectNone() {
+    this.selectionService.deselectAll();
+  }
+  selectSameType() {
+    this.selectionService.selectSameType();
+  }
+  selectInverse() {
+    this.selectionService.inverseSelection();
+  }
 }

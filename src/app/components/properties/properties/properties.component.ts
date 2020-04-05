@@ -8,16 +8,18 @@ import { ChangedArgs } from "src/app/models/changed-args";
 import { Properties } from "src/app/models/Properties/Properties";
 import { Property } from "src/app/models/Properties/Property";
 import { OutlineService } from "src/app/services/outline.service";
+import { SelectionService } from "src/app/services/selection.service";
 
 @Component({
   selector: "app-properties",
   templateUrl: "./properties.component.html",
-  styleUrls: ["./properties.component.scss"]
+  styleUrls: ["./properties.component.scss"],
 })
 export class PropertiesComponent implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
-    private outlineService: OutlineService
+    private outlineService: OutlineService,
+    private selectionService: SelectionService
   ) {}
 
   private destroyed$ = new Subject();
@@ -29,7 +31,7 @@ export class PropertiesComponent implements OnInit, OnDestroy {
   type: string = null;
   namePropertiesVisible = false;
   ngOnInit() {
-    this.outlineService.selected
+    this.selectionService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p: ChangedArgs) => {
         if (p.nodes) {
@@ -56,10 +58,10 @@ export class PropertiesComponent implements OnInit, OnDestroy {
             this.nameProperty = null;
             this.name = `Selected (${p.nodes.length})`;
             const uniqueTypes: Array<TreeNode> = [];
-            p.nodes.forEach(element => {
+            p.nodes.forEach((element) => {
               if (
                 !uniqueTypes.find(
-                  uniqueType => uniqueType.type === element.type
+                  (uniqueType) => uniqueType.type === element.type
                 )
               ) {
                 uniqueTypes.push(element);

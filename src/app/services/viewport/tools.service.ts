@@ -10,6 +10,7 @@ import { Utils } from "../utils/utils";
 import { OutlineService } from "../outline.service";
 import { ViewService } from "../view.service";
 import { consts } from "src/environments/consts";
+import { SelectionService } from '../selection.service';
 
 /**
  * Handle current active tool and services.
@@ -25,8 +26,8 @@ export class ToolsService {
   constructor(
     private panTool: PanTool,
     private zoomTool: ZoomTool,
-    private selectionTool: SelectionTool,
-    private outlineService: OutlineService,
+    selectionTool: SelectionTool,
+    private selectionService: SelectionService,
     private viewService: ViewService,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
@@ -139,7 +140,7 @@ export class ToolsService {
 
   getPan() {}
   fitViewportToSelected() {
-    const selectedItems = this.outlineService.getSelectedElements();
+    const selectedItems = this.selectionService.getSelectedElements();
     let bounds = Utils.getBoundingClientRect(...selectedItems);
     if (bounds) {
       bounds = Utils.matrixRectTransform(

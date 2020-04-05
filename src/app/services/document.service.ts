@@ -8,6 +8,7 @@ import { ViewService } from "./view.service";
 import { LoggerService } from "./logger.service";
 import { ToolsService } from "./viewport/tools.service";
 import { OutlineService } from './outline.service';
+import { SelectionService } from './selection.service';
 
 @Injectable({
   providedIn: "root"
@@ -20,6 +21,7 @@ export class DocumentService {
     private logger: LoggerService,
     private playerService: PlayerService,
     private toolsService: ToolsService,
+    private selectionService:SelectionService,
     private outlineService: OutlineService
   ) {
     this.propertiesService.сhanged.subscribe(p => {
@@ -98,7 +100,7 @@ export class DocumentService {
   }
 
   dispose(refresh = false) {
-    this.outlineService.deselectAll();
+    this.selectionService.deselectAll();
     if (!refresh) {
       this.outlineService.dispose();
       this.viewService.dispose();

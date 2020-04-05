@@ -5,21 +5,22 @@ import {
   ChangeDetectionStrategy,
   OnDestroy,
   ChangeDetectorRef,
-  NgZone
+  NgZone,
 } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import { Subject } from "rxjs";
-import {
-  OutlineService,
-  SelectionMode
-} from "src/app/services/outline.service";
+import { OutlineService } from "src/app/services/outline.service";
 import { takeUntil } from "rxjs/operators";
+import {
+  SelectionService,
+  SelectionMode,
+} from "src/app/services/selection.service";
 
 @Component({
   selector: "app-outline-node",
   templateUrl: "./outline-node.component.html",
   styleUrls: ["./outline-node.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OutlineNodeComponent implements OnInit, OnDestroy {
   private static lastSelected: TreeNode = null;
@@ -36,17 +37,20 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
   constructor(
     private outlineService: OutlineService,
     private cdRef: ChangeDetectorRef,
+    private selectionService: SelectionService,
     private ngZone: NgZone
   ) {
     this.cdRef.detach();
-    outlineService.selected.pipe(takeUntil(this.destroyed$)).subscribe(data => {
-      // Track only changed items:
-      if (data && data.changed && data.changed.includes(this.node)) {
-        this.cdRef.detectChanges();
-      }
-    });
+    selectionService.selected
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
+        // Track only changed items:
+        if (data && data.changed && data.changed.includes(this.node)) {
+          this.cdRef.detectChanges();
+        }
+      });
 
-    this.outlineService.mouseOver.subscribe(node => {
+    this.outlineService.mouseOver.subscribe((node) => {
       if (node === this.node) {
         // TODO: performance: if source != outline node.
         this.cdRef.detectChanges();
@@ -92,7 +96,7 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
     }
 
     this.ngZone.runOutsideAngular(() => {
-      this.outlineService.setSelected(nodes, mode);
+      this.selectionService.setSelected(nodes, mode);
     });
   }
 
