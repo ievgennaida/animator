@@ -54,7 +54,7 @@ export class SelectionService {
   inverseSelection() {
     const toSelect = this.outlineService
       .getAllNodes()
-      .filter((p) => p && p.selected);
+      .filter((p) => p && !p.selected);
     this.setSelected(toSelect, SelectionMode.Normal);
   }
   private changeNodeState(
