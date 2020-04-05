@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { TreeNode } from "../../models/tree-node";
 import { InputDocument } from "src/app/models/input-document";
 
@@ -23,7 +22,7 @@ export class SvgTreeParser {
     "textPath",
     "tspan",
     "unknown",
-    "use"
+    "use",
   ];
 
   parse(document: InputDocument): TreeNode[] {
@@ -36,6 +35,7 @@ export class SvgTreeParser {
     root.tag = document;
     root.name = document.title;
     root.transformable = false;
+    root.icon = "assignment";
     const collection = [root];
     this.addChildNodes(root, collection, element);
     return collection;
@@ -51,7 +51,7 @@ export class SvgTreeParser {
       return;
     }
 
-    element.childNodes.forEach(childElement => {
+    element.childNodes.forEach((childElement) => {
       if (childElement.nodeType !== 1) {
         return;
       }
@@ -64,8 +64,24 @@ export class SvgTreeParser {
       const currentNode = new TreeNode();
       currentNode.parent = parent;
       // custom label attribute:
-      currentNode.name = el.getAttribute('label') || el.id || `[${el.nodeName}]`;
+      currentNode.name =
+        el.getAttribute("label") || el.id || `[${el.nodeName}]`;
       currentNode.tag = el;
+      const tagName = el.tagName.toLowerCase();
+
+      currentNode.type = tagName;
+      if (tagName === "circle") {
+        currentNode.icon = "fiber_manual_record";
+      } else if (tagName === "rect") {
+        currentNode.icon = "crop_square";
+      } else if (tagName === "svg") {
+        currentNode.icon = "folder_special";
+      } else if (tagName === "path") {
+        currentNode.icon = "timeline";
+      } else if (tagName === "polygon") {
+        currentNode.icon = "star_border";
+      }
+
       this.addChildNodes(currentNode, currentNode.children, el);
       collection.push(currentNode);
     });
