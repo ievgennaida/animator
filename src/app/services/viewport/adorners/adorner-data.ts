@@ -1,3 +1,5 @@
+import { Utils } from '../../utils/utils';
+
 export class AdornerData {
   topCenter: DOMPoint = null;
   bottomCenter: DOMPoint = null;
@@ -11,6 +13,49 @@ export class AdornerData {
   centerTransform: DOMPoint = null;
   element: SVGGraphicsElement = null;
 
+  static create(
+    renderable: SVGGraphicsElement,
+    bounds: DOMRect = null
+  ): AdornerData {
+    if (!bounds) {
+      if (!renderable || !renderable.getBBox) {
+        return null;
+      }
+
+      bounds = renderable.getBBox();
+    }
+    const screenAdorner = new AdornerData();
+    screenAdorner.topLeft = new DOMPoint(bounds.x, bounds.y);
+    screenAdorner.topRight = new DOMPoint(bounds.x + bounds.width, bounds.y);
+    screenAdorner.bottomRight = new DOMPoint(
+      bounds.x + bounds.width,
+      bounds.y + bounds.height
+    );
+    screenAdorner.bottomLeft = new DOMPoint(bounds.x, bounds.y + bounds.height);
+
+    screenAdorner.topCenter = new DOMPoint(
+      bounds.x + bounds.width / 2,
+      bounds.y
+    );
+    screenAdorner.bottomCenter = new DOMPoint(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height
+    );
+    screenAdorner.leftCenter = new DOMPoint(
+      bounds.x,
+      bounds.y + bounds.height / 2
+    );
+    screenAdorner.rightCenter = new DOMPoint(
+      bounds.x + bounds.width,
+      bounds.y + bounds.height / 2
+    );
+
+    screenAdorner.centerTransform = Utils.getCenterTransform(
+      renderable,
+      bounds
+    );
+    return screenAdorner;
+  }
   clone(): AdornerData {
     const cloned = new AdornerData();
     cloned.element = this.element;

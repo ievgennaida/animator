@@ -4,7 +4,6 @@ import { OutlineService } from "../../outline.service";
 import { TreeNode } from "src/app/models/tree-node";
 import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
-import { AdornersDataService } from "../adorners/adorners-data.service";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
 
@@ -16,7 +15,6 @@ import { AdornerData } from "../adorners/adorner-data";
 })
 export class BoundsRenderer extends BaseRenderer {
   constructor(
-    private adornersDataService: AdornersDataService,
     protected outlineService: OutlineService,
     protected logger: LoggerService
   ) {
@@ -146,21 +144,15 @@ export class BoundsRenderer extends BaseRenderer {
     this.invalidated = false;
     this.clear();
     const nodes = this.outlineService.getSelectedNodes();
-    // let selectedRect:DOMRect = null;
-    // TODO: performance iterate only selected and active
     if (nodes && nodes.length > 0) {
       const renderable = nodes.filter((node) => !!node.getElement());
 
       renderable.forEach((node: TreeNode) => {
-        const element = node.getElement();
-
-        if (element && element instanceof SVGGraphicsElement && node.selected) {
-          const thikness = 2;
-          let adornerData = this.adornersDataService.getElementAdornerData(
-            element
-          );
-          const ctm = this.screenCTM.multiply(element.getScreenCTM());
-          adornerData = adornerData.getTransformed(ctm);
+        const mainThikness = 2;
+        const hilight = 1;
+        if (node.selected) {
+          const thikness = renderable.length > 1 ? hilight : mainThikness;
+          const adornerData = node.getScreenAdorners(this.screenCTM);
           this.drawRect(ctx, thikness, adornerData);
           // draw when resized.
           // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
@@ -169,6 +161,12 @@ export class BoundsRenderer extends BaseRenderer {
           // this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
         }
       });
+
+      // Draw global bounds:
+      if (renderable && renderable.length > 1) {
+        // let totalBounds = Utils.getBBoxBounds(...renderable);
+        // this.adornersDataService.getElementAdornerData(null,totalBounds);
+      }
     }
   }
 }

@@ -26,7 +26,6 @@ export class PanTool extends BaseTool {
   onDeactivate(){
     this.cursor.setCursor(CursorType.Default);
   }
-  onViewportResize() {}
 
   onWindowBlur(event: Event) {
     // Rollback pan

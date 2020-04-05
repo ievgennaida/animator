@@ -1,3 +1,5 @@
+import { TreeNode } from "src/app/models/tree-node";
+
 export class Utils {
   static getVector(a: DOMPoint, b: DOMPoint = null): DOMPoint {
     const vector = new DOMPoint(a.x - b.x, a.y - b.y);
@@ -29,9 +31,6 @@ export class Utils {
     return new DOMRect(start.x, start.y, end.x - start.x, end.y - start.y);
   }
 
-  static getBoundingClientRect(...elements: SVGGraphicsElement[]): DOMRect {
-    return Utils.getBounds(true, ...elements);
-  }
   public static getDOMPoint(x: number, y: number): DOMPoint {
     return new DOMPoint(x, y);
   }
@@ -53,7 +52,7 @@ export class Utils {
 
   private static getBounds(
     clientRect: boolean,
-    ...elements: SVGGraphicsElement[]
+    ...elements: SVGGraphicsElement[] | TreeNode[]
   ): DOMRect {
     if (!elements) {
       return null;
@@ -85,8 +84,14 @@ export class Utils {
 
     return new DOMRect(minX, minY, maxX - minX, maxY - minY);
   }
-
-  static getBBoxBounds(...elements: SVGGraphicsElement[]): DOMRect {
+  public static getBoundingClientRect(
+    ...elements: SVGGraphicsElement[] | TreeNode[]
+  ): DOMRect {
+    return Utils.getBounds(true, ...elements);
+  }
+  public static getBBoxBounds(
+    ...elements: SVGGraphicsElement[] | TreeNode[]
+  ): DOMRect {
     return Utils.getBounds(false, ...elements);
   }
 
@@ -135,22 +140,28 @@ export class Utils {
     element: SVGGraphicsElement,
     bboxCache: DOMRect = null
   ): DOMPoint {
-    if (!element) {
+    if (!element && !bboxCache) {
       return null;
     }
 
-    if (!bboxCache) {
+    if (!bboxCache && !element) {
       bboxCache = element.getBBox();
     }
 
-    const x = parseInt(element.getAttribute("transform-center-x"), 2);
-    const y = parseInt(element.getAttribute("transform-center-y"), 2);
+    if (!bboxCache) {
+      return null;
+    }
+    const x = element
+      ? parseInt(element.getAttribute("transform-center-x"), 2)
+      : 0;
+    const y = element
+      ? parseInt(element.getAttribute("transform-center-y"), 2)
+      : 0;
     let transformPoint = new DOMPoint();
     if (Number.isNaN(x) || Number.isNaN(y)) {
-      const box = element.getBBox();
       transformPoint = new DOMPoint(
-        Number.isNaN(x) ? box.x + box.width / 2 : x,
-        Number.isNaN(y) ? box.y + box.height / 2 : y
+        Number.isNaN(x) ? bboxCache.x + bboxCache.width / 2 : x,
+        Number.isNaN(y) ? bboxCache.y + bboxCache.height / 2 : y
       );
     } else {
       transformPoint = new DOMPoint(x, y);

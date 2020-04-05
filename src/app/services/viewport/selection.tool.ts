@@ -105,17 +105,15 @@ export class SelectionTool extends BaseSelectionTool {
     if (this.renderableElements && this.renderableElements.length > 0) {
       for (let i = this.renderableElements.length - 1; i >= 0; i--) {
         const node = this.renderableElements[i];
-        const renderable = node.tag as SVGGraphicsElement;
-        if (renderable instanceof SVGGraphicsElement) {
+        if (node) {
           try {
-            let bounds = node.cache as DOMRect;
-            if (!bounds || node.cacheIndex !== this.cacheIndex) {
-              bounds = renderable.getBoundingClientRect();
-              bounds.x -= this.containerRect.left;
-              bounds.y -= this.containerRect.top;
-              node.cache = bounds;
-              node.cacheIndex = this.cacheIndex;
+            const bounds = node.getBoundingClientRect();
+            if (!bounds) {
+              continue;
             }
+
+            bounds.x -= this.containerRect.left;
+            bounds.y -= this.containerRect.top;
 
             if (this.rectItersects(bounds, transformed)) {
               if (onlyFirst) {

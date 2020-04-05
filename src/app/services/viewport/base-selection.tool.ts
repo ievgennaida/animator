@@ -19,7 +19,6 @@ export class BaseSelectionTool extends BaseTool {
   ) {
     super();
     this.viewService.viewportResize.subscribe(() => {
-      this.cacheIndex++;
       this.trackMousePos(this.currentArgs);
       this.selectorRenderer.setRect(this.selectionRect);
     });

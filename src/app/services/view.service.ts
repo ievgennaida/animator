@@ -10,7 +10,9 @@ import { TransformsService } from "./viewport/transformations/transforms.service
 export class ViewService {
   constructor() {
     this.transformed.subscribe(() => {
+      // cache viewport CTM on viewport transfrom.
       this.ctm = Utils.getCTM(this.viewport);
+      
     });
   }
 
