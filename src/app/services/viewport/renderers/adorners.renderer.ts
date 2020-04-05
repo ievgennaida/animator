@@ -2,8 +2,6 @@ import { Injectable, NgZone } from "@angular/core";
 import { LoggerService } from "../../logger.service";
 import { BoundsRenderer } from "./bounds.renderer";
 import { BaseRenderer } from "./base.renderer";
-import { OutlineService } from "../../outline.service";
-import { TransformsService } from "../transformations/transforms.service";
 import { ViewService } from "../../view.service";
 import { GridLinesRenderer } from "./grid-lines.renderer";
 import { SelectorRenderer } from "./selector.renderer";
@@ -18,45 +16,17 @@ import { MouseOverRenderer } from "./mouse-over.renderer";
 export class AdornersRenderer extends BaseRenderer {
   renderers: Array<BaseRenderer> = [];
   constructor(
-    private boundsRenderer: BoundsRenderer,
-    private selectorRenderer: SelectorRenderer,
-    private mouseOverRenderer: MouseOverRenderer,
-    private transformsService: TransformsService,
+    boundsRenderer: BoundsRenderer,
+    selectorRenderer: SelectorRenderer,
+    mouseOverRenderer: MouseOverRenderer,
+    gridLinesRenderer: GridLinesRenderer,
     private viewService: ViewService,
     protected logger: LoggerService,
-    private ngZone: NgZone,
-    private gridLinesRenderer: GridLinesRenderer,
-    protected outlineService: OutlineService
+    private ngZone: NgZone
   ) {
     super();
-
-    // TODO: move it out
-    this.outlineService.mouseOver.subscribe(() => {
-      this.boundsRenderer.invalidate();
-    });
-
-    this.outlineService.selected.subscribe(() => {
-      this.boundsRenderer.invalidate();
-    });
-
-    // Individual element is transformed.
-    this.transformsService.transformed.subscribe(() => {
-      this.boundsRenderer.invalidate();
-    });
-
-    // view is transformed
-    this.viewService.transformed.subscribe(() => {
-      this.invalidate();
-      this.onViewportSizeChanged();
-    });
-
-    // view resized
-    this.viewService.viewportResize.subscribe(() => {
-      this.onViewportSizeChanged();
-    });
-
-    this.renderers.push(this.gridLinesRenderer);
-    this.renderers.push(this.boundsRenderer);
+    this.renderers.push(gridLinesRenderer);
+    this.renderers.push(boundsRenderer);
     // this.renderers.push(pathAdornersRenderer);
     this.renderers.push(mouseOverRenderer);
     this.renderers.push(selectorRenderer);

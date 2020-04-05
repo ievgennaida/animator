@@ -60,7 +60,7 @@ export class BoundsRenderer extends BaseRenderer {
     vectorB: DOMPoint,
     center = false
   ) {
-    const boxSize = consts.adorners.handleSize;
+    const boxSize = consts.handleSize;
     const halfSize = boxSize / 2;
     const opposite = new DOMPoint(
       handlePoint.x + vectorA.x * boxSize,
@@ -80,9 +80,9 @@ export class BoundsRenderer extends BaseRenderer {
 
     this.drawPath(
       ctx,
-      consts.adorners.handleStrokeSize,
-      consts.adorners.handleStrokeColor,
-      consts.adorners.handleFillColor,
+      consts.handleStrokeSize,
+      consts.handleStrokeColor,
+      consts.handleFillColor,
       new DOMPoint(handlePoint.x - fromX, handlePoint.y - fromY),
       new DOMPoint(handlePoint.x + toX, handlePoint.y + toY),
       new DOMPoint(opposite.x + toX, opposite.y + toY),
@@ -146,14 +146,26 @@ export class BoundsRenderer extends BaseRenderer {
     const nodes = this.outlineService.getSelectedNodes();
     if (nodes && nodes.length > 0) {
       const renderable = nodes.filter((node) => !!node.getElement());
+      const multiple = renderable.length > 1;
+
+      const elementsColor = multiple
+        ? consts.altSelectionStroke
+        : consts.mainSelectionStroke;
+      const elementsThinkness = multiple
+        ? consts.altSelectionThikness
+        : consts.mainSelectionThikness;
 
       renderable.forEach((node: TreeNode) => {
-        const mainThikness = 2;
-        const hilight = 1;
         if (node.selected) {
-          const thikness = renderable.length > 1 ? hilight : mainThikness;
           const adornerData = node.getScreenAdorners(this.screenCTM);
-          this.drawRect(ctx, thikness, adornerData);
+          if (adornerData) {
+            this.drawAdornerRect(
+              ctx,
+              elementsThinkness,
+              elementsColor,
+              adornerData
+            );
+          }
           // draw when resized.
           // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
           // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
@@ -165,6 +177,7 @@ export class BoundsRenderer extends BaseRenderer {
       // Draw global bounds:
       if (renderable && renderable.length > 1) {
         // let totalBounds = Utils.getBBoxBounds(...renderable);
+        // this.drawAdornerRect(ctx, consts.mainSelectionThikness, consts.mainSelectionStroke, adornerData);
         // this.adornersDataService.getElementAdornerData(null,totalBounds);
       }
     }

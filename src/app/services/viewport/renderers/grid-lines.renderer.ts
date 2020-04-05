@@ -228,8 +228,8 @@ export class GridLinesRenderer extends BaseRenderer {
     adornersCTX.beginPath();
     adornersCTX.lineWidth = gridLineWidth;
     adornersCTX.strokeStyle = bigLine
-      ? consts.gridLines.color
-      : consts.gridLines.smallColor;
+      ? consts.gridLineMainColor
+      : consts.gridLineAltColor;
     if (horizontal) {
       this.drawLine(adornersCTX, pos, 0, pos, adornersCTX.canvas.height);
     } else {

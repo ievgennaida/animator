@@ -140,7 +140,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.redraw();
       });
 
-    this.viewService.viewportResize
+    this.viewService.resized
       .pipe(takeUntil(this.destroyed$))
       .subscribe(p => {
         this.redraw();

@@ -5,14 +5,13 @@ import {
   ElementRef,
   ViewChild,
   NgZone,
-  ChangeDetectorRef,
 } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
-import { DocumentService } from "./services/document.service";
 import { consts } from "src/environments/consts";
 import { ToolsService } from "./services/viewport/tools.service";
 import { ViewService } from "./services/view.service";
 import { HotkeysService } from "./services/hotkeys.service";
+import { WireService } from "./services/wire.service";
 
 @Component({
   selector: "app-root",
@@ -29,8 +28,11 @@ export class AppComponent implements OnInit {
     private self: ElementRef,
     private viewService: ViewService,
     private toolsService: ToolsService,
-    private hotkeys: HotkeysService
-  ) {}
+    private hotkeys: HotkeysService,
+    wire: WireService
+  ) {
+    wire.init();
+  }
 
   @ViewChild("footer", { static: true, read: ElementRef })
   footer: ElementRef;

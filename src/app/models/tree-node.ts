@@ -61,17 +61,17 @@ export class TreeNode {
     );
   }
 
-  invalidateCache(){
-    this.invalidateElementCache();
-    this.invalidateScreenCache();
+  cleanCache() {
+    this.cleanElementCache();
+    this.cleanScreenCache();
   }
 
-  invalidateElementCache() {
+  cleanElementCache() {
     this.cacheClientRect = null;
     this.cacheElementAdorers = null;
   }
 
-  invalidateScreenCache() {
+  cleanScreenCache() {
     this.cacheClientRect = null;
     this.cacheScreenAdorers = null;
   }
@@ -94,18 +94,17 @@ export class TreeNode {
   /**
    * Get adorner on a screen coordinates
    */
-  getScreenAdorners(screenCTM:DOMMatrix): AdornerData {
-    //const ctm = this.screenCTM.multiply(element.getScreenCTM());
-    // Convert element position on zoomed parent and then to a canvas coordites.
-    //adornerData = adornerData.getTransformed(ctm);
-
+  getScreenAdorners(screenCTM: DOMMatrix): AdornerData {
     if (this.cacheScreenAdorers) {
       return this.cacheScreenAdorers;
     }
-    this.cacheScreenAdorers = AdornerData.create(
-      this.getElement(),
-      this.getBBox()
-    );
+    let elementAdorner = this.getElementAdorner();
+    if (!elementAdorner) {
+      return;
+    }
+    const ctm = screenCTM.multiply(this.getElement().getScreenCTM());
+    elementAdorner = elementAdorner.getTransformed(ctm);
+    this.cacheScreenAdorers = elementAdorner;
     return this.cacheScreenAdorers;
   }
 

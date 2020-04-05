@@ -2,20 +2,16 @@ import { Injectable } from "@angular/core";
 import { Subject, BehaviorSubject, Observable } from "rxjs";
 import { consts } from "src/environments/consts";
 import { Utils } from "./utils/utils";
-import { TransformsService } from "./viewport/transformations/transforms.service";
-
 @Injectable({
   providedIn: "root",
 })
 export class ViewService {
   constructor() {
     this.transformed.subscribe(() => {
-      // cache viewport CTM on viewport transfrom.
+      // update self ctm cache
       this.ctm = Utils.getCTM(this.viewport);
-      
     });
   }
-
   ctm: DOMMatrix = null;
   viewPropertiesSubject = new BehaviorSubject<boolean>(
     consts.appearance.propertiesOpened
@@ -50,7 +46,7 @@ export class ViewService {
     return this.viewportTransformedSubject.asObservable();
   }
 
-  public get viewportResize(): Observable<any> {
+  public get resized(): Observable<any> {
     return this.viewportResizedSubject.asObservable();
   }
 

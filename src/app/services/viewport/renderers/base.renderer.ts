@@ -153,29 +153,13 @@ export class BaseRenderer {
   drawAdornerRect(
     ctx: CanvasRenderingContext2D,
     thikness: number,
+    stroke: string,
     adornerData: AdornerData
   ) {
     this.drawPath(
       ctx,
       thikness,
-      consts.adorners.mouseOverBoundsColor,
-      null,
-      adornerData.topLeft,
-      adornerData.topRight,
-      adornerData.bottomRight,
-      adornerData.bottomLeft
-    );
-  }
-
-  drawRect(
-    ctx: CanvasRenderingContext2D,
-    thikness: number,
-    adornerData: AdornerData
-  ) {
-    this.drawPath(
-      ctx,
-      thikness,
-      consts.adorners.mouseOverBoundsColor,
+      stroke,
       null,
       adornerData.topLeft,
       adornerData.topRight,

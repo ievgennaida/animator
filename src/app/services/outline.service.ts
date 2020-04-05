@@ -31,17 +31,8 @@ export enum SelectionMode {
 export class OutlineService {
   constructor(
     private appFactory: AppFactory,
-    private logger: LoggerService,
-    mouseOverRenderer: MouseOverRenderer
+    private logger: LoggerService
   ) {
-    this.mouseOver.subscribe((treeNode: TreeNode) => {
-      if (treeNode && treeNode.mouseOver) {
-        mouseOverRenderer.node = treeNode;
-      } else {
-        mouseOverRenderer.node = null;
-      }
-      mouseOverRenderer.invalidate();
-    });
   }
   mouseOverSubject = new BehaviorSubject<TreeNode>(null);
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
@@ -71,6 +62,13 @@ export class OutlineService {
     return this.flatDataSource._flattenedData.asObservable();
   }
 
+  getAllNodes(): TreeNode[] {
+    if (this.flatDataSource && this.flatDataSource._flattenedData) {
+      return this.flatDataSource._flattenedData.getValue();
+    }
+    return [];
+  }
+
   deleteElement(array, element) {
     const index: number = array.indexOf(element);
     if (index !== -1) {
@@ -85,10 +83,7 @@ export class OutlineService {
   }
 
   selectAll() {
-    this.setSelected(
-      this.flatDataSource._flattenedData.getValue(),
-      SelectionMode.Add
-    );
+    this.setSelected(this.getAllNodes(), SelectionMode.Add);
   }
 
   getSelectedElements(): SVGGraphicsElement[] {
@@ -112,7 +107,7 @@ export class OutlineService {
   setMouseLeave(node: TreeNode) {
     if (node && node.mouseOver) {
       node.mouseOver = false;
-      // update current view with node selected = false;
+      // update current subscribers with node selected = false;
       this.mouseOverSubject.next(node);
       this.mouseOverSubject.next(null);
     } else if (this.mouseOverSubject.getValue() !== null) {
@@ -204,7 +199,6 @@ export class OutlineService {
   public get mouseOver(): Observable<TreeNode> {
     return this.mouseOverSubject.asObservable();
   }
-
   public get selected(): Observable<ChangedArgs> {
     return this.selectedSubject.asObservable();
   }

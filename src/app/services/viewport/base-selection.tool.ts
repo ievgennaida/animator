@@ -18,7 +18,7 @@ export class BaseSelectionTool extends BaseTool {
     protected panTool: PanTool
   ) {
     super();
-    this.viewService.viewportResize.subscribe(() => {
+    this.viewService.resized.subscribe(() => {
       this.trackMousePos(this.currentArgs);
       this.selectorRenderer.setRect(this.selectionRect);
     });

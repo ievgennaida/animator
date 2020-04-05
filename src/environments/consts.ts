@@ -2,11 +2,10 @@ export const consts = {
   recentItemsCount: 7,
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
-  showGridLines: true,
   selector: {
-    fill: 'RGBA(51,153,255,0.11)',
+    fill: "RGBA(51,153,255,0.11)",
     stroke: "#3399FF",
-    strokeThinkness: 1
+    strokeThinkness: 1,
   },
   appearance: {
     propertiesOpened: false,
@@ -16,7 +15,7 @@ export const consts = {
   defaultWorkArea: {
     width: 640,
     height: 480,
-    offset: 0
+    offset: 0,
   },
   rulerSize: 20,
   /**
@@ -35,7 +34,7 @@ export const consts = {
     /**
      * Max absolute size where 1 is 100%.
      */
-    max: 1000
+    max: 1000,
   },
   ruler: {
     /**
@@ -49,18 +48,21 @@ export const consts = {
     smallTickColor: "#D5D5D5",
     color: "#D5D5D5",
     tickColor: "#D5D5D5",
-    font: "11px sans-serif"
+    font: "11px sans-serif",
   },
-  adorners: {
-    mouseOverBoundsColor: "#3399FF",
-    mouseOverBorderThikness:1,
-    handleFillColor: "#3399FF",
-    handleStrokeSize: 0,
-    handleStrokeColor: '',
-    handleSize: 6
-  },
-  gridLines: {
-    color: "rgba(160, 160, 160, 0.4)",
-    smallColor: "rgba(160, 160, 160, 0.2)"
-  }
+  // Adorners:
+  mouseOverBoundsColor: "#3399FF",
+  mainSelectionStroke: "#3399FF",
+  altSelectionStroke: "RGBA(51,153,255,0.9)",
+  mouseOverBorderThikness: 1,
+  mainSelectionThikness: 2,
+  altSelectionThikness: 1,
+  handleFillColor: "#3399FF",
+  handleStrokeSize: 0,
+  handleStrokeColor: "",
+  handleSize: 6,
+  // grid lines
+  showGridLines: true,
+  gridLineMainColor: "rgba(160, 160, 160, 0.4)",
+  gridLineAltColor: "rgba(160, 160, 160, 0.2)",
 };

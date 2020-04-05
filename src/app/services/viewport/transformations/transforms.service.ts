@@ -2,8 +2,7 @@ import { Injectable } from "@angular/core";
 import { RectTransform } from "./rect-transform";
 import { CircleTransform } from "./circle-transform";
 import { MatrixTransform } from "./matrix-transform";
-import { BehaviorSubject, Subject } from "rxjs";
-import { TransformedData } from "./transformed-data";
+import { Subject } from "rxjs";
 
 /**
  * Each element can be transformed in a different way: x,y, cx,cy and etc.
