@@ -21,6 +21,7 @@ import { Subject } from "rxjs";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 import { takeUntil } from "rxjs/operators";
 import { SelectionService } from "src/app/services/selection.service";
+import { PasteService } from "src/app/services/paste.service";
 
 @Component({
   selector: "app-main-toolbar",
@@ -46,7 +47,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private panTool: PanTool,
     private selectionService: SelectionService,
     private gridLinesRenderer: GridLinesRenderer,
-    private toolsService: ToolsService
+    private toolsService: ToolsService,
+    private pasteService: PasteService
   ) {}
 
   ngOnInit(): void {
@@ -198,11 +200,21 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   toogleGridLines() {
     this.gridLinesRenderer.toogleShowGridLines();
   }
-
+  cut() {
+    this.pasteService.cut();
+  }
+  copy() {
+    this.pasteService.copy();
+  }
+  paste() {
+    this.pasteService.paste();
+  }
+  delete() {
+    this.pasteService.delete();
+  }
   fitViewportSelected() {
     this.toolsService.fitViewportToSelected();
   }
-
   ngOnDestroy() {
     this.destroyed$.next(true);
     this.destroyed$.complete();
