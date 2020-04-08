@@ -31,6 +31,10 @@ import { MainToolbarComponent } from './components/main-toolbar/main-toolbar.com
 import { PlayerToolbarComponent } from './components/player/player-toolbar/player-toolbar.component';
 import { PlayerAdornersComponent } from './components/player/player-adorners/player-adorners.component';
 import { PlayerAdornerComponent } from './components/player/player-adorners/player-adorner/player-adorner.component';
+import { BreadcrumbComponent } from './components/player/breadcrumb/breadcrumb.component';
+import { NotificationComponent } from './components/player/notification/notification.component';
+import { ContextMenuComponent } from './components/context-menu/context-menu.component';
+import { OutputComponent } from './components/output/output.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +55,11 @@ import { PlayerAdornerComponent } from './components/player/player-adorners/play
     MainToolbarComponent,
     PlayerToolbarComponent,
     PlayerAdornersComponent,
-    PlayerAdornerComponent
+    PlayerAdornerComponent,
+    BreadcrumbComponent,
+    NotificationComponent,
+    ContextMenuComponent,
+    OutputComponent
   ],
   imports: [
     ResizableModule,
