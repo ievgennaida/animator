@@ -88,12 +88,18 @@ export class ViewService {
 
   public getZoom(): number {
     const ctm = this.getCTM();
+    if (!ctm) {
+      return 0;
+    }
     return ctm.a;
   }
 
-  public getPan() {
+  public getPan(): DOMPoint {
     const ctm = this.getCTM();
-    return { x: ctm.e, y: ctm.f };
+    if (!ctm) {
+      return new DOMPoint();
+    }
+    return new DOMPoint(ctm.e, ctm.f);
   }
 
   public getDisplayedBounds() {
