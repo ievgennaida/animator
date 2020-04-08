@@ -1,6 +1,6 @@
 <mat-toolbar>
     <button mat-button [matMenuTriggerFor]="menu">File</button>
-    <mat-menu #menu="matMenu">
+    <mat-menu #menu>
         <button mat-menu-item (click)="file.click()">
             <mat-icon>open_in_browser</mat-icon><span>Open File...</span>
         </button>
@@ -8,7 +8,7 @@
             <mat-icon>format_list_bulleted</mat-icon>
             <span>Recent</span>
         </button>
-        <mat-menu #recent="matMenu">
+        <mat-menu #recent>
             <button mat-menu-item (click)="loadData(item.str, item.name)"
                 *ngFor="let item of recentItems">{{item?.name}}</button>
         </mat-menu>
@@ -25,7 +25,7 @@
         <mat-icon>redo</mat-icon>
     </button>
     <button mat-button [matMenuTriggerFor]="edit">Edit</button>
-    <mat-menu   #edit="matMenu">
+    <mat-menu #edit>
         <button mat-menu-item disabled (click)="undo()" [disabled]="undoDisabled">
             <mat-icon>undo</mat-icon>
             <span>Undo</span>
@@ -35,23 +35,47 @@
             <span>Redo</span>
         </button>
         <mat-divider></mat-divider>
-        <button mat-menu-item (click)="selectAll()"><mat-icon>select_all</mat-icon><span>Select All</span><span class="hotkey">Ctrl+A</span></button>
-        <button mat-menu-item (click)="selectNone()"><mat-icon>tab_unselected</mat-icon>Select None</button>
-        <button mat-menu-item (click)="selectSameType()"><mat-icon></mat-icon>Select Same Type</button>
-        <button mat-menu-item (click)="selectInverse()"><mat-icon></mat-icon>Select Inverse</button>
+        <button mat-menu-item (click)="selectAll()">
+            <mat-icon>select_all</mat-icon><span>Select All</span><span class="hotkey">Ctrl+A</span>
+        </button>
+        <button mat-menu-item (click)="selectNone()">
+            <mat-icon>tab_unselected</mat-icon>Select None
+        </button>
+        <button mat-menu-item (click)="selectSameType()">
+            <mat-icon></mat-icon>Select Same Type
+        </button>
+        <button mat-menu-item (click)="selectInverse()">
+            <mat-icon></mat-icon>Select Inverse
+        </button>
     </mat-menu>
     <button mat-button [matMenuTriggerFor]="view">View</button>
-    <mat-menu   #view="matMenu">
-        <button mat-menu-item [matMenuTriggerFor]="appearance"><mat-icon></mat-icon>Viewport</button>
-        <button mat-menu-item (click)="toogleProperties()"><mat-icon><span *ngIf="showProperties">check</span></mat-icon>Properties</button>
-        <mat-menu   #appearance="matMenu">
-            <button mat-menu-item (click)="toogleGridLines()"><mat-icon><span *ngIf="showGridLines">check</span></mat-icon>Grid Lines</button>
+    <mat-menu #view>
+        <button mat-menu-item [matMenuTriggerFor]="appearance">
+            <mat-icon></mat-icon>Viewport
+        </button>
+        <button mat-menu-item (click)="toogleProperties()">
+            <mat-icon><span *ngIf="showProperties">check</span></mat-icon>Properties
+        </button>
+        <mat-menu #appearance>
+            <button mat-menu-item (click)="toogleGridLines()">
+                <mat-icon><span *ngIf="showGridLines">check</span></mat-icon>Grid Lines
+            </button>
             <mat-divider></mat-divider>
-            <button mat-menu-item (click)="zoomIn()"><mat-icon>zoom_in</mat-icon>Zoom In</button>
-            <button mat-menu-item (click)="zoomOut()"><mat-icon>zoom_out</mat-icon>Zoom Out</button>
-            <button mat-menu-item (click)="center()"><mat-icon></mat-icon>Center</button>
-            <button mat-menu-item (click)="fitViewport()"><mat-icon></mat-icon>Fit</button>
-            <button mat-menu-item (click)="fitViewportSelected()"><mat-icon></mat-icon>Fit to Selected</button>
+            <button mat-menu-item (click)="zoomIn()">
+                <mat-icon>zoom_in</mat-icon>Zoom In
+            </button>
+            <button mat-menu-item (click)="zoomOut()">
+                <mat-icon>zoom_out</mat-icon>Zoom Out
+            </button>
+            <button mat-menu-item (click)="center()">
+                <mat-icon></mat-icon>Center
+            </button>
+            <button mat-menu-item (click)="fitViewport()">
+                <mat-icon></mat-icon>Fit
+            </button>
+            <button mat-menu-item (click)="fitViewportSelected()">
+                <mat-icon></mat-icon>Fit to Selected
+            </button>
         </mat-menu>
     </mat-menu>
     <span class="toolbar-center">{{title}}</span>

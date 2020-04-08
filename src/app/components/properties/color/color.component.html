@@ -1,5 +1,5 @@
 <span class="property-title">{{property?.name}}</span>
-<div>
+<div *ngIf="property">
     <div *ngIf="!property.readonly">
         <div class="colorIndicator" [style.background]="property.getValue()">
 
