@@ -6,6 +6,8 @@ import { shapeType } from "./Lottie/shapes/shapeType";
 import { LottieModel } from "./Lottie/LottieModel";
 import { NodeType } from "./Lottie/NodeType";
 import { AdornerData } from "../services/viewport/adorners/adorner-data";
+import { Utils } from "../services/utils/utils";
+import { PathData } from "../services/utils/path-data";
 
 /**
  * Application node view model.
@@ -76,6 +78,9 @@ export class TreeNode {
     this.cacheScreenAdorers = null;
   }
 
+  public getPathData(): PathData {
+    return Utils.getPathData(this.getElement());
+  }
   /**
    * get cached bounding client rect.
    */
@@ -91,6 +96,13 @@ export class TreeNode {
     return null;
   }
 
+  getScreenCTM() {
+    const element = this.getElement();
+    if (!element) {
+      return;
+    }
+    return element.getScreenCTM();
+  }
   /**
    * Get adorner on a screen coordinates
    */
@@ -102,7 +114,7 @@ export class TreeNode {
     if (!elementAdorner) {
       return;
     }
-    const ctm = screenCTM.multiply(this.getElement().getScreenCTM());
+    const ctm = screenCTM.multiply(this.getScreenCTM());
     elementAdorner = elementAdorner.getTransformed(ctm);
     this.cacheScreenAdorers = elementAdorner;
     return this.cacheScreenAdorers;

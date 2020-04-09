@@ -6,6 +6,7 @@ import { ViewService } from "../../view.service";
 import { GridLinesRenderer } from "./grid-lines.renderer";
 import { SelectorRenderer } from "./selector.renderer";
 import { MouseOverRenderer } from "./mouse-over.renderer";
+import { PathRenderer } from './path.renderer';
 
 @Injectable({
   providedIn: "root",
@@ -20,6 +21,7 @@ export class AdornersRenderer extends BaseRenderer {
     selectorRenderer: SelectorRenderer,
     mouseOverRenderer: MouseOverRenderer,
     gridLinesRenderer: GridLinesRenderer,
+    pathRenderer: PathRenderer,
     private viewService: ViewService,
     protected logger: LoggerService,
     private ngZone: NgZone
@@ -27,7 +29,7 @@ export class AdornersRenderer extends BaseRenderer {
     super();
     this.renderers.push(gridLinesRenderer);
     this.renderers.push(boundsRenderer);
-    // this.renderers.push(pathAdornersRenderer);
+    this.renderers.push(pathRenderer);
     this.renderers.push(mouseOverRenderer);
     this.renderers.push(selectorRenderer);
     this.startDrawLoop();

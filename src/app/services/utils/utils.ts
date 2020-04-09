@@ -1,4 +1,5 @@
 import { TreeNode } from "src/app/models/tree-node";
+import { PathData } from "./path-data";
 
 export class Utils {
   static getVector(a: DOMPoint, b: DOMPoint = null): DOMPoint {
@@ -55,6 +56,14 @@ export class Utils {
       return array.splice(index, 1);
     }
     return array;
+  }
+
+  public static getPathData(element: any | SVGGraphicsElement): PathData {
+    if (element.getPathData) {
+      return PathData.wrap(element.getPathData());
+    }
+
+    return null;
   }
 
   private static getBounds(

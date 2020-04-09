@@ -4,12 +4,12 @@ import { NumberProperty } from "src/app/models/Properties/NumberProperty";
 import { PropertiesService } from "src/app/services/properties.service";
 import { PlayerService } from "src/app/services/player.service";
 import { Subscription } from "rxjs";
-import { TimeData } from 'src/app/models/timedata';
+import { TimeData } from "src/app/models/timedata";
 
 @Component({
   selector: "app-numeric",
   templateUrl: "./numeric.component.html",
-  styleUrls: ["./numeric.component.scss"]
+  styleUrls: ["./numeric.component.scss"],
 })
 export class NumericComponent implements OnInit, OnDestroy {
   constructor(
@@ -37,13 +37,13 @@ export class NumericComponent implements OnInit, OnDestroy {
 
   onValueChanged(event) {
     if (this.property) {
-      this.property.setValue(parseInt(event.target.value));
+      this.property.setValue(parseInt(event.target.value, 2));
       this.propertiesService.emitPropertyChanged(this.property);
     }
   }
 
   ngOnDestroy() {
-    this.subscription.forEach(element => {
+    this.subscription.forEach((element) => {
       element.unsubscribe();
     });
   }

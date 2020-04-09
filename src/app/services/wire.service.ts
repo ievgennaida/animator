@@ -9,6 +9,8 @@ import { TransformsService } from "./viewport/transformations/transforms.service
 import { ViewService } from "./view.service";
 import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
 import { SelectionService } from './selection.service';
+import { PathTool } from './viewport/path.tool';
+import { PathRenderer } from './viewport/renderers/path.renderer';
 
 /**
  * Wire services together
@@ -26,7 +28,8 @@ export class WireService {
     gridLinesRenderer: GridLinesRenderer,
     adornersRenderer: AdornersRenderer,
     selectionService:SelectionService,
-    viewService: ViewService
+    viewService: ViewService,
+    pathRenderer: PathRenderer,
   ) {
     selectionService.selected.subscribe(() => {
       boundsRenderer.invalidate();
@@ -36,6 +39,7 @@ export class WireService {
       // TODO: invalidate from current to all children
       this.cleanCache();
       boundsRenderer.invalidate();
+      pathRenderer.invalidate();
     });
 
     // view is transformed
@@ -48,6 +52,8 @@ export class WireService {
 
     // view resized
     viewService.resized.subscribe(() => {
+      this.cleanCache();
+      adornersRenderer.invalidate();
       adornersRenderer.onViewportSizeChanged();
     });
 
