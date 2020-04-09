@@ -28,11 +28,11 @@
     <mat-menu #edit>
         <button mat-menu-item disabled (click)="undo()" [disabled]="undoDisabled">
             <mat-icon>undo</mat-icon>
-            <span>Undo</span>
+            <span>Undo</span><span class="hotkey">Ctrl+Z</span>
         </button>
         <button mat-menu-item disabled (click)="redo()" [disabled]="redoDisabled">
             <mat-icon>redo</mat-icon>
-            <span>Redo</span>
+            <span>Redo</span><span class="hotkey">Ctrl+Y</span>
         </button>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="cut()">

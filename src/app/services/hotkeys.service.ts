@@ -9,6 +9,7 @@ import { SelectionTool } from "./viewport/selection.tool";
 import { ZoomTool } from "./viewport/zoom.tool";
 import { PathTool } from "./viewport/path.tool";
 import { PasteService } from "./paste.service";
+import { UndoService } from "./actions/undo.service";
 
 @Injectable({
   providedIn: "root",
@@ -24,40 +25,26 @@ export class HotkeysService {
     private selectionTool: SelectionTool,
     private pathTool: PathTool,
     private pasteService: PasteService,
+    private undoService: UndoService,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
+  add(key: string, callback) {
+    this.eventManager.addEventListener(document.body, key, callback);
+  }
   initialize() {
-    this.eventManager.addEventListener(
-      document.body,
-      `keydown.control.a`,
-      () => {
-        this.selectionService.selectAll();
-      }
-    );
-    this.eventManager.addEventListener(document.body, `keydown.control.x`, () =>
-      this.pasteService.cut()
-    );
-    this.eventManager.addEventListener(document.body, `keydown.control.c`, () =>
-      this.pasteService.copy()
-    );
-    this.eventManager.addEventListener(document.body, `keydown.control.p`, () =>
-      this.pasteService.paste()
-    );
-    this.eventManager.addEventListener(document.body, `keydown.del`, () =>
-      this.pasteService.delete()
-    );
-    this.eventManager.addEventListener(document.body, `keydown.v`, () =>
+    this.add(`keydown.control.a`, () => this.selectionService.selectAll());
+    this.add(`keydown.control.x`, () => this.pasteService.cut());
+    this.add(`keydown.control.z`, () => this.undoService.undo());
+    this.add(`keydown.control.y`, () => this.undoService.redo());
+    this.add(`keydown.control.c`, () => this.pasteService.copy());
+    this.add(`keydown.control.p`, () => this.pasteService.paste());
+    this.add(`keydown.del`, () => this.pasteService.delete());
+    this.add(`keydown.v`, () =>
       this.toolsService.setActiveTool(this.selectionTool)
     );
-    this.eventManager.addEventListener(document.body, `keydown.a`, () =>
-      this.toolsService.setActiveTool(this.pathTool)
-    );
-    this.eventManager.addEventListener(document.body, `keydown.h`, () =>
-      this.toolsService.setActiveTool(this.panTool)
-    );
-    this.eventManager.addEventListener(document.body, `keydown.z`, () =>
-      this.toolsService.setActiveTool(this.zoomTool)
-    );
+    this.add(`keydown.a`, () => this.toolsService.setActiveTool(this.pathTool));
+    this.add(`keydown.h`, () => this.toolsService.setActiveTool(this.panTool));
+    this.add(`keydown.z`, () => this.toolsService.setActiveTool(this.zoomTool));
   }
 }
