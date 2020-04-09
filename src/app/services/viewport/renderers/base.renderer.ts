@@ -150,6 +150,24 @@ export class BaseRenderer {
     }
   }
 
+  drawCross(
+    ctx: CanvasRenderingContext2D,
+    p: DOMPoint,
+    stroke: string = "black"
+  ) {
+    ctx.beginPath();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = stroke;
+    p = this.getSharpPos(p);
+    const centerSize = 5;
+    ctx.moveTo(p.x - centerSize, p.y);
+    ctx.lineTo(p.x + centerSize, p.y);
+    ctx.moveTo(p.x, p.y - centerSize);
+    ctx.lineTo(p.x, p.y + centerSize);
+    ctx.stroke();
+    ctx.closePath();
+  }
+
   drawAdornerRect(
     ctx: CanvasRenderingContext2D,
     thikness: number,

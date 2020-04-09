@@ -6,7 +6,7 @@ import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
-import { SelectionService } from '../../selection.service';
+import { SelectionService } from "../../selection.service";
 
 /**
  * Elements bounds renderer
@@ -18,7 +18,7 @@ export class BoundsRenderer extends BaseRenderer {
   constructor(
     protected outlineService: OutlineService,
     protected logger: LoggerService,
-    private selectionService: SelectionService,
+    private selectionService: SelectionService
   ) {
     super();
   }
@@ -124,19 +124,6 @@ export class BoundsRenderer extends BaseRenderer {
     ctx.fillText(text, center.x - measured.width / 2, center.y + hOffset);
     ctx.restore();
   }
-  drawCenterTransformPoint(ctx: CanvasRenderingContext2D, p: DOMPoint) {
-    ctx.beginPath();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "black";
-    p = this.getSharpPos(p);
-    const centerSize = 5;
-    ctx.moveTo(p.x - centerSize, p.y);
-    ctx.lineTo(p.x + centerSize, p.y);
-    ctx.moveTo(p.x, p.y - centerSize);
-    ctx.lineTo(p.x, p.y + centerSize);
-    ctx.stroke();
-    ctx.closePath();
-  }
 
   redraw() {
     if (!this.ctx) {
@@ -167,12 +154,14 @@ export class BoundsRenderer extends BaseRenderer {
               elementsColor,
               adornerData
             );
+            if (!multiple) {
+              // draw when resized.
+              // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
+              // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
+              // this.drawAdornersHandles(ctx, adornerData);
+              // this.drawCross(ctx, adornerData.centerTransform);
+            }
           }
-          // draw when resized.
-          // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
-          // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-          // this.drawAdornersHandles(ctx, adornerData);
-          // this.drawCenterTransformPoint(ctx, adornerData.centerTransform);
         }
       });
 
