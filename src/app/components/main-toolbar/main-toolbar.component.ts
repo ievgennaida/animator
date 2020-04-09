@@ -22,6 +22,7 @@ import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-line
 import { takeUntil } from "rxjs/operators";
 import { SelectionService } from "src/app/services/selection.service";
 import { PasteService } from "src/app/services/paste.service";
+import { ViewMode } from "src/environments/view-mode";
 
 @Component({
   selector: "app-main-toolbar",
@@ -37,6 +38,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
   showGridLines = this.gridLinesRenderer.showGridLines();
   showProperties = this.viewService.menuVisibleSubject.getValue();
+  mode: ViewMode = consts.appearance.defaultMode;
+  ViewMode = ViewMode;
   constructor(
     private viewService: ViewService,
     private undoService: UndoService,
@@ -83,6 +86,16 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
 
       this.cdRef.markForCheck();
     });
+
+    this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
+      if (this.mode !== mode) {
+        this.mode = mode;
+        this.cdRef.markForCheck();
+      }
+    });
+  }
+  setMode(mode: ViewMode) {
+    this.viewService.setMode(mode);
   }
   fileSelected(event) {
     const files = event.target.files;

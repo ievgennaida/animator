@@ -1,3 +1,5 @@
+import { ViewMode } from "./view-mode";
+
 export const consts = {
   recentItemsCount: 7,
   timelineHeaderHeight: 30,
@@ -8,6 +10,7 @@ export const consts = {
     strokeThinkness: 1,
   },
   appearance: {
+    defaultMode: ViewMode.Editor,
     menuOpened: false,
     menuPanelSize: "250px",
   },

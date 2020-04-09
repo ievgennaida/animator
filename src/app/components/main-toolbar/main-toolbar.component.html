@@ -63,6 +63,13 @@
     </mat-menu>
     <button mat-button [matMenuTriggerFor]="view">View</button>
     <mat-menu #view>
+        <button mat-menu-item disabled (click)="setMode(ViewMode.Animator)" [disabled]="undoDisabled">
+            <mat-icon><span *ngIf="mode === ViewMode.Animator">check</span></mat-icon>Animator
+        </button>
+        <button mat-menu-item disabled (click)="setMode(ViewMode.Editor)" [disabled]="redoDisabled">
+            <mat-icon><span *ngIf="mode === ViewMode.Editor">check</span></mat-icon>Editor
+        </button>
+        <mat-divider></mat-divider>
         <button mat-menu-item [matMenuTriggerFor]="appearance">
             <mat-icon></mat-icon>Viewport
         </button>

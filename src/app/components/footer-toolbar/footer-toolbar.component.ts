@@ -3,23 +3,29 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectorRef,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { PlayerService } from "src/app/services/player.service";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { ViewService } from "src/app/services/view.service";
+import { ViewMode } from "src/environments/view-mode";
+import { consts } from "src/environments/consts";
 
 @Component({
-  selector: "app-controls",
-  templateUrl: "./controls.component.html",
-  styleUrls: ["./controls.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  selector: "app-footer-toolbar",
+  templateUrl: "./footer-toolbar.component.html",
+  styleUrls: ["./footer-toolbar.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ControlsComponent implements OnInit, OnDestroy {
+export class FooterToolbarComponent implements OnInit, OnDestroy {
   constructor(
     private playerService: PlayerService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private viewService: ViewService
   ) {}
+  mode: ViewMode = consts.appearance.defaultMode;
+  ViewMode = ViewMode;
   isPlaying = true;
   isPan = false;
   private destroyed$ = new Subject();
@@ -27,12 +33,18 @@ export class ControlsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.playerService.playSubject
       .pipe(takeUntil(this.destroyed$))
-      .subscribe(p => {
+      .subscribe((p) => {
         if (this.isPlaying !== p) {
           this.isPlaying = p;
           this.cdRef.markForCheck();
         }
       });
+    this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
+      if (this.mode !== mode) {
+        this.mode = mode;
+        this.cdRef.markForCheck();
+      }
+    });
   }
 
   ngOnDestroy() {

@@ -10,9 +10,9 @@
       </div>
     </div>
   </div>
-  <app-controls></app-controls>
+  <app-footer-toolbar></app-footer-toolbar>
 </main>
-<footer #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6" (resizing)="onResizeFooter($event)"
+<footer *ngIf="mode === ViewMode.Animator" #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6" (resizing)="onResizeFooter($event)"
   (resizeEnd)="onResizeFooter($event)" [enableGhostResize]="false" [resizeEdges]="{ top: true }">
   <app-outline (mousewheel)="timeline.onWheel($event)" #outline mwlResizable [style.width.px]="outlineW"
     [resizeCursorPrecision]="6" (resizing)="onResizeOutline($event)" (resizeEnd)="onResizeOutline($event)"

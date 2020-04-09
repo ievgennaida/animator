@@ -12,6 +12,7 @@ import { ToolsService } from "./services/viewport/tools.service";
 import { ViewService } from "./services/view.service";
 import { HotkeysService } from "./services/hotkeys.service";
 import { WireService } from "./services/wire.service";
+import { ViewMode } from "src/environments/view-mode";
 
 @Component({
   selector: "app-root",
@@ -22,7 +23,8 @@ export class AppComponent implements OnInit {
   outlineW: number | string = null;
   footerH: number | string = null;
   lastMenuW = 0;
-
+  mode: ViewMode = consts.appearance.defaultMode;
+  ViewMode = ViewMode;
   constructor(
     private ngZone: NgZone,
     private self: ElementRef,
@@ -33,6 +35,7 @@ export class AppComponent implements OnInit {
   ) {
     wire.init();
   }
+
 
   @ViewChild("footer", { static: true, read: ElementRef })
   footer: ElementRef;
@@ -194,25 +197,28 @@ export class AppComponent implements OnInit {
       );
     });
 
-    this.viewService.menuVisibleSubject
-      .asObservable()
-      .subscribe((visible) => {
-        const style = this.menu.nativeElement.style;
-        if (visible) {
-          if (!this.lastMenuW) {
-            this.lastMenuW = style.width;
-          }
-
-          style.width = this.lastMenuW;
-        } else {
-          if (style.width !== "0px") {
-            this.lastMenuW = style.width;
-          }
-          style.width = "0px";
+    this.viewService.menuVisibleSubject.asObservable().subscribe((visible) => {
+      const style = this.menu.nativeElement.style;
+      if (visible) {
+        if (!this.lastMenuW) {
+          this.lastMenuW = style.width;
         }
 
-        this.viewService.emitViewportResized();
-      });
+        style.width = this.lastMenuW;
+      } else {
+        if (style.width !== "0px") {
+          this.lastMenuW = style.width;
+        }
+        style.width = "0px";
+      }
+
+      this.viewService.emitViewportResized();
+    });
+
+    this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
+      this.mode = mode;
+      this.viewService.emitViewportResized();
+    });
 
     this.hotkeys.initialize();
   }

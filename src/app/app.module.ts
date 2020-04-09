@@ -21,7 +21,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
 
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { ControlsComponent } from './components/timeline/controls/controls.component';
+import { FooterToolbarComponent } from './components/footer-toolbar/footer-toolbar.component';
 import { TextComponent } from './components/properties/text/text.component';
 import { BoolComponent } from './components/properties/bool/bool.component';
 import { ComboComponent } from './components/properties/combo/combo.component';
@@ -46,7 +46,7 @@ import { OutputComponent } from './components/output/output.component';
     PlayerComponent,
     NumericComponent,
     DnumericComponent,
-    ControlsComponent,
+    FooterToolbarComponent,
     TextComponent,
     BoolComponent,
     ComboComponent,

@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { Subject, BehaviorSubject, Observable } from "rxjs";
 import { consts } from "src/environments/consts";
 import { Utils } from "./utils/utils";
+import { ViewMode } from "src/environments/view-mode";
+
 @Injectable({
   providedIn: "root",
 })
@@ -13,6 +15,9 @@ export class ViewService {
     });
   }
   ctm: DOMMatrix = null;
+  viewModeSubject = new BehaviorSubject<ViewMode>(
+    consts.appearance.defaultMode
+  );
   menuVisibleSubject = new BehaviorSubject<boolean>(
     consts.appearance.menuOpened
   );
@@ -34,7 +39,12 @@ export class ViewService {
    * On elements count of the svg is changed. deleted, added etc.
    */
   elementsChangedSubject = new Subject();
-
+  setMode(mode: ViewMode) {
+    if (this.viewModeSubject.getValue() !== mode) {
+      this.viewModeSubject.next(mode);
+      this.emitViewportResized();
+    }
+  }
   toogleMenu() {
     this.menuVisibleSubject.next(!this.menuVisibleSubject.getValue());
   }
