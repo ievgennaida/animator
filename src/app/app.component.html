@@ -4,9 +4,10 @@
     <app-toolbox></app-toolbox>
     <div class="drawer">
       <app-player></app-player>
-      <app-properties class="properties" #properties mode="side" opened="true" position="end" mwlResizable
-        [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }" (resizing)="onResizeProperties($event)"
-        (resizeEnd)="onResizeProperties($event)"> </app-properties>
+      <div mode="side" opened="true" #menu position="end" mwlResizable [resizeCursorPrecision]="6"
+        [resizeEdges]="{ left: true }" (resizing)="onResizeMenu($event)" (resizeEnd)="onResizeMenu($event)">
+        <app-properties class="properties"></app-properties>
+      </div>
     </div>
   </div>
   <app-controls></app-controls>

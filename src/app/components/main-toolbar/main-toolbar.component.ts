@@ -36,7 +36,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   recentItems = [];
   private destroyed$ = new Subject();
   showGridLines = this.gridLinesRenderer.showGridLines();
-  showProperties = this.viewService.viewPropertiesSubject.getValue();
+  showProperties = this.viewService.menuVisibleSubject.getValue();
   constructor(
     private viewService: ViewService,
     private undoService: UndoService,
@@ -52,7 +52,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.viewService.viewPropertiesSubject
+    this.viewService.menuVisibleSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((value) => {
@@ -179,8 +179,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   redo() {
     this.undoService.redo();
   }
-  toogleProperties() {
-    this.viewService.toogleProperties();
+  toogleMenu() {
+    this.viewService.toogleMenu();
   }
   undo() {
     this.undoService.undo();

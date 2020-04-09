@@ -21,7 +21,7 @@ import { WireService } from "./services/wire.service";
 export class AppComponent implements OnInit {
   outlineW: number | string = null;
   footerH: number | string = null;
-  lastUsedPropertiesW = 0;
+  lastMenuW = 0;
 
   constructor(
     private ngZone: NgZone,
@@ -40,8 +40,8 @@ export class AppComponent implements OnInit {
   @ViewChild("outline", { read: ElementRef })
   outline: ElementRef;
 
-  @ViewChild("properties", { static: true, read: ElementRef })
-  properties: ElementRef;
+  @ViewChild("menu", { static: true, read: ElementRef })
+  menu: ElementRef;
 
   @ViewChild("main", { static: true, read: ElementRef })
   main: ElementRef;
@@ -57,8 +57,8 @@ export class AppComponent implements OnInit {
     this.viewService.emitViewportResized();
   }
 
-  onResizeProperties(event: ResizeEvent): void {
-    this.properties.nativeElement.style.width =
+  onResizeMenu(event: ResizeEvent): void {
+    this.menu.nativeElement.style.width =
       this.resize(event.rectangle.width, this.self.nativeElement.clientWidth) +
       "px";
     this.viewService.emitViewportResized();
@@ -99,11 +99,11 @@ export class AppComponent implements OnInit {
       this.self.nativeElement.clientWidth
     );
 
-    const isVisible = this.viewService.viewPropertiesSubject.getValue();
+    const isVisible = this.viewService.menuVisibleSubject.getValue();
     if (isVisible) {
-      this.properties.nativeElement.style.width =
+      this.menu.nativeElement.style.width =
         this.resize(
-          this.properties.nativeElement.clientWidth,
+          this.menu.nativeElement.clientWidth,
           this.self.nativeElement.clientWidth
         ) + "px";
     }
@@ -147,9 +147,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.out(() => {
-      const defaultSize = consts.appearance.propertiesPanelSize;
-      this.properties.nativeElement.style.width = defaultSize;
-      this.lastUsedPropertiesW = this.properties.nativeElement.style.width;
+      const defaultSize = consts.appearance.menuPanelSize;
+      this.menu.nativeElement.style.width = defaultSize;
+      this.lastMenuW = this.menu.nativeElement.style.width;
       document.addEventListener(
         "keydown",
         (event: KeyboardEvent) => {
@@ -194,19 +194,19 @@ export class AppComponent implements OnInit {
       );
     });
 
-    this.viewService.viewPropertiesSubject
+    this.viewService.menuVisibleSubject
       .asObservable()
       .subscribe((visible) => {
-        const style = this.properties.nativeElement.style;
+        const style = this.menu.nativeElement.style;
         if (visible) {
-          if (!this.lastUsedPropertiesW) {
-            this.lastUsedPropertiesW = style.width;
+          if (!this.lastMenuW) {
+            this.lastMenuW = style.width;
           }
 
-          style.width = this.lastUsedPropertiesW;
+          style.width = this.lastMenuW;
         } else {
           if (style.width !== "0px") {
-            this.lastUsedPropertiesW = style.width;
+            this.lastMenuW = style.width;
           }
           style.width = "0px";
         }

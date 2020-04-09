@@ -8,8 +8,8 @@ export const consts = {
     strokeThinkness: 1,
   },
   appearance: {
-    propertiesOpened: false,
-    propertiesPanelSize: "250px",
+    menuOpened: false,
+    menuPanelSize: "250px",
   },
   fitToSelectedExtraBounds: 0.2,
   defaultWorkArea: {

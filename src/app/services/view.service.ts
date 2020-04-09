@@ -13,8 +13,8 @@ export class ViewService {
     });
   }
   ctm: DOMMatrix = null;
-  viewPropertiesSubject = new BehaviorSubject<boolean>(
-    consts.appearance.propertiesOpened
+  menuVisibleSubject = new BehaviorSubject<boolean>(
+    consts.appearance.menuOpened
   );
   viewportTransformedSubject = new BehaviorSubject<SVGElement>(null);
   viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
@@ -35,8 +35,8 @@ export class ViewService {
    */
   elementsChangedSubject = new Subject();
 
-  toogleProperties() {
-    this.viewPropertiesSubject.next(!this.viewPropertiesSubject.getValue());
+  toogleMenu() {
+    this.menuVisibleSubject.next(!this.menuVisibleSubject.getValue());
   }
 
   /**
