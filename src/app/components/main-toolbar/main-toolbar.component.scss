@@ -10,22 +10,22 @@ mat-toolbar {
   float: right;
   text-align: right;
 }
-.menu-button{
+.menu-button {
   min-width: 35px !important;
   padding: 0px;
   mat-icon {
-    margin: 0px;
+    margin: 0px !important;
   }
 }
 .mat-menu-container {
   background-color: red;
   margin: 200px;
-  .mat-menu-content{
+  .mat-menu-content {
     background-color: red;
     margin: 200px;
   }
 }
-button[mat-menu-item]{
+button[mat-menu-item] {
   padding-left: 10px;
   padding-right: 10px;
   min-width: 230px;
