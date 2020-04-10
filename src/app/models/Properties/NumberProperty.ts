@@ -20,7 +20,7 @@ export class NumberProperty extends Property {
 
   setValueAtTime(frame: number) {
     let value = this.getValueAtTime(frame);
-    if (this.index !== null) {
+    if (this.index !== null && value) {
       this.value = value[this.index];
     } else {
       this.value = value;

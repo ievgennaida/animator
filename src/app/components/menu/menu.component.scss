@@ -1,0 +1,50 @@
+:host {
+  position: relative;
+}
+mat-accordion {
+  position: absolute;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: stretch;
+  flex-direction: column;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  mat-expansion-panel {
+    border-radius: 0px !important;
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    align-content: stretch;
+    background: none;
+    mat-expansion-panel-header {
+      padding: 0px 10px;
+      background-color: #424242;
+    }
+    mat-expansion-panel-header:hover {
+      background-color: #424242 !important;
+    }
+  }
+  mat-expansion-panel:only-child {
+    mat-expansion-panel-header {
+      display: none;
+    }
+  }
+}
+
+app-outline {
+  height: 100%;
+}
+app-propeties {
+  height: 100%;
+}
+mat-expansion-panel-header {
+  min-height: 30px;
+}
+
+.resize {
+  height: 6px;
+  min-height: 6px;
+  cursor: row-resize;
+}

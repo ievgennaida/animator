@@ -1,19 +1,25 @@
 :host {
-  height: 100%;
   overflow: hidden;
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: stretch;
+  align-content: stretch;
 }
 
 .header {
   height: 30px;
 }
-
 .scroll-container {
+  overflow: auto;
+}
+.no-scroll-container {
   overflow: hidden;
   overflow-x: scroll;
 }
-
+.tree {
+  height: 100%;
+}
 mat-tree {
   width: fit-content;
   min-width: 100%;

@@ -36,15 +36,17 @@ export class AppComponent implements OnInit {
     wire.init();
   }
 
-
   @ViewChild("footer", { static: true, read: ElementRef })
   footer: ElementRef;
 
   @ViewChild("outline", { read: ElementRef })
-  outline: ElementRef;
+  outline: ElementRef<HTMLElement>;
 
   @ViewChild("menu", { static: true, read: ElementRef })
   menu: ElementRef;
+
+  @ViewChild("player", { static: true, read: ElementRef })
+  player: ElementRef;
 
   @ViewChild("main", { static: true, read: ElementRef })
   main: ElementRef;
@@ -75,7 +77,7 @@ export class AppComponent implements OnInit {
     this.viewService.emitViewportResized();
   }
 
-  resize(size, maxSize) {
+  resize(size: number, maxSize: number): number {
     const min = maxSize * 0.1;
     const max = maxSize * 0.9;
     if (size <= min) {
@@ -86,21 +88,18 @@ export class AppComponent implements OnInit {
       size = max;
     }
 
-    // let toSet = `${size}px`;
     return size;
   }
 
   @HostListener("window:resize", [])
   onWindowResize() {
-    if (!this.outline || !this.outline.nativeElement) {
-      return;
+    if (this.outline && this.outline.nativeElement) {
+      // Set the scroll into the bounds:
+      this.outlineW = this.resize(
+        this.outline.nativeElement.clientWidth,
+        this.self.nativeElement.clientWidth
+      );
     }
-
-    // Set the scroll into the bounds:
-    this.outlineW = this.resize(
-      this.outline.nativeElement.clientWidth,
-      this.self.nativeElement.clientWidth
-    );
 
     const isVisible = this.viewService.menuVisibleSubject.getValue();
     if (isVisible) {
@@ -110,6 +109,7 @@ export class AppComponent implements OnInit {
           this.self.nativeElement.clientWidth
         ) + "px";
     }
+
     this.out(() => {
       this.viewService.emitViewportResized();
     });
@@ -148,11 +148,34 @@ export class AppComponent implements OnInit {
     this.ngZone.runOutsideAngular(callback);
   }
 
+  monitorElementSize(element: HTMLElement, callback) {
+    let lastWidth = element.clientWidth;
+    let lastHeight = element.clientHeight;
+
+    setInterval(() => {
+      if (
+        lastWidth !== element.clientWidth ||
+        lastHeight !== element.clientHeight
+      ) {
+        lastWidth = element.clientWidth;
+        lastHeight = element.clientHeight;
+        if (callback) {
+          callback();
+        }
+      }
+    }, 100);
+
+    return element;
+  }
+
   ngOnInit() {
     this.out(() => {
       const defaultSize = consts.appearance.menuPanelSize;
       this.menu.nativeElement.style.width = defaultSize;
       this.lastMenuW = this.menu.nativeElement.style.width;
+      this.monitorElementSize(this.player.nativeElement, () => {
+        this.viewService.emitViewportResized();
+      });
       document.addEventListener(
         "keydown",
         (event: KeyboardEvent) => {
@@ -214,12 +237,11 @@ export class AppComponent implements OnInit {
 
       this.viewService.emitViewportResized();
     });
-
     this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
-      this.mode = mode;
-      this.viewService.emitViewportResized();
+      if (this.mode !== mode) {
+        this.mode = mode;
+      }
     });
-
     this.hotkeys.initialize();
   }
 }

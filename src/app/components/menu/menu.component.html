@@ -1,0 +1,21 @@
+<mat-accordion multi="true" displayMode="flat" (mousemove)="dragMove($event)"
+    (mouseup)="dragFinished($event)">
+    <mat-expansion-panel #propertiesPanel togglePosition="before" class="noselect" [expanded]="propExpanded"  (closed)="stateChanged()" (opened)="stateChanged()">
+        <mat-expansion-panel-header expandedHeight="'30px'" collapsedHeight="'30px'">
+            Properties
+        </mat-expansion-panel-header>
+        <app-properties></app-properties>
+    </mat-expansion-panel>
+    <div class="resize" [style.height.px]="resizeCursorPrecision"
+        *ngIf="propertiesPanel && outlinePanel && propertiesPanel.expanded && outlinePanel.expanded && mode !== ViewMode.Animator"
+        (mousedown)="dragStarted($event)" #outlineResize>
+    </div>
+    <mat-expansion-panel #outlinePanel togglePosition="before"  *ngIf="mode !== ViewMode.Animator" (closed)="stateChanged()"
+        (opened)="stateChanged()" [expanded]="outlineExpanded">
+        <mat-expansion-panel-header class="noselect" expandedHeight="'30px'" collapsedHeight="'30px'">
+            Outline
+        </mat-expansion-panel-header>
+        <app-outline allowScroll="true" #outlineMenu>
+        </app-outline>
+    </mat-expansion-panel>
+</mat-accordion>

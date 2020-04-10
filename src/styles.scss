@@ -1,6 +1,13 @@
 @import "variables";
 @import "~@angular/material/theming";
 @import "@angular/material/prebuilt-themes/pink-bluegrey.css";
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+// TODO: specify global colors here.
+
 body {
   background-color: #1e1e1e;
   scrollbar-color: gray #161616;
@@ -19,6 +26,22 @@ body {
     padding-top: 3px !important;
     padding-bottom: 3px !important;
   }
+}
+/* right menu*/
+.mat-expansion-panel-header {
+  height: 30px !important;
+}
+
+.mat-expanded {
+  height: 100%;
+  .mat-expansion-panel-content,
+  .mat-expansion-panel-body {
+    padding: 0px !important;
+    height: 100% !important;
+  }
+}
+.mat-expansion-indicator {
+  height: 23px;
 }
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
@@ -66,11 +89,6 @@ body {
 .mat-button-toggle-checked {
   background-color: #212121 !important;
 }
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
-@include mat-core();
-// TODO: specify global colors here.
 
 * {
   margin: 0;

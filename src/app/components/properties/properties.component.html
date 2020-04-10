@@ -10,8 +10,8 @@
     </div>
 </div>
 
-<div *ngIf="properties?.items">
-    <div class="properties" [title]="property?.description" *ngFor="let property of properties.items">
+<div *ngIf="properties?.items" class="properties">
+    <div  class="property" [title]="property?.description" *ngFor="let property of properties.items">
         <app-numeric *ngIf="property.type == 'number'" [property]="property"></app-numeric>
         <app-text *ngIf="property.type == 'text' && property.key != 'nm'" [property]="property"></app-text>
         <app-color *ngIf="property.type == 'color'" [property]="property"></app-color>

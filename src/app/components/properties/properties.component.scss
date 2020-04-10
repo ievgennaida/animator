@@ -1,0 +1,29 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+:host ::ng-deep .property-title {
+  min-width: 70px;
+}
+
+.label-item {
+  display: grid;
+  grid-template-columns: minmax(auto, 30px) 1fr;
+  grid-gap: 5px;
+  align-items: center;
+  margin: 4px;
+}
+.properties {
+  height: 100%;
+  overflow-y: auto;
+}
+.property {
+  margin: 4px 8px 4px 4px;
+}
+.property > * {
+  margin-bottom: 4px;
+}

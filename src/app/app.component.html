@@ -3,17 +3,18 @@
   <div class="player-container" #main>
     <app-toolbox></app-toolbox>
     <div class="drawer">
-      <app-player></app-player>
-      <div mode="side" opened="true" #menu position="end" mwlResizable [resizeCursorPrecision]="6"
+      <app-player #player></app-player>
+      <app-menu #menu position="end" mwlResizable [resizeCursorPrecision]="6"
         [resizeEdges]="{ left: true }" (resizing)="onResizeMenu($event)" (resizeEnd)="onResizeMenu($event)">
-        <app-properties class="properties"></app-properties>
-      </div>
+ 
+      </app-menu>
     </div>
   </div>
   <app-footer-toolbar></app-footer-toolbar>
 </main>
-<footer *ngIf="mode === ViewMode.Animator" #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6" (resizing)="onResizeFooter($event)"
-  (resizeEnd)="onResizeFooter($event)" [enableGhostResize]="false" [resizeEdges]="{ top: true }">
+<footer *ngIf="mode === ViewMode.Animator" #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6"
+  (resizing)="onResizeFooter($event)" (resizeEnd)="onResizeFooter($event)" [enableGhostResize]="false"
+  [resizeEdges]="{ top: true }">
   <app-outline (mousewheel)="timeline.onWheel($event)" #outline mwlResizable [style.width.px]="outlineW"
     [resizeCursorPrecision]="6" (resizing)="onResizeOutline($event)" (resizeEnd)="onResizeOutline($event)"
     [enableGhostResize]="false" [resizeEdges]="{ right: true }">

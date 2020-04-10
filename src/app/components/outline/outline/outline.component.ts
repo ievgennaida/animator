@@ -3,7 +3,8 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectionStrategy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  Input
 } from "@angular/core";
 import { Subject } from "rxjs";
 import { consts } from "src/environments/consts";
@@ -22,7 +23,7 @@ export class OutlineComponent implements OnInit, OnDestroy {
     private outlineService: OutlineService,
     private cdRef: ChangeDetectorRef
   ) {}
-
+  @Input() allowScroll = false;
   scrollTop: any = 0;
   height: any = "";
   dataSource = this.outlineService.flatDataSource;

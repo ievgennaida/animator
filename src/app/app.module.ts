@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 
 import { AppComponent } from "./app.component";
 import { OutlineComponent } from "./components/outline/outline/outline.component";
-import { PropertiesComponent } from "./components/properties/properties/properties.component";
+import { PropertiesComponent } from "./components/properties/properties.component";
 import { TimelineComponent } from "./components/timeline/timeline.component";
 import { ToolboxComponent } from "./components/toolbox/toolbox.component";
 import { PlayerComponent } from "./components/player/player.component";
@@ -15,7 +15,7 @@ import { MatTreeModule } from "@angular/material/tree";
 import { MatButtonModule } from "@angular/material/button";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { MatListModule } from "@angular/material/list";
-
+import { MatExpansionModule } from '@angular/material/expansion';
 import { ResizableModule } from "angular-resizable-element";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -35,6 +35,7 @@ import { BreadcrumbComponent } from './components/player/breadcrumb/breadcrumb.c
 import { NotificationComponent } from './components/player/notification/notification.component';
 import { ContextMenuComponent } from './components/context-menu/context-menu.component';
 import { OutputComponent } from './components/output/output.component';
+import { MenuComponent } from './components/menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { OutputComponent } from './components/output/output.component';
     BreadcrumbComponent,
     NotificationComponent,
     ContextMenuComponent,
-    OutputComponent
+    OutputComponent,
+    MenuComponent
   ],
   imports: [
     ResizableModule,
@@ -67,6 +69,7 @@ import { OutputComponent } from './components/output/output.component';
     MatToolbarModule,
     MatIconModule,
     MatListModule,
+    MatExpansionModule,
     MatMenuModule,
     MatButtonToggleModule,
     NoopAnimationsModule,
