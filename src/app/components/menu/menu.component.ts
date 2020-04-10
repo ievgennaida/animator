@@ -62,8 +62,11 @@ export class MenuComponent implements OnInit {
     this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
       if (this.mode !== mode) {
         this.mode = mode;
-        this.cdRef.markForCheck();
         this.stateChanged();
+        if (this.mode === ViewMode.Animator) {
+          this.propExpanded = true;
+        }
+        this.cdRef.markForCheck();
       }
     });
   }
