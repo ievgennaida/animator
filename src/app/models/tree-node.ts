@@ -57,10 +57,17 @@ export class TreeNode {
   }
 
   getElement(): SVGGraphicsElement {
-    return (
-      (this.tag as SVGGraphicsElement) ||
-      (this.tag.layerElement as SVGGraphicsElement)
-    );
+    if (!this.tag) {
+      return null;
+    }
+    if (this.tag instanceof SVGGraphicsElement) {
+      return this.tag as SVGGraphicsElement;
+    }
+    if (this.tag.layerElement instanceof SVGGraphicsElement) {
+      return this.tag.layerElement as SVGGraphicsElement;
+    }
+
+    return null;
   }
 
   cleanCache() {
