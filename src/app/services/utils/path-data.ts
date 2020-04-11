@@ -194,8 +194,7 @@ export class PathData {
       } else if (type === "a") {
         const x = curX + seg.values[5];
         const y = curY + seg.values[6];
-
-        seg.absolute = new PathDataCommand("A", [
+        const cloned = [
           seg.values[0],
           seg.values[1],
           seg.values[2],
@@ -203,7 +202,8 @@ export class PathData {
           seg.values[4],
           x,
           y,
-        ]);
+        ];
+        seg.absolute = new PathDataCommand("A", cloned);
 
         curX = x;
         curY = y;
@@ -217,14 +217,14 @@ export class PathData {
         const x = curX + seg.values[0];
         seg.absolute = new PathDataCommand(type.toUpperCase(), [x]);
         curX = x;
-        seg.absolute.point.x = curY;
-        seg.absolute.point.y = curX;
+        seg.absolute.point.x = curX;
+        seg.absolute.point.y = curY;
       } else if (type === "v") {
         const y = curY + seg.values[0];
         seg.absolute = new PathDataCommand(type.toUpperCase(), [y]);
         curY = y;
-        seg.absolute.point.x = curY;
-        seg.absolute.point.y = curX;
+        seg.absolute.point.x = curX;
+        seg.absolute.point.y = curY;
       } else if (type === "Z" || type === "z") {
         seg.absolute = new PathDataCommand("Z");
         curY = subpath.y;
