@@ -15,11 +15,11 @@ export class NumberProperty extends Property {
   public index: number | null = null;
 
   public min?: number;
-  public step: number = 0.5;
+  public step = 0.5;
   public max?: number;
 
   setValueAtTime(frame: number) {
-    let value = this.getValueAtTime(frame);
+    const value = this.getValueAtTime(frame);
     if (this.index !== null && value) {
       this.value = value[this.index];
     } else {
@@ -54,7 +54,7 @@ export class NumberProperty extends Property {
   setValue(value: number): any {
     if (this.data && this.key) {
       if (this.dataType === PropertyDataType.value) {
-        let prop = this.data[this.key] || {};
+        const prop = this.data[this.key] || {};
         prop.k = value;
       } else {
         this.data[this.key] = value;

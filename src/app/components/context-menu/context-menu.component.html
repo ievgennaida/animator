@@ -1,0 +1,17 @@
+<span (mousedown)="globalMouseDown($event)" #element class="context-menu-position" #trigger="matMenuTrigger"
+    [matMenuTriggerFor]="contextMenu">
+</span>
+<mat-menu #contextMenu [hasBackdrop]="false">
+    <!--div><button mat-menu-item (click)="cut()">
+        <mat-icon></mat-icon><span>Cut</span><span class="hotkey">Ctrl+X</span>
+    </button>
+    <button mat-menu-item (click)="copy()">
+        <mat-icon>file_copy</mat-icon><span>Copy</span><span class="hotkey">Ctrl+C</span>
+    </button>
+    <button mat-menu-item (click)="paste()">
+        <mat-icon></mat-icon><span>Paste</span><span class="hotkey">Ctrl+V</span>
+    </button>
+    <button mat-menu-item (click)="delete()">
+        <mat-icon>clear</mat-icon><span>Delete</span><span class="hotkey">Del</span>
+    </button></div!-->
+</mat-menu>

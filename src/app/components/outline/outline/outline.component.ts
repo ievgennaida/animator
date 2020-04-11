@@ -4,19 +4,22 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  Input
+  Input,
+  ViewChild,
+  ElementRef,
 } from "@angular/core";
 import { Subject } from "rxjs";
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
 import { OutlineService } from "src/app/services/outline.service";
+import { MatMenu } from "@angular/material/menu";
 
 @Component({
   selector: "app-outline",
   templateUrl: "./outline.component.html",
   styleUrls: ["./outline.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OutlineComponent implements OnInit, OnDestroy {
   constructor(
@@ -31,7 +34,11 @@ export class OutlineComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
   // Allow to use enums in the template:
   shapeType = shapeType;
+  @ViewChild("edit")
+  menu: MatMenu;
 
+  @ViewChild("edit", { read: ElementRef })
+  menuEl: ElementRef<HTMLElement>;
   ngOnInit(): void {}
 
   ngOnDestroy() {

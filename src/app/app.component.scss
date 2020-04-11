@@ -21,7 +21,11 @@ app-main-toolbar {
   grid-template-columns: auto minmax(0, 1fr);
   display: grid;
 }
-
+app-context-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
 main {
   flex-grow: 4;
   height: 0px;

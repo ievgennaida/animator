@@ -15,6 +15,7 @@ import {
   SelectionService,
   SelectionMode,
 } from "src/app/services/selection.service";
+import { ContextMenuService } from "src/app/services/context-menu.service";
 
 @Component({
   selector: "app-outline-node",
@@ -38,7 +39,8 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
     private outlineService: OutlineService,
     private cdRef: ChangeDetectorRef,
     private selectionService: SelectionService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private contextMenu: ContextMenuService
   ) {
     this.cdRef.detach();
     selectionService.selected
@@ -111,7 +113,10 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {}
-
+  onRightClick(event: MouseEvent) {
+    this.setSelected(event, this.node);
+    this.contextMenu.open(event, this.node);
+  }
   ngOnDestroy() {
     OutlineNodeComponent.lastSelected = null;
     this.destroyed$.next(true);

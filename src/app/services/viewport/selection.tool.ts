@@ -13,7 +13,8 @@ import { CursorService, CursorType } from "../cursor.service";
 import { MatrixTransform } from "./transformations/matrix-transform";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
-import { SelectionService, SelectionMode } from '../selection.service';
+import { SelectionService, SelectionMode } from "../selection.service";
+import { ContextMenuService } from "../context-menu.service";
 
 /**
  * Select elements by a mouse move move.
@@ -39,37 +40,29 @@ export class SelectionTool extends BaseSelectionTool {
     private transformFactory: TransformsService,
     private outlineService: OutlineService,
     private mouseOverRenderer: MouseOverRenderer,
-    private cursor: CursorService
+    private cursor: CursorService,
+    private contextMenu: ContextMenuService
   ) {
     super(selectorRenderer, transformsService, viewService, logger, panTool);
     outlineService.flatList.subscribe((flatItems) => {
       this.renderableElements = flatItems;
     });
   }
-
-  valueInRange(value: number, min: number, max: number): boolean {
-    return value >= min && value <= max;
-  }
-
-  rectItersects(rect1: DOMRect, rect2: DOMRect): boolean {
-    if (!rect1 || !rect2) {
-      return false;
+  onViewportContextMenu(event: MouseEventArgs) {
+    const startedNode = this.outlineService.mouseOverSubject.getValue();
+    if (startedNode) {
+      this.contextMenu.open(event.args as MouseEvent, startedNode);
     }
-
-    const xOverlap =
-      this.valueInRange(rect1.x, rect2.x, rect2.x + rect2.width) ||
-      this.valueInRange(rect2.x, rect1.x, rect1.x + rect1.width);
-
-    const yOverlap =
-      this.valueInRange(rect1.y, rect2.y, rect2.y + rect2.height) ||
-      this.valueInRange(rect2.y, rect1.y, rect1.y + rect1.height);
-
-    return xOverlap && yOverlap;
+    super.onViewportContextMenu(event);
   }
-
   selectionStarted(event: MouseEventArgs) {
     this.lastDeg = null;
     super.selectionStarted(event);
+    // dont allow to transfrom on right click:
+    if (event.rightClicked()) {
+      this.cleanUp();
+      return;
+    }
     const startedNode = this.outlineService.mouseOverSubject.getValue();
     if (startedNode) {
       this.startedNode = startedNode;
@@ -117,7 +110,7 @@ export class SelectionTool extends BaseSelectionTool {
             bounds.x -= this.containerRect.left;
             bounds.y -= this.containerRect.top;
 
-            if (this.rectItersects(bounds, transformed)) {
+            if (Utils.rectsIntersect(bounds, transformed)) {
               if (onlyFirst) {
                 return node;
               }

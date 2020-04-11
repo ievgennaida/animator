@@ -13,7 +13,7 @@ export enum SelectionMode {
   providedIn: "root",
 })
 export class SelectionService {
-  constructor(private outlineService: OutlineService) {}
+  constructor(private outlineService: OutlineService) { }
   selectedSubject = new BehaviorSubject<ChangedArgs>(new ChangedArgs());
   getSelectedNodes(): TreeNode[] {
     const selector = this.selectedSubject.getValue();
@@ -25,12 +25,7 @@ export class SelectionService {
   }
 
   getSelectedElements(): SVGGraphicsElement[] {
-    const renderable = this.getSelectedNodes().filter(
-      (p) =>
-        p.tag &&
-        (p.tag instanceof SVGGraphicsElement ||
-          p.tag.layerElement instanceof SVGGraphicsElement)
-    );
+    const renderable = this.getSelectedNodes().filter((p) => p.getElement());
 
     return renderable.map((p) => p.getElement());
   }
@@ -38,6 +33,7 @@ export class SelectionService {
   public deselectAll() {
     this.setSelected(null);
   }
+
   public get selected(): Observable<ChangedArgs> {
     return this.selectedSubject.asObservable();
   }

@@ -116,9 +116,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.toolsService.onViewportMouseDown(event);
     });
   }
-  onContextMenu(event: MouseEvent) {
-    event.stopPropagation();
-    event.preventDefault();
+
+  onViewportContextMenu(event: MouseEvent) {
+    this.out(() => {
+      this.toolsService.onViewportContextMenu(event);
+    });
   }
   onViewportMouseUp(event: MouseEvent) {
     this.out(() => {

@@ -1,0 +1,74 @@
+import { Injectable } from "@angular/core";
+import { TreeNode } from "../models/tree-node";
+import { Subject } from "rxjs";
+import { MatMenuTrigger } from "@angular/material/menu";
+import { element } from "protractor";
+import { MouseEventArgs } from "./viewport/mouse-event-args";
+import { Utils } from "./utils/utils";
+export class ContextEventsArgs {
+  event: MouseEvent = null;
+  node: TreeNode = null;
+}
+
+@Injectable({
+  providedIn: "root",
+})
+export class ContextMenuService {
+  constructor() {}
+  private trigger: MatMenuTrigger = null;
+  private container: HTMLElement = null;
+  openSubject = new Subject<ContextEventsArgs>();
+  setElement(container: HTMLElement) {
+    this.container = container;
+  }
+  setTrigger(trigger: MatMenuTrigger) {
+    this.trigger = trigger;
+  }
+  isParent(
+    node: HTMLElement | Node | any,
+    parent: Node | HTMLElement
+  ): boolean {
+    if (!parent || !node) {
+      return false;
+    }
+    while (node) {
+      if (
+        node === parent ||
+        (node.classList && node.classList.contains("mat-menu-panel"))
+      ) {
+        return true;
+      }
+      if (node) {
+        node = node.parentNode;
+      }
+    }
+
+    return false;
+  }
+  onWindowMouseDown(event: MouseEvent | any): boolean {
+    if (this.isOpened()) {
+      if (this.container) {
+        if (this.isParent(event.target, this.container)) {
+          return true;
+        } else {
+          this.close();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  isOpened() {
+    return this.trigger && this.trigger.menuOpen;
+  }
+  close() {
+    this.openSubject.next(null);
+  }
+  open(event: MouseEvent, node: TreeNode) {
+    const args = new ContextEventsArgs();
+    args.event = event;
+    args.node = node;
+    this.openSubject.next(args);
+  }
+}

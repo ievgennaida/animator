@@ -6,6 +6,34 @@ export class Utils {
     const vector = new DOMPoint(a.x - b.x, a.y - b.y);
     return vector;
   }
+  static inRange(value: number, min: number, max: number): boolean {
+    return value >= min && value <= max;
+  }
+  static rectIntersectPoint(rect1: DOMRect, point: DOMPoint): boolean {
+    if (!rect1 || !point) {
+      return false;
+    }
+
+    const overlap =
+      Utils.inRange(point.x, rect1.x, rect1.x + rect1.width) &&
+      Utils.inRange(point.y, rect1.y, rect1.y + rect1.height);
+    return overlap;
+  }
+  static rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
+    if (!rect1 || !rect2) {
+      return false;
+    }
+
+    const xOverlap =
+      Utils.inRange(rect1.x, rect2.x, rect2.x + rect2.width) ||
+      Utils.inRange(rect2.x, rect1.x, rect1.x + rect1.width);
+
+    const yOverlap =
+      Utils.inRange(rect1.y, rect2.y, rect2.y + rect2.height) ||
+      Utils.inRange(rect2.y, rect1.y, rect1.y + rect1.height);
+
+    return xOverlap && yOverlap;
+  }
 
   static shrinkRect(rect: DOMRect, percent: number): DOMRect {
     if (!percent) {

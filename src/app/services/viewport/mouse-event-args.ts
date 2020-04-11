@@ -17,6 +17,24 @@ export class MouseEventArgs {
     }
   }
 
+  rightClicked() {
+    // tslint:disable-next-line: deprecation
+    const e: any = this.args || window.event;
+    if (!e) {
+      return false;
+    }
+    if ("which" in e)
+      // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+      return e.which === 3;
+    else if ("button" in e) return e.button === 2;
+    return false;
+  }
+
+  stopPropagation() {
+    if (this.args) {
+      this.args.stopPropagation();
+    }
+  }
   getDOMPoint() {
     return new DOMPoint(this.clientX, this.clientY);
   }

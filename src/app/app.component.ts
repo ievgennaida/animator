@@ -13,6 +13,7 @@ import { ViewService } from "./services/view.service";
 import { HotkeysService } from "./services/hotkeys.service";
 import { WireService } from "./services/wire.service";
 import { ViewMode } from "src/environments/view-mode";
+import { ContextMenuService } from "./services/context-menu.service";
 
 @Component({
   selector: "app-root",
@@ -31,6 +32,7 @@ export class AppComponent implements OnInit {
     private viewService: ViewService,
     private toolsService: ToolsService,
     private hotkeys: HotkeysService,
+    private contextMenuService: ContextMenuService,
     wire: WireService
   ) {
     wire.init();
@@ -117,9 +119,12 @@ export class AppComponent implements OnInit {
 
   @HostListener("window:mousedown", ["$event"])
   onWindowMouseDown(event: MouseEvent) {
-    this.out(() => {
-      this.toolsService.onWindowMouseDown(event);
-    });
+    const handled = this.contextMenuService.onWindowMouseDown(event);
+    if (!handled) {
+      this.out(() => {
+        this.toolsService.onWindowMouseDown(event);
+      });
+    }
   }
 
   @HostListener("window:mouseup", ["$event"])
@@ -137,6 +142,9 @@ export class AppComponent implements OnInit {
   }
 
   onWindowMouseWheel(event: WheelEvent) {
+    if (this.contextMenuService.isOpened()) {
+      this.contextMenuService.close();
+    }
     // Method is used becaus HostListener doesnot have
     // 'passive' option support.
     this.out(() => {

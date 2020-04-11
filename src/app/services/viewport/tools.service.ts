@@ -74,6 +74,9 @@ export class ToolsService {
   onViewportTouchLeave(event: TouchEvent) {
     this.activeTool.onViewportMouseLeave(new MouseEventArgs(event));
   }
+  onViewportContextMenu(event:MouseEvent){
+    this.activeTool.onViewportContextMenu(new MouseEventArgs(event));
+  }
   onViewportTouchCancel(event: TouchEvent) {
     this.activeTool.onViewportMouseUp(new MouseEventArgs(event));
   }
