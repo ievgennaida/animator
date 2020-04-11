@@ -3,7 +3,6 @@ import { LoggerService } from "../../logger.service";
 import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 import { SelectionService } from "../../selection.service";
-import { Utils } from "../../utils/utils";
 import { MouseEventArgs } from "../mouse-event-args";
 
 @Injectable({

@@ -1,12 +1,13 @@
-import { nullLayer } from "src/app/models/Lottie/layers/nullLayer";
-
 // Should be replaced by a DOM type when avaliable.
 export interface SVGPathSegmentEx {
   type: string;
   values: number[];
 }
 export class PathDataCommand implements SVGPathSegmentEx {
-  constructor(public type: string, public values: number[]) {}
+  constructor(public type: string, public values: number[] = []) {
+    this.point = this.getPoint(type, values);
+  }
+  point: DOMPoint = null;
   /**
    * absolute version of current command.
    */
@@ -17,6 +18,31 @@ export class PathDataCommand implements SVGPathSegmentEx {
     }
 
     return new PathDataCommand(element.type, element.values);
+  }
+
+  public getPoint(type: string, values: Array<number>): DOMPoint {
+    if (!values) {
+      return null;
+    }
+    if (values.length >= 2) {
+      return new DOMPoint(values[values.length - 2], values[values.length - 1]);
+    } else if (values.length === 1) {
+      if (type === "H" || type === "h") {
+        return new DOMPoint(values[0], 0);
+      } else {
+        return new DOMPoint(0, values[0]);
+      }
+    }
+    return null;
+  }
+
+  public setPoint(values: Array<number>, point: DOMPoint) {
+    if (values && values.length >= 2) {
+      values[values.length - 2] = point.x;
+      values[values.length - 1] = point.y;
+    }
+
+    return null;
   }
 
   public getAbsolute(): PathDataCommand {
@@ -124,115 +150,50 @@ export class PathData {
       return data as PathData;
     }
 
-    let currentX = 0;
-    let currentY = 0;
+    let curX = 0;
+    let curY = 0;
 
-    let subpathX = null;
-    let subpathY = null;
+    let subpath = new DOMPoint();
 
     data.commands.forEach((seg) => {
       const type = seg.type;
+      const isMove = type === "m" || type === "M";
+      if (
+        type === "M" ||
+        type === "L" ||
+        type === "T" ||
+        type === "C" ||
+        type === "Q" ||
+        type === "A" ||
+        type === "S"
+      ) {
+        curX = seg.point.x;
+        curY = seg.point.y;
 
-      if (type === "M") {
-        const x = seg.values[0];
-        const y = seg.values[1];
-        seg.absolute = new PathDataCommand("M", [x, y]);
-
-        subpathX = x;
-        subpathY = y;
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "m") {
-        const x = currentX + seg.values[0];
-        const y = currentY + seg.values[1];
-
-        seg.absolute = new PathDataCommand("M", [x, y]);
-
-        subpathX = x;
-        subpathY = y;
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "L") {
-        const x = seg.values[0];
-        const y = seg.values[1];
-
-        seg.absolute = new PathDataCommand("L", [x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "l") {
-        const x = currentX + seg.values[0];
-        const y = currentY + seg.values[1];
-
-        seg.absolute = new PathDataCommand("L", [x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "C") {
-        const x1 = seg.values[0];
-        const y1 = seg.values[1];
-        const x2 = seg.values[2];
-        const y2 = seg.values[3];
-        const x = seg.values[4];
-        const y = seg.values[5];
-
-        seg.absolute = new PathDataCommand("C", [x1, y1, x2, y2, x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "c") {
-        const x1 = currentX + seg.values[0];
-        const y1 = currentY + seg.values[1];
-        const x2 = currentX + seg.values[2];
-        const y2 = currentY + seg.values[3];
-        const x = currentX + seg.values[4];
-        const y = currentY + seg.values[5];
-
-        seg.absolute = new PathDataCommand("C", [x1, y1, x2, y2, x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "Q") {
-        const x1 = seg.values[0];
-        const y1 = seg.values[1];
-        const x = seg.values[2];
-        const y = seg.values[3];
-
-        seg.absolute = new PathDataCommand("Q", [x1, y1, x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "q") {
-        const x1 = currentX + seg.values[0];
-        const y1 = currentY + seg.values[1];
-        const x = currentX + seg.values[2];
-        const y = currentY + seg.values[3];
-
-        seg.absolute = new PathDataCommand("Q", [x1, y1, x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "A") {
-        const x = seg.values[5];
-        const y = seg.values[6];
-
-        seg.absolute = new PathDataCommand("A", [
-          seg.values[0],
-          seg.values[1],
-          seg.values[2],
-          seg.values[3],
-          seg.values[4],
-          x,
-          y,
-        ]);
-
-        currentX = x;
-        currentY = y;
+        if (isMove) {
+          subpath = seg.point;
+        }
+      } else if (
+        type === "m" ||
+        type === "l" ||
+        type === "t" ||
+        type === "c" ||
+        type === "q" ||
+        type === "s"
+      ) {
+        const clonedArray = seg.values.map((p, index) =>
+          !(index % 2) ? curX + p : curY + p
+        );
+        seg.absolute = new PathDataCommand(type.toUpperCase(), clonedArray);
+        const point = seg.absolute.point;
+        curX = point.x;
+        curY = point.y;
+        if (isMove) {
+          subpath = point;
+        }
       } else if (type === "a") {
-        const x = currentX + seg.values[5];
-        const y = currentY + seg.values[6];
+        const x = curX + seg.values[5];
+        const y = curY + seg.values[6];
 
         seg.absolute = new PathDataCommand("A", [
           seg.values[0],
@@ -244,65 +205,30 @@ export class PathData {
           y,
         ]);
 
-        currentX = x;
-        currentY = y;
+        curX = x;
+        curY = y;
       } else if (type === "H") {
-        const x = seg.values[0];
-        seg.absolute = new PathDataCommand("H", [x]);
-        currentX = x;
-      } else if (type === "h") {
-        const x = currentX + seg.values[0];
-        seg.absolute = new PathDataCommand("H", [x]);
-        currentX = x;
+        curX = seg.values[0];
+        seg.point = new DOMPoint(curX, curY);
       } else if (type === "V") {
-        const y = seg.values[0];
-        seg.absolute = new PathDataCommand("V", [y]);
-        currentY = y;
+        curY = seg.values[0];
+        seg.point = new DOMPoint(curX, curY);
+      } else if (type === "h") {
+        const x = curX + seg.values[0];
+        seg.absolute = new PathDataCommand(type.toUpperCase(), [x]);
+        curX = x;
+        seg.absolute.point.x = curY;
+        seg.absolute.point.y = curX;
       } else if (type === "v") {
-        const y = currentY + seg.values[0];
-        seg.absolute = new PathDataCommand("V", [y]);
-        currentY = y;
-      } else if (type === "S") {
-        const x2 = seg.values[0];
-        const y2 = seg.values[1];
-        const x = seg.values[2];
-        const y = seg.values[3];
-
-        seg.absolute = new PathDataCommand("S", [x2, y2, x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "s") {
-        const x2 = currentX + seg.values[0];
-        const y2 = currentY + seg.values[1];
-        const x = currentX + seg.values[2];
-        const y = currentY + seg.values[3];
-
-        seg.absolute = new PathDataCommand("S", [x2, y2, x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "T") {
-        const x = seg.values[0];
-        const y = seg.values[1];
-
-        seg.absolute = new PathDataCommand("T", [x, y]);
-
-        currentX = x;
-        currentY = y;
-      } else if (type === "t") {
-        const x = currentX + seg.values[0];
-        const y = currentY + seg.values[1];
-
-        seg.absolute = new PathDataCommand("T", [x, y]);
-
-        currentX = x;
-        currentY = y;
+        const y = curY + seg.values[0];
+        seg.absolute = new PathDataCommand(type.toUpperCase(), [y]);
+        curY = y;
+        seg.absolute.point.x = curY;
+        seg.absolute.point.y = curX;
       } else if (type === "Z" || type === "z") {
-        seg.absolute = new PathDataCommand("Z", []);
-
-        currentX = subpathX;
-        currentY = subpathY;
+        seg.absolute = new PathDataCommand("Z");
+        curY = subpath.y;
+        curX = subpath.x;
       }
     });
 
