@@ -35,6 +35,60 @@ export class Utils {
     return xOverlap && yOverlap;
   }
 
+  static deg(rad: number): number {
+    return ((rad % 360) * Math.PI) / 180;
+  }
+  /**
+   * https://stackoverflow.com/a/11467200/39428
+   */
+  static ellipseCenter(
+    x1: number,
+    y1: number,
+    rx: number,
+    ry: number,
+    rotateDeg: number,
+    fa: number,
+    fs: number,
+    x2: number,
+    y2: number
+  ): DOMPoint {
+    const phi = Utils.deg(rotateDeg);
+    const m = new DOMMatrix([
+      Math.cos(phi),
+      -Math.sin(phi),
+      Math.sin(phi),
+      Math.cos(phi),
+      0,
+      0,
+    ]);
+    let v = new DOMPoint((x1 - x2) / 2, (y1 - y2) / 2).matrixTransform(m);
+    const x1p = v.x;
+    const y1p = v.y;
+    rx = Math.abs(rx);
+    ry = Math.abs(ry);
+    const lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
+    if (lambda > 1) {
+      rx = Math.sqrt(lambda) * rx;
+      ry = Math.sqrt(lambda) * ry;
+    }
+    const sign = fa === fs ? -1 : 1;
+    const div =
+      (rx * rx * ry * ry - rx * rx * y1p * y1p - ry * ry * x1p * x1p) /
+      (rx * rx * y1p * y1p + ry * ry * x1p * x1p);
+
+    const co = sign * Math.sqrt(Math.abs(div));
+
+    // inverse matrix b and c
+    m.b *= -1;
+    m.c *= -1;
+    v = new DOMPoint(
+      ((rx * y1p) / ry) * co,
+      ((-ry * x1p) / rx) * co
+    ).matrixTransform(m);
+    v.x += (x1 + x2) / 2;
+    v.y += (y1 + y2) / 2;
+    return v;
+  }
   static shrinkRect(rect: DOMRect, percent: number): DOMRect {
     if (!percent) {
       return rect;
