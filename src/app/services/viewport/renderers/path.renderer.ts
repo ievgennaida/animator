@@ -84,8 +84,8 @@ export class PathRenderer extends BaseRenderer {
           const point = abs.p.matrixTransform(ctm);
 
           // draw handles:
-          if (command instanceof CPathDataCommand) {
-            const c = command as CPathDataCommand;
+          if (abs instanceof CPathDataCommand) {
+            const c = abs as CPathDataCommand;
 
             const a = c.a.matrixTransform(ctm);
             const b = c.b.matrixTransform(ctm);
@@ -121,8 +121,8 @@ export class PathRenderer extends BaseRenderer {
               point,
               b
             );
-          } else if (command instanceof SPathDataCommand) {
-            const c = command as SPathDataCommand;
+          } else if (abs instanceof SPathDataCommand) {
+            const c = abs as SPathDataCommand;
             const a = c.a.matrixTransform(ctm);
             this.drawHandle(
               node,
@@ -139,8 +139,8 @@ export class PathRenderer extends BaseRenderer {
               point,
               a
             );
-          } else if (command instanceof QPathDataCommand) {
-            const c = command as QPathDataCommand;
+          } else if (abs instanceof QPathDataCommand) {
+            const c = abs as QPathDataCommand;
             const a = c.a.matrixTransform(ctm);
             this.drawHandle(
               node,
@@ -157,8 +157,8 @@ export class PathRenderer extends BaseRenderer {
               point,
               a
             );
-          } else if (command instanceof APathDataCommand) {
-            const c = command as APathDataCommand;
+          } else if (abs instanceof APathDataCommand) {
+            const c = abs as APathDataCommand;
             const m = this.screenCTM.multiply(node.getScreenCTM());
             this.ctx.lineWidth = 1;
             this.ctx.strokeStyle = consts.pathHandleLineStroke;
