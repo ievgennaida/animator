@@ -30,7 +30,10 @@ export class HotkeysService {
   ) {}
 
   add(key: string, callback) {
-    this.eventManager.addEventListener(document.body, key, callback);
+    this.eventManager.addEventListener(document.body, key, (e: Event) => {
+      callback(e);
+      e.preventDefault();
+    });
   }
   initialize() {
     this.add(`keydown.control.a`, () => this.selectionService.selectAll());
