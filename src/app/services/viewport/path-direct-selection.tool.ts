@@ -10,12 +10,12 @@ import { MouseOverRenderer } from './renderers/mouse-over.renderer';
   providedIn: "root",
 })
 /**
- * Create path tool
+ * Path direct selection
  */
-export class PathTool extends BaseTool {
+export class PathDirectSelectionTool extends BaseTool {
   svgMatrix: DOMMatrix = null;
   mouseDownPos: DOMPoint = null;
-  iconName = "timeline";
+  iconName = "navigation_outline";
   constructor(
     private selectionService: SelectionService,
     private logger: LoggerService,

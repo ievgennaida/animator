@@ -85,6 +85,7 @@ export class BoundsRenderer extends BaseRenderer {
       consts.handleStrokeSize,
       consts.handleStrokeColor,
       consts.handleFillColor,
+      true,
       new DOMPoint(handlePoint.x - fromX, handlePoint.y - fromY),
       new DOMPoint(handlePoint.x + toX, handlePoint.y + toY),
       new DOMPoint(opposite.x + toX, opposite.y + toY),

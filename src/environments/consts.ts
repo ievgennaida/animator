@@ -4,6 +4,12 @@ export const consts = {
   recentItemsCount: 7,
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
+  pathPointSize: 6,
+  pathPointFill: null,
+  pathPointStroke: "black",
+  pathHandleSize: 4,
+  pathHandleStroke: "#3399FF",
+  pathHandleLineStroke: "#3399FF",
   selector: {
     fill: "RGBA(51,153,255,0.11)",
     stroke: "#3399FF",

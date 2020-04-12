@@ -10,14 +10,15 @@ import { Utils } from "../utils/utils";
 import { OutlineService } from "../outline.service";
 import { ViewService } from "../view.service";
 import { consts } from "src/environments/consts";
-import { SelectionService } from '../selection.service';
-import { PathTool } from './path.tool';
+import { SelectionService } from "../selection.service";
+import { PathTool } from "./path.tool";
+import { PathDirectSelectionTool } from './path-direct-selection.tool';
 
 /**
  * Handle current active tool and services.
  */
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class ToolsService {
   activeToolSubject = new BehaviorSubject<BaseTool>(null);
@@ -28,7 +29,8 @@ export class ToolsService {
     private panTool: PanTool,
     private zoomTool: ZoomTool,
     selectionTool: SelectionTool,
-    pathTool:PathTool,
+    pathTool: PathDirectSelectionTool,
+    createPathTool: PathTool,
     private selectionService: SelectionService,
     private viewService: ViewService,
     // Special tool to control pan by scrollbars
@@ -38,6 +40,7 @@ export class ToolsService {
     this.tools.push(pathTool);
     this.tools.push(panTool);
     this.tools.push(zoomTool);
+    this.tools.push(createPathTool);
     this.setActiveTool(panTool);
   }
 
@@ -74,7 +77,7 @@ export class ToolsService {
   onViewportTouchLeave(event: TouchEvent) {
     this.activeTool.onViewportMouseLeave(new MouseEventArgs(event));
   }
-  onViewportContextMenu(event:MouseEvent){
+  onViewportContextMenu(event: MouseEvent) {
     this.activeTool.onViewportContextMenu(new MouseEventArgs(event));
   }
   onViewportTouchCancel(event: TouchEvent) {

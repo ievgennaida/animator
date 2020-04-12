@@ -1,7 +1,7 @@
 import { IInitializer, InitResults } from "../interfaces/intializer";
 import { InputDocument } from "src/app/models/input-document";
 import { SvgPlayer } from "./svg-player";
-
+const xmlns = "http://www.w3.org/2000/svg";
 export class SvgInitializer implements IInitializer {
   constructor() {}
   initOnRefresh(): boolean {
@@ -53,5 +53,10 @@ export class SvgInitializer implements IInitializer {
     }
 
     return results;
+  }
+
+  createPath(): SVGPathElement {
+    const el: any = document.createElementNS(xmlns, "path");
+    return el;
   }
 }

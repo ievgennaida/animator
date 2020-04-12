@@ -4,6 +4,15 @@ import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 import { SelectionService } from "../../selection.service";
 import { MouseEventArgs } from "../mouse-event-args";
+import {
+  CPathDataCommand,
+  SPathDataCommand,
+  QPathDataCommand,
+  APathDataCommand,
+} from "../../utils/path-data";
+import { TreeNode } from "src/app/models/tree-node";
+import { Utils } from "../../utils/utils";
+import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root",
@@ -20,6 +29,38 @@ export class PathRenderer extends BaseRenderer {
 
   onWindowMouseMove(event: MouseEventArgs) {}
 
+  drawPoint(
+    node: TreeNode,
+    point: DOMPoint,
+    size: number,
+    stroke: string = "black",
+    fill: string = null
+  ) {
+    const half = size / 2;
+    this.ctx.beginPath();
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = stroke;
+    if (fill) {
+      this.ctx.fillStyle = fill;
+      this.ctx.fillRect(point.x - half, point.y - half, size, size);
+    }
+    this.ctx.strokeRect(point.x - half, point.y - half, size, size);
+  }
+
+  drawHandle(
+    node: TreeNode,
+    point: DOMPoint,
+    size: number,
+    stroke: string = "black",
+    fill: string = null
+  ) {
+    this.ctx.beginPath();
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = stroke;
+    this.ctx.ellipse(point.x, point.y, size, size, 0, 0, 360);
+    this.ctx.stroke();
+  }
+
   redraw() {
     if (!this.ctx) {
       return;
@@ -28,22 +69,136 @@ export class PathRenderer extends BaseRenderer {
     this.clear();
     this.invalidated = false;
     const nodes = this.selectionService.getSelectedNodes();
+    this.ctx.save();
     nodes.forEach((node) => {
       const data = node.getPathData();
       if (data && data.commands) {
-        data.commands.forEach((command) => {
+        const ctm = this.screenCTM.multiply(node.getScreenCTM());
+        let prevPoint: DOMPoint = null;
+        data.commands.forEach((command, index) => {
+          const prev = index > 0 ? data.commands[index - 1] : null;
           const abs = command.getAbsolute();
-
-          const values = abs.values;
-
-          if (values && values.length >= 2) {
-            let position = new DOMPoint(values[0], values[1]);
-            const ctm = this.screenCTM.multiply(node.getScreenCTM());
-            position = position.matrixTransform(ctm);
-            this.drawCross(this.ctx, position);
+          if (!abs || !abs.p) {
+            return;
           }
+          const point = abs.p.matrixTransform(ctm);
+
+          // draw handles:
+          if (command instanceof CPathDataCommand) {
+            const c = command as CPathDataCommand;
+
+            const a = c.a.matrixTransform(ctm);
+            const b = c.b.matrixTransform(ctm);
+            // handles:
+            this.drawHandle(
+              node,
+              a,
+              consts.pathHandleSize,
+              consts.pathHandleStroke
+            );
+            this.drawHandle(
+              node,
+              b,
+              consts.pathHandleSize,
+              consts.pathHandleStroke
+            );
+            // handle lines:
+            this.drawPath(
+              this.ctx,
+              1,
+              consts.pathHandleLineStroke,
+              null,
+              false,
+              prevPoint,
+              a
+            );
+            this.drawPath(
+              this.ctx,
+              1,
+              consts.pathHandleLineStroke,
+              null,
+              false,
+              point,
+              b
+            );
+          } else if (command instanceof SPathDataCommand) {
+            const c = command as SPathDataCommand;
+            const a = c.a.matrixTransform(ctm);
+            this.drawHandle(
+              node,
+              a,
+              consts.pathHandleSize,
+              consts.pathHandleStroke
+            );
+            this.drawPath(
+              this.ctx,
+              1,
+              consts.pathHandleLineStroke,
+              null,
+              false,
+              point,
+              a
+            );
+          } else if (command instanceof QPathDataCommand) {
+            const c = command as QPathDataCommand;
+            const a = c.a.matrixTransform(ctm);
+            this.drawHandle(
+              node,
+              a,
+              consts.pathHandleSize,
+              consts.pathHandleStroke
+            );
+            this.drawPath(
+              this.ctx,
+              1,
+              consts.pathHandleLineStroke,
+              null,
+              false,
+              point,
+              a
+            );
+          } else if (command instanceof APathDataCommand) {
+            const c = command as APathDataCommand;
+            const m = this.screenCTM.multiply(node.getScreenCTM());
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeStyle = consts.pathHandleLineStroke;
+            this.ctx.beginPath();
+            this.ctx.setTransform(m);
+            let center = c.center;
+            this.ctx.ellipse(
+              center.x,
+              center.y,
+              c.r.x,
+              c.r.y,
+              Utils.deg(c.rotation),
+              0,
+              360
+            );
+            this.ctx.resetTransform();
+            this.ctx.stroke();
+            center = center.matrixTransform(ctm);
+            this.drawHandle(
+              node,
+              center,
+              consts.pathHandleSize,
+              consts.pathHandleStroke
+            );
+          }
+
+          if (point) {
+            this.drawPoint(
+              node,
+              point,
+              consts.pathPointSize,
+              consts.pathHandleStroke,
+              consts.pathPointFill
+            );
+          }
+
+          prevPoint = point;
         });
       }
     });
+    this.ctx.restore();
   }
 }

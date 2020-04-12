@@ -7,9 +7,9 @@ import { ToolsService } from "./viewport/tools.service";
 import { PanTool } from "./viewport/pan.tool";
 import { SelectionTool } from "./viewport/selection.tool";
 import { ZoomTool } from "./viewport/zoom.tool";
-import { PathTool } from "./viewport/path.tool";
 import { PasteService } from "./paste.service";
 import { UndoService } from "./actions/undo.service";
+import { PathDirectSelectionTool } from './viewport/path-direct-selection.tool';
 
 @Injectable({
   providedIn: "root",
@@ -23,7 +23,7 @@ export class HotkeysService {
     private panTool: PanTool,
     private zoomTool: ZoomTool,
     private selectionTool: SelectionTool,
-    private pathTool: PathTool,
+    private pathTool: PathDirectSelectionTool,
     private pasteService: PasteService,
     private undoService: UndoService,
     @Inject(DOCUMENT) private document: Document

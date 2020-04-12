@@ -6,7 +6,6 @@ import { shapeType } from "./Lottie/shapes/shapeType";
 import { LottieModel } from "./Lottie/LottieModel";
 import { NodeType } from "./Lottie/NodeType";
 import { AdornerData } from "../services/viewport/adorners/adorner-data";
-import { Utils } from "../services/utils/utils";
 import { PathData } from "../services/utils/path-data";
 
 /**
@@ -86,7 +85,7 @@ export class TreeNode {
   }
 
   public getPathData(): PathData {
-    return Utils.getPathData(this.getElement());
+    return PathData.getPathData(this.getElement());
   }
   /**
    * get cached bounding client rect.

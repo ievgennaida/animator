@@ -9,7 +9,6 @@ import { TransformsService } from "./viewport/transformations/transforms.service
 import { ViewService } from "./view.service";
 import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
 import { SelectionService } from './selection.service';
-import { PathTool } from './viewport/path.tool';
 import { PathRenderer } from './viewport/renderers/path.renderer';
 
 /**

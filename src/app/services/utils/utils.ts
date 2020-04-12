@@ -139,15 +139,7 @@ export class Utils {
     }
     return array;
   }
-
-  public static getPathData(element: any | SVGGraphicsElement): PathData {
-    if (element.getPathData) {
-      return PathData.wrap(element.getPathData());
-    }
-
-    return null;
-  }
-
+  
   private static getBounds(
     clientRect: boolean,
     ...elements: SVGGraphicsElement[] | TreeNode[]

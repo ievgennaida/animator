@@ -119,6 +119,7 @@ export class BaseRenderer {
     thikness: number,
     stroke: string,
     fillStyle: string,
+    closed: boolean,
     ...points: Array<DOMPoint>
   ) {
     ctx.beginPath();
@@ -133,7 +134,9 @@ export class BaseRenderer {
       }
     });
 
-    ctx.closePath();
+    if (closed) {
+      ctx.closePath();
+    }
 
     if (fillStyle) {
       ctx.fillStyle = fillStyle;
@@ -179,6 +182,7 @@ export class BaseRenderer {
       thikness,
       stroke,
       null,
+      true,
       adornerData.topLeft,
       adornerData.topRight,
       adornerData.bottomRight,
