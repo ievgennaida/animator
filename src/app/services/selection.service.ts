@@ -15,7 +15,7 @@ export enum SelectionMode {
 export class SelectionService {
   constructor(private outlineService: OutlineService) { }
   selectedSubject = new BehaviorSubject<ChangedArgs>(new ChangedArgs());
-  getSelectedNodes(): TreeNode[] {
+  getSelected(): TreeNode[] {
     const selector = this.selectedSubject.getValue();
     return selector.nodes;
   }
@@ -25,7 +25,7 @@ export class SelectionService {
   }
 
   getSelectedElements(): SVGGraphicsElement[] {
-    const renderable = this.getSelectedNodes().filter((p) => p.getElement());
+    const renderable = this.getSelected().filter((p) => p.getElement());
 
     return renderable.map((p) => p.getElement());
   }
@@ -39,7 +39,7 @@ export class SelectionService {
   }
 
   selectSameType() {
-    const selectedNodes = this.getSelectedNodes();
+    const selectedNodes = this.getSelected();
     const toSelect = this.outlineService
       .getAllNodes()
       .filter(

@@ -9,7 +9,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.p = this.getPoint(type, values);
     this.update();
   }
-
+  public selected = false;
   public p: DOMPoint;
 
   /**

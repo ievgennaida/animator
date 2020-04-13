@@ -7,10 +7,10 @@ import { MouseEventArgs } from "../mouse-event-args";
 import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from "../../utils/utils";
 import { consts } from "src/environments/consts";
-import { CPathDataCommand } from 'src/app/models/path/cpath-data-command';
-import { SPathDataCommand } from 'src/app/models/path/spath-data-command';
-import { QPathDataCommand } from 'src/app/models/path/qpath-data-command';
-import { APathDataCommand } from 'src/app/models/path/apath-data-command';
+import { CPathDataCommand } from "src/app/models/path/cpath-data-command";
+import { SPathDataCommand } from "src/app/models/path/spath-data-command";
+import { QPathDataCommand } from "src/app/models/path/qpath-data-command";
+import { APathDataCommand } from "src/app/models/path/apath-data-command";
 
 @Injectable({
   providedIn: "root",
@@ -66,7 +66,7 @@ export class PathRenderer extends BaseRenderer {
 
     this.clear();
     this.invalidated = false;
-    const nodes = this.selectionService.getSelectedNodes();
+    const nodes = this.selectionService.getSelected();
     this.ctx.save();
     nodes.forEach((node) => {
       const data = node.getPathData();
@@ -74,7 +74,7 @@ export class PathRenderer extends BaseRenderer {
         const ctm = this.screenCTM.multiply(node.getScreenCTM());
         let prevPoint: DOMPoint = null;
         data.commands.forEach((command, index) => {
-          const prev = index > 0 ? data.commands[index - 1] : null;
+          // const prev = index > 0 ? data.commands[index - 1] : null;
           const abs = command.getAbsolute();
           if (!abs || !abs.p) {
             return;
@@ -188,8 +188,8 @@ export class PathRenderer extends BaseRenderer {
               node,
               point,
               consts.pathPointSize,
-              consts.pathHandleStroke,
-              consts.pathPointFill
+              abs.selected ? "red" : consts.pathHandleStroke,
+              abs.selected ? "red" : consts.pathPointFill
             );
           }
 

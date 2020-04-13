@@ -42,7 +42,7 @@ export class TreeNode {
   private cacheScreenAdorers: AdornerData = null;
   private cacheElementAdorers: AdornerData = null;
   private _name = "";
-
+  private pathDataCache: PathData;
   get name(): string {
     return this._name || this.typeTitle;
   }
@@ -77,6 +77,7 @@ export class TreeNode {
   cleanElementCache() {
     this.cacheClientRect = null;
     this.cacheElementAdorers = null;
+    this.pathDataCache = null;
   }
 
   cleanScreenCache() {
@@ -85,7 +86,12 @@ export class TreeNode {
   }
 
   public getPathData(): PathData {
-    return PathData.getPathData(this.getElement());
+    if (this.pathDataCache) {
+      return this.pathDataCache;
+    }
+
+    this.pathDataCache = PathData.getPathData(this.getElement());
+    return this.pathDataCache;
   }
   /**
    * get cached bounding client rect.

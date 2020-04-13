@@ -104,6 +104,14 @@ export class Utils {
     );
   }
 
+  static toElementPoint(
+    node: TreeNode | SVGGraphicsElement,
+    screenPoint: DOMPoint
+  ): DOMPoint {
+    const current = screenPoint.matrixTransform(node.getScreenCTM().inverse());
+    return current;
+  }
+
   static matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect {
     const start = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
     const end = new DOMPoint(

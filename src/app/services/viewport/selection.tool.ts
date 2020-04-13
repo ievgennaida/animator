@@ -71,7 +71,7 @@ export class SelectionTool extends BaseSelectionTool {
       }
 
       const nodesToSelect = this.selectionService
-        .getSelectedNodes()
+        .getSelected()
         .map((item) => this.getTopSelectedNode(item))
         .filter((value, index, self) => value && self.indexOf(value) === index);
 

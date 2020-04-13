@@ -133,7 +133,7 @@ export class BoundsRenderer extends BaseRenderer {
     const ctx = this.ctx;
     this.invalidated = false;
     this.clear();
-    const nodes = this.selectionService.getSelectedNodes();
+    const nodes = this.selectionService.getSelected();
     if (nodes && nodes.length > 0) {
       const renderable = nodes.filter((node) => !!node.getElement());
       const multiple = renderable.length > 1;

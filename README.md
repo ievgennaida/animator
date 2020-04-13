@@ -6,10 +6,11 @@ Suppose to be a simple (svg) animation editor:
 
 -> have not decided about the engine yet.
 
+CURRENT STATE: spike.
+
 Steps: 
 - editor interfaces and general views <- in progress.
-- edit existing transformations with the timeline keyframes
+- svg wysiwyg.
+- edit existing transformations with the timeline keyframes.
 - edit other properties with the timeline.
-- import svg.
 - easing functions.
-- wysiwyg.

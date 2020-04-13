@@ -21,7 +21,7 @@ export class MatrixTransform {
   ) {}
 
   beginMouseTransaction(pos: DOMPoint) {
-    this.offset = this.transformScreenToElement(this.element, pos);
+    this.offset = Utils.toElementPoint(this.element, pos);
     this.mode = TransformationMode.Translate;
   }
 
@@ -78,16 +78,6 @@ export class MatrixTransform {
       .multiply(fromElement.getScreenCTM());
   }
 
-  transformScreenToElement(
-    element: SVGGraphicsElement,
-    screenPoint: DOMPoint
-  ): DOMPoint {
-    const current = screenPoint.matrixTransform(
-      element.getScreenCTM().inverse()
-    );
-    return current;
-  }
-
   transformByMouse(screenPos: DOMPoint) {
     if (this.mode === TransformationMode.Rotate) {
       this.rotateByMouse(screenPos);
@@ -99,7 +89,7 @@ export class MatrixTransform {
   }
 
   moveByMouse(screenPos: DOMPoint) {
-    const elementPoint = this.transformScreenToElement(this.element, screenPos);
+    const elementPoint = Utils.toElementPoint(this.element, screenPos);
     if (this.offset) {
       elementPoint.x -= this.offset.x;
       elementPoint.y -= this.offset.y;
