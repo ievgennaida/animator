@@ -7,11 +7,12 @@ import { LottieModel } from "./Lottie/LottieModel";
 import { NodeType } from "./Lottie/NodeType";
 import { AdornerData } from "../services/viewport/adorners/adorner-data";
 import { PathData } from "./path/path-data";
+import { ICTMProvider } from "../services/interfaces/ctm-provider";
 
 /**
  * Application node view model.
  */
-export class TreeNode {
+export class TreeNode implements ICTMProvider {
   constructor() {
     this.lane = {} as AnimationTimelineLane;
     this.children = [];
@@ -38,9 +39,11 @@ export class TreeNode {
   mouseOver = false;
   preselected = false;
   selected = false;
-  private cacheClientRect: DOMRect = null;
-  private cacheScreenAdorers: AdornerData = null;
-  private cacheElementAdorers: AdornerData = null;
+  private cacheClientRect: DOMRect;
+  private cacheScreenAdorers: AdornerData;
+  private cacheElementAdorers: AdornerData;
+  private ctmCache: DOMMatrix;
+  private screenCTMCache: DOMMatrix;
   private _name = "";
   private pathDataCache: PathData;
   get name(): string {
@@ -75,6 +78,8 @@ export class TreeNode {
   }
 
   cleanElementCache() {
+    this.screenCTMCache = null;
+    this.ctmCache = null;
     this.cacheClientRect = null;
     this.cacheElementAdorers = null;
     this.pathDataCache = null;
@@ -108,12 +113,29 @@ export class TreeNode {
     return null;
   }
 
-  getScreenCTM() {
+  getCTM() {
+    if (this.ctmCache) {
+      return this.ctmCache;
+    }
     const element = this.getElement();
     if (!element) {
       return;
     }
-    return element.getScreenCTM();
+    this.ctmCache = element.getCTM();
+    return this.ctmCache;
+  }
+
+  getScreenCTM() {
+    if (this.screenCTMCache) {
+      return this.screenCTMCache;
+    }
+
+    const element = this.getElement();
+    if (!element) {
+      return;
+    }
+    this.ctmCache = element.getScreenCTM();
+    return this.ctmCache;
   }
   /**
    * Get adorner on a screen coordinates

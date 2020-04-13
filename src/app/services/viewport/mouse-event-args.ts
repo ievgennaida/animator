@@ -11,6 +11,15 @@ export class MouseEventArgs {
   ctrlKey = false;
   shiftKey = false;
   args: MouseEvent | TouchEvent | WheelEvent;
+  /**
+   * Screen DOM point.
+   */
+  screenPoint: DOMPoint;
+
+  /**
+   * viewport Point
+   */
+  viewportPoint: DOMPoint;
   preventDefault() {
     if (this.args) {
       this.args.preventDefault();
@@ -35,8 +44,9 @@ export class MouseEventArgs {
       this.args.stopPropagation();
     }
   }
+
   getDOMPoint() {
-    return new DOMPoint(this.clientX, this.clientY);
+    return this.screenPoint;
   }
 
   constructor(event: MouseEvent | WheelEvent | TouchEvent) {
@@ -67,5 +77,6 @@ export class MouseEventArgs {
       this.clientX = event.clientX;
       this.clientY = event.clientY;
     }
+    this.screenPoint = new DOMPoint(this.clientX, this.clientY);
   }
 }

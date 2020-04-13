@@ -36,6 +36,7 @@ import { NotificationComponent } from './components/player/notification/notifica
 import { ContextMenuComponent } from './components/context-menu/context-menu.component';
 import { OutputComponent } from './components/output/output.component';
 import { MenuComponent } from './components/menu/menu.component';
+import { MouseTrackerComponent } from './components/footer-toolbar/mouse-tracker/mouse-tracker.component';
 
 @NgModule({
   declarations: [
@@ -61,7 +62,8 @@ import { MenuComponent } from './components/menu/menu.component';
     NotificationComponent,
     ContextMenuComponent,
     OutputComponent,
-    MenuComponent
+    MenuComponent,
+    MouseTrackerComponent
   ],
   imports: [
     ResizableModule,

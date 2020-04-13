@@ -97,8 +97,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
   onViewportTouchEnd(event: TouchEvent) {
     this.out(() => this.toolsService.onViewportTouchEnd(event));
   }
+  onViewportMouseMove(event: MouseEvent) {
+    this.out(() => this.toolsService.onViewportMouseMove(event));
+  }
   onViewportTouchMove(event: TouchEvent) {
-    this.out(() => this.toolsService.onViewportTouchMove(event));
+    this.out(() => this.toolsService.onViewportMouseMove(event));
   }
   onViewportTouchLeave(event: TouchEvent) {
     this.out(() => this.toolsService.onViewportTouchLeave(event));

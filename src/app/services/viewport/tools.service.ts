@@ -3,7 +3,7 @@ import { PanTool } from "./pan.tool";
 import { MouseEventArgs } from "./mouse-event-args";
 import { BaseTool } from "./base.tool";
 import { ZoomTool } from "./zoom.tool";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { SelectionTool } from "./selection.tool";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 import { Utils } from "../utils/utils";
@@ -12,7 +12,7 @@ import { ViewService } from "../view.service";
 import { consts } from "src/environments/consts";
 import { SelectionService } from "../selection.service";
 import { PathTool } from "./path.tool";
-import { PathDirectSelectionTool } from './path-direct-selection.tool';
+import { PathDirectSelectionTool } from "./path-direct-selection.tool";
 
 /**
  * Handle current active tool and services.
@@ -22,6 +22,7 @@ import { PathDirectSelectionTool } from './path-direct-selection.tool';
 })
 export class ToolsService {
   activeToolSubject = new BehaviorSubject<BaseTool>(null);
+  viewportMouseMoveSubject = new Subject<MouseEventArgs>();
   public tools: Array<BaseTool> = [];
   private activeTool: BaseTool = null;
 
@@ -71,8 +72,16 @@ export class ToolsService {
   onViewportTouchEnd(event: TouchEvent) {
     this.activeTool.onViewportMouseUp(new MouseEventArgs(event));
   }
-  onViewportTouchMove(event: TouchEvent) {
-    this.activeTool.onViewportMouseMove(new MouseEventArgs(event));
+  onViewportMouseMove(event: TouchEvent | MouseEvent) {
+    const args = new MouseEventArgs(event);
+    if (args.screenPoint) {
+      args.viewportPoint = Utils.toElementPoint(
+        this.viewService,
+        args.screenPoint
+      );
+    }
+    this.activeTool.onViewportMouseMove(args);
+    this.viewportMouseMoveSubject.next(args);
   }
   onViewportTouchLeave(event: TouchEvent) {
     this.activeTool.onViewportMouseLeave(new MouseEventArgs(event));
@@ -134,7 +143,8 @@ export class ToolsService {
     this.activeTool.onWindowMouseDown(new MouseEventArgs(event));
   }
   onWindowMouseMove(event: MouseEvent) {
-    this.activeTool.onWindowMouseMove(new MouseEventArgs(event));
+    const args = new MouseEventArgs(event);
+    this.activeTool.onWindowMouseMove(args);
   }
   onWindowMouseUp(event: MouseEvent) {
     this.activeTool.onWindowMouseUp(new MouseEventArgs(event));
@@ -154,7 +164,7 @@ export class ToolsService {
     if (bounds) {
       bounds = Utils.matrixRectTransform(
         bounds,
-        this.viewService.viewport.getScreenCTM().inverse()
+        this.viewService.getScreenCTM().inverse()
       );
       bounds = Utils.shrinkRect(bounds, consts.fitToSelectedExtraBounds);
       this.fitViewport(bounds);

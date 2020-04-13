@@ -25,6 +25,7 @@ export class GridLinesRenderer extends BaseRenderer {
     this.showGridLinesSubject.next(!this.showGridLinesSubject.getValue());
     this.invalidate();
   }
+
   showGridLines() {
     return this.showGridLinesSubject.getValue();
   }

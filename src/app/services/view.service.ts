@@ -3,18 +3,26 @@ import { Subject, BehaviorSubject, Observable } from "rxjs";
 import { consts } from "src/environments/consts";
 import { Utils } from "./utils/utils";
 import { ViewMode } from "src/environments/view-mode";
+import { ICTMProvider } from "./interfaces/ctm-provider";
 
 @Injectable({
   providedIn: "root",
 })
-export class ViewService {
+export class ViewService implements ICTMProvider {
   constructor() {
     this.transformed.subscribe(() => {
-      // update self ctm cache
-      this.ctm = Utils.getCTM(this.viewport);
+      if (this.viewport) {
+        // update self ctm cache
+        this.ctm = Utils.getCTM(this.viewport);
+        this.screenCTM = this.viewport.getScreenCTM();
+      } else {
+        this.ctm = null;
+        this.screenCTM = null;
+      }
     });
   }
-  ctm: DOMMatrix = null;
+  ctm: DOMMatrix;
+  screenCTM: DOMMatrix;
   viewModeSubject = new BehaviorSubject<ViewMode>(
     consts.appearance.defaultMode
   );
@@ -145,6 +153,17 @@ export class ViewService {
     }
 
     return Utils.getCTM(this.viewport);
+  }
+  public getScreenCTM(): DOMMatrix {
+    if (!this.isInit()) {
+      return null;
+    }
+
+    if (this.screenCTM) {
+      return this.screenCTM;
+    }
+
+    this.screenCTM = this.viewport.getScreenCTM();
   }
 
   public svgRoot(): SVGSVGElement {

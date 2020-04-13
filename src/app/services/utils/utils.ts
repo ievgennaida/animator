@@ -1,5 +1,6 @@
 import { TreeNode } from "src/app/models/tree-node";
 import { PathData } from "../../models/path/path-data";
+import { ICTMProvider } from "../interfaces/ctm-provider";
 
 export class Utils {
   static getVector(a: DOMPoint, b: DOMPoint = null): DOMPoint {
@@ -105,10 +106,10 @@ export class Utils {
   }
 
   static toElementPoint(
-    node: TreeNode | SVGGraphicsElement,
+    el: SVGGraphicsElement | ICTMProvider,
     screenPoint: DOMPoint
   ): DOMPoint {
-    const current = screenPoint.matrixTransform(node.getScreenCTM().inverse());
+    const current = screenPoint.matrixTransform(el.getScreenCTM().inverse());
     return current;
   }
 

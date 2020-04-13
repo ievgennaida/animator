@@ -4,6 +4,7 @@
   max-height: 36px;
   height: 36px;
   overflow: hidden;
+  display: flex;
 }
 button[mat-button] {
   padding: 0px;
@@ -14,7 +15,9 @@ button[mat-button] {
     color: white;
   }
 }
-
+app-mouse-tracker {
+  margin-left: auto;
+}
 .separator {
   margin-right: 15px;
   display: inline-block;

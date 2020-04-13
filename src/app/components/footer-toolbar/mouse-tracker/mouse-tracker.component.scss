@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  height: 100%;
+  padding: 10px;
+}
+.x,
+.y {
+  min-width: 50px;
+}
+.x {
+  margin-right: 10px;
+}
