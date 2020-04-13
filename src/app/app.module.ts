@@ -9,7 +9,7 @@ import { ToolboxComponent } from "./components/toolbox/toolbox.component";
 import { PlayerComponent } from "./components/player/player.component";
 import { NumericComponent } from "./components/properties/numeric/numeric.component";
 import { DnumericComponent } from "./components/properties/dnumeric/dnumeric.component";
-
+import { HttpClientModule } from "@angular/common/http";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTreeModule } from "@angular/material/tree";
 import { MatButtonModule } from "@angular/material/button";
@@ -70,6 +70,7 @@ import { MouseTrackerComponent } from './components/footer-toolbar/mouse-tracker
     MatTreeModule,
     MatToolbarModule,
     MatIconModule,
+    HttpClientModule,
     MatListModule,
     MatExpansionModule,
     MatMenuModule,

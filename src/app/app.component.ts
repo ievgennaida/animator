@@ -14,6 +14,7 @@ import { HotkeysService } from "./services/hotkeys.service";
 import { WireService } from "./services/wire.service";
 import { ViewMode } from "src/environments/view-mode";
 import { ContextMenuService } from "./services/context-menu.service";
+import { AssetsService } from "./services/assets.service";
 
 @Component({
   selector: "app-root",
@@ -33,8 +34,10 @@ export class AppComponent implements OnInit {
     private toolsService: ToolsService,
     private hotkeys: HotkeysService,
     private contextMenuService: ContextMenuService,
+    assetsService: AssetsService,
     wire: WireService
   ) {
+    assetsService.registerIcons();
     wire.init();
   }
 
