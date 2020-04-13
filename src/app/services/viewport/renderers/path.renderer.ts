@@ -4,15 +4,13 @@ import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 import { SelectionService } from "../../selection.service";
 import { MouseEventArgs } from "../mouse-event-args";
-import {
-  CPathDataCommand,
-  SPathDataCommand,
-  QPathDataCommand,
-  APathDataCommand,
-} from "../../utils/path-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from "../../utils/utils";
 import { consts } from "src/environments/consts";
+import { CPathDataCommand } from 'src/app/models/path/cpath-data-command';
+import { SPathDataCommand } from 'src/app/models/path/spath-data-command';
+import { QPathDataCommand } from 'src/app/models/path/qpath-data-command';
+import { APathDataCommand } from 'src/app/models/path/apath-data-command';
 
 @Injectable({
   providedIn: "root",

@@ -6,7 +6,7 @@ import { shapeType } from "./Lottie/shapes/shapeType";
 import { LottieModel } from "./Lottie/LottieModel";
 import { NodeType } from "./Lottie/NodeType";
 import { AdornerData } from "../services/viewport/adorners/adorner-data";
-import { PathData } from "../services/utils/path-data";
+import { PathData } from "./path/path-data";
 
 /**
  * Application node view model.

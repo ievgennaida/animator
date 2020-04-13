@@ -1,5 +1,5 @@
 import { TreeNode } from "src/app/models/tree-node";
-import { PathData } from "./path-data";
+import { PathData } from "../../models/path/path-data";
 
 export class Utils {
   static getVector(a: DOMPoint, b: DOMPoint = null): DOMPoint {
@@ -139,7 +139,7 @@ export class Utils {
     }
     return array;
   }
-  
+
   private static getBounds(
     clientRect: boolean,
     ...elements: SVGGraphicsElement[] | TreeNode[]
