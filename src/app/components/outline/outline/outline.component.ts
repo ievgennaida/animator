@@ -13,7 +13,6 @@ import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
 import { OutlineService } from "src/app/services/outline.service";
-import { MatMenu } from "@angular/material/menu";
 
 @Component({
   selector: "app-outline",
@@ -34,11 +33,6 @@ export class OutlineComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
   // Allow to use enums in the template:
   shapeType = shapeType;
-  @ViewChild("edit")
-  menu: MatMenu;
-
-  @ViewChild("edit", { read: ElementRef })
-  menuEl: ElementRef<HTMLElement>;
   ngOnInit(): void {}
 
   ngOnDestroy() {
