@@ -9,6 +9,7 @@ import { consts } from "src/environments/consts";
 import { CursorService, CursorType } from "../cursor.service";
 import { TransformsService } from "./transformations/transforms.service";
 import { SelectorRenderer } from "./renderers/selector.renderer";
+import { Utils } from "../utils/utils";
 
 @Injectable({
   providedIn: "root",
@@ -109,13 +110,20 @@ export class ZoomTool extends BaseSelectionTool {
     scale = 1 - direction * scale;
     if (scale !== 0) {
       let matrix = this.viewService.getCTM();
-      let point = new DOMPoint(1, 1, 1, 1);
+      let point = null;
       if (event) {
-        point = this.viewService
-          .toSvgPoint(event.clientX, event.clientY)
-          .matrixTransform(matrix.inverse());
+        point = event.screenPoint;
+      } else {
+        point = this.viewService.getScreenSize();
+        if (point) {
+          point.x /= 2;
+          point.y /= 2;
+        }
       }
-
+      if (!point) {
+        point = new DOMPoint(0, 0);
+      }
+      point = Utils.toElementPoint(this.viewService, point);
       // allow to set to the max
       let expectedScale = matrix.a * scale;
       if (expectedScale > consts.zoom.max) {

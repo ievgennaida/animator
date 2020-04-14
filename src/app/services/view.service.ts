@@ -133,6 +133,19 @@ export class ViewService implements ICTMProvider {
     return new DOMPoint(ctm.e, ctm.f);
   }
 
+  public getScreenSize(): DOMPoint {
+    if (!this.isInit()) {
+      return null;
+    }
+    if (!this.viewport.ownerSVGElement) {
+      return null;
+    }
+    const svg = this.viewport.ownerSVGElement;
+    const toPoint = svg.createSVGPoint();
+    toPoint.x = svg.clientWidth;
+    toPoint.y = svg.clientHeight;
+    return toPoint;
+  }
   public getDisplayedBounds() {
     if (!this.viewport) {
       return null;
@@ -141,12 +154,7 @@ export class ViewService implements ICTMProvider {
     const matrix = this.getCTM().inverse();
     let fromPoint = svg.createSVGPoint();
     fromPoint = fromPoint.matrixTransform(matrix);
-
-    let toPoint = svg.createSVGPoint();
-    toPoint.x = svg.clientWidth;
-    toPoint.y = svg.clientHeight;
-    toPoint = toPoint.matrixTransform(matrix);
-
+    const toPoint = this.getScreenSize().matrixTransform(matrix);
     return {
       from: fromPoint,
       to: toPoint,
