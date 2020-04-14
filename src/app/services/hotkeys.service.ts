@@ -30,7 +30,7 @@ export class HotkeysService {
   ) {}
 
   add(key: string, callback) {
-    this.eventManager.addEventListener(document.body, key, (e: Event) => {
+    this.eventManager.addEventListener(this.document.body, key, (e: Event) => {
       callback(e);
       e.preventDefault();
     });
