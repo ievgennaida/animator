@@ -16,6 +16,9 @@ export class BaseRenderer {
   }
 
   public initContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+    if (!canvas) {
+      return null;
+    }
     const ctx = canvas.getContext("2d");
     return ctx;
   }

@@ -19,18 +19,9 @@
   width: calc(100% - 17px);
   height: calc(100% - 17px);
   display: grid;
-  grid-template-rows: 20px 1fr;
-  grid-template-columns: 20px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: auto 1fr;
   background-color: #252526;
-}
-.canvas-ruler-v {
-  touch-action: none;
-  pointer-events: none;
-  grid-column: 2;
-  grid-row: 1;
-  height: 100%;
-  width: 100%;
-  background-color: $scrollbar-color;
 }
 
 .viewport-units {
@@ -42,13 +33,19 @@
   width: 100%;
   background-color: $scrollbar-color;
 }
+.canvas-ruler-v {
+  grid-column: 2;
+  grid-row: 1;
+  height: 20px;
+  width: 100%;
+  background-color: $scrollbar-color;
+}
+
 .canvas-ruler-h {
-  touch-action: none;
-  pointer-events: none;
   grid-column: 1;
   grid-row: 2;
+  width: 20px;
   height: 100%;
-  width: 100%;
   background-color: $scrollbar-color;
 }
 

@@ -97,6 +97,15 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
           this.cdRef.markForCheck();
         }
       });
+    this.gridLinesRenderer.rulerVisibleSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((visible) => {
+        if (this.rulerVisible !== visible) {
+          this.rulerVisible = visible;
+          this.cdRef.markForCheck();
+        }
+      });
 
     // Load current recent items.
     this.setRecent(null);

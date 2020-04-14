@@ -16,7 +16,7 @@ import { ViewService } from "src/app/services/view.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
 import { CursorService, CursorType } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
-import { GridLinesRenderer } from 'src/app/services/viewport/renderers/grid-lines.renderer';
+import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
@@ -51,12 +51,22 @@ export class PlayerComponent implements OnInit, OnDestroy {
   @ViewChild("resetButton", { static: true })
   resetButton: ElementRef;
 
-  @ViewChild("rulerH", { static: true })
   rulerHRef: ElementRef<HTMLCanvasElement>;
-
-  @ViewChild("rulerV", { static: true })
+  @ViewChild("rulerH", { read: ElementRef })
+  set setRulerH(node: ElementRef<HTMLCanvasElement>) {
+    if (this.rulerHRef !== node) {
+      this.rulerHRef = node;
+      this.updateRulers();
+    }
+  }
   rulerVRef: ElementRef<HTMLCanvasElement>;
-
+  @ViewChild("rulerV", { read: ElementRef })
+  set setRulerV(node: ElementRef<HTMLCanvasElement>) {
+    if (this.rulerVRef !== node) {
+      this.rulerVRef = node;
+      this.updateRulers();
+    }
+  }
   private readonly defaultBrowserScrollSize = 17;
   private destroyed$ = new Subject();
   constructor(
@@ -70,7 +80,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ) {
     // this.cdRef.detach();
   }
-
+  rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
   workAreaSize = this.viewService.viewportSizeSubject.getValue();
   shadowAreaSize = this.workAreaSize;
   scrollbarSize = 17;
@@ -169,7 +179,15 @@ export class PlayerComponent implements OnInit, OnDestroy {
           }
         });
     });
-
+    this.gridLinesRenderer.rulerVisibleSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((visible) => {
+        if (this.rulerVisible !== visible) {
+          this.rulerVisible = visible;
+          this.cdRef.markForCheck();
+        }
+      });
     this.viewService.init(
       this.svgViewPortRef.nativeElement,
       this.playerRef.nativeElement
@@ -190,10 +208,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
       });
 
     this.toolsService.fitViewport();
+    this.updateRulers();
+  }
 
+  updateRulers() {
     this.gridLinesRenderer.setRulers(
-      this.rulerHRef.nativeElement,
-      this.rulerVRef.nativeElement
+      this.rulerHRef ? this.rulerHRef.nativeElement : null,
+      this.rulerVRef ? this.rulerVRef.nativeElement : null
     );
   }
 

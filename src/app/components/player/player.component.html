@@ -30,11 +30,11 @@
                 </svg>
             </g>
         </svg>
-        <div class="viewport-units">
+        <div class="viewport-units" *ngIf="rulerVisible">
             px
         </div>
-        <canvas #rulerH class="canvas-ruler-h"></canvas>
-        <canvas #rulerV class="canvas-ruler-v"></canvas>
+        <canvas #rulerH class="canvas-ruler-h" *ngIf="rulerVisible"></canvas>
+        <canvas #rulerV class="canvas-ruler-v" *ngIf="rulerVisible"></canvas>
         <app-player-adorners></app-player-adorners>
     </div>
     <button [style.height.px]="scrollbarSize" [style.width.px]="scrollbarSize" mat-button #resetButton

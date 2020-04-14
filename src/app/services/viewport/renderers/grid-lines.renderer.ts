@@ -99,9 +99,10 @@ export class GridLinesRenderer extends BaseRenderer {
     ctx: CanvasRenderingContext2D,
     from: number,
     to: number,
+    horizontal: boolean,
     drawGridLines: boolean
   ) {
-    if (isNaN(from) || isNaN(to) || from === to || !ctx || !adornersCTX) {
+    if (isNaN(from) || isNaN(to) || from === to) {
       return;
     }
 
@@ -115,10 +116,17 @@ export class GridLinesRenderer extends BaseRenderer {
     if (valDistance <= 0) {
       return;
     }
+    const sizeCTM = ctx || adornersCTX;
+    if (!sizeCTM) {
+      return;
+    }
 
-    const horizontal = ctx.canvas.width > ctx.canvas.height;
-    const viewportSizeA = horizontal ? ctx.canvas.width : ctx.canvas.height;
-    const viewportSizeB = horizontal ? ctx.canvas.height : ctx.canvas.width;
+    const viewportSizeA = horizontal
+      ? sizeCTM.canvas.width
+      : sizeCTM.canvas.height;
+    const viewportSizeB = horizontal
+      ? sizeCTM.canvas.height
+      : sizeCTM.canvas.width;
     // When step is set by pixel
     const displayStepsCanFit = viewportSizeA / consts.ruler.tickPx;
     const valueStep = valDistance / displayStepsCanFit;
@@ -135,80 +143,98 @@ export class GridLinesRenderer extends BaseRenderer {
     const toVal = Math.ceil(to / step) * step + step;
 
     const gridLineWidth = this.onePixel;
-    ctx.save();
+    if (step <= 0 || Math.abs(toVal - fromVal) === 0) {
+      return;
+    }
+    const rulerActive =
+      !!ctx &&
+      ctx.canvas &&
+      ctx.canvas.clientWidth > 0 &&
+      ctx.canvas.clientHeight > 0;
+    if (rulerActive) {
+      ctx.save();
+    }
     let lastTextLim = null;
     let lastTextStart = 0;
     for (let i = fromVal; i <= toVal; i += step) {
       if (this.getDistance(i, toVal) > step / 4) {
         let pos = this.valToPx(from, to, i, viewportSizeA);
         pos = this.getSharp(pos, gridLineWidth);
-        ctx.save();
-        ctx.beginPath();
-        ctx.lineWidth = gridLineWidth;
-        ctx.strokeStyle = consts.ruler.tickColor;
-        if (horizontal) {
-          this.drawLine(ctx, pos, 3, pos, viewportSizeB);
-        } else {
-          this.drawLine(ctx, 3, pos, viewportSizeB, pos);
+        if (rulerActive) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.lineWidth = gridLineWidth;
+          ctx.strokeStyle = consts.ruler.tickColor;
+          if (horizontal) {
+            this.drawLine(ctx, pos, 3, pos, viewportSizeB);
+          } else {
+            this.drawLine(ctx, 3, pos, viewportSizeB, pos);
+          }
+          ctx.stroke();
+          ctx.fillStyle = consts.ruler.color;
+
+          if (consts.ruler.font) {
+            ctx.font = consts.ruler.font;
+          }
+
+          const text = this.format(i);
+          const textSize = ctx.measureText(text);
+          const textPos = pos;
+          ctx.stroke();
+
+          // skip text render if there is no space for it.
+          if (!lastTextLim || lastTextLim <= textPos) {
+            let skip = false;
+
+            lastTextLim = textPos + textSize.width + 2;
+            // Last node is always displayed
+            if (!lastTextStart) {
+              let lastNodePos = this.valToPx(from, to, toVal, viewportSizeA);
+              lastNodePos = this.getSharp(lastNodePos, gridLineWidth);
+              lastTextStart = lastNodePos;
+            }
+
+            if (lastTextLim >= lastTextStart) {
+              skip = true;
+            }
+
+            if (!skip) {
+              if (horizontal) {
+                ctx.fillText(text, textPos + 5, 10);
+              } else {
+                ctx.translate(0, textPos);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText(text, -textSize.width * 1.5, 12);
+              }
+            }
+          }
         }
 
         if (drawGridLines) {
           this.drawGridLine(adornersCTX, pos, gridLineWidth, horizontal, true);
         }
-        ctx.stroke();
-        ctx.fillStyle = consts.ruler.color;
 
-        if (consts.ruler.font) {
-          ctx.font = consts.ruler.font;
+        if (rulerActive) {
+          ctx.restore();
         }
-
-        const text = this.format(i);
-        const textSize = ctx.measureText(text);
-        const textPos = pos;
-        ctx.stroke();
-        // skip text render if there is no space for it.
-        if (!lastTextLim || lastTextLim <= textPos) {
-          let skip = false;
-
-          lastTextLim = textPos + textSize.width + 2;
-          // Last node is always displayed
-          if (!lastTextStart) {
-            let lastNodePos = this.valToPx(from, to, toVal, viewportSizeA);
-            lastNodePos = this.getSharp(lastNodePos, gridLineWidth);
-            lastTextStart = lastNodePos;
-          }
-
-          if (lastTextLim >= lastTextStart) {
-            skip = true;
-          }
-
-          if (!skip) {
-            if (horizontal) {
-              ctx.fillText(text, textPos + 5, 10);
-            } else {
-              ctx.translate(0, textPos);
-              ctx.rotate(-Math.PI / 2);
-              ctx.fillText(text, -textSize.width * 1.5, 12);
-            }
-          }
-        }
-        ctx.restore();
       }
 
       // Draw small steps
       for (let x = i + smallStep; x < i + step; x += smallStep) {
         const nextPos = this.valToPx(from, to, x, viewportSizeA);
         // nextPos = this.getSharp(nextPos, gridLineWidth);
-        ctx.beginPath();
-        ctx.lineWidth = gridLineWidth;
-        ctx.strokeStyle = consts.ruler.smallTickColor;
-        const margin = Math.floor(viewportSizeB * 0.8);
-        if (horizontal) {
-          this.drawLine(ctx, nextPos, margin, nextPos, viewportSizeB);
-        } else {
-          this.drawLine(ctx, margin, nextPos, viewportSizeB, nextPos);
+        if (rulerActive) {
+          ctx.beginPath();
+          ctx.lineWidth = gridLineWidth;
+          ctx.strokeStyle = consts.ruler.smallTickColor;
+          const margin = Math.floor(viewportSizeB * 0.8);
+          if (horizontal) {
+            this.drawLine(ctx, nextPos, margin, nextPos, viewportSizeB);
+          } else {
+            this.drawLine(ctx, margin, nextPos, viewportSizeB, nextPos);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
         if (drawGridLines) {
           this.drawGridLine(
             adornersCTX,
@@ -221,32 +247,43 @@ export class GridLinesRenderer extends BaseRenderer {
       }
     }
     lastTextLim = null;
-    ctx.restore();
+    if (rulerActive) {
+      ctx.restore();
+    }
   }
   drawGridLine(
-    adornersCTX,
+    ctx,
     pos: number,
     gridLineWidth: number,
     horizontal: boolean,
     bigLine: boolean
   ) {
-    adornersCTX.save();
-    adornersCTX.beginPath();
-    adornersCTX.lineWidth = gridLineWidth;
-    adornersCTX.strokeStyle = bigLine
+    if (
+      !ctx ||
+      !ctx.canvas ||
+      ctx.canvas.clientHeight === 0 ||
+      ctx.canvas.clientWidth === 0
+    ) {
+      return;
+    }
+
+    ctx.beginPath();
+    ctx.fillStyle = null;
+    ctx.lineWidth = gridLineWidth;
+    ctx.strokeStyle = bigLine
       ? consts.gridLineMainColor
       : consts.gridLineAltColor;
     if (horizontal) {
-      this.drawLine(adornersCTX, pos, 0, pos, adornersCTX.canvas.height);
+      this.drawLine(ctx, pos, 0, pos, ctx.canvas.height);
     } else {
-      this.drawLine(adornersCTX, 0, pos, adornersCTX.canvas.width, pos);
+      this.drawLine(ctx, 0, pos, ctx.canvas.width, pos);
     }
-    adornersCTX.stroke();
-    adornersCTX.restore();
+    ctx.stroke();
   }
 
   redraw() {
-    if (!this.rulerVCTX || !this.rulerHCTX || !this.ctx) {
+    // two rulers OR one ctx should be active.
+    if ((!this.rulerVCTX || !this.rulerHCTX) && !this.ctx) {
       return;
     }
     this.invalidated = false;
@@ -260,6 +297,7 @@ export class GridLinesRenderer extends BaseRenderer {
         this.rulerVCTX,
         bounds.from.x,
         bounds.to.x,
+        true,
         this.gridLinesVisible()
       );
       this.drawTicks(
@@ -267,6 +305,7 @@ export class GridLinesRenderer extends BaseRenderer {
         this.rulerHCTX,
         bounds.from.y,
         bounds.to.y,
+        false,
         this.gridLinesVisible()
       );
     }
