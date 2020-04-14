@@ -80,6 +80,15 @@
             <button mat-menu-item (click)="toogleGridLines()">
                 <mat-icon><span *ngIf="showGridLines">check</span></mat-icon>Grid Lines
             </button>
+            <button mat-menu-item (click)="toogleRuler()">
+                <mat-icon><span *ngIf="rulerVisible">check</span></mat-icon>Ruler
+            </button>
+            <button mat-menu-item (click)="toogleBreadcrumbs()">
+                <mat-icon><span *ngIf="breadcrumbsVisible">check</span></mat-icon>Breadcrumbs
+            </button>
+            <button mat-menu-item (click)="toogleCode()">
+                <mat-icon><span *ngIf="codeVisible">check</span></mat-icon>Code
+            </button>            
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="zoomIn()">
                 <mat-icon>zoom_in</mat-icon>Zoom In

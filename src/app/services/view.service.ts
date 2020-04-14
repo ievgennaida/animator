@@ -29,6 +29,10 @@ export class ViewService implements ICTMProvider {
   menuVisibleSubject = new BehaviorSubject<boolean>(
     consts.appearance.menuOpened
   );
+  codeVisibleSubject = new BehaviorSubject<boolean>(false);
+  breadcrumbsVisibleSubject = new BehaviorSubject<boolean>(
+    consts.breadcrumbVisible
+  );
   viewportTransformedSubject = new BehaviorSubject<SVGElement>(null);
   viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
   playerHost: SVGElement;
@@ -53,6 +57,15 @@ export class ViewService implements ICTMProvider {
       this.emitViewportResized();
     }
   }
+  toogleBreadcrumbs() {
+    this.breadcrumbsVisibleSubject.next(
+      !this.breadcrumbsVisibleSubject.getValue()
+    );
+  }
+  toogleCode() {
+    this.codeVisibleSubject.next(!this.codeVisibleSubject.getValue());
+  }
+
   toogleMenu() {
     this.menuVisibleSubject.next(!this.menuVisibleSubject.getValue());
   }

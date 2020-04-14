@@ -1,0 +1,5 @@
+<div class="noselect title-container" [ngClass]="{'active':(item && item.node)}" (mouseenter)="mouseEnter($event)"
+    (mouseleave)="mouseLeave($event)" (click)="setSelected($event)">
+    <div>{{item?.title}}</div>
+    <div *ngIf="showNext" class="next">></div>
+</div>

@@ -16,18 +16,23 @@ export class GridLinesRenderer extends BaseRenderer {
     super();
   }
 
-  showGridLinesSubject = new BehaviorSubject<boolean>(consts.showGridLines);
+  gridLinesVisibleSubject = new BehaviorSubject<boolean>(consts.showGridLines);
+  rulerVisibleSubject = new BehaviorSubject<boolean>(consts.showRuler);
   rulerVCTX: CanvasRenderingContext2D = null;
   rulerHCTX: CanvasRenderingContext2D = null;
 
   denominators = [1, 2, 5, 10];
   toogleShowGridLines() {
-    this.showGridLinesSubject.next(!this.showGridLinesSubject.getValue());
+    this.gridLinesVisibleSubject.next(!this.gridLinesVisibleSubject.getValue());
     this.invalidate();
   }
 
-  showGridLines() {
-    return this.showGridLinesSubject.getValue();
+  toogleRuler() {
+    this.rulerVisibleSubject.next(!this.rulerVisibleSubject.getValue());
+    this.invalidate();
+  }
+  gridLinesVisible() {
+    return this.gridLinesVisibleSubject.getValue();
   }
   setRulers(
     rulerHElement: HTMLCanvasElement,
@@ -255,14 +260,14 @@ export class GridLinesRenderer extends BaseRenderer {
         this.rulerVCTX,
         bounds.from.x,
         bounds.to.x,
-        this.showGridLines()
+        this.gridLinesVisible()
       );
       this.drawTicks(
         this.ctx,
         this.rulerHCTX,
         bounds.from.y,
         bounds.to.y,
-        this.showGridLines()
+        this.gridLinesVisible()
       );
     }
   }

@@ -15,6 +15,7 @@ export const consts = {
     stroke: "#3399FF",
     strokeThinkness: 1,
   },
+  breadcrumbVisible: false,
   appearance: {
     defaultMode: ViewMode.Editor,
     menuOpened: false,
@@ -73,6 +74,7 @@ export const consts = {
   handleSize: 6,
   // grid lines
   showGridLines: true,
+  showRuler: true,
   gridLineMainColor: "rgba(160, 160, 160, 0.4)",
   gridLineAltColor: "rgba(160, 160, 160, 0.2)",
 };

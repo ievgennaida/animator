@@ -37,6 +37,7 @@ import { ContextMenuComponent } from './components/context-menu/context-menu.com
 import { OutputComponent } from './components/output/output.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { MouseTrackerComponent } from './components/footer-toolbar/mouse-tracker/mouse-tracker.component';
+import { BreadcrumbItemComponent } from './components/player/breadcrumb/breadcrumb-item/breadcrumb-item.component';
 
 @NgModule({
   declarations: [
@@ -63,7 +64,8 @@ import { MouseTrackerComponent } from './components/footer-toolbar/mouse-tracker
     ContextMenuComponent,
     OutputComponent,
     MenuComponent,
-    MouseTrackerComponent
+    MouseTrackerComponent,
+    BreadcrumbItemComponent
   ],
   imports: [
     ResizableModule,

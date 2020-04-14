@@ -36,8 +36,12 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   redoDisabled = false;
   recentItems = [];
   private destroyed$ = new Subject();
-  showGridLines = this.gridLinesRenderer.showGridLines();
+  showGridLines = this.gridLinesRenderer.gridLinesVisible();
   showProperties = this.viewService.menuVisibleSubject.getValue();
+  codeVisible = this.viewService.codeVisibleSubject.getValue();
+  breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
+  rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
+
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
   constructor(
@@ -64,12 +68,32 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
           this.cdRef.markForCheck();
         }
       });
-    this.gridLinesRenderer.showGridLinesSubject
+    this.gridLinesRenderer.gridLinesVisibleSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((gridLines) => {
         if (gridLines !== this.showGridLines) {
           this.showGridLines = gridLines;
+          this.cdRef.markForCheck();
+        }
+      });
+
+    this.viewService.codeVisibleSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((visible) => {
+        if (this.codeVisible !== visible) {
+          this.codeVisible = visible;
+          this.cdRef.markForCheck();
+        }
+      });
+
+    this.viewService.breadcrumbsVisibleSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((visible) => {
+        if (this.breadcrumbsVisible !== visible) {
+          this.breadcrumbsVisible = visible;
           this.cdRef.markForCheck();
         }
       });
@@ -212,6 +236,15 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   }
   toogleGridLines() {
     this.gridLinesRenderer.toogleShowGridLines();
+  }
+  toogleRuler() {
+    this.gridLinesRenderer.toogleRuler();
+  }
+  toogleBreadcrumbs() {
+    this.viewService.toogleBreadcrumbs();
+  }
+  toogleCode() {
+    this.viewService.toogleCode();
   }
   cut() {
     this.pasteService.cut();

@@ -1,0 +1,18 @@
+:host {
+  display: flex;
+  overflow: hidden;
+}
+.next {
+  padding-right: 5px;
+  padding-left: 2px;
+}
+.title-container {
+  overflow: hidden;
+  display: flex;
+}
+.active {
+  cursor: pointer;
+}
+.active:hover {
+  color: white;
+}

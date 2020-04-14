@@ -1,0 +1,27 @@
+:host {
+  height: 100%;
+  width: 100%;
+  background-color: black;
+}
+pre,
+code {
+  height: 100%;
+  padding: 0px;
+  font-family: monospace, monospace;
+}
+pre {
+  overflow: auto;
+}
+pre > code {
+  display: block;
+  padding: 1rem;
+  word-wrap: normal;
+}
+.close-button {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  padding: 0px;
+  width: 36px !important;
+  min-width: 36px !important;
+}

@@ -1,11 +1,19 @@
 <main>
   <app-main-toolbar></app-main-toolbar>
-  <div class="player-container" #main>
+  <div class="main-container">
     <app-toolbox></app-toolbox>
     <div class="drawer">
-      <app-player #player></app-player>
-      <app-menu #menu position="end" mwlResizable [resizeCursorPrecision]="6"
-        [resizeEdges]="{ left: true }" (resizing)="onResizeMenu($event)" (resizeEnd)="onResizeMenu($event)">
+      <div class="central-container">
+        <div>
+          <app-breadcrumb *ngIf="breadcrumbsVisible"></app-breadcrumb>
+        </div>
+        <app-player #player></app-player>
+        <div class="player-overlay" *ngIf="codeVisible">
+          <app-output></app-output>
+        </div>
+      </div>
+      <app-menu #menu position="end" mwlResizable [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }"
+        (resizing)="onResizeMenu($event)" (resizeEnd)="onResizeMenu($event)">
       </app-menu>
     </div>
   </div>

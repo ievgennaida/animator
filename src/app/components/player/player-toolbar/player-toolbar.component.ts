@@ -11,7 +11,7 @@ import { Subject } from "rxjs";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
 import { ViewService } from "src/app/services/view.service";
-import { GridLinesRenderer } from 'src/app/services/viewport/renderers/grid-lines.renderer';
+import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 
 @Component({
   selector: "app-player-toolbar",
@@ -21,8 +21,8 @@ import { GridLinesRenderer } from 'src/app/services/viewport/renderers/grid-line
 })
 export class PlayerToolbarComponent implements OnInit, OnDestroy {
   private destroyed$ = new Subject();
-  showGridLines = this.gridLinesRenderer.showGridLines();
-
+  showGridLines = this.gridLinesRenderer.gridLinesVisible();
+  rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
   constructor(
     private viewService: ViewService,
     private zoomTool: ZoomTool,
@@ -35,16 +35,24 @@ export class PlayerToolbarComponent implements OnInit, OnDestroy {
   scrollbarInputValue = "100";
 
   ngOnInit(): void {
-    this.gridLinesRenderer.showGridLinesSubject
+    this.gridLinesRenderer.gridLinesVisibleSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((gridLines) => {
-        if (gridLines !== this.showGridLines) {
-          this.showGridLines = gridLines;
+      .subscribe((visible) => {
+        if (visible !== this.showGridLines) {
+          this.showGridLines = visible;
           this.cdRef.markForCheck();
         }
       });
-
+    this.gridLinesRenderer.rulerVisibleSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((visible) => {
+        if (visible !== this.rulerVisible) {
+          this.rulerVisible = visible;
+          this.cdRef.markForCheck();
+        }
+      });
     this.viewService.transformed
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {

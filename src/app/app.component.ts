@@ -5,6 +5,7 @@ import {
   ElementRef,
   ViewChild,
   NgZone,
+  ChangeDetectorRef,
 } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
 import { consts } from "src/environments/consts";
@@ -27,8 +28,11 @@ export class AppComponent implements OnInit {
   lastMenuW = 0;
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
+  codeVisible = this.viewService.codeVisibleSubject.getValue();
+  breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
   constructor(
     private ngZone: NgZone,
+    private cdRef: ChangeDetectorRef,
     private self: ElementRef,
     private viewService: ViewService,
     private toolsService: ToolsService,
@@ -52,9 +56,6 @@ export class AppComponent implements OnInit {
 
   @ViewChild("player", { static: true, read: ElementRef })
   player: ElementRef;
-
-  @ViewChild("main", { static: true, read: ElementRef })
-  main: ElementRef;
 
   @ViewChild("drawerContent", { static: true })
   drawerContent: ElementRef;
@@ -253,6 +254,22 @@ export class AppComponent implements OnInit {
         this.mode = mode;
       }
     });
+
     this.hotkeys.initialize();
+    this.viewService.codeVisibleSubject.asObservable().subscribe((visible) => {
+      if (this.codeVisible !== visible) {
+        this.codeVisible = visible;
+        this.cdRef.markForCheck();
+      }
+    });
+
+    this.viewService.breadcrumbsVisibleSubject
+      .asObservable()
+      .subscribe((visible) => {
+        if (this.breadcrumbsVisible !== visible) {
+          this.breadcrumbsVisible = visible;
+          this.cdRef.markForCheck();
+        }
+      });
   }
 }
