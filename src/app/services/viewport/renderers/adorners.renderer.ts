@@ -6,7 +6,7 @@ import { ViewService } from "../../view.service";
 import { GridLinesRenderer } from "./grid-lines.renderer";
 import { SelectorRenderer } from "./selector.renderer";
 import { MouseOverRenderer } from "./mouse-over.renderer";
-import { PathRenderer } from './path.renderer';
+import { PathRenderer } from "./path.renderer";
 
 @Injectable({
   providedIn: "root",
@@ -53,7 +53,7 @@ export class AdornersRenderer extends BaseRenderer {
     });
   }
 
-  onViewportSizeChanged() {
+  invalidateSizeChanged() {
     if (!this.viewService.viewport) {
       return;
     }
@@ -62,16 +62,23 @@ export class AdornersRenderer extends BaseRenderer {
     this.screenCTM = this.canvasCTM.multiply(parent.getScreenCTM().inverse());
     this.renderers.forEach((renderer) => {
       renderer.screenCTM = this.screenCTM;
-      renderer.onViewportSizeChanged();
+      renderer.invalidateSizeChanged();
     });
   }
-
+  public suspend() {
+    this.renderers.forEach((renderer) => renderer.suspend());
+  }
+  public resume() {
+    this.renderers.forEach((renderer) => renderer.resume());
+  }
   public invalidate() {
     this.renderers.forEach((renderer) => renderer.invalidate());
   }
 
   public redraw() {
     this.renderers.forEach((renderer) => {
+      // Method should be instant, avoid heavy operations:
+      renderer.invalidateSizeChanged();
       if (renderer.redrawRequired()) {
         renderer.redraw();
       }

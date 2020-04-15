@@ -41,18 +41,18 @@ export class WireService {
       pathRenderer.invalidate();
     });
 
-    // view is transformed
+    // view is transformed: ex: zoom, size can remain the same.
     viewService.transformed.subscribe(() => {
       // Clean screen cache first when view is transformed
       this.cleanCache();
       adornersRenderer.invalidate();
-      adornersRenderer.onViewportSizeChanged();
+      adornersRenderer.invalidateSizeChanged();
     });
 
     // view resized
     viewService.resized.subscribe(() => {
       this.cleanCache();
-      adornersRenderer.onViewportSizeChanged();
+      adornersRenderer.invalidateSizeChanged();
     });
 
     outlineService.mouseOver.subscribe((treeNode: TreeNode) => {

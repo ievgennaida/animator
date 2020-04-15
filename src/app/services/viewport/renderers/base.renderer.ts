@@ -12,7 +12,7 @@ export class BaseRenderer {
   invalidated = false;
   public setCanvas(canvas: HTMLCanvasElement) {
     this.ctx = this.initContext(canvas);
-    this.onViewportSizeChanged();
+    this.invalidateSizeChanged();
   }
 
   public initContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
@@ -23,7 +23,7 @@ export class BaseRenderer {
     return ctx;
   }
 
-  public onViewportSizeChanged() {
+  public invalidateSizeChanged() {
     const changed = this.rescaleCanvas(this.ctx);
     if (changed) {
       this.invalidate();
@@ -50,6 +50,7 @@ export class BaseRenderer {
 
   public redrawRequired() {
     // TODO: check canvas size
+
     return this.invalidated && !this.suspended;
   }
 
@@ -58,18 +59,16 @@ export class BaseRenderer {
     if (!ctx || !ctx.canvas) {
       return null;
     }
+    // TODO: this method should not do any complex transforms
     const canvas = ctx.canvas;
-    // TODO: skip before creating an object.
-    const point = new DOMPoint(canvas.clientWidth, canvas.clientHeight);
-
-    const newX = Math.floor(point.x);
+    const newX = Math.floor(canvas.clientWidth);
 
     if (newX !== ctx.canvas.width) {
       ctx.canvas.width = newX;
       changed = true;
     }
 
-    const newY = Math.floor(point.y);
+    const newY = Math.floor(canvas.clientHeight);
     if (newY !== ctx.canvas.height) {
       ctx.canvas.height = newY;
       changed = true;

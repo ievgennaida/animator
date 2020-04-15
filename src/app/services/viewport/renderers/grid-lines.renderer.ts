@@ -40,12 +40,12 @@ export class GridLinesRenderer extends BaseRenderer {
   ) {
     this.rulerVCTX = this.initContext(rulerVElement);
     this.rulerHCTX = this.initContext(rulerHElement);
-    this.onViewportSizeChanged();
+    this.invalidateSizeChanged();
   }
 
-  public onViewportSizeChanged() {
+  public invalidateSizeChanged() {
     this.suspend();
-    super.onViewportSizeChanged();
+    super.invalidateSizeChanged();
     if (
       this.rescaleCanvas(this.rulerHCTX) ||
       this.rescaleCanvas(this.rulerVCTX)
@@ -292,6 +292,7 @@ export class GridLinesRenderer extends BaseRenderer {
     if ((!this.rulerVCTX || !this.rulerHCTX) && !this.ctx) {
       return;
     }
+
     this.invalidated = false;
     this.clear();
     this.clearBackground(this.rulerVCTX);
