@@ -52,7 +52,6 @@ export class WireService {
     // view resized
     viewService.resized.subscribe(() => {
       this.cleanCache();
-      adornersRenderer.invalidate();
       adornersRenderer.onViewportSizeChanged();
     });
 

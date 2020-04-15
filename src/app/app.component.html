@@ -12,8 +12,7 @@
           <app-output></app-output>
         </div>
       </div>
-      <app-menu #menu position="end" mwlResizable [resizeCursorPrecision]="6" [resizeEdges]="{ left: true }"
-        (resizing)="onResizeMenu($event)" (resizeEnd)="onResizeMenu($event)">
+      <app-menu #menu *ngIf="menuVisible">
       </app-menu>
     </div>
   </div>

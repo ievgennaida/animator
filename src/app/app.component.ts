@@ -16,6 +16,7 @@ import { WireService } from "./services/wire.service";
 import { ViewMode } from "src/environments/view-mode";
 import { ContextMenuService } from "./services/context-menu.service";
 import { AssetsService } from "./services/assets.service";
+import { Utils } from "./services/utils/utils";
 
 @Component({
   selector: "app-root",
@@ -28,6 +29,7 @@ export class AppComponent implements OnInit {
   lastMenuW = 0;
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
+  menuVisible = this.viewService.menuVisibleSubject.getValue();
   codeVisible = this.viewService.codeVisibleSubject.getValue();
   breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
   constructor(
@@ -61,59 +63,29 @@ export class AppComponent implements OnInit {
   drawerContent: ElementRef;
 
   onResizeOutline(event: ResizeEvent): void {
-    this.outlineW = this.resize(
+    this.outlineW = Utils.keepInBounds(
       event.rectangle.width,
       this.self.nativeElement.clientWidth
     );
     this.viewService.emitViewportResized();
   }
 
-  onResizeMenu(event: ResizeEvent): void {
-    this.menu.nativeElement.style.width =
-      this.resize(event.rectangle.width, this.self.nativeElement.clientWidth) +
-      "px";
-    this.viewService.emitViewportResized();
-  }
-
   onResizeFooter(event: ResizeEvent): void {
-    this.footerH = this.resize(
+    this.footerH = Utils.keepInBounds(
       event.rectangle.height,
       this.self.nativeElement.clientHeight
     );
     this.viewService.emitViewportResized();
   }
 
-  resize(size: number, maxSize: number): number {
-    const min = maxSize * 0.1;
-    const max = maxSize * 0.9;
-    if (size <= min) {
-      size = min;
-    }
-
-    if (size >= max) {
-      size = max;
-    }
-
-    return size;
-  }
-
   @HostListener("window:resize", [])
   onWindowResize() {
     if (this.outline && this.outline.nativeElement) {
       // Set the scroll into the bounds:
-      this.outlineW = this.resize(
+      this.outlineW = Utils.keepInBounds(
         this.outline.nativeElement.clientWidth,
         this.self.nativeElement.clientWidth
       );
-    }
-
-    const isVisible = this.viewService.menuVisibleSubject.getValue();
-    if (isVisible) {
-      this.menu.nativeElement.style.width =
-        this.resize(
-          this.menu.nativeElement.clientWidth,
-          this.self.nativeElement.clientWidth
-        ) + "px";
     }
 
     this.out(() => {
@@ -181,10 +153,15 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    window.addEventListener(
+      "resize",
+      (event: KeyboardEvent) => {
+        this.toolsService.onWindowKeyDown(event);
+      },
+      false
+    );
+
     this.out(() => {
-      const defaultSize = consts.appearance.menuPanelSize;
-      this.menu.nativeElement.style.width = defaultSize;
-      this.lastMenuW = this.menu.nativeElement.style.width;
       this.monitorElementSize(this.player.nativeElement, () => {
         this.viewService.emitViewportResized();
       });
@@ -233,20 +210,7 @@ export class AppComponent implements OnInit {
     });
 
     this.viewService.menuVisibleSubject.asObservable().subscribe((visible) => {
-      const style = this.menu.nativeElement.style;
-      if (visible) {
-        if (!this.lastMenuW) {
-          this.lastMenuW = style.width;
-        }
-
-        style.width = this.lastMenuW;
-      } else {
-        if (style.width !== "0px") {
-          this.lastMenuW = style.width;
-        }
-        style.width = "0px";
-      }
-
+      this.menuVisible = visible;
       this.viewService.emitViewportResized();
     });
     this.viewService.viewModeSubject.asObservable().subscribe((mode) => {

@@ -19,7 +19,7 @@ export const consts = {
   appearance: {
     defaultMode: ViewMode.Editor,
     menuOpened: false,
-    menuPanelSize: "250px",
+    menuPanelSize: 250,
   },
   fitToSelectedExtraBounds: 0.2,
   defaultWorkArea: {

@@ -104,6 +104,24 @@ export class Utils {
       rect.height + offsetY
     );
   }
+  static keepInBounds(
+    size: number,
+    maxSize: number,
+    minPercent = 0.1,
+    maxPercent = 0.9
+  ): number {
+    const min = maxSize * minPercent;
+    const max = maxSize * maxPercent;
+    if (size <= min) {
+      size = min;
+    }
+
+    if (size >= max) {
+      size = max;
+    }
+
+    return size;
+  }
 
   static toElementPoint(
     el: SVGGraphicsElement | ICTMProvider,
