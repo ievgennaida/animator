@@ -49,6 +49,7 @@ export class BaseRenderer {
   }
 
   public redrawRequired() {
+    // TODO: check canvas size
     return this.invalidated && !this.suspended;
   }
 
@@ -59,9 +60,7 @@ export class BaseRenderer {
     }
     const canvas = ctx.canvas;
     // TODO: skip before creating an object.
-    const point = this.canvasCTM.transformPoint(
-      new DOMPoint(canvas.clientWidth, canvas.clientHeight)
-    );
+    const point = new DOMPoint(canvas.clientWidth, canvas.clientHeight);
 
     const newX = Math.floor(point.x);
 
@@ -79,7 +78,13 @@ export class BaseRenderer {
     return changed;
   }
 
-  public redraw() {}
+  public redraw() {
+    if (!this.ctx) {
+      return;
+    }
+
+    this.invalidated = false;
+  }
 
   drawLine(
     ctx: CanvasRenderingContext2D,
