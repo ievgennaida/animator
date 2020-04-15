@@ -137,10 +137,10 @@ export class ViewService implements ICTMProvider {
     if (!this.isInit()) {
       return null;
     }
-    if (!this.viewport.ownerSVGElement) {
+    if (!this.svgRoot()) {
       return null;
     }
-    const svg = this.viewport.ownerSVGElement;
+    const svg = this.svgRoot();
     const toPoint = svg.createSVGPoint();
     toPoint.x = svg.clientWidth;
     toPoint.y = svg.clientHeight;
@@ -150,7 +150,7 @@ export class ViewService implements ICTMProvider {
     if (!this.viewport) {
       return null;
     }
-    const svg = this.viewport.ownerSVGElement;
+    const svg = this.svgRoot();
     const matrix = this.getCTM().inverse();
     let fromPoint = svg.createSVGPoint();
     fromPoint = fromPoint.matrixTransform(matrix);
@@ -217,15 +217,15 @@ export class ViewService implements ICTMProvider {
     if (!this.isInit()) {
       return;
     }
-    return this.viewport.ownerSVGElement.getBoundingClientRect();
+    return this.svgRoot().getBoundingClientRect();
   }
 
   getContainerSize(): DOMRect {
     if (!this.isInit()) {
       return;
     }
-    const parent = this.viewport.ownerSVGElement;
-    return new DOMRect(0, 0, parent.clientWidth, parent.clientHeight);
+    const svg = this.svgRoot();
+    return new DOMRect(0, 0, svg.clientWidth, svg.clientHeight);
   }
 
   /**

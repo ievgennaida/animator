@@ -58,7 +58,7 @@ export class AdornersRenderer extends BaseRenderer {
       return;
     }
 
-    const parent = this.viewService.viewport.ownerSVGElement as SVGSVGElement;
+    const parent = this.viewService.svgRoot();
     this.screenCTM = this.canvasCTM.multiply(parent.getScreenCTM().inverse());
     this.renderers.forEach((renderer) => {
       renderer.screenCTM = this.screenCTM;
