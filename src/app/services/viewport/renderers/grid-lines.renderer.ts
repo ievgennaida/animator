@@ -130,6 +130,9 @@ export class GridLinesRenderer extends BaseRenderer {
     // When step is set by pixel
     const displayStepsCanFit = viewportSizeA / consts.ruler.tickPx;
     const valueStep = valDistance / displayStepsCanFit;
+    if (isNaN(valueStep) || !Number.isFinite(valueStep)) {
+      return;
+    }
     // Find the nearest 'beautiful' step for a gauge.
     // This step should be dividable by 1/2/5/10!
 
@@ -324,7 +327,7 @@ export class GridLinesRenderer extends BaseRenderer {
   }
 
   getPowArgument(toCheck) {
-    if (!toCheck || toCheck === 0) {
+    if (!toCheck || toCheck === 0 || !Number.isFinite(toCheck)) {
       return 1;
     }
     // some optimiazation for numbers:
