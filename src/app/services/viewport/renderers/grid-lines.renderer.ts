@@ -127,6 +127,9 @@ export class GridLinesRenderer extends BaseRenderer {
     const viewportSizeB = horizontal
       ? sizeCTM.canvas.height
       : sizeCTM.canvas.width;
+    if (viewportSizeA === 0 || viewportSizeB === 0) {
+      return;
+    }
     // When step is set by pixel
     const displayStepsCanFit = viewportSizeA / consts.ruler.tickPx;
     const valueStep = valDistance / displayStepsCanFit;
