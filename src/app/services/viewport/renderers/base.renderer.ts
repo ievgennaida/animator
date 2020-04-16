@@ -129,6 +129,9 @@ export class BaseRenderer {
     closed: boolean,
     ...points: Array<DOMPoint>
   ) {
+    if (!ctx) {
+      return;
+    }
     ctx.beginPath();
 
     points.forEach((point, index) => {

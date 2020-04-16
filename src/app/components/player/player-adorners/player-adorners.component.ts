@@ -5,7 +5,7 @@ import {
   ChangeDetectorRef,
 } from "@angular/core";
 import { AdornersRenderer } from "src/app/services/viewport/renderers/adorners.renderer";
-import { BaseRenderer } from 'src/app/services/viewport/renderers/base.renderer';
+import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer";
 
 @Component({
   selector: "app-player-adorners",
@@ -16,10 +16,11 @@ import { BaseRenderer } from 'src/app/services/viewport/renderers/base.renderer'
 export class PlayerAdornersComponent implements OnInit {
   renderers: Array<BaseRenderer> = [];
   constructor(
-    cdRef: ChangeDetectorRef,
+    private cdRef: ChangeDetectorRef,
     adornersRenderer: AdornersRenderer
   ) {
     this.renderers = adornersRenderer.renderers;
+    cdRef.detach();
   }
 
   trackElement(index: number) {
@@ -27,6 +28,6 @@ export class PlayerAdornersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.cdRef.detectChanges();
   }
 }

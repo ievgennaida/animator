@@ -17,7 +17,8 @@ import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer"
 })
 export class PlayerAdornerComponent implements OnInit {
   @Input() renderer: BaseRenderer;
-  constructor(cdRef: ChangeDetectorRef) {
+  constructor(private cdRef: ChangeDetectorRef) {
+    cdRef.detach();
   }
   @ViewChild("canvas", { static: true })
   canvas: ElementRef<HTMLCanvasElement>;
@@ -25,5 +26,6 @@ export class PlayerAdornerComponent implements OnInit {
     if (this.renderer) {
       this.renderer.setCanvas(this.canvas.nativeElement);
     }
+    this.cdRef.detectChanges();
   }
 }
