@@ -6,6 +6,7 @@ import {
 } from "@angular/core";
 import { AdornersRenderer } from "src/app/services/viewport/renderers/adorners.renderer";
 import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer";
+import { BaseComponent } from '../../base-component';
 
 @Component({
   selector: "app-player-adorners",
@@ -13,12 +14,13 @@ import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer"
   styleUrls: ["./player-adorners.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerAdornersComponent implements OnInit {
+export class PlayerAdornersComponent extends BaseComponent implements OnInit {
   renderers: Array<BaseRenderer> = [];
   constructor(
     private cdRef: ChangeDetectorRef,
     adornersRenderer: AdornersRenderer
   ) {
+    super();
     this.renderers = adornersRenderer.renderers;
     cdRef.detach();
   }

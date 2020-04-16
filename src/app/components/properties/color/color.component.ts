@@ -1,18 +1,19 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { PropertiesService } from 'src/app/services/properties.service';
-import { ColorProperty } from 'src/app/models/Properties/ColorProperty';
+import { Component, OnInit, Input } from "@angular/core";
+import { PropertiesService } from "src/app/services/properties.service";
+import { ColorProperty } from "src/app/models/Properties/ColorProperty";
+import { BaseComponent } from "../../base-component";
 
 @Component({
-  selector: 'app-color',
-  templateUrl: './color.component.html',
-  styleUrls: ['./color.component.scss']
+  selector: "app-color",
+  templateUrl: "./color.component.html",
+  styleUrls: ["./color.component.scss"],
 })
-export class ColorComponent implements OnInit {
-
-  constructor(private propertiesService: PropertiesService) {}
-
-  ngOnInit() {
+export class ColorComponent extends BaseComponent implements OnInit {
+  constructor(private propertiesService: PropertiesService) {
+    super();
   }
+
+  ngOnInit() {}
 
   @Input()
   property: ColorProperty = null;
@@ -23,5 +24,4 @@ export class ColorComponent implements OnInit {
       //this.propertiesService.emitPropertyChanged(this.property);
     }
   }
-
 }

@@ -7,11 +7,11 @@ import {
 } from "@angular/core";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { takeUntil } from "rxjs/operators";
-import { Subject } from "rxjs";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
 import { ViewService } from "src/app/services/view.service";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
+import { BaseComponent } from '../../base-component';
 
 @Component({
   selector: "app-player-toolbar",
@@ -19,8 +19,7 @@ import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-line
   styleUrls: ["./player-toolbar.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerToolbarComponent implements OnInit, OnDestroy {
-  private destroyed$ = new Subject();
+export class PlayerToolbarComponent extends BaseComponent implements OnInit, OnDestroy {
   showGridLines = this.gridLinesRenderer.gridLinesVisible();
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
   constructor(
@@ -30,7 +29,9 @@ export class PlayerToolbarComponent implements OnInit, OnDestroy {
     private toolsService: ToolsService,
     private panTool: PanTool,
     private gridLinesRenderer: GridLinesRenderer
-  ) {}
+  ) {
+    super();
+  }
 
   scrollbarInputValue = "100";
 
@@ -96,10 +97,5 @@ export class PlayerToolbarComponent implements OnInit, OnDestroy {
 
   zoomOut() {
     this.zoomTool.zoomOut();
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

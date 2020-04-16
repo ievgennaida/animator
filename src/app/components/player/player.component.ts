@@ -10,20 +10,21 @@ import {
   NgZone,
 } from "@angular/core";
 
-import { Subject } from "rxjs";
+
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { ViewService } from "src/app/services/view.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
 import { CursorService, CursorType } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
+import { BaseComponent } from '../base-component';
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
   styleUrls: ["./player.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerComponent implements OnInit, OnDestroy {
+export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy {
   @Input("isPlaying")
   get isPaused() {
     return false;
@@ -68,7 +69,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
   }
   private readonly defaultBrowserScrollSize = 17;
-  private destroyed$ = new Subject();
   constructor(
     private viewService: ViewService,
     private toolsService: ToolsService,
@@ -78,6 +78,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private gridLinesRenderer: GridLinesRenderer,
     private cursor: CursorService
   ) {
+    super();
     // this.cdRef.detach();
   }
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
@@ -224,10 +225,5 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   fitViewport() {
     this.toolsService.fitViewport();
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

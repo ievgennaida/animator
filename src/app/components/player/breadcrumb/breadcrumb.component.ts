@@ -5,12 +5,13 @@ import {
   OnDestroy,
   ChangeDetectorRef,
 } from "@angular/core";
-import { Subject } from "rxjs";
+
 import { SelectionService } from "src/app/services/selection.service";
 import { takeUntil } from "rxjs/operators";
 import { ChangedArgs } from "src/app/models/changed-args";
 import { Breadcrumb } from "./breadcrumb-item/breadcrumb-item.component";
 import { TreeNode } from "src/app/models/tree-node";
+import { BaseComponent } from '../../base-component';
 
 @Component({
   selector: "app-breadcrumb",
@@ -18,12 +19,12 @@ import { TreeNode } from "src/app/models/tree-node";
   styleUrls: ["./breadcrumb.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbComponent implements OnInit, OnDestroy {
-  private destroyed$ = new Subject();
+export class BreadcrumbComponent extends BaseComponent implements OnInit, OnDestroy {
   constructor(
     private selectionService: SelectionService,
     private cdRef: ChangeDetectorRef
   ) {
+    super();
     this.cdRef.detach();
   }
   empty = new Breadcrumb();
@@ -70,9 +71,5 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
     }
     array.reverse();
     return array;
-  }
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

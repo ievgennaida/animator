@@ -8,6 +8,7 @@ import {
 } from "@angular/core";
 import { ContextMenuService } from "src/app/services/context-menu.service";
 import { MatMenuTrigger } from "@angular/material/menu";
+import { BaseComponent } from '../base-component';
 
 @Component({
   selector: "app-context-menu",
@@ -15,11 +16,13 @@ import { MatMenuTrigger } from "@angular/material/menu";
   styleUrls: ["./context-menu.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuComponent implements OnInit {
+export class ContextMenuComponent extends BaseComponent implements OnInit {
   constructor(
     private contextMenu: ContextMenuService,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    super();
+  }
 
   trigger: MatMenuTrigger;
   @ViewChild("trigger")

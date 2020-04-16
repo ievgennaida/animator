@@ -17,12 +17,13 @@ import { ViewService } from "src/app/services/view.service";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { PanTool } from "src/app/services/viewport/pan.tool";
 import { ToolsService } from "src/app/services/viewport/tools.service";
-import { Subject } from "rxjs";
+
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 import { takeUntil } from "rxjs/operators";
 import { SelectionService } from "src/app/services/selection.service";
 import { PasteService } from "src/app/services/paste.service";
 import { ViewMode } from "src/environments/view-mode";
+import { BaseComponent } from '../base-component';
 
 @Component({
   selector: "app-main-toolbar",
@@ -30,12 +31,11 @@ import { ViewMode } from "src/environments/view-mode";
   styleUrls: ["./main-toolbar.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MainToolbarComponent implements OnInit, OnDestroy {
+export class MainToolbarComponent extends BaseComponent implements OnInit, OnDestroy {
   title = "animation";
   undoDisabled = false;
   redoDisabled = false;
   recentItems = [];
-  private destroyed$ = new Subject();
   showGridLines = this.gridLinesRenderer.gridLinesVisible();
   showProperties = this.viewService.menuVisibleSubject.getValue();
   codeVisible = this.viewService.codeVisibleSubject.getValue();
@@ -56,7 +56,9 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private gridLinesRenderer: GridLinesRenderer,
     private toolsService: ToolsService,
     private pasteService: PasteService
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.viewService.menuVisibleSubject
@@ -269,10 +271,6 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   }
   fitViewportSelected() {
     this.toolsService.fitViewportToSelected();
-  }
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
   selectAll() {
     this.selectionService.selectAll();

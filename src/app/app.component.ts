@@ -17,13 +17,14 @@ import { ViewMode } from "src/environments/view-mode";
 import { ContextMenuService } from "./services/context-menu.service";
 import { AssetsService } from "./services/assets.service";
 import { Utils } from "./services/utils/utils";
+import { BaseComponent } from './components/base-component';
 
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.scss"],
 })
-export class AppComponent implements OnInit {
+export class AppComponent extends BaseComponent implements OnInit {
   outlineW: number | string = null;
   footerH: number | string = null;
   lastMenuW = 0;
@@ -43,6 +44,7 @@ export class AppComponent implements OnInit {
     assetsService: AssetsService,
     wire: WireService
   ) {
+    super();
     assetsService.registerIcons();
     wire.init();
   }

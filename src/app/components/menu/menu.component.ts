@@ -14,7 +14,8 @@ import { MatExpansionPanel } from "@angular/material/expansion";
 import { Utils } from "src/app/services/utils/utils";
 import { StorageService } from "src/app/services/storage.service";
 import { takeUntil } from "rxjs/operators";
-import { Subject } from "rxjs";
+
+import { BaseComponent } from '../base-component';
 
 @Component({
   selector: "app-menu",
@@ -22,14 +23,15 @@ import { Subject } from "rxjs";
   styleUrls: ["./menu.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuComponent implements OnInit, OnDestroy {
+export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   constructor(
     private viewService: ViewService,
     private cdRef: ChangeDetectorRef,
     private hostElementRef: ElementRef,
     private storage: StorageService
-  ) {}
-  private destroyed$ = new Subject();
+  ) {
+    super();
+  }
   dragStartedArgs: MouseEvent = null;
   panel = false;
   initialDragSize = 0;
@@ -228,9 +230,5 @@ export class MenuComponent implements OnInit, OnDestroy {
     el1.style.height = height + "%";
     el2.style.height = 100 - height + "%";
     this.lastOutlineHeight = el1.clientHeight;
-  }
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

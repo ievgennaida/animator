@@ -12,6 +12,7 @@ import {
   SelectionMode,
 } from "src/app/services/selection.service";
 import { OutlineService } from "src/app/services/outline.service";
+import { BaseComponent } from 'src/app/components/base-component';
 export class Breadcrumb {
   node: TreeNode;
   title: string;
@@ -22,7 +23,7 @@ export class Breadcrumb {
   styleUrls: ["./breadcrumb-item.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbItemComponent implements OnInit {
+export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
   showNext = true;
   @Input("showNext")
   set setShowNext(value: boolean) {
@@ -45,6 +46,7 @@ export class BreadcrumbItemComponent implements OnInit {
     private selectionService: SelectionService,
     private outlineService: OutlineService
   ) {
+    super();
     this.cdRef.detach();
   }
 

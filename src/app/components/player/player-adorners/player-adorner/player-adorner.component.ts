@@ -8,6 +8,7 @@ import {
   ChangeDetectorRef,
 } from "@angular/core";
 import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer";
+import { BaseComponent } from 'src/app/components/base-component';
 
 @Component({
   selector: "app-player-adorner",
@@ -15,9 +16,10 @@ import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer"
   styleUrls: ["./player-adorner.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerAdornerComponent implements OnInit {
+export class PlayerAdornerComponent extends BaseComponent implements OnInit {
   @Input() renderer: BaseRenderer;
   constructor(private cdRef: ChangeDetectorRef) {
+    super();
     cdRef.detach();
   }
   @ViewChild("canvas", { static: true })

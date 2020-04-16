@@ -5,14 +5,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Input,
-  ViewChild,
-  ElementRef,
 } from "@angular/core";
-import { Subject } from "rxjs";
+
 import { consts } from "src/environments/consts";
 import { ScrollEventArgs } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
 import { OutlineService } from "src/app/services/outline.service";
+import { BaseComponent } from '../../base-component';
 
 @Component({
   selector: "app-outline",
@@ -20,24 +19,23 @@ import { OutlineService } from "src/app/services/outline.service";
   styleUrls: ["./outline.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OutlineComponent implements OnInit, OnDestroy {
+export class OutlineComponent extends BaseComponent implements OnInit {
   constructor(
     private outlineService: OutlineService,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    super();
+    this.cdRef.detach();
+  }
   @Input() allowScroll = false;
   scrollTop: any = 0;
   height: any = "";
   dataSource = this.outlineService.flatDataSource;
   treeControl = this.outlineService.treeConrol;
-  private destroyed$ = new Subject();
   // Allow to use enums in the template:
   shapeType = shapeType;
-  ngOnInit(): void {}
-
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
+  ngOnInit(): void {
+    this.cdRef.detectChanges();
   }
 
   public setSize(args: ScrollEventArgs) {

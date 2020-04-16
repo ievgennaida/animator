@@ -5,34 +5,36 @@ import { PropertiesService } from "src/app/services/properties.service";
 import { PlayerService } from "src/app/services/player.service";
 import { Subscription } from "rxjs";
 import { TimeData } from "src/app/models/timedata";
+import { BaseComponent } from '../../base-component';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: "app-numeric",
   templateUrl: "./numeric.component.html",
   styleUrls: ["./numeric.component.scss"],
 })
-export class NumericComponent implements OnInit, OnDestroy {
+export class NumericComponent extends BaseComponent implements OnInit {
   constructor(
     private playerService: PlayerService,
     private propertiesService: PropertiesService
-  ) {}
+  ) {
+    super();
+  }
 
   @Input()
   label = "";
 
   @Input()
   property: NumberProperty = null;
-  subscription: Subscription[] = [];
   ngOnInit() {
-    this.subscription.push(
-      this.playerService.timeSubject
-        .asObservable()
-        .subscribe((value: TimeData) => {
-          if (this.property) {
-            this.property.setValueAtTime(value.frame);
-          }
-        })
-    );
+    this.playerService.timeSubject
+    .asObservable()
+    .pipe(takeUntil(this.destroyed$))
+    .subscribe((value: TimeData) => {
+      if (this.property) {
+        this.property.setValueAtTime(value.frame);
+      }
+    })
   }
 
   onValueChanged(event) {
@@ -40,11 +42,5 @@ export class NumericComponent implements OnInit, OnDestroy {
       this.property.setValue(parseInt(event.target.value, 2));
       this.propertiesService.emitPropertyChanged(this.property);
     }
-  }
-
-  ngOnDestroy() {
-    this.subscription.forEach((element) => {
-      element.unsubscribe();
-    });
   }
 }

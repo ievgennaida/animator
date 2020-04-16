@@ -1,6 +1,4 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-
-import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
@@ -9,20 +7,22 @@ import { Properties } from "src/app/models/Properties/Properties";
 import { Property } from "src/app/models/Properties/Property";
 import { OutlineService } from "src/app/services/outline.service";
 import { SelectionService } from "src/app/services/selection.service";
+import { BaseComponent } from "../base-component";
 
 @Component({
   selector: "app-properties",
   templateUrl: "./properties.component.html",
   styleUrls: ["./properties.component.scss"],
 })
-export class PropertiesComponent implements OnInit, OnDestroy {
+export class PropertiesComponent extends BaseComponent implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private outlineService: OutlineService,
     private selectionService: SelectionService
-  ) {}
+  ) {
+    super();
+  }
 
-  private destroyed$ = new Subject();
   node: TreeNode = null;
   icon: string = null;
   properties: Properties = null;

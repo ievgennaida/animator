@@ -7,8 +7,9 @@ import {
 } from "@angular/core";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { BaseTool } from "src/app/services/viewport/base.tool";
-import { Subject } from "rxjs";
+
 import { takeUntil } from "rxjs/operators";
+import { BaseComponent } from '../base-component';
 
 @Component({
   selector: "app-toolbox",
@@ -16,12 +17,14 @@ import { takeUntil } from "rxjs/operators";
   styleUrls: ["./toolbox.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ToolboxComponent implements OnInit, OnDestroy {
+export class ToolboxComponent extends BaseComponent implements OnInit  {
   constructor(
     private toolsService: ToolsService,
     private cd: ChangeDetectorRef
-  ) {}
-  private destroyed$ = new Subject();
+  ) {
+    super();
+  }
+
   tools: Array<BaseTool> = [];
   activeTool: BaseTool = null;
   ngOnInit() {
@@ -38,10 +41,5 @@ export class ToolboxComponent implements OnInit, OnDestroy {
 
   onToolSelected(activeTool: BaseTool) {
     this.toolsService.setActiveTool(activeTool);
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

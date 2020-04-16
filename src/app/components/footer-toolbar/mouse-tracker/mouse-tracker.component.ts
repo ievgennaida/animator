@@ -7,11 +7,12 @@ import {
   OnDestroy,
   NgZone,
 } from "@angular/core";
-import { Subject } from "rxjs";
+
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { takeUntil } from "rxjs/operators";
 import { MouseEventArgs } from "src/app/services/viewport/mouse-event-args";
 import { Utils } from "src/app/services/utils/utils";
+import { BaseComponent } from '../../base-component';
 
 @Component({
   selector: "app-mouse-tracker",
@@ -19,13 +20,15 @@ import { Utils } from "src/app/services/utils/utils";
   styleUrls: ["./mouse-tracker.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MouseTrackerComponent implements OnInit, OnDestroy {
-  private destroyed$ = new Subject();
+export class MouseTrackerComponent extends BaseComponent implements OnInit, OnDestroy {
+
   @ViewChild("outputX", { read: ElementRef })
   outputX: ElementRef<HTMLElement>;
   @ViewChild("outputY", { read: ElementRef })
   outputY: ElementRef<HTMLElement>;
-  constructor(private ngZone: NgZone, private toolsService: ToolsService) {}
+  constructor(private ngZone: NgZone, private toolsService: ToolsService) {
+    super();
+  }
 
   ngOnInit(): void {
     this.ngZone.runOutsideAngular(() => {
@@ -48,10 +51,5 @@ export class MouseTrackerComponent implements OnInit, OnDestroy {
           }
         });
     });
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

@@ -4,8 +4,6 @@ import {
   OnDestroy,
   Output,
   EventEmitter,
-  ViewChild,
-  ElementRef,
   NgZone,
   ChangeDetectorRef,
   ChangeDetectionStrategy,
@@ -27,6 +25,7 @@ import { ActionService } from "src/app/services/actions/action.service";
 import { Keyframe } from "src/app/models/keyframes/Keyframe";
 import { ViewService } from "src/app/services/view.service";
 import { OutlineService } from "src/app/services/outline.service";
+import { BaseComponent } from '../base-component';
 
 @Component({
   selector: "app-timeline",
@@ -34,8 +33,7 @@ import { OutlineService } from "src/app/services/outline.service";
   styleUrls: ["./timeline.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimelineComponent implements OnInit, OnDestroy {
-  private destroyed$ = new Subject();
+export class TimelineComponent extends BaseComponent implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private outlineService: OutlineService,
@@ -45,6 +43,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone
   ) {
+    super();
     this.cdRef.detach();
   }
 
@@ -173,10 +172,5 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     this.timeline.rescale();
     this.timeline.redraw();
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

@@ -5,27 +5,24 @@ import { PropertiesService } from "src/app/services/properties.service";
 import { DNumberProperty } from "src/app/models/Properties/DNumberProperty";
 import { Subscription } from "rxjs";
 import { TimeData } from 'src/app/models/timedata';
+import { BaseComponent } from '../../base-component';
 
 @Component({
   selector: "app-dnumeric",
   templateUrl: "./dnumeric.component.html",
   styleUrls: ["./dnumeric.component.scss"]
 })
-export class DnumericComponent implements OnInit, OnDestroy {
+export class DnumericComponent extends BaseComponent implements OnInit {
   constructor(
     private playerService: PlayerService,
     private propertiesService: PropertiesService
-  ) {}
+  ) {
+    super();
+  }
 
   @Input()
   property: DNumberProperty = null;
-  subscription: Subscription[] = [];
   ngOnInit() {
   }
 
-  ngOnDestroy() {
-    this.subscription.forEach(element => {
-      element.unsubscribe();
-    });
-  }
 }

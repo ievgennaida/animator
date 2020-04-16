@@ -3,7 +3,6 @@ import { NgModule } from "@angular/core";
 
 import { AppComponent } from "./app.component";
 import { OutlineComponent } from "./components/outline/outline/outline.component";
-import { PropertiesComponent } from "./components/properties/properties.component";
 import { TimelineComponent } from "./components/timeline/timeline.component";
 import { ToolboxComponent } from "./components/toolbox/toolbox.component";
 import { PlayerComponent } from "./components/player/player.component";
@@ -38,6 +37,7 @@ import { OutputComponent } from './components/output/output.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { MouseTrackerComponent } from './components/footer-toolbar/mouse-tracker/mouse-tracker.component';
 import { BreadcrumbItemComponent } from './components/player/breadcrumb/breadcrumb-item/breadcrumb-item.component';
+import { PropertiesComponent } from './components/properties/properties.component';
 
 @NgModule({
   declarations: [

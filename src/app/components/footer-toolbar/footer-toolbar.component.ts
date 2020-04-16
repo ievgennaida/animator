@@ -6,11 +6,12 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { PlayerService } from "src/app/services/player.service";
-import { Subject } from "rxjs";
+
 import { takeUntil } from "rxjs/operators";
 import { ViewService } from "src/app/services/view.service";
 import { ViewMode } from "src/environments/view-mode";
 import { consts } from "src/environments/consts";
+import { BaseComponent } from '../base-component';
 
 @Component({
   selector: "app-footer-toolbar",
@@ -18,17 +19,18 @@ import { consts } from "src/environments/consts";
   styleUrls: ["./footer-toolbar.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FooterToolbarComponent implements OnInit, OnDestroy {
+export class FooterToolbarComponent extends BaseComponent implements OnInit {
   constructor(
     private playerService: PlayerService,
     private cdRef: ChangeDetectorRef,
     private viewService: ViewService
-  ) {}
+  ) {
+    super();
+  }
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
   isPlaying = true;
   isPan = false;
-  private destroyed$ = new Subject();
 
   ngOnInit() {
     this.playerService.playSubject
@@ -47,10 +49,6 @@ export class FooterToolbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
-  }
   first() {
     this.playerService.first();
   }

@@ -11,9 +11,10 @@ import {
 import { ViewService } from "src/app/services/view.service";
 import { DocumentService } from "src/app/services/document.service";
 import { takeUntil } from "rxjs/operators";
-import { Subject } from "rxjs";
+
 import { InputDocument } from "src/app/models/input-document";
-import { DOCUMENT } from "@angular/common";
+
+import { BaseComponent } from '../base-component';
 
 @Component({
   selector: "app-output",
@@ -21,15 +22,16 @@ import { DOCUMENT } from "@angular/common";
   styleUrls: ["./output.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OutputComponent implements OnInit, OnDestroy {
+export class OutputComponent extends BaseComponent implements OnInit, OnDestroy {
   @ViewChild("code", { static: true })
   codeRef: ElementRef<HTMLElement>;
-  private destroyed$ = new Subject();
   constructor(
     private viewService: ViewService,
     private documentService: DocumentService,
     private ngZone: NgZone
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.documentService.document
@@ -62,9 +64,5 @@ export class OutputComponent implements OnInit, OnDestroy {
 
   close() {
     this.viewService.toogleCode();
-  }
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

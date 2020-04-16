@@ -8,7 +8,7 @@ import {
   NgZone,
 } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
-import { Subject } from "rxjs";
+
 import { OutlineService } from "src/app/services/outline.service";
 import { takeUntil } from "rxjs/operators";
 import {
@@ -16,6 +16,7 @@ import {
   SelectionMode,
 } from "src/app/services/selection.service";
 import { ContextMenuService } from "src/app/services/context-menu.service";
+import { BaseComponent } from '../../base-component';
 
 @Component({
   selector: "app-outline-node",
@@ -23,9 +24,8 @@ import { ContextMenuService } from "src/app/services/context-menu.service";
   styleUrls: ["./outline-node.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OutlineNodeComponent implements OnInit, OnDestroy {
+export class OutlineNodeComponent extends BaseComponent implements OnInit, OnDestroy {
   private static lastSelected: TreeNode = null;
-  private destroyed$ = new Subject();
   node: TreeNode;
   @Input("node") set setNode(node: TreeNode) {
     if (this.node !== node) {
@@ -42,6 +42,7 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private contextMenu: ContextMenuService
   ) {
+    super();
     this.cdRef.detach();
     selectionService.selected
       .pipe(takeUntil(this.destroyed$))
@@ -118,9 +119,7 @@ export class OutlineNodeComponent implements OnInit, OnDestroy {
     this.contextMenu.open(event, this.node);
   }
   ngOnDestroy() {
+    super.ngOnDestroy();
     OutlineNodeComponent.lastSelected = null;
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
-    this.destroyed$ = null;
   }
 }
