@@ -17,7 +17,8 @@ import { ViewMode } from "src/environments/view-mode";
 import { ContextMenuService } from "./services/context-menu.service";
 import { AssetsService } from "./services/assets.service";
 import { Utils } from "./services/utils/utils";
-import { BaseComponent } from './components/base-component';
+import { BaseComponent } from "./components/base-component";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
   selector: "app-root",
@@ -211,26 +212,36 @@ export class AppComponent extends BaseComponent implements OnInit {
       );
     });
 
-    this.viewService.menuVisibleSubject.asObservable().subscribe((visible) => {
-      this.menuVisible = visible;
-      this.viewService.emitViewportResized();
-    });
-    this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
-      if (this.mode !== mode) {
-        this.mode = mode;
-      }
-    });
+    this.viewService.menuVisibleSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((visible) => {
+        this.menuVisible = visible;
+        this.viewService.emitViewportResized();
+      });
+    this.viewService.viewModeSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((mode) => {
+        if (this.mode !== mode) {
+          this.mode = mode;
+        }
+      });
 
     this.hotkeys.initialize();
-    this.viewService.codeVisibleSubject.asObservable().subscribe((visible) => {
-      if (this.codeVisible !== visible) {
-        this.codeVisible = visible;
-        this.cdRef.markForCheck();
-      }
-    });
+    this.viewService.codeVisibleSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((visible) => {
+        if (this.codeVisible !== visible) {
+          this.codeVisible = visible;
+          this.cdRef.markForCheck();
+        }
+      });
 
     this.viewService.breadcrumbsVisibleSubject
       .asObservable()
+      .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (this.breadcrumbsVisible !== visible) {
           this.breadcrumbsVisible = visible;

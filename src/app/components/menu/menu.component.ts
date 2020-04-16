@@ -15,7 +15,7 @@ import { Utils } from "src/app/services/utils/utils";
 import { StorageService } from "src/app/services/storage.service";
 import { takeUntil } from "rxjs/operators";
 
-import { BaseComponent } from '../base-component';
+import { BaseComponent } from "../base-component";
 
 @Component({
   selector: "app-menu",

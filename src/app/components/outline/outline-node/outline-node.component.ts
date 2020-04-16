@@ -16,7 +16,7 @@ import {
   SelectionMode,
 } from "src/app/services/selection.service";
 import { ContextMenuService } from "src/app/services/context-menu.service";
-import { BaseComponent } from '../../base-component';
+import { BaseComponent } from "../../base-component";
 
 @Component({
   selector: "app-outline-node",
@@ -24,7 +24,8 @@ import { BaseComponent } from '../../base-component';
   styleUrls: ["./outline-node.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OutlineNodeComponent extends BaseComponent implements OnInit, OnDestroy {
+export class OutlineNodeComponent extends BaseComponent
+  implements OnInit, OnDestroy {
   private static lastSelected: TreeNode = null;
   node: TreeNode;
   @Input("node") set setNode(node: TreeNode) {
@@ -53,12 +54,14 @@ export class OutlineNodeComponent extends BaseComponent implements OnInit, OnDes
         }
       });
 
-    this.outlineService.mouseOver.subscribe((node) => {
-      if (node === this.node) {
-        // TODO: performance: if source != outline node.
-        this.cdRef.detectChanges();
-      }
-    });
+    this.outlineService.mouseOver
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((node) => {
+        if (node === this.node) {
+          // TODO: performance: if source != outline node.
+          this.cdRef.detectChanges();
+        }
+      });
   }
 
   setSelected(event: MouseEvent, node: TreeNode) {

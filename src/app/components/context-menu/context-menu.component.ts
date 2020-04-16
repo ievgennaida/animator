@@ -8,7 +8,8 @@ import {
 } from "@angular/core";
 import { ContextMenuService } from "src/app/services/context-menu.service";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { BaseComponent } from '../base-component';
+import { BaseComponent } from "../base-component";
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: "app-context-menu",
@@ -47,25 +48,27 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
   }
   ngOnInit(): void {
     this.contextMenu.setTrigger(this.trigger);
-    this.contextMenu.openSubject.subscribe((args) => {
-      if (!args || !args.event) {
-        this.close();
-      } else if (this.element && this.element.nativeElement) {
-        const event = args.event;
-        const el = this.element.nativeElement;
-        el.style.left = event.clientX + 5 + "px";
-        el.style.top = event.clientY + 5 + "px";
-        if (this.trigger.menuOpen) {
-          this.trigger.closeMenu();
-          this.trigger.openMenu();
-        } else {
-          this.trigger.openMenu();
+    this.contextMenu.openSubject
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((args) => {
+        if (!args || !args.event) {
+          this.close();
+        } else if (this.element && this.element.nativeElement) {
+          const event = args.event;
+          const el = this.element.nativeElement;
+          el.style.left = event.clientX + 5 + "px";
+          el.style.top = event.clientY + 5 + "px";
+          if (this.trigger.menuOpen) {
+            this.trigger.closeMenu();
+            this.trigger.openMenu();
+          } else {
+            this.trigger.openMenu();
+          }
+          event.preventDefault();
+          event.stopPropagation();
+          this.cdRef.markForCheck();
         }
-        event.preventDefault();
-        event.stopPropagation();
-        this.cdRef.markForCheck();
-      }
-    });
+      });
   }
   close(): boolean {
     if (this.trigger && this.trigger.menuOpen) {

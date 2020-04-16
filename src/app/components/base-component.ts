@@ -8,4 +8,11 @@ export class BaseComponent implements OnDestroy {
     this.destroyed$.complete();
     this.destroyed$ = null;
   }
+ /*
+  // Debug updates count:
+  static i = 0;
+  ngAfterViewChecked() {
+    BaseComponent.i++;
+    console.log(BaseComponent.i + this.constructor.name + ": AfterViewChecked");
+  } */
 }

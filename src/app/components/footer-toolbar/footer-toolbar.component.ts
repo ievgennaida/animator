@@ -11,7 +11,7 @@ import { takeUntil } from "rxjs/operators";
 import { ViewService } from "src/app/services/view.service";
 import { ViewMode } from "src/environments/view-mode";
 import { consts } from "src/environments/consts";
-import { BaseComponent } from '../base-component';
+import { BaseComponent } from "../base-component";
 
 @Component({
   selector: "app-footer-toolbar",
@@ -41,12 +41,15 @@ export class FooterToolbarComponent extends BaseComponent implements OnInit {
           this.cdRef.markForCheck();
         }
       });
-    this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
-      if (this.mode !== mode) {
-        this.mode = mode;
-        this.cdRef.markForCheck();
-      }
-    });
+    this.viewService.viewModeSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((mode) => {
+        if (this.mode !== mode) {
+          this.mode = mode;
+          this.cdRef.markForCheck();
+        }
+      });
   }
 
   first() {

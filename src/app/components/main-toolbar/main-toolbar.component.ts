@@ -23,7 +23,7 @@ import { takeUntil } from "rxjs/operators";
 import { SelectionService } from "src/app/services/selection.service";
 import { PasteService } from "src/app/services/paste.service";
 import { ViewMode } from "src/environments/view-mode";
-import { BaseComponent } from '../base-component';
+import { BaseComponent } from "../base-component";
 
 @Component({
   selector: "app-main-toolbar",
@@ -31,7 +31,8 @@ import { BaseComponent } from '../base-component';
   styleUrls: ["./main-toolbar.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MainToolbarComponent extends BaseComponent implements OnInit, OnDestroy {
+export class MainToolbarComponent extends BaseComponent
+  implements OnInit, OnDestroy {
   title = "animation";
   undoDisabled = false;
   redoDisabled = false;
@@ -112,22 +113,27 @@ export class MainToolbarComponent extends BaseComponent implements OnInit, OnDes
     // Load current recent items.
     this.setRecent(null);
 
-    this.stateService.document.subscribe((p) => {
-      if (p) {
-        this.title = p.title;
-      } else {
-        this.title = "";
-      }
+    this.stateService.document
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((p) => {
+        if (p) {
+          this.title = p.title;
+        } else {
+          this.title = "";
+        }
 
-      this.cdRef.markForCheck();
-    });
-
-    this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
-      if (this.mode !== mode) {
-        this.mode = mode;
         this.cdRef.markForCheck();
-      }
-    });
+      });
+
+    this.viewService.viewModeSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((mode) => {
+        if (this.mode !== mode) {
+          this.mode = mode;
+          this.cdRef.markForCheck();
+        }
+      });
   }
   setMode(mode: ViewMode) {
     this.viewService.setMode(mode);

@@ -25,7 +25,7 @@ import { ActionService } from "src/app/services/actions/action.service";
 import { Keyframe } from "src/app/models/keyframes/Keyframe";
 import { ViewService } from "src/app/services/view.service";
 import { OutlineService } from "src/app/services/outline.service";
-import { BaseComponent } from '../base-component';
+import { BaseComponent } from "../base-component";
 
 @Component({
   selector: "app-timeline",
@@ -33,7 +33,8 @@ import { BaseComponent } from '../base-component';
   styleUrls: ["./timeline.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimelineComponent extends BaseComponent implements OnInit, OnDestroy {
+export class TimelineComponent extends BaseComponent
+  implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private outlineService: OutlineService,
