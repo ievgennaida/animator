@@ -6,14 +6,23 @@
 mat-button-toggle {
   padding: 0px;
   color: #adadad;
+  position: relative;
   border: none !important;
   &:hover {
     color: white;
   }
   button {
-   background-color: blue;
+    background-color: blue;
     div {
       padding: 0 10px !important;
     }
   }
+}
+.active {
+  background: #adadad;
+  width: 2px;
+  height: 100%;
+  left: 0;
+  top: 0;
+  position: absolute;
 }

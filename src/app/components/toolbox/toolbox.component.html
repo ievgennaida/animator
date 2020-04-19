@@ -2,5 +2,7 @@
     <mat-button-toggle *ngFor="let tool of tools" [value]="tool" (click)="onToolSelected(tool)">
         <mat-icon [svgIcon]="tool.iconName">
         </mat-icon>
+        <div class="active" *ngIf="tool===activeTool">
+        </div>
     </mat-button-toggle>
 </mat-button-toggle-group>
