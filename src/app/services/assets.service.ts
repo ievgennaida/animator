@@ -13,6 +13,7 @@ export class AssetsService {
 
   registerIcons() {
     const icons = [
+      "crop_square",
       "ink_pen",
       "navigation_outline",
       "navigation",
