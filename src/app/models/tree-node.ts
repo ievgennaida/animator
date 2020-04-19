@@ -80,6 +80,7 @@ export class TreeNode implements ICTMProvider {
   cleanElementCache() {
     this.screenCTMCache = null;
     this.ctmCache = null;
+    this.cacheBBox = null;
     this.cacheClientRect = null;
     this.cacheElementAdorers = null;
     this.pathDataCache = null;
