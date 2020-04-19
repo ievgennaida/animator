@@ -8,8 +8,10 @@ import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
 import { TransformsService } from "./viewport/transformations/transforms.service";
 import { ViewService } from "./view.service";
 import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
-import { SelectionService } from './selection.service';
-import { PathRenderer } from './viewport/renderers/path.renderer';
+import { SelectionService } from "./selection.service";
+import { PathRenderer } from "./viewport/renderers/path.renderer";
+import { ToolsService } from "./viewport/tools.service";
+import { DocumentService } from "./document.service";
 
 /**
  * Wire services together
@@ -26,13 +28,20 @@ export class WireService {
     transformsService: TransformsService,
     gridLinesRenderer: GridLinesRenderer,
     adornersRenderer: AdornersRenderer,
-    selectionService:SelectionService,
+    selectionService: SelectionService,
     viewService: ViewService,
-    pathRenderer: PathRenderer,
+    toolsService: ToolsService,
+    documentService: DocumentService,
+    pathRenderer: PathRenderer
   ) {
     selectionService.selected.subscribe(() => {
       boundsRenderer.invalidate();
     });
+
+    documentService.documentSubject.asObservable().subscribe(() => {
+      toolsService.fitViewport();
+    });
+
     // Individual element is transformed.
     transformsService.transformed.subscribe((element) => {
       // TODO: invalidate from current to all children

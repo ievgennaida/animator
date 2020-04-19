@@ -6,12 +6,11 @@ import { InputDocument } from "../models/input-document";
 import { AppFactory } from "./app-factory";
 import { ViewService } from "./view.service";
 import { LoggerService } from "./logger.service";
-import { ToolsService } from "./viewport/tools.service";
-import { OutlineService } from './outline.service';
-import { SelectionService } from './selection.service';
+import { OutlineService } from "./outline.service";
+import { SelectionService } from "./selection.service";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class DocumentService {
   constructor(
@@ -20,18 +19,16 @@ export class DocumentService {
     private viewService: ViewService,
     private logger: LoggerService,
     private playerService: PlayerService,
-    private toolsService: ToolsService,
-    private selectionService:SelectionService,
+    private selectionService: SelectionService,
     private outlineService: OutlineService
   ) {
-    this.propertiesService.сhanged.subscribe(p => {
+    this.propertiesService.сhanged.subscribe((p) => {
       const doc = this.documentSubject.getValue();
       this.onDocumentChanged(doc, true);
     });
   }
 
   documentSubject = new BehaviorSubject<InputDocument>(null);
-
 
   deleteElement(array, element) {
     const index: number = array.indexOf(element);
@@ -45,6 +42,10 @@ export class DocumentService {
     return this.documentSubject.asObservable();
   }
 
+  public getDocument(): InputDocument {
+    const doc = this.documentSubject.getValue();
+    return doc;
+  }
   public setDocument(document: InputDocument, title: string) {
     this.onDocumentChanged(document);
   }
@@ -75,10 +76,7 @@ export class DocumentService {
 
     this.dispose(refresh);
     try {
-      const data = initializer.intialize(
-        document,
-        this.viewService.playerHost
-      );
+      const data = initializer.intialize(document, this.viewService.playerHost);
 
       this.viewService.setViewportSize(data.size);
       this.playerService.setPlayer(data.player);
@@ -86,13 +84,11 @@ export class DocumentService {
         this.outlineService.parseDocumentOutline(document);
       }
 
-      this.toolsService.fitViewport();
       this.documentSubject.next(document);
     } catch (err) {
       const message = `Document cannot be initializer ${document.title}.`;
       this.logger.log(message);
       this.dispose();
-      this.toolsService.fitViewport();
       this.documentSubject.next(null);
       // TODO: error view
       alert(message);
