@@ -45,22 +45,7 @@ body {
     width: 20px;
   }
 }
-/* right menu*/
-.mat-expansion-panel-header {
-  height: 30px !important;
-}
 
-.mat-expanded {
-  height: 100%;
-  .mat-expansion-panel-content,
-  .mat-expansion-panel-body {
-    padding: 0px !important;
-    height: 100% !important;
-  }
-}
-.mat-expansion-indicator {
-  height: 23px;
-}
 .nodrag {
   -webkit-user-drag: none;
   -khtml-user-drag: none;

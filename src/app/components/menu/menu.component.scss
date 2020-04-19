@@ -3,7 +3,7 @@
   height: 100%;
   width: 100%;
 }
-mat-accordion {
+.accordion {
   overflow: hidden;
   position: absolute;
   display: flex;
@@ -13,7 +13,8 @@ mat-accordion {
   flex-direction: column;
   border-radius: 0px !important;
   box-shadow: none !important;
-  mat-expansion-panel {
+  .panel {
+    overflow: hidden;
     border-radius: 0px !important;
     box-shadow: none !important;
     display: flex;
@@ -21,30 +22,30 @@ mat-accordion {
     align-items: stretch;
     align-content: stretch;
     background: none;
-    mat-expansion-panel-header {
-      padding: 0px 10px;
-      background-color: #424242;
-    }
-    mat-expansion-panel-header:hover {
-      background-color: #424242 !important;
-    }
+    height: auto;
   }
-  mat-expansion-panel:only-child {
-    mat-expansion-panel-header {
+  .panel:only-child {
+    .header {
       display: none;
     }
+  }
+  .expanded {
+    height: 50%;
   }
 }
 
 app-outline {
   height: 100%;
+  overflow: hidden;
 }
-app-propeties {
+app-properties {
   height: 100%;
+  overflow: hidden;
 }
 mat-expansion-panel-header {
   min-height: 30px;
 }
+$headerheight: 30px;
 .resize-menu {
   position: absolute;
   height: 100%;
@@ -59,4 +60,30 @@ mat-expansion-panel-header {
   height: 6px;
   min-height: 6px;
   cursor: row-resize;
+}
+.header {
+  min-height: 30px;
+  height: $headerheight;
+  padding: 0px 10px;
+  background-color: #424242;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  overflow: hidden;
+}
+.header:hover {
+  background-color: #424242;
+}
+
+mat-icon {
+  line-height: $headerheight;
+}
+.header-text {
+  line-height: $headerheight;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 15px;
+  color: #fff;
+  font-weight: 400;
+  height: $headerheight;
+  padding: 0px 4px;
 }

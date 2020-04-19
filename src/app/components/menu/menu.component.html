@@ -1,24 +1,22 @@
-<mat-accordion multi="true" displayMode="flat" (window:mousemove)="dragMove($event)"
-    (window:mouseup)="dragFinished($event)">
-    <mat-expansion-panel #propertiesPanel togglePosition="before" class="noselect" [expanded]="propExpanded"
-        (closed)="stateChanged()" (opened)="stateChanged()">
-        <mat-expansion-panel-header expandedHeight="'30px'" collapsedHeight="'30px'">
-            Properties
-        </mat-expansion-panel-header>
-        <app-properties></app-properties>
-    </mat-expansion-panel>
-    <div class="resize" [style.height.px]="resizeCursorPrecision"
-        *ngIf="propertiesPanel && outlinePanel && propertiesPanel.expanded && outlinePanel.expanded && mode !== ViewMode.Animator"
-        (mousedown)="dragStarted($event)">
+<div class="accordion" (window:mousemove)="dragMove($event)" (window:mouseup)="dragFinished($event)">
+    <div #propertiesPanel class="panel" [class.expanded]="propExpanded">
+        <div class="header" (click)="toogleProp()">
+            <mat-icon>{{propExpanded?'expand_less':'expand_more'}}</mat-icon>
+            <div class="header-text">Properties</div>
+        </div>
+        <app-properties *ngIf="propExpanded"></app-properties>
     </div>
-    <mat-expansion-panel #outlinePanel togglePosition="before" *ngIf="mode !== ViewMode.Animator"
-        (closed)="stateChanged()" (opened)="stateChanged()" [expanded]="outlineExpanded">
-        <mat-expansion-panel-header class="noselect" expandedHeight="'30px'" collapsedHeight="'30px'">
-            Outline
-        </mat-expansion-panel-header>
-        <app-outline allowScroll="true">
+    <div #outlinePanel class="panel" [class.expanded]="outlineExpanded" *ngIf="mode !== ViewMode.Animator">
+        <div *ngIf="propExpanded && outlineExpanded" class="resize"
+            [style.height.px]="resizeCursorPrecision" (mousedown)="dragStarted($event)">
+        </div>
+        <div class="header" (click)="toogleOutline()">
+            <mat-icon>{{outlineExpanded?'expand_less':'expand_more'}}</mat-icon>
+            <div class="header-text">Outline</div>
+        </div>
+        <app-outline *ngIf="outlineExpanded" allowScroll="true">
         </app-outline>
-    </mat-expansion-panel>
-</mat-accordion>
+    </div>
+</div>
 <div class="resize-menu nodrag" [style.width.px]="resizeCursorPrecision" (mousedown)="dragStarted($event, true)">
 </div>

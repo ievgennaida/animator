@@ -10,7 +10,6 @@ import {
 import { ViewService } from "src/app/services/view.service";
 import { ViewMode } from "src/environments/view-mode";
 import { consts } from "src/environments/consts";
-import { MatExpansionPanel } from "@angular/material/expansion";
 import { Utils } from "src/app/services/utils/utils";
 import { StorageService } from "src/app/services/storage.service";
 import { takeUntil } from "rxjs/operators";
@@ -31,30 +30,18 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     private storage: StorageService
   ) {
     super();
+    this.cdRef.detach();
   }
+  // resize:
+  initialDragSize = 0
   dragStartedArgs: MouseEvent = null;
-  panel = false;
-  initialDragSize = 0;
+  resizeMenuPanel = false;
   resizeCursorPrecision = 6;
-  propertiesPanel: MatExpansionPanel = null;
+  // accordion:
   propExpanded = this.storage.propExpanded;
   outlineExpanded = this.storage.outlineExpanded;
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
-  lastOutlineHeight = 0;
-
-  @ViewChild("propertiesPanel")
-  set getPropertiesPanel(value: MatExpansionPanel) {
-    this.propertiesPanel = value;
-    this.stateChanged();
-  }
-
-  outlinePanel: MatExpansionPanel = null;
-  @ViewChild("outlinePanel")
-  set getOutlinePanel(value: MatExpansionPanel) {
-    this.outlinePanel = value;
-    this.stateChanged();
-  }
 
   outlinePanelEl: ElementRef<HTMLElement>;
   @ViewChild("outlinePanel", { read: ElementRef })
@@ -65,11 +52,21 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
 
   @ViewChild("propertiesPanel", { read: ElementRef })
   propertiesPanelEl: ElementRef<HTMLElement>;
+  toogleProp() {
+    this.propExpanded = !this.propExpanded;
+    this.stateChanged();
+    this.cdRef.detectChanges();
+  }
+  toogleOutline() {
+    this.outlineExpanded = !this.outlineExpanded;
+    this.stateChanged();
+    this.cdRef.detectChanges();
+  }
 
   ngOnInit(): void {
     const defaultSize =
-      this.storage.menuSize || consts.appearance.menuPanelSize;
-    this.storage.menuSize = this.setPanelSize(defaultSize);
+      this.storage.menuPanelSize || consts.appearance.menuPanelSize;
+    this.storage.menuPanelSize = this.setPanelSize(defaultSize);
     this.propExpanded = this.storage.propExpanded;
     this.outlineExpanded = this.storage.outlineExpanded;
     this.viewService.emitViewportResized();
@@ -83,13 +80,15 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
           if (this.mode === ViewMode.Animator) {
             this.storage.propExpanded = this.propExpanded = true;
           }
-          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
         }
       });
 
     this.viewService.resized.pipe(takeUntil(this.destroyed$)).subscribe(() => {
-      this.storage.menuSize = this.setPanelSize();
+      this.storage.menuPanelSize = this.setPanelSize();
+      this.cdRef.detectChanges();
     });
+    this.cdRef.detectChanges();
   }
   resize(size: number, maxSize: number): number {
     const min = maxSize * 0.2;
@@ -106,21 +105,12 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   }
 
   stateChanged() {
-    if (!this.propertiesPanel) {
-      return;
-    }
-
-    if (this.outlinePanel && this.outlinePanel) {
-      this.storage.outlineExpanded = this.outlineExpanded = this.outlinePanel.expanded;
-    }
-
-    this.storage.propExpanded = this.propExpanded = this.propertiesPanel.expanded;
+    this.storage.outlineExpanded = this.outlineExpanded;
+    this.storage.propExpanded = this.propExpanded;
     const outlineVisible =
-      this.outlinePanel &&
-      this.outlineExpanded &&
-      this.mode !== ViewMode.Animator;
+      this.outlineExpanded && this.mode !== ViewMode.Animator;
     if (this.propExpanded && outlineVisible) {
-      this.onRescale(this.lastOutlineHeight);
+      this.onRescale(this.storage.resizedOutline);
       return;
     }
 
@@ -147,7 +137,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     ) {
       // cancel drag:
       this.dragStartedArgs = null;
-      if (this.panel) {
+      if (this.resizeMenuPanel) {
         this.hostElementRef.nativeElement.style.width =
           this.initialDragSize + "px";
         this.viewService.emitViewportResized();
@@ -157,10 +147,10 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
         }
       }
     } else if (this.dragStartedArgs && this.initialDragSize) {
-      if (this.panel) {
+      if (this.resizeMenuPanel) {
         const size =
           this.initialDragSize + this.dragStartedArgs.clientX - event.clientX;
-        this.storage.menuSize = this.setPanelSize(size);
+        this.storage.menuPanelSize = this.setPanelSize(size);
         this.viewService.emitViewportResized();
       } else {
         this.onRescale(
@@ -171,7 +161,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   }
   dragStarted(event: MouseEvent, panel: boolean = false) {
     event.preventDefault();
-    this.panel = panel;
+    this.resizeMenuPanel = panel;
     this.dragStartedArgs = event;
     if (panel) {
       if (this.hostElementRef && this.hostElementRef.nativeElement) {
@@ -229,6 +219,6 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     const height = this.resize(percents, 100);
     el1.style.height = height + "%";
     el2.style.height = 100 - height + "%";
-    this.lastOutlineHeight = el1.clientHeight;
+    this.storage.resizedOutline = el1.clientHeight;
   }
 }

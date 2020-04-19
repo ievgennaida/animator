@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
@@ -13,14 +19,18 @@ import { BaseComponent } from "../base-component";
   selector: "app-properties",
   templateUrl: "./properties.component.html",
   styleUrls: ["./properties.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PropertiesComponent extends BaseComponent implements OnInit, OnDestroy {
+export class PropertiesComponent extends BaseComponent
+  implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private outlineService: OutlineService,
+    private cdRef: ChangeDetectorRef,
     private selectionService: SelectionService
   ) {
     super();
+    this.cdRef.detach();
   }
 
   node: TreeNode = null;
@@ -76,6 +86,7 @@ export class PropertiesComponent extends BaseComponent implements OnInit, OnDest
             }
           }
         }
+        this.cdRef.detectChanges();
       });
   }
 
@@ -84,10 +95,5 @@ export class PropertiesComponent extends BaseComponent implements OnInit, OnDest
       this.node.nameProperty.setValue(event.target.value);
       this.propertiesService.emitPropertyChanged(this.node.nameProperty);
     }
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next(true);
-    this.destroyed$.complete();
   }
 }

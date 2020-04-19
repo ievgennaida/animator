@@ -14,7 +14,6 @@ import { MatTreeModule } from "@angular/material/tree";
 import { MatButtonModule } from "@angular/material/button";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { MatListModule } from "@angular/material/list";
-import { MatExpansionModule } from '@angular/material/expansion';
 import { ResizableModule } from "angular-resizable-element";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -74,7 +73,6 @@ import { PropertiesComponent } from './components/properties/properties.componen
     MatIconModule,
     HttpClientModule,
     MatListModule,
-    MatExpansionModule,
     MatMenuModule,
     MatButtonToggleModule,
     NoopAnimationsModule,

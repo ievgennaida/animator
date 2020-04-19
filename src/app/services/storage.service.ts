@@ -7,7 +7,8 @@ import { consts } from 'src/environments/consts';
 export class StorageService {
 
   constructor() { }
-  menuSize= consts.appearance.menuPanelSize
+  menuPanelSize= consts.appearance.menuPanelSize;
+  resizedOutline = 0;
   propExpanded = true;
   outlineExpanded = true;
 }
