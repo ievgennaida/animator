@@ -1,11 +1,12 @@
 export enum InputDocumentType {
   SVG,
-  JSON
+  JSON,
 }
 
 export class InputDocument {
   data: string;
   parsedData: any;
-  title = '';
+  rootNode: SVGSVGElement;
+  title = "";
   type: InputDocumentType = InputDocumentType.SVG;
 }
