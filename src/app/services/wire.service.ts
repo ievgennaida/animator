@@ -76,7 +76,7 @@ export class WireService {
   cleanCache() {
     this.outlineService
       .getAllNodes()
-      .forEach((node) => node.cleanScreenCache());
+      .forEach((node) => node.cleanCache());
   }
   init() {}
 }
