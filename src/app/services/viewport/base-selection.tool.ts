@@ -6,6 +6,7 @@ import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
 import { TransformsService } from "./transformations/transforms.service";
 import { SelectorRenderer } from "./renderers/selector.renderer";
+import { Utils } from "../utils/utils";
 
 export class BaseSelectionTool extends BaseTool {
   cacheIndex = 0;
@@ -157,15 +158,6 @@ export class BaseSelectionTool extends BaseTool {
     }
   }
 
-  getMousePos(event: MouseEventArgs) {
-    const point = this.viewService.toSvgPoint(
-      event.clientX - this.containerRect.left,
-      event.clientY - this.containerRect.top,
-      true
-    );
-    return point;
-  }
-
   trackMousePos(event: MouseEventArgs) {
     if (!event) {
       return;
@@ -175,7 +167,7 @@ export class BaseSelectionTool extends BaseTool {
       this.containerRect = this.viewService.getContainerClientRect();
     }
 
-    const pos = this.getMousePos(event);
+    const pos = Utils.toElementPoint(this.viewService, event.screenPoint);
     if (this.startPos) {
       if (!this.selectionRect) {
         this.selectionRect = new DOMRect();

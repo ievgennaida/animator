@@ -195,20 +195,6 @@ export class ViewService implements ICTMProvider {
     return this.viewport.ownerSVGElement;
   }
 
-  public toSvgPoint(x: number, y: number, translate = false): DOMPoint {
-    if (!this.isInit()) {
-      return null;
-    }
-
-    let point = Utils.getDOMPoint(x, y);
-    if (translate) {
-      const matrix = this.getCTM();
-      point = point.matrixTransform(matrix.inverse());
-    }
-
-    return point;
-  }
-
   getWorkAreaSize(): DOMRect {
     return this.viewportSize;
   }

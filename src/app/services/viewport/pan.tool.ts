@@ -40,8 +40,7 @@ export class PanTool extends BaseTool {
     event.preventDefault();
     event.handled = true;
     this.svgMatrix = this.viewService.getCTM();
-    const point = this.viewService.toSvgPoint(event.clientX, event.clientY);
-    this.mouseDownPos = point.matrixTransform(this.svgMatrix.inverse());
+    this.mouseDownPos = event.screenPoint.matrixTransform(this.svgMatrix.inverse());
     this.cursor.setCursor(CursorType.Grabbing);
   }
 
@@ -56,10 +55,7 @@ export class PanTool extends BaseTool {
 
     event.preventDefault();
     event.handled = true;
-    const currentPoint = this.viewService.toSvgPoint(
-      event.clientX,
-      event.clientY
-    );
+    const currentPoint = event.screenPoint;
     this.panByRelativePoint(currentPoint);
   }
 
@@ -77,11 +73,7 @@ export class PanTool extends BaseTool {
     if (this.mouseDownPos) {
       event.preventDefault();
       event.handled = true;
-      const currentPoint = this.viewService.toSvgPoint(
-        event.clientX,
-        event.clientY
-      );
-      this.panByRelativePoint(currentPoint);
+      this.panByRelativePoint(event.screenPoint);
     }
 
     this.cleanUp();
