@@ -42,10 +42,10 @@ export class MouseTrackerComponent extends BaseComponent implements OnInit, OnDe
             this.outputY &&
             this.outputY.nativeElement
           ) {
-            this.outputX.nativeElement.innerText = `x: ${Utils.RoundTwo(
+            this.outputX.nativeElement.innerText = `x: ${Utils.roundTwo(
               event.viewportPoint.x
             )}`;
-            this.outputY.nativeElement.innerText = `y: ${Utils.RoundTwo(
+            this.outputY.nativeElement.innerText = `y: ${Utils.roundTwo(
               event.viewportPoint.x
             )}`;
           }

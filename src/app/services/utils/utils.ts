@@ -144,7 +144,7 @@ export class Utils {
   public static getDOMPoint(x: number, y: number): DOMPoint {
     return new DOMPoint(x, y);
   }
-  public static RoundTwo(num: number) {
+  public static roundTwo(num: number) {
     return Math.round(num * 100) / 100;
   }
   public static setCTM(element: SVGElement | any, matrix: DOMMatrix) {
