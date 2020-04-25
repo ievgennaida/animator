@@ -1,20 +1,5 @@
-import { Subject, Observable } from "rxjs";
+import { Subject, Observable, BehaviorSubject } from "rxjs";
 import { Injectable } from "@angular/core";
-
-@Injectable({
-  providedIn: "root"
-})
-export class CursorService {
-  cursorSubject = new Subject<CursorType>();
-  public get сhanged(): Observable<CursorType> {
-    return this.cursorSubject.asObservable();
-  }
-
-  public setCursor(cursor: CursorType) {
-    this.cursorSubject.next(cursor);
-  }
-}
-
 export enum CursorType {
   Alias = "alias",
   AllAcroll = "all-scroll",
@@ -50,5 +35,24 @@ export enum CursorType {
   WResize = "w-resize",
   Wait = "wait",
   ZoomIn = "zoom-in",
-  ZoomOut = "zoom-out"
+  ZoomOut = "zoom-out",
+  RotateBL = "url('/assets/images/rotate_bl.png') 0 0, pointer",
+  RotateBR = "url('/assets/images/rotate_br.png') 0 0, pointer",
+  RotateTL = "url('/assets/images/rotate_tl.png') 0 0, pointer",
+  RotateTR = "url('/assets/images/rotate_tr.png') 0 0, pointer",
+}
+@Injectable({
+  providedIn: "root",
+})
+export class CursorService {
+  cursorSubject = new BehaviorSubject<CursorType>(CursorType.Default);
+  public get сhanged(): Observable<CursorType> {
+    return this.cursorSubject.asObservable();
+  }
+
+  public setCursor(cursor: CursorType) {
+    if (cursor !== this.cursorSubject.getValue()) {
+      this.cursorSubject.next(cursor);
+    }
+  }
 }
