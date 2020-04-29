@@ -1,4 +1,4 @@
-import { IInitializer, InitResults } from "../interfaces/intializer";
+import { IInitializer, InitResults } from "../../models/interfaces/intializer";
 import { InputDocument } from "src/app/models/input-document";
 import { SvgPlayer } from "./svg-player";
 const xmlns = "http://www.w3.org/2000/svg";

@@ -9,12 +9,15 @@ import { OutlineService } from "../outline.service";
 import { TransformsService } from "./transformations/transforms.service";
 import { Utils } from "../utils/utils";
 import { SelectorRenderer } from "./renderers/selector.renderer";
-import { CursorService, CursorType } from "../cursor.service";
+import { CursorService } from "../cursor.service";
 import { MatrixTransform } from "./transformations/matrix-transform";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectionService, SelectionMode } from "../selection.service";
 import { ContextMenuService } from "../context-menu.service";
+import { AdornerType } from "./adorners/adorner-type";
+import { CursorType } from "src/app/models/cursor-type";
+import { consts } from "src/environments/consts";
 
 /**
  * Select elements by a mouse move move.
@@ -120,7 +123,7 @@ export class SelectionTool extends BaseSelectionTool {
               selected.push(node);
             }
           } catch (err) {
-            this.logger.warn("Cannot check intersection" + err);
+            this.logger.warn(`Cannot check intersection ${err}`);
           }
         }
       }
@@ -152,6 +155,29 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
+        const selectedItems = this.selectionService.getSelected();
+        selectedItems.find((node) => {
+          const adorner = node.getElementAdorner();
+          const elPoint = Utils.toElementPoint(node, event.screenPoint);
+          const offsetCalcPoint = Utils.toElementPoint(
+            node,
+            new DOMPoint(event.screenPoint.x + 1, event.screenPoint.y + 1)
+          );
+          const check =
+            Utils.getLenght(offsetCalcPoint, elPoint) * consts.handleSize;
+          const intersects = adorner.intersectAdorner(elPoint, check);
+          if (adorner.selected !== intersects) {
+            adorner.selected = intersects;
+            if (adorner.selected === AdornerType.None) {
+              this.cursor.setCursor(CursorType.Default);
+            } else {
+              this.cursor.setCursor(
+                this.cursor.getCursorResize(adorner, intersects)
+              );
+            }
+            this.boundsRenderer.invalidate();
+          }
+        });
         super.onWindowMouseMove(event);
       }
     }

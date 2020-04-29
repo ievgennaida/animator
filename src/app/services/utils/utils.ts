@@ -1,6 +1,7 @@
 import { TreeNode } from "src/app/models/tree-node";
 import { PathData } from "../../models/path/path-data";
-import { ICTMProvider } from "../interfaces/ctm-provider";
+import { ICTMProvider } from "../../models/interfaces/ctm-provider";
+import { IBBox } from '../../models/interfaces/bbox';
 
 export class Utils {
   static getVector(a: DOMPoint, b: DOMPoint = null): DOMPoint {
@@ -122,7 +123,13 @@ export class Utils {
 
     return size;
   }
-
+  static toScreenPoint(
+    el: SVGGraphicsElement | ICTMProvider,
+    screenPoint: DOMPoint
+  ): DOMPoint {
+    const current = screenPoint.matrixTransform(el.getScreenCTM());
+    return current;
+  }
   static toElementPoint(
     el: SVGGraphicsElement | ICTMProvider,
     screenPoint: DOMPoint
@@ -167,9 +174,7 @@ export class Utils {
     return array;
   }
 
-  private static getBounds(
-    clientRect: boolean,
-    ...elements: SVGGraphicsElement[] | TreeNode[]
+  private static getBounds(methodName, ...elements: SVGGraphicsElement[] | IBBox[]
   ): DOMRect {
     if (!elements) {
       return null;
@@ -180,9 +185,7 @@ export class Utils {
     let maxY;
 
     for (const element of elements) {
-      const size = clientRect
-        ? element.getBoundingClientRect()
-        : element.getBBox();
+      const size = element[methodName]();
 
       minX = minX === undefined ? size.x : Math.min(minX, size.x);
       maxX =
@@ -202,14 +205,14 @@ export class Utils {
     return new DOMRect(minX, minY, maxX - minX, maxY - minY);
   }
   public static getBoundingClientRect(
-    ...elements: SVGGraphicsElement[] | TreeNode[]
+    ...elements: SVGGraphicsElement[] | IBBox[]
   ): DOMRect {
-    return Utils.getBounds(true, ...elements);
+    return Utils.getBounds('getBoundingClientRect', ...elements);
   }
   public static getBBoxBounds(
-    ...elements: SVGGraphicsElement[] | TreeNode[]
+    ...elements: SVGGraphicsElement[] | IBBox[]
   ): DOMRect {
-    return Utils.getBounds(false, ...elements);
+    return Utils.getBounds('getBBox', ...elements);
   }
 
   static reverseVector(a: DOMPoint): DOMPoint {

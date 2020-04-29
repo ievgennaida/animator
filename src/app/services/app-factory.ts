@@ -1,9 +1,9 @@
 import { InputDocument, InputDocumentType } from "../models/input-document";
 import { LottieTreeParser } from "./lottie/lottie-tree.parser";
 import { SvgTreeParser } from "./svg/svg-tree.parser";
-import { IParser } from "./interfaces/parser";
+import { IParser } from "../models/interfaces/parser";
 import { LottieInitializer } from "./lottie/lottie-intializer";
-import { IInitializer } from "./interfaces/intializer";
+import { IInitializer } from "../models/interfaces/intializer";
 import { SvgInitializer } from "./svg/svg-initializer";
 import { Injectable } from "@angular/core";
 

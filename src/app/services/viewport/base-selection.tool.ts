@@ -42,7 +42,7 @@ export class BaseSelectionTool extends BaseTool {
     if (bounds) {
       const zoom = this.viewService.getZoom();
       this.autoPanSpeed =
-        consts.autoPanSpeed * zoom * Math.abs(bounds.from.x - bounds.to.x);
+        consts.autoPanSpeed * zoom * Math.abs(bounds.a.x - bounds.b.x);
     }
     this.click = true;
     this.selectionStarted(e);

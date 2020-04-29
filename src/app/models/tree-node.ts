@@ -7,12 +7,13 @@ import { LottieModel } from "./Lottie/LottieModel";
 import { NodeType } from "./Lottie/NodeType";
 import { AdornerData } from "../services/viewport/adorners/adorner-data";
 import { PathData } from "./path/path-data";
-import { ICTMProvider } from "../services/interfaces/ctm-provider";
+import { ICTMProvider } from "./interfaces/ctm-provider";
+import { IBBox } from "./interfaces/bbox";
 
 /**
  * Application node view model.
  */
-export class TreeNode implements ICTMProvider {
+export class TreeNode implements ICTMProvider, IBBox {
   constructor() {
     this.lane = {} as AnimationTimelineLane;
     this.children = [];
@@ -40,8 +41,8 @@ export class TreeNode implements ICTMProvider {
   preselected = false;
   selected = false;
   private cacheClientRect: DOMRect;
-  private cacheScreenAdorers: AdornerData;
-  private cacheElementAdorers: AdornerData;
+  private cacheScreenAdorers: AdornerData = new AdornerData();
+  private cacheElementAdorers: AdornerData = new AdornerData();
   private ctmCache: DOMMatrix;
   private screenCTMCache: DOMMatrix;
   private _name = "";
@@ -82,13 +83,13 @@ export class TreeNode implements ICTMProvider {
     this.ctmCache = null;
     this.cacheBBox = null;
     this.cacheClientRect = null;
-    this.cacheElementAdorers = null;
+    this.cacheElementAdorers.invalidate();
     this.pathDataCache = null;
   }
 
   cleanScreenCache() {
     this.cacheClientRect = null;
-    this.cacheScreenAdorers = null;
+    this.cacheScreenAdorers.invalidate();
   }
 
   public getPathData(): PathData {
@@ -143,7 +144,7 @@ export class TreeNode implements ICTMProvider {
    */
   getScreenAdorners(screenCTM: DOMMatrix): AdornerData {
     if (this.cacheScreenAdorers) {
-      return this.cacheScreenAdorers;
+      // return this.cacheScreenAdorers;
     }
     let elementAdorner = this.getElementAdorner();
     if (!elementAdorner) {
@@ -159,13 +160,10 @@ export class TreeNode implements ICTMProvider {
    * Get cached elements coordinates adorners.
    */
   getElementAdorner(): AdornerData {
-    if (this.cacheElementAdorers) {
-      return this.cacheElementAdorers;
+    if (this.cacheElementAdorers.invalid) {
+      this.cacheElementAdorers.update(this.getElement(), this.getBBox());
     }
-    this.cacheElementAdorers = AdornerData.create(
-      this.getElement(),
-      this.getBBox()
-    );
+
     return this.cacheElementAdorers;
   }
 

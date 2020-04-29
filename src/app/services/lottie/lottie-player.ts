@@ -1,5 +1,5 @@
 import { default as lottie, AnimationItem } from "node_modules/lottie-web";
-import { IPlayer } from "./../interfaces/player";
+import { IPlayer } from "../../models/interfaces/player";
 
 export class LottiePlayer implements IPlayer {
   // Model has limited list of the described properties.

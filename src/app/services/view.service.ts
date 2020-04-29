@@ -2,8 +2,9 @@ import { Injectable } from "@angular/core";
 import { Subject, BehaviorSubject, Observable } from "rxjs";
 import { consts } from "src/environments/consts";
 import { Utils } from "./utils/utils";
-import { ViewMode } from "src/environments/view-mode";
-import { ICTMProvider } from "./interfaces/ctm-provider";
+import { ViewMode } from "src/app/models/view-mode";
+import { ICTMProvider } from "../models/interfaces/ctm-provider";
+import { Line } from "../models/Line";
 
 @Injectable({
   providedIn: "root",
@@ -146,19 +147,17 @@ export class ViewService implements ICTMProvider {
     toPoint.y = svg.clientHeight;
     return toPoint;
   }
-  public getDisplayedBounds() {
+  public getDisplayedBounds(): Line {
     if (!this.viewport) {
       return null;
     }
-    const svg = this.svgRoot();
     const matrix = this.getCTM().inverse();
-    let fromPoint = svg.createSVGPoint();
-    fromPoint = fromPoint.matrixTransform(matrix);
     const toPoint = this.getScreenSize().matrixTransform(matrix);
-    return {
-      from: fromPoint,
-      to: toPoint,
-    };
+    const line = new Line();
+    const svg = this.svgRoot();
+    line.a = svg.createSVGPoint().matrixTransform(matrix);
+    line.b = toPoint;
+    return line;
   }
 
   /**

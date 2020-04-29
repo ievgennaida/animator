@@ -14,10 +14,11 @@ import {
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { ViewService } from "src/app/services/view.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
-import { CursorService, CursorType } from "src/app/services/cursor.service";
+import { CursorService } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 import { BaseComponent } from '../base-component';
+import { CursorType } from 'src/app/models/cursor-type';
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",

@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Timeline } from "animation-timeline-js";
 import { BehaviorSubject, Observable } from "rxjs";
 import { TimeData } from "../models/timedata";
-import { IPlayer } from "./interfaces/player";
+import { IPlayer } from "../models/interfaces/player";
 
 @Injectable({
   providedIn: "root"

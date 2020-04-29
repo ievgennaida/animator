@@ -302,16 +302,16 @@ export class GridLinesRenderer extends BaseRenderer {
       this.drawTicks(
         this.ctx,
         this.rulerVCTX,
-        bounds.from.x,
-        bounds.to.x,
+        bounds.a.x,
+        bounds.b.x,
         true,
         this.gridLinesVisible()
       );
       this.drawTicks(
         this.ctx,
         this.rulerHCTX,
-        bounds.from.y,
-        bounds.to.y,
+        bounds.a.y,
+        bounds.b.y,
         false,
         this.gridLinesVisible()
       );

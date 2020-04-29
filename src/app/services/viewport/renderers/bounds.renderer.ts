@@ -7,6 +7,7 @@ import { consts } from "src/environments/consts";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
 import { SelectionService } from "../../selection.service";
+import { AdornerType } from '../adorners/adorner-type';
 
 /**
  * Elements bounds renderer
@@ -30,29 +31,102 @@ export class BoundsRenderer extends BaseRenderer {
     Utils.normilizeSelf(alongW);
     const alongHR = Utils.reverseVector(alongH);
     const alongWR = Utils.reverseVector(alongW);
+    const handleStroke = consts.handleStrokeColor;
+    const fillStroke = consts.handleFillColor;
+    const selectedFillStroke = consts.handleSelectedFillColor;
     // top left
-    this.drawAdornerHandle(ctx, adornerData.topLeft, alongW, alongH);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.topLeft,
+      alongW,
+      alongH,
+      false,
+      handleStroke,
+      adornerData.isSelected(AdornerType.TopLeft) ? selectedFillStroke : fillStroke
+    );
     // top right
-    this.drawAdornerHandle(ctx, adornerData.topRight, alongHR, alongW);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.topRight,
+      alongHR,
+      alongW,
+      false,
+      handleStroke,
+      adornerData.isSelected(AdornerType.TopRight) ? selectedFillStroke : fillStroke
+    );
     // bottom left
-    this.drawAdornerHandle(ctx, adornerData.bottomLeft, alongWR, alongH);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.bottomLeft,
+      alongWR,
+      alongH,
+      false,
+      handleStroke,
+      adornerData.isSelected(AdornerType.BottomLeft)
+        ? selectedFillStroke
+        : fillStroke
+    );
     // bottom right
-    this.drawAdornerHandle(ctx, adornerData.bottomRight, alongWR, alongHR);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.bottomRight,
+      alongWR,
+      alongHR,
+      false,
+      handleStroke,
+      adornerData.isSelected(AdornerType.BottomRight)
+        ? selectedFillStroke
+        : fillStroke
+    );
 
     // top center
-    this.drawAdornerHandle(ctx, adornerData.topCenter, alongW, alongH, true);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.topCenter,
+      alongW,
+      alongH,
+      true,
+      handleStroke,
+      adornerData.isSelected(AdornerType.TopCenter)
+        ? selectedFillStroke
+        : fillStroke
+    );
     // bottom center
     this.drawAdornerHandle(
       ctx,
       adornerData.bottomCenter,
       alongWR,
       alongH,
-      true
+      true,
+      handleStroke,
+      adornerData.isSelected(AdornerType.BottomCenter)
+        ? selectedFillStroke
+        : fillStroke
     );
     // left center
-    this.drawAdornerHandle(ctx, adornerData.leftCenter, alongH, alongW, true);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.leftCenter,
+      alongH,
+      alongW,
+      true,
+      handleStroke,
+      adornerData.isSelected(AdornerType.LeftCenter)
+        ? selectedFillStroke
+        : fillStroke
+    );
     // right center
-    this.drawAdornerHandle(ctx, adornerData.rightCenter, alongHR, alongW, true);
+    this.drawAdornerHandle(
+      ctx,
+      adornerData.rightCenter,
+      alongHR,
+      alongW,
+      true,
+      handleStroke,
+      adornerData.isSelected(AdornerType.RightCenter)
+        ? selectedFillStroke
+        : fillStroke
+    );
   }
 
   drawAdornerHandle(
@@ -60,14 +134,14 @@ export class BoundsRenderer extends BaseRenderer {
     handlePoint: DOMPoint,
     vectorA: DOMPoint,
     vectorB: DOMPoint,
-    center = false
+    center = false,
+    strokeColor = consts.handleStrokeColor,
+    fillColor = consts.handleFillColor
   ) {
     const boxSize = consts.handleSize;
     const halfSize = boxSize / 2;
-    const opposite = new DOMPoint(
-      handlePoint.x + vectorA.x * boxSize,
-      handlePoint.y + vectorA.y * boxSize
-    );
+    const oppositeX = handlePoint.x + vectorA.x * boxSize;
+    const oppositeY = handlePoint.y + vectorA.y * boxSize;
 
     let fromX = -vectorB.x * boxSize;
     let fromY = -vectorB.y * boxSize;
@@ -83,13 +157,13 @@ export class BoundsRenderer extends BaseRenderer {
     this.drawPath(
       ctx,
       consts.handleStrokeSize,
-      consts.handleStrokeColor,
-      consts.handleFillColor,
+      strokeColor,
+      fillColor,
       true,
       new DOMPoint(handlePoint.x - fromX, handlePoint.y - fromY),
       new DOMPoint(handlePoint.x + toX, handlePoint.y + toY),
-      new DOMPoint(opposite.x + toX, opposite.y + toY),
-      new DOMPoint(opposite.x - fromX, opposite.y - fromY)
+      new DOMPoint(oppositeX + toX, oppositeY + toY),
+      new DOMPoint(oppositeX - fromX, oppositeY - fromY)
     );
   }
 
@@ -159,8 +233,8 @@ export class BoundsRenderer extends BaseRenderer {
               // draw when resized.
               // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
               // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-              // this.drawAdornersHandles(ctx, adornerData);
-              // this.drawCross(ctx, adornerData.centerTransform);
+              this.drawAdornersHandles(ctx, adornerData);
+              this.drawCross(ctx, adornerData.centerTransform);
             }
           }
         }
@@ -168,6 +242,22 @@ export class BoundsRenderer extends BaseRenderer {
 
       // Draw global bounds:
       if (renderable && renderable.length > 1) {
+        // TODO: cached, reuse
+        const adroners = renderable.map((p) =>
+          p.getScreenAdorners(this.screenCTM)
+        );
+        const bounds = Utils.getBBoxBounds(...adroners);
+        this.drawPath(
+          ctx,
+          consts.mainSelectionThikness,
+          consts.mainSelectionStroke,
+          null,
+          true,
+          new DOMPoint(bounds.x, bounds.y),
+          new DOMPoint(bounds.x + bounds.width, bounds.y),
+          new DOMPoint(bounds.x + bounds.width, bounds.y + bounds.height),
+          new DOMPoint(bounds.x, bounds.y + bounds.height)
+        );
         // let totalBounds = Utils.getBBoxBounds(...renderable);
         // this.drawAdornerRect(ctx, consts.mainSelectionThikness, consts.mainSelectionStroke, adornerData);
         // this.adornersDataService.getElementAdornerData(null,totalBounds);

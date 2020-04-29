@@ -9,7 +9,7 @@ import { PlayerService } from "src/app/services/player.service";
 
 import { takeUntil } from "rxjs/operators";
 import { ViewService } from "src/app/services/view.service";
-import { ViewMode } from "src/environments/view-mode";
+import { ViewMode } from "src/app/models/view-mode";
 import { consts } from "src/environments/consts";
 import { BaseComponent } from "../base-component";
 

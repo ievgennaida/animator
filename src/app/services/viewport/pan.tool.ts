@@ -3,7 +3,8 @@ import { MouseEventArgs } from "./mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewService } from "../view.service";
-import { CursorService, CursorType } from '../cursor.service';
+import { CursorService } from '../cursor.service';
+import { CursorType } from 'src/app/models/cursor-type';
 
 @Injectable({
   providedIn: "root"

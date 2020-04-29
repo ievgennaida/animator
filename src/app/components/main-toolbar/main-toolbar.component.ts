@@ -22,7 +22,7 @@ import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-line
 import { takeUntil } from "rxjs/operators";
 import { SelectionService } from "src/app/services/selection.service";
 import { PasteService } from "src/app/services/paste.service";
-import { ViewMode } from "src/environments/view-mode";
+import { ViewMode } from "src/app/models/view-mode";
 import { BaseComponent } from "../base-component";
 
 @Component({

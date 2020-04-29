@@ -8,7 +8,7 @@ import {
   OnDestroy,
 } from "@angular/core";
 import { ViewService } from "src/app/services/view.service";
-import { ViewMode } from "src/environments/view-mode";
+import { ViewMode } from "src/app/models/view-mode";
 import { consts } from "src/environments/consts";
 import { Utils } from "src/app/services/utils/utils";
 import { StorageService } from "src/app/services/storage.service";

@@ -13,8 +13,11 @@ export enum SelectionMode {
   providedIn: "root",
 })
 export class SelectionService {
-  constructor(private outlineService: OutlineService) { }
+  constructor(private outlineService: OutlineService) {}
   selectedSubject = new BehaviorSubject<ChangedArgs>(new ChangedArgs());
+
+  getSelectionAdorner() {}
+
   getSelected(): TreeNode[] {
     const selector = this.selectedSubject.getValue();
     return selector.nodes;

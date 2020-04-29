@@ -7,7 +7,7 @@ import {
   AnimationItem,
   AnimationConfigWithData
 } from "node_modules/lottie-web";
-import { IInitializer, InitResults } from "../interfaces/intializer";
+import { IInitializer, InitResults } from "../../models/interfaces/intializer";
 import { LottiePlayer } from "./lottie-player";
 
 export class LottieInitializer implements IInitializer {

@@ -13,7 +13,7 @@ import { ToolsService } from "./services/viewport/tools.service";
 import { ViewService } from "./services/view.service";
 import { HotkeysService } from "./services/hotkeys.service";
 import { WireService } from "./services/wire.service";
-import { ViewMode } from "src/environments/view-mode";
+import { ViewMode } from "src/app/models/view-mode";
 import { ContextMenuService } from "./services/context-menu.service";
 import { AssetsService } from "./services/assets.service";
 import { Utils } from "./services/utils/utils";

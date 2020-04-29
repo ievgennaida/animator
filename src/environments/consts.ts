@@ -1,4 +1,4 @@
-import { ViewMode } from "./view-mode";
+import { ViewMode } from "../app/models/view-mode";
 
 export const consts = {
   recentItemsCount: 7,
@@ -69,6 +69,7 @@ export const consts = {
   mainSelectionThikness: 2,
   altSelectionThikness: 1,
   handleFillColor: "#3399FF",
+  handleSelectedFillColor: "red",
   handleStrokeSize: 0,
   handleStrokeColor: "",
   handleSize: 6,

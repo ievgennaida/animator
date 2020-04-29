@@ -1,4 +1,4 @@
-import { IPlayer } from "./../interfaces/player";
+import { IPlayer } from "../../models/interfaces/player";
 
 export class SvgPlayer implements IPlayer {
   // Model has limited list of the described properties.

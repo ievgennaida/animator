@@ -6,10 +6,11 @@ import { ViewService } from "../view.service";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
-import { CursorService, CursorType } from "../cursor.service";
+import { CursorService } from "../cursor.service";
 import { TransformsService } from "./transformations/transforms.service";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { Utils } from "../utils/utils";
+import { CursorType } from 'src/app/models/cursor-type';
 
 @Injectable({
   providedIn: "root",

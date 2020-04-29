@@ -13,6 +13,7 @@ import { consts } from "src/environments/consts";
 import { SelectionService } from "../selection.service";
 import { PathTool } from "./path.tool";
 import { PathDirectSelectionTool } from "./path-direct-selection.tool";
+import { ShapeTool } from "./shape.tool";
 
 /**
  * Handle current active tool and services.
@@ -34,6 +35,7 @@ export class ToolsService {
     createPathTool: PathTool,
     private selectionService: SelectionService,
     private viewService: ViewService,
+    private shapeTool: ShapeTool,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {
@@ -42,6 +44,7 @@ export class ToolsService {
     this.tools.push(panTool);
     this.tools.push(zoomTool);
     this.tools.push(createPathTool);
+    this.tools.push(shapeTool);
     this.setActiveTool(panTool);
   }
 
@@ -92,7 +95,6 @@ export class ToolsService {
   onViewportTouchCancel(event: TouchEvent) {
     this.activeTool.onViewportMouseUp(new MouseEventArgs(event));
   }
-
   onViewportMouseLeave(event: MouseEvent) {
     this.activeTool.onViewportMouseLeave(new MouseEventArgs(event));
   }
@@ -144,6 +146,12 @@ export class ToolsService {
   }
   onWindowMouseMove(event: MouseEvent) {
     const args = new MouseEventArgs(event);
+    if (args.screenPoint) {
+      args.viewportPoint = Utils.toElementPoint(
+        this.viewService,
+        args.screenPoint
+      );
+    }
     this.activeTool.onWindowMouseMove(args);
   }
   onWindowMouseUp(event: MouseEvent) {
