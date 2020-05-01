@@ -1,6 +1,7 @@
 import { DecomposedMatrix } from "./decompose-matrix";
 import { Utils } from "../../utils/utils";
 import { TransformsService } from "./transforms.service";
+import { AdornerType } from "../adorners/adorner-type";
 export enum TransformationMode {
   Skew,
   Translate,
@@ -20,6 +21,10 @@ export class MatrixTransform {
     protected transformsService: TransformsService
   ) {}
 
+  handle: AdornerType = AdornerType.None;
+  beginHandleTransformation(handle: AdornerType) {
+    this.handle = handle;
+  }
   beginMouseTransaction(pos: DOMPoint) {
     this.offset = Utils.toElementPoint(this.element, pos);
     this.mode = TransformationMode.Translate;

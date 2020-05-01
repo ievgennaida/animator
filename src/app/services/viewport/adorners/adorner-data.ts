@@ -36,7 +36,6 @@ export class AdornerData implements IBBox {
   }
 
   element: SVGGraphicsElement = null;
-  selected: AdornerType = AdornerType.None;
   invalid = true;
   get(p: AdornerType): DOMPoint {
     return this.points.get(p);
@@ -58,10 +57,6 @@ export class AdornerData implements IBBox {
     return toReturn;
   }
 
-  isSelected(value: AdornerType) {
-    // tslint:disable-next-line: no-bitwise
-    return (this.selected & value) === value;
-  }
   invalidate() {
     this.invalid = true;
   }
@@ -129,7 +124,6 @@ export class AdornerData implements IBBox {
     this.points.forEach((addornerPoint, key) => {
       cloned.points.set(key, addornerPoint.matrixTransform(m));
     });
-    cloned.selected = this.selected;
     return cloned;
   }
 }

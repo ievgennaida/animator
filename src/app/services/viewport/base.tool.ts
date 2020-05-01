@@ -1,4 +1,4 @@
-import { MouseEventArgs } from "./mouse-event-args";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 
 export class BaseTool {
   icon = "";

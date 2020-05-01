@@ -1,5 +1,5 @@
 import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "./mouse-event-args";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 import { ViewService } from "../view.service";
 import { LoggerService } from "../logger.service";
 import { PanTool } from "./pan.tool";

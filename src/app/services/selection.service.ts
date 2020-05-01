@@ -4,6 +4,7 @@ import { ChangedArgs } from "../models/changed-args";
 import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
 import { Utils } from "./utils/utils";
+import { AdornerType } from "./viewport/adorners/adorner-type";
 export enum SelectionMode {
   Normal,
   Add,
@@ -16,8 +17,17 @@ export class SelectionService {
   constructor(private outlineService: OutlineService) {}
   selectedSubject = new BehaviorSubject<ChangedArgs>(new ChangedArgs());
 
-  getSelectionAdorner() {}
-
+  selectedAdorner: AdornerType = AdornerType.None;
+  deselectAdorner() {
+    this.setSelectedAdorner(AdornerType.None);
+  }
+  setSelectedAdorner(value: AdornerType) {
+    this.selectedAdorner = value;
+  }
+  isAdornerHandleSelected(value: AdornerType) {
+    // tslint:disable-next-line: no-bitwise
+    return (this.selectedAdorner & value) === value;
+  }
   getSelected(): TreeNode[] {
     const selector = this.selectedSubject.getValue();
     return selector.nodes;

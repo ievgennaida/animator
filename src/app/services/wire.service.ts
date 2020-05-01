@@ -12,6 +12,7 @@ import { SelectionService } from "./selection.service";
 import { PathRenderer } from "./viewport/renderers/path.renderer";
 import { ToolsService } from "./viewport/tools.service";
 import { DocumentService } from "./document.service";
+import { MouseOverService } from './mouse-over.service';
 
 /**
  * Wire services together
@@ -23,6 +24,7 @@ export class WireService {
   constructor(
     private outlineService: OutlineService,
     mouseOverRenderer: MouseOverRenderer,
+    mouseOverService: MouseOverService,
     boundsRenderer: BoundsRenderer,
     selectorRenderer: SelectorRenderer,
     transformsService: TransformsService,
@@ -64,7 +66,7 @@ export class WireService {
       adornersRenderer.invalidateSizeChanged();
     });
 
-    outlineService.mouseOver.subscribe((treeNode: TreeNode) => {
+    mouseOverService.mouseOver.subscribe((treeNode: TreeNode) => {
       if (treeNode && treeNode.mouseOver) {
         mouseOverRenderer.node = treeNode;
       } else {

@@ -26,7 +26,7 @@ export class OutlineService {
     private logger: LoggerService
   ) {
   }
-  mouseOverSubject = new BehaviorSubject<TreeNode>(null);
+
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
 
   /**
@@ -61,32 +61,9 @@ export class OutlineService {
     return [];
   }
 
-
-  setMouseOver(node: TreeNode) {
-    if (node && !node.mouseOver) {
-      node.mouseOver = true;
-      this.mouseOverSubject.next(node);
-    }
-  }
-
-  setMouseLeave(node: TreeNode) {
-    if (node && node.mouseOver) {
-      node.mouseOver = false;
-      // update current subscribers with node selected = false;
-      this.mouseOverSubject.next(node);
-      this.mouseOverSubject.next(null);
-    } else if (this.mouseOverSubject.getValue() !== null) {
-      this.mouseOverSubject.next(null);
-    }
-  }
-
   setSelectedKeyframes(keyframe: Keyframe) {
     // this.selectedSubject.value.keyframe = keyframe;
     // this.selectedSubject.next(this.selectedSubject.value);
-  }
-
-  public get mouseOver(): Observable<TreeNode> {
-    return this.mouseOverSubject.asObservable();
   }
 
   public get nodes(): Observable<TreeNode[]> {

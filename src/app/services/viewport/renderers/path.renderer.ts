@@ -3,7 +3,7 @@ import { LoggerService } from "../../logger.service";
 import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 import { SelectionService } from "../../selection.service";
-import { MouseEventArgs } from "../mouse-event-args";
+import { MouseEventArgs } from "../../../models/mouse-event-args";
 import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from "../../utils/utils";
 import { consts } from "src/environments/consts";

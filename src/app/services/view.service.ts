@@ -4,7 +4,7 @@ import { consts } from "src/environments/consts";
 import { Utils } from "./utils/utils";
 import { ViewMode } from "src/app/models/view-mode";
 import { ICTMProvider } from "../models/interfaces/ctm-provider";
-import { Line } from "../models/Line";
+import { Line } from "../models/line";
 
 @Injectable({
   providedIn: "root",

@@ -11,8 +11,8 @@ import {
   SelectionService,
   SelectionMode,
 } from "src/app/services/selection.service";
-import { OutlineService } from "src/app/services/outline.service";
 import { BaseComponent } from 'src/app/components/base-component';
+import { MouseOverService } from 'src/app/services/mouse-over.service';
 export class Breadcrumb {
   node: TreeNode;
   title: string;
@@ -44,7 +44,7 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private selectionService: SelectionService,
-    private outlineService: OutlineService
+    private mouseOverService: MouseOverService
   ) {
     super();
     this.cdRef.detach();
@@ -66,7 +66,7 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
       return;
     }
     this.ngZone.runOutsideAngular(() =>
-      this.outlineService.setMouseOver(this.item.node)
+      this.mouseOverService.setMouseOver(this.item.node)
     );
   }
 
@@ -75,7 +75,7 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
       return;
     }
     this.ngZone.runOutsideAngular(() =>
-      this.outlineService.setMouseLeave(this.item.node)
+      this.mouseOverService.setMouseLeave(this.item.node)
     );
   }
 }

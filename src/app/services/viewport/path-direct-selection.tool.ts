@@ -10,7 +10,7 @@ import { TransformsService } from "./transformations/transforms.service";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { PanTool } from "./pan.tool";
 import { ViewService } from "../view.service";
-import { MouseEventArgs } from "./mouse-event-args";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Utils } from "../utils/utils";
 import { PathDataCommand } from 'src/app/models/path/path-data-command';
 

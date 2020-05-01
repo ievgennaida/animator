@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "./mouse-event-args";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 import { ViewService } from "../view.service";
 import { SvgShapes } from "../svg/svg-shapes";
 import { DocumentService } from "../document.service";

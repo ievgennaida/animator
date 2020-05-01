@@ -7,7 +7,8 @@ import { consts } from "src/environments/consts";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
 import { SelectionService } from "../../selection.service";
-import { AdornerType } from '../adorners/adorner-type';
+import { AdornerType } from "../adorners/adorner-type";
+import { MouseOverService } from "../../mouse-over.service";
 
 /**
  * Elements bounds renderer
@@ -19,9 +20,21 @@ export class BoundsRenderer extends BaseRenderer {
   constructor(
     protected outlineService: OutlineService,
     protected logger: LoggerService,
-    private selectionService: SelectionService
+    private selectionService: SelectionService,
+    private mouseOverService: MouseOverService
   ) {
     super();
+  }
+
+  getAdornerStroke(adornerType: AdornerType): string {
+    if (
+      this.selectionService.isAdornerHandleSelected(adornerType) ||
+      this.mouseOverService.isMouseOverHandle(adornerType)
+    ) {
+      return consts.handleSelectedFillColor;
+    }
+
+    return consts.handleFillColor;
   }
 
   drawAdornersHandles(ctx: CanvasRenderingContext2D, adornerData: AdornerData) {
@@ -32,8 +45,7 @@ export class BoundsRenderer extends BaseRenderer {
     const alongHR = Utils.reverseVector(alongH);
     const alongWR = Utils.reverseVector(alongW);
     const handleStroke = consts.handleStrokeColor;
-    const fillStroke = consts.handleFillColor;
-    const selectedFillStroke = consts.handleSelectedFillColor;
+
     // top left
     this.drawAdornerHandle(
       ctx,
@@ -42,7 +54,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       false,
       handleStroke,
-      adornerData.isSelected(AdornerType.TopLeft) ? selectedFillStroke : fillStroke
+      this.getAdornerStroke(AdornerType.TopLeft)
     );
     // top right
     this.drawAdornerHandle(
@@ -52,7 +64,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       false,
       handleStroke,
-      adornerData.isSelected(AdornerType.TopRight) ? selectedFillStroke : fillStroke
+      this.getAdornerStroke(AdornerType.TopRight)
     );
     // bottom left
     this.drawAdornerHandle(
@@ -62,9 +74,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       false,
       handleStroke,
-      adornerData.isSelected(AdornerType.BottomLeft)
-        ? selectedFillStroke
-        : fillStroke
+      this.getAdornerStroke(AdornerType.BottomLeft)
     );
     // bottom right
     this.drawAdornerHandle(
@@ -74,9 +84,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongHR,
       false,
       handleStroke,
-      adornerData.isSelected(AdornerType.BottomRight)
-        ? selectedFillStroke
-        : fillStroke
+      this.getAdornerStroke(AdornerType.BottomRight)
     );
 
     // top center
@@ -87,9 +95,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       true,
       handleStroke,
-      adornerData.isSelected(AdornerType.TopCenter)
-        ? selectedFillStroke
-        : fillStroke
+      this.getAdornerStroke(AdornerType.TopCenter)
     );
     // bottom center
     this.drawAdornerHandle(
@@ -99,9 +105,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       true,
       handleStroke,
-      adornerData.isSelected(AdornerType.BottomCenter)
-        ? selectedFillStroke
-        : fillStroke
+      this.getAdornerStroke(AdornerType.BottomCenter)
     );
     // left center
     this.drawAdornerHandle(
@@ -111,9 +115,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       true,
       handleStroke,
-      adornerData.isSelected(AdornerType.LeftCenter)
-        ? selectedFillStroke
-        : fillStroke
+      this.getAdornerStroke(AdornerType.LeftCenter)
     );
     // right center
     this.drawAdornerHandle(
@@ -123,9 +125,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       true,
       handleStroke,
-      adornerData.isSelected(AdornerType.RightCenter)
-        ? selectedFillStroke
-        : fillStroke
+      this.getAdornerStroke(AdornerType.RightCenter)
     );
   }
 

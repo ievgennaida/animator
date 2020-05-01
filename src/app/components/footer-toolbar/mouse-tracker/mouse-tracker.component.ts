@@ -10,9 +10,9 @@ import {
 
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { takeUntil } from "rxjs/operators";
-import { MouseEventArgs } from "src/app/services/viewport/mouse-event-args";
 import { Utils } from "src/app/services/utils/utils";
 import { BaseComponent } from '../../base-component';
+import { MouseEventArgs } from 'src/app/models/mouse-event-args';
 
 @Component({
   selector: "app-mouse-tracker",

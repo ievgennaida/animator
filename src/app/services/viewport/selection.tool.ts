@@ -1,4 +1,4 @@
-import { MouseEventArgs } from "./mouse-event-args";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewService } from "../view.service";
@@ -18,6 +18,8 @@ import { ContextMenuService } from "../context-menu.service";
 import { AdornerType } from "./adorners/adorner-type";
 import { CursorType } from "src/app/models/cursor-type";
 import { consts } from "src/environments/consts";
+import { AdornerData } from "./adorners/adorner-data";
+import { MouseOverService } from "../mouse-over.service";
 
 /**
  * Select elements by a mouse move move.
@@ -42,17 +44,18 @@ export class SelectionTool extends BaseSelectionTool {
     private boundsRenderer: BoundsRenderer,
     private transformFactory: TransformsService,
     private outlineService: OutlineService,
+    private mouseOverService: MouseOverService,
     private mouseOverRenderer: MouseOverRenderer,
     private cursor: CursorService,
     private contextMenu: ContextMenuService
   ) {
     super(selectorRenderer, transformsService, viewService, logger, panTool);
-    outlineService.flatList.subscribe((flatItems) => {
+    this.outlineService.flatList.subscribe((flatItems) => {
       this.renderableElements = flatItems;
     });
   }
   onViewportContextMenu(event: MouseEventArgs) {
-    const startedNode = this.outlineService.mouseOverSubject.getValue();
+    const startedNode = this.mouseOverService.mouseOverSubject.getValue();
     if (startedNode) {
       this.contextMenu.open(event.args as MouseEvent, startedNode);
     }
@@ -66,7 +69,7 @@ export class SelectionTool extends BaseSelectionTool {
       this.cleanUp();
       return;
     }
-    const startedNode = this.outlineService.mouseOverSubject.getValue();
+    const startedNode = this.mouseOverService.getValue();
     if (startedNode) {
       this.startedNode = startedNode;
       if (!startedNode || !startedNode.selected) {
@@ -83,11 +86,15 @@ export class SelectionTool extends BaseSelectionTool {
           p.getElement()
         );
         transformation.beginMouseTransaction(event.getDOMPoint());
+        transformation.beginHandleTransformation(this.mouseOverService.handles);
         return transformation;
       });
 
       transformations.forEach((p) => p.moveByMouse(event.getDOMPoint()));
       this.transformations = transformations;
+      if (this.mouseOverService.handles !== AdornerType.None) {
+        this.selectionService.setSelectedAdorner(this.mouseOverService.handles);
+      }
     }
     // Use when accurate selection will be implemented, or to select groups:
     /* if (!this.startedNode) {
@@ -137,6 +144,8 @@ export class SelectionTool extends BaseSelectionTool {
     this.startedNode = null;
     super.cleanUp();
     this.cursor.setCursor(CursorType.Default);
+    this.mouseOverService.setMouseLeaveHandle();
+    this.selectionService.deselectAdorner();
   }
 
   onWindowMouseMove(event: MouseEventArgs) {
@@ -155,34 +164,46 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const selectedItems = this.selectionService.getSelected();
-        selectedItems.find((node) => {
-          const adorner = node.getElementAdorner();
-          const elPoint = Utils.toElementPoint(node, event.screenPoint);
-          const offsetCalcPoint = Utils.toElementPoint(
-            node,
-            new DOMPoint(event.screenPoint.x + 1, event.screenPoint.y + 1)
-          );
-          const check =
-            Utils.getLenght(offsetCalcPoint, elPoint) * consts.handleSize;
-          const intersects = adorner.intersectAdorner(elPoint, check);
-          if (adorner.selected !== intersects) {
-            adorner.selected = intersects;
-            if (adorner.selected === AdornerType.None) {
-              this.cursor.setCursor(CursorType.Default);
-            } else {
-              this.cursor.setCursor(
-                this.cursor.getCursorResize(adorner, intersects)
-              );
-            }
-            this.boundsRenderer.invalidate();
+        const data = this.getAdornerHandleIntersection(event.screenPoint);
+        const handle = data[0];
+        if (handle !== this.mouseOverService.handles) {
+          this.mouseOverService.setMouseOverHandle(handle);
+          if (handle === AdornerType.None) {
+            this.cursor.setCursor(CursorType.Default);
+          } else {
+            this.cursor.setCursor(
+              this.cursor.getCursorResize(data[1].getElementAdorner(), handle)
+            );
           }
-        });
-        super.onWindowMouseMove(event);
+          this.boundsRenderer.invalidate();
+        }
+        if (handle === AdornerType.None) {
+          super.onWindowMouseMove(event);
+        }
       }
     }
   }
+  getAdornerHandleIntersection(screenPoint: DOMPoint): [AdornerType, TreeNode] {
+    let type: AdornerType = AdornerType.None;
+    const selectedItems = this.selectionService.getSelected();
+    const toReturn = selectedItems.find((node) => {
+      const adorner = node.getElementAdorner();
+      const elPoint = Utils.toElementPoint(node, screenPoint);
+      const offsetCalcPoint = Utils.toElementPoint(
+        node,
+        new DOMPoint(screenPoint.x + 1, screenPoint.y + 1)
+      );
+      const check =
+        Utils.getLenght(offsetCalcPoint, elPoint) * consts.handleSize;
+      const intersects = adorner.intersectAdorner(elPoint, check);
+      if (type !== intersects && intersects !== AdornerType.None) {
+        type = intersects;
+        return true;
+      }
+    });
 
+    return [type, toReturn];
+  }
   getTopSelectedNode(node: TreeNode) {
     if (!node.selected || !node.transformable) {
       return null;
@@ -232,9 +253,9 @@ export class SelectionTool extends BaseSelectionTool {
       const node = this.renderableElements.find(
         (p) => p.tag === event.args.target
       );
-      this.outlineService.setMouseLeave(node);
+      this.mouseOverService.setMouseLeave(node);
     } else {
-      this.outlineService.setMouseLeave(this.cachedMouse);
+      this.mouseOverService.setMouseLeave(this.cachedMouse);
       this.cachedMouse = null;
     }
   }
@@ -248,7 +269,7 @@ export class SelectionTool extends BaseSelectionTool {
     }
 
     this.cachedMouse = node;
-    this.outlineService.setMouseOver(node);
+    this.mouseOverService.setMouseOver(node);
   }
 
   /**
@@ -262,8 +283,13 @@ export class SelectionTool extends BaseSelectionTool {
       mode = SelectionMode.Add;
     }
 
+    if (this.selectionService.selectedAdorner !== AdornerType.None) {
+      this.selectionService.deselectAdorner();
+      return;
+    }
+
     if (this.click) {
-      const mouseOverTransform = this.outlineService.mouseOverSubject.getValue();
+      const mouseOverTransform = this.mouseOverService.getValue();
       this.selectionService.setSelected(mouseOverTransform, mode);
     } else if (!this.startedNode) {
       const selected = this.getIntersects() as TreeNode[];

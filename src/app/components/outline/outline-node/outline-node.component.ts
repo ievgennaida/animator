@@ -17,6 +17,7 @@ import {
 } from "src/app/services/selection.service";
 import { ContextMenuService } from "src/app/services/context-menu.service";
 import { BaseComponent } from "../../base-component";
+import { MouseOverService } from "src/app/services/mouse-over.service";
 
 @Component({
   selector: "app-outline-node",
@@ -38,6 +39,7 @@ export class OutlineNodeComponent extends BaseComponent
   treeControl = this.outlineService.treeConrol;
   constructor(
     private outlineService: OutlineService,
+    private mouseOverService: MouseOverService,
     private cdRef: ChangeDetectorRef,
     private selectionService: SelectionService,
     private ngZone: NgZone,
@@ -54,7 +56,7 @@ export class OutlineNodeComponent extends BaseComponent
         }
       });
 
-    this.outlineService.mouseOver
+    this.mouseOverService.mouseOver
       .pipe(takeUntil(this.destroyed$))
       .subscribe((node) => {
         if (node === this.node) {
@@ -107,12 +109,14 @@ export class OutlineNodeComponent extends BaseComponent
   }
 
   mouseEnter(node: TreeNode) {
-    this.ngZone.runOutsideAngular(() => this.outlineService.setMouseOver(node));
+    this.ngZone.runOutsideAngular(() =>
+      this.mouseOverService.setMouseOver(node)
+    );
   }
 
   mouseLeave(node: TreeNode) {
     this.ngZone.runOutsideAngular(() =>
-      this.outlineService.setMouseLeave(node)
+      this.mouseOverService.setMouseLeave(node)
     );
   }
 

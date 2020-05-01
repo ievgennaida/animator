@@ -2,10 +2,7 @@ import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { Subject } from "rxjs";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { element } from "protractor";
-import { MouseEventArgs } from "./viewport/mouse-event-args";
-import { Utils } from "./utils/utils";
-export class ContextEventsArgs {
+export class ContextEventArgs {
   event: MouseEvent = null;
   node: TreeNode = null;
 }
@@ -17,7 +14,7 @@ export class ContextMenuService {
   constructor() {}
   private trigger: MatMenuTrigger = null;
   private container: HTMLElement = null;
-  openSubject = new Subject<ContextEventsArgs>();
+  openSubject = new Subject<ContextEventArgs>();
   setElement(container: HTMLElement) {
     this.container = container;
   }
@@ -66,7 +63,7 @@ export class ContextMenuService {
     this.openSubject.next(null);
   }
   open(event: MouseEvent, node: TreeNode) {
-    const args = new ContextEventsArgs();
+    const args = new ContextEventArgs();
     args.event = event;
     args.node = node;
     this.openSubject.next(args);
