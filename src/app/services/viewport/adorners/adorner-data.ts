@@ -44,9 +44,9 @@ export class AdornerData implements IBBox {
     let toReturn = AdornerType.None;
     let curLen = accuracy;
     // Find nearest point:
-    this.points.forEach((addornerPoint, key) => {
+    this.points.forEach((adornerPoint, key) => {
       if (point) {
-        curLen = Utils.getLenght(addornerPoint, point);
+        curLen = Utils.getLength(adornerPoint, point);
         if (curLen <= accuracy) {
           toReturn = key;
           accuracy = curLen;

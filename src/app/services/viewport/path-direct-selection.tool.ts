@@ -89,7 +89,7 @@ export class PathDirectSelectionTool extends BaseSelectionTool {
         if (data.commands) {
           data.commands.forEach((command) => {
             const abs = command.getAbsolute();
-            const l = Utils.getLenght(p, abs.p);
+            const l = Utils.getLength(p, abs.p);
             const selected = l <= 10;
             if (command.selected !== selected) {
               command.selected = selected;

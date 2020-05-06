@@ -1,12 +1,32 @@
 import { TreeNode } from "src/app/models/tree-node";
 import { PathData } from "../../models/path/path-data";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
-import { IBBox } from '../../models/interfaces/bbox';
+import { IBBox } from "../../models/interfaces/bbox";
 
 export class Utils {
-  static getVector(a: DOMPoint, b: DOMPoint = null): DOMPoint {
+  static getVector(
+    a: DOMPoint,
+    b: DOMPoint = null,
+    normalized = false
+  ): DOMPoint {
     const vector = new DOMPoint(a.x - b.x, a.y - b.y);
+    if (normalized) {
+      Utils.normalizeSelf(vector);
+    }
     return vector;
+  }
+  /**
+   * find point along vector.
+   * @param point point.
+   * @param vector normalized vector
+   * @param steps steps along vector
+   */
+  static alongVector(
+    point: DOMPoint,
+    vector: DOMPoint,
+    steps: number = 0
+  ): DOMPoint {
+    return new DOMPoint(point.x + vector.x * steps, point.y + vector.y * steps);
   }
   static inRange(value: number, min: number, max: number): boolean {
     return value >= min && value <= max;
@@ -174,7 +194,9 @@ export class Utils {
     return array;
   }
 
-  private static getBounds(methodName, ...elements: SVGGraphicsElement[] | IBBox[]
+  private static getBounds(
+    methodName,
+    ...elements: SVGGraphicsElement[] | IBBox[]
   ): DOMRect {
     if (!elements) {
       return null;
@@ -207,12 +229,12 @@ export class Utils {
   public static getBoundingClientRect(
     ...elements: SVGGraphicsElement[] | IBBox[]
   ): DOMRect {
-    return Utils.getBounds('getBoundingClientRect', ...elements);
+    return Utils.getBounds("getBoundingClientRect", ...elements);
   }
   public static getBBoxBounds(
     ...elements: SVGGraphicsElement[] | IBBox[]
   ): DOMRect {
-    return Utils.getBounds('getBBox', ...elements);
+    return Utils.getBounds("getBBox", ...elements);
   }
 
   static reverseVector(a: DOMPoint): DOMPoint {
@@ -235,8 +257,8 @@ export class Utils {
     return vector;
   }
 
-  static normilizeSelf(vector: DOMPoint): DOMPoint {
-    const mag = Utils.getLenght(vector);
+  static normalizeSelf(vector: DOMPoint): DOMPoint {
+    const mag = Utils.getLength(vector);
     if (mag === 0) {
       return vector;
     }
@@ -245,7 +267,7 @@ export class Utils {
     return vector;
   }
 
-  static getLenght(a: DOMPoint, b: DOMPoint = null): number {
+  static getLength(a: DOMPoint, b: DOMPoint = null): number {
     const leng = Math.sqrt(
       Math.pow(a.x - (b ? b.x : 0), 2) + Math.pow(a.y - (b ? b.y : 0), 2)
     );

@@ -189,13 +189,21 @@ export class SelectionTool extends BaseSelectionTool {
     const toReturn = selectedItems.find((node) => {
       const adorner = node.getElementAdorner();
       const elPoint = Utils.toElementPoint(node, screenPoint);
-      const offsetCalcPoint = Utils.toElementPoint(
-        node,
-        new DOMPoint(screenPoint.x + 1, screenPoint.y + 1)
+      const screenPointSize = Utils.getLength(
+        Utils.toElementPoint(
+          node,
+          new DOMPoint(screenPoint.x + 1, screenPoint.y + 1)
+        ),
+        elPoint
       );
-      const check =
-        Utils.getLenght(offsetCalcPoint, elPoint) * consts.handleSize;
-      const intersects = adorner.intersectAdorner(elPoint, check);
+
+      //const v = Utils.getVector(elPoint, adorner.center, true);
+
+      const intersects = this.intersectAdorner(
+        adorner,
+        elPoint,
+        screenPointSize * consts.handleSize
+      );
       if (type !== intersects && intersects !== AdornerType.None) {
         type = intersects;
         return true;
@@ -204,6 +212,29 @@ export class SelectionTool extends BaseSelectionTool {
 
     return [type, toReturn];
   }
+  intersectAdorner(
+    adorner: AdornerData,
+    point: DOMPoint,
+    accuracy = 6
+  ): AdornerType {
+    let toReturn = AdornerType.None;
+    let curLen = accuracy;
+    // Find nearest point:
+    adorner.points.forEach((adornerPoint, key) => {
+      if (point) {
+        const vect = Utils.getVector( adornerPoint, adorner.center, true);
+        const movePoint = Utils.alongVector(adornerPoint, vect, accuracy);
+        curLen = Utils.getLength(movePoint, point);
+        if (curLen <= accuracy) {
+          toReturn = key;
+          accuracy = curLen;
+        }
+      }
+    });
+
+    return toReturn;
+  }
+
   getTopSelectedNode(node: TreeNode) {
     if (!node.selected || !node.transformable) {
       return null;

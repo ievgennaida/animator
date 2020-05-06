@@ -38,10 +38,16 @@ export class BoundsRenderer extends BaseRenderer {
   }
 
   drawAdornersHandles(ctx: CanvasRenderingContext2D, adornerData: AdornerData) {
-    const alongH = Utils.getVector(adornerData.topLeft, adornerData.topRight);
-    Utils.normilizeSelf(alongH);
-    const alongW = Utils.getVector(adornerData.topLeft, adornerData.bottomLeft);
-    Utils.normilizeSelf(alongW);
+    const alongH = Utils.getVector(
+      adornerData.topLeft,
+      adornerData.topRight,
+      true
+    );
+    const alongW = Utils.getVector(
+      adornerData.topLeft,
+      adornerData.bottomLeft,
+      true
+    );
     const alongHR = Utils.reverseVector(alongH);
     const alongWR = Utils.reverseVector(alongW);
     const handleStroke = consts.handleStrokeColor;

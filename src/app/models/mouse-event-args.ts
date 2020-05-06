@@ -1,5 +1,5 @@
 /**
- * Normilize different event args to be generic.
+ * normalize different event args to be generic.
  */
 export class MouseEventArgs {
   clientX = 0;
