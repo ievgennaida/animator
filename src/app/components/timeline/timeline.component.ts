@@ -82,9 +82,7 @@ export class TimelineComponent extends BaseComponent
 
     this.options = {
       id: "timeline",
-      fillColor: "#252526",
       rowsStyle: {
-        color: "#333333",
         height: consts.timelineHeaderHeight,
       } as TimelineRowStyle,
     } as TimelineOptions;
