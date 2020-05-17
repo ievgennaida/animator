@@ -8,7 +8,7 @@ import {
 } from "@angular/core";
 
 import { consts } from "src/environments/consts";
-import { ScrollEventArgs } from "animation-timeline-js";
+import { TimelineScrollEvent } from "animation-timeline-js";
 import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
 import { OutlineService } from "src/app/services/outline.service";
 import { BaseComponent } from '../../base-component';
@@ -31,14 +31,14 @@ export class OutlineComponent extends BaseComponent implements OnInit {
   scrollTop: any = 0;
   height: any = "";
   dataSource = this.outlineService.flatDataSource;
-  treeControl = this.outlineService.treeConrol;
+  treeControl = this.outlineService.treeControl;
   // Allow to use enums in the template:
   shapeType = shapeType;
   ngOnInit(): void {
     this.cdRef.detectChanges();
   }
 
-  public setSize(args: ScrollEventArgs) {
+  public setSize(args: TimelineScrollEvent) {
     let changed = false;
     if (this.scrollTop !== args.scrollTop) {
       this.scrollTop = args.scrollTop;

@@ -172,7 +172,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   ngOnInit() {
     this.out(() => {
       this.calcRealScrollBarSize();
-      this.cursor.сhanged
+      this.cursor.changed
         .pipe(takeUntil(this.destroyed$))
         .subscribe((cursor: CursorType) => {
           const el = this.svgContainer.nativeElement;

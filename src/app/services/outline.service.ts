@@ -32,13 +32,13 @@ export class OutlineService {
   /**
    * Outline tree view model.
    */
-  treeConrol = new FlatTreeControl<TreeNode>(
+  treeControl = new FlatTreeControl<TreeNode>(
     (node) => node.level,
     (node) => node.expandable
   );
 
   flatDataSource = new MatTreeFlatDataSource<TreeNode, TreeNode>(
-    this.treeConrol,
+    this.treeControl,
     new MatTreeFlattener<TreeNode, TreeNode>(
       (node: TreeNode, level: number) => {
         node.level = level;

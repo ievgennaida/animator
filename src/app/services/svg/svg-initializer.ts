@@ -1,4 +1,4 @@
-import { IInitializer, InitResults } from "../../models/interfaces/intializer";
+import { IInitializer, InitResults } from "../../models/interfaces/initializer";
 import { InputDocument } from "src/app/models/input-document";
 import { SvgPlayer } from "./svg-player";
 const xmlns = "http://www.w3.org/2000/svg";
@@ -8,7 +8,7 @@ export class SvgInitializer implements IInitializer {
     return false;
   }
 
-  intialize(document: InputDocument, host: SVGElement): InitResults {
+  initialize(document: InputDocument, host: SVGElement): InitResults {
     const toSet = document.parsedData as XMLDocument;
     if (
       !toSet ||
@@ -25,29 +25,29 @@ export class SvgInitializer implements IInitializer {
     let root: any = toSet.documentElement;
     root = root as SVGSVGElement;
 
-    const svgcontent = host.ownerDocument.adoptNode<SVGSVGElement>(
+    const svgContent = host.ownerDocument.adoptNode<SVGSVGElement>(
       root as SVGSVGElement
     );
 
     host.innerHTML = "";
-    host.append(svgcontent);
-    document.parsedData = svgcontent;
-    document.rootNode = svgcontent;
+    host.append(svgContent);
+    document.parsedData = svgContent;
+    document.rootNode = svgContent;
     const results = new InitResults();
-    results.player = new SvgPlayer(svgcontent);
-    const w = svgcontent.width.baseVal;
-    const h = svgcontent.height.baseVal;
+    results.player = new SvgPlayer(svgContent);
+    const w = svgContent.width.baseVal;
+    const h = svgContent.height.baseVal;
     if (
       !w.valueAsString ||
       !h.valueAsString ||
       w.unitType === w.SVG_LENGTHTYPE_PERCENTAGE ||
       h.unitType === h.SVG_LENGTHTYPE_PERCENTAGE
     ) {
-      results.size = svgcontent.getBBox();
+      results.size = svgContent.getBBox();
     } else {
       results.size = new DOMRect(
-        svgcontent.x.baseVal.value,
-        svgcontent.y.baseVal.value,
+        svgContent.x.baseVal.value,
+        svgContent.y.baseVal.value,
         w.value,
         h.value
       );

@@ -186,7 +186,7 @@ export class Utils {
     }
     return element.getCTM();
   }
-  public static deleteElement(array, element) {
+  public static deleteElement<T>(array:Array<T>, element:T) {
     const index: number = array.indexOf(element);
     if (index !== -1) {
       return array.splice(index, 1);

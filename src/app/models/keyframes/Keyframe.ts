@@ -1,9 +1,6 @@
-import { AnimationTimelineKeyframe } from "animation-timeline-js";
+import { TimelineKeyframe } from "animation-timeline-js";
 import { Property } from "../Properties/Property";
 import { LottieModel } from "../Lottie/LottieModel";
-
-interface TimelineKeyframe extends AnimationTimelineKeyframe {}
-
 export class Keyframe implements TimelineKeyframe {
   keyframesLaneSizePx?: number;
   selected?: boolean;

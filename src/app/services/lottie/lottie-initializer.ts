@@ -7,7 +7,7 @@ import {
   AnimationItem,
   AnimationConfigWithData
 } from "node_modules/lottie-web";
-import { IInitializer, InitResults } from "../../models/interfaces/intializer";
+import { IInitializer, InitResults } from "../../models/interfaces/initializer";
 import { LottiePlayer } from "./lottie-player";
 
 export class LottieInitializer implements IInitializer {
@@ -19,7 +19,7 @@ export class LottieInitializer implements IInitializer {
       return true;
   }
 
-  intialize(document: InputDocument, host: SVGElement): InitResults {
+  initialize(document: InputDocument, host: SVGElement): InitResults {
     const data = document.parsedData as LottieModel;
     if (data == null) {
       return null;

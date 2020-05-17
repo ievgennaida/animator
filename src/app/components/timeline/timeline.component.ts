@@ -8,13 +8,7 @@ import {
   ChangeDetectorRef,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import {
-  default as timeline,
-  AnimationTimelineOptions,
-  Timeline,
-  AnimationTimelineLane,
-  ScrollEventArgs,
-} from "animation-timeline-js";
+
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { PlayerService } from "src/app/services/player.service";
@@ -26,6 +20,16 @@ import { Keyframe } from "src/app/models/keyframes/Keyframe";
 import { ViewService } from "src/app/services/view.service";
 import { OutlineService } from "src/app/services/outline.service";
 import { BaseComponent } from "../base-component";
+import {
+  Timeline,
+  TimelineOptions,
+  TimelineRow,
+  TimelineModel,
+  TimelineRowStyle,
+  TimelineElement,
+  TimelineElementType,
+  TimelineEventSource,
+} from "animation-timeline-js";
 
 @Component({
   selector: "app-timeline",
@@ -48,8 +52,8 @@ export class TimelineComponent extends BaseComponent
     this.cdRef.detach();
   }
 
-  lanes: AnimationTimelineLane[] = [];
-  options: AnimationTimelineOptions;
+  options: TimelineOptions;
+  model: TimelineModel = { rows: [] as Array<TimelineRow> };
   scrollTop = 0;
   timeline: Timeline;
 
@@ -62,7 +66,7 @@ export class TimelineComponent extends BaseComponent
 
     if (this.timeline) {
       // Sync scroll between outline and tree view.
-      this.timeline.on("scroll", (args: ScrollEventArgs) => {
+      this.timeline.onScroll((args) => {
         this.timelineScroll.emit(args);
       });
     }
@@ -70,7 +74,7 @@ export class TimelineComponent extends BaseComponent
 
   init() {
     const onDraw = () => {
-      this.playerService.syncornizeTimelineWithPlayer();
+      this.playerService.synchronizeTimelineWithPlayer();
       window.requestAnimationFrame(onDraw);
     };
 
@@ -78,29 +82,33 @@ export class TimelineComponent extends BaseComponent
 
     this.options = {
       id: "timeline",
-      laneColor: "#333333",
-      laneHeightPx: consts.timelineHeaderHeight,
-      backgroundColor: "#252526",
-    } as AnimationTimelineOptions;
+      fillColor: "#252526",
+      rowsStyle: {
+        color: "#333333",
+        height: consts.timelineHeaderHeight,
+      } as TimelineRowStyle,
+    } as TimelineOptions;
 
-    this.timeline = timeline.initialize(this.options, this.lanes);
+    this.timeline = new Timeline(this.options, this.model);
     this.playerService.setTimeline(this.timeline);
 
-    this.timeline.on("timeChanged", (args) => {
-      if (args.source === "user") {
+    this.timeline.onTimeChanged((args) => {
+      if (args.source === TimelineEventSource.User) {
         this.playerService.goTo(args.val);
       }
     });
 
-    this.timeline.on("dragStarted", (args) => {
+    this.timeline.onDragStarted((args) => {
       if (args) {
-        const keyframes = args.keyframes as Array<Keyframe>;
+        const keyframes = (args.elements as Array<TimelineElement>)
+          .filter((p) => p.type === TimelineElementType.Keyframe && p.keyframe)
+          .map((p) => p.keyframe as Keyframe);
         this.actionService.StartTransaction(keyframes);
-        // this.propertiesService.emitPropertyChanged(null);
+        this.propertiesService.emitPropertyChanged(null);
       }
     });
 
-    this.timeline.on("dragFinished", (args) => {
+    this.timeline.onDragFinished((args) => {
       if (args) {
         this.propertiesService.emitPropertyChanged(null);
         this.actionService.Commit();
@@ -108,30 +116,31 @@ export class TimelineComponent extends BaseComponent
     });
 
     const ds = this.outlineService.flatDataSource;
-    const tc = this.outlineService.treeConrol;
+    const tc = this.outlineService.treeControl;
 
     ds._flattenedData
       .pipe(takeUntil(this.destroyed$))
       .subscribe((flatItems) => {
-        this.lanes.length = 0;
+        this.model.rows.length = 0;
 
         flatItems.forEach((element) => {
-          this.lanes.push(element.lane);
+          this.model.rows.push(element.lane);
         });
 
-        ds.data.forEach((p) => this.resolveLanesVisibilty(tc, p, false));
-        this.timeline.setLanes(this.lanes);
+        ds.data.forEach((p) => this.resolveRowsVisibility(tc, p, false));
+
+        this.timeline.setModel(this.model);
         this.redraw();
 
         this.timeline.setScrollTop(0);
       });
 
     tc.expansionModel.changed.pipe(takeUntil(this.destroyed$)).subscribe(() => {
-      ds.data.forEach((p) => this.resolveLanesVisibilty(tc, p, false));
+      ds.data.forEach((p) => this.resolveRowsVisibility(tc, p, false));
       this.redraw();
     });
 
-    this.propertiesService.сhanged
+    this.propertiesService.changed
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.redraw();
@@ -145,14 +154,11 @@ export class TimelineComponent extends BaseComponent
   public onWheel(event: WheelEvent) {
     // Wire wheel events with other divs over the app.
     if (this.timeline) {
-      const scroll =
-        this.timeline.getScrollTop() +
-        Math.sign(event.deltaY) * consts.timelineScrollSpeed;
-      this.timeline.setScrollTop(scroll);
+      this.timeline._handleWheelEvent(event);
     }
   }
 
-  resolveLanesVisibilty(tc: any, node: TreeNode, hidden: boolean) {
+  resolveRowsVisibility(tc: any, node: TreeNode, hidden: boolean) {
     node.lane.hidden = hidden;
     if (!hidden) {
       if (tc.isExpandable(node)) {
@@ -162,7 +168,7 @@ export class TimelineComponent extends BaseComponent
 
     // node.lane.name = node.name + " " + node.lane.hidden;
     if (node.children) {
-      node.children.forEach((p) => this.resolveLanesVisibilty(tc, p, hidden));
+      node.children.forEach((p) => this.resolveRowsVisibility(tc, p, hidden));
     }
   }
 

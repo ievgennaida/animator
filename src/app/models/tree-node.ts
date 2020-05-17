@@ -1,4 +1,4 @@
-import { AnimationTimelineLane } from "animation-timeline-js";
+import { TimelineRow } from "animation-timeline-js";
 import { baseLayer } from "./Lottie/layers/baseLayer";
 import { Properties } from "./Properties/Properties";
 import { Property } from "./Properties/Property";
@@ -15,7 +15,7 @@ import { IBBox } from "./interfaces/bbox";
  */
 export class TreeNode implements ICTMProvider, IBBox {
   constructor() {
-    this.lane = {} as AnimationTimelineLane;
+    this.lane = {} as TimelineRow;
     this.children = [];
   }
   private cacheBBox: DOMRect = null;
@@ -30,7 +30,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   type: any;
   data: any;
   model: LottieModel = null;
-  lane: AnimationTimelineLane;
+  lane: TimelineRow;
   layer?: baseLayer;
   level: number;
   transformable = true;

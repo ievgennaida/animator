@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Timeline } from "animation-timeline-js";
+import { Timeline, TimelineInteractionMode } from "animation-timeline-js";
 import { BehaviorSubject, Observable } from "rxjs";
 import { TimeData } from "../models/timedata";
 import { IPlayer } from "../models/interfaces/player";
@@ -19,7 +19,7 @@ export class PlayerService {
 
   setTimeline(timeline: Timeline | any) {
     this.timeline = timeline;
-    this.syncornizeTimelineWithPlayer(true);
+    this.synchronizeTimelineWithPlayer(true);
   }
 
   dispose() {
@@ -33,7 +33,7 @@ export class PlayerService {
       this.dispose();
     }
     this.player = player;
-    this.syncornizeTimelineWithPlayer(true);
+    this.synchronizeTimelineWithPlayer(true);
   }
 
   emitPlayChanged() {
@@ -42,7 +42,7 @@ export class PlayerService {
     }
   }
 
-  syncornizeTimelineWithPlayer(forced = false) {
+  synchronizeTimelineWithPlayer(forced = false) {
     if (!this.isReady()) {
       return;
     }
@@ -127,7 +127,7 @@ export class PlayerService {
     }
 
     if (this.player.first()) {
-      this.syncornizeTimelineWithPlayer(true);
+      this.synchronizeTimelineWithPlayer(true);
       return true;
     }
 
@@ -148,7 +148,7 @@ export class PlayerService {
     }
 
     if (this.player.prev()) {
-      this.syncornizeTimelineWithPlayer(true);
+      this.synchronizeTimelineWithPlayer(true);
       return true;
     }
 
@@ -177,7 +177,7 @@ export class PlayerService {
     }
 
     if (this.player.next()) {
-      this.syncornizeTimelineWithPlayer(true);
+      this.synchronizeTimelineWithPlayer(true);
       return true;
     }
 
@@ -190,7 +190,7 @@ export class PlayerService {
     }
 
     if (this.player.last()) {
-      this.syncornizeTimelineWithPlayer(true);
+      this.synchronizeTimelineWithPlayer(true);
     }
   }
 
@@ -215,7 +215,7 @@ export class PlayerService {
       return;
     }
 
-    this.timeline.setPanMode(true);
+    this.timeline.setInteractionMode(TimelineInteractionMode.Pan);
   }
 
   selectMode() {
@@ -223,6 +223,6 @@ export class PlayerService {
       return;
     }
 
-    this.timeline.setPanMode(false);
+    this.timeline.setInteractionMode(TimelineInteractionMode.Selection);
   }
 }

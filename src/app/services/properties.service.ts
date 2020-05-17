@@ -7,11 +7,11 @@ import { Property } from "../models/Properties/Property";
 })
 export class PropertiesService {
   changedSubject = new Subject<Property>();
-  public get сhanged(): Observable<Property> {
+  public get changed(): Observable<Property> {
     return this.changedSubject.asObservable();
   }
 
-  public emitPropertyChanged(propery: Property) {
-    this.changedSubject.next(propery);
+  public emitPropertyChanged(property: Property) {
+    this.changedSubject.next(property);
   }
 }

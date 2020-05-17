@@ -36,7 +36,7 @@ export class OutlineNodeComponent extends BaseComponent
     }
   }
 
-  treeControl = this.outlineService.treeConrol;
+  treeControl = this.outlineService.treeControl;
   constructor(
     private outlineService: OutlineService,
     private mouseOverService: MouseOverService,

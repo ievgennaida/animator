@@ -5,11 +5,24 @@ import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
 import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
+/**
+ * Timeline selection mode.
+ */
 export enum SelectionMode {
-  Normal,
-  Add,
-  Revert,
+  /**
+   * Select new items. deselect changed.
+   */
+  Normal = 'normal',
+  /**
+   * Append current selection.
+   */
+  Append = 'append',
+  /**
+   * Revert selection of a specified nodes.
+   */
+  Revert = 'revert',
 }
+
 @Injectable({
   providedIn: "root",
 })
@@ -34,7 +47,7 @@ export class SelectionService {
   }
 
   selectAll() {
-    this.setSelected(this.outlineService.getAllNodes(), SelectionMode.Add);
+    this.setSelected(this.outlineService.getAllNodes(), SelectionMode.Append);
   }
 
   getSelectedElements(): SVGGraphicsElement[] {
@@ -91,37 +104,37 @@ export class SelectionService {
       nodes = [nodes];
     }
 
-    nodes = nodes as TreeNode[];
+    const converted = nodes as TreeNode[];
     const state = this.selectedSubject.getValue();
     // Keep same ref
     state.changed.length = 0;
 
-    if (nodes && mode === SelectionMode.Add) {
-      nodes.forEach((node) => {
+    if (converted && mode === SelectionMode.Append) {
+      converted.forEach((node) => {
         const changed = this.changeNodeState(state, node, true);
         if (changed) {
           state.nodes.push(node);
         }
       });
-    } else if (nodes && mode === SelectionMode.Revert) {
-      nodes.forEach((node) => {
+    } else if (converted && mode === SelectionMode.Revert) {
+      converted.forEach((node) => {
         if (state.nodes.includes(node)) {
           this.changeNodeState(state, node, false);
-          Utils.deleteElement(state.nodes, node);
+          Utils.deleteElement<TreeNode>(state.nodes, node);
         } else {
           this.changeNodeState(state, node, true);
           state.nodes.push(node);
         }
       });
     } else if (mode === SelectionMode.Normal) {
-      if (nodes) {
-        nodes.forEach((node) => {
+      if (converted) {
+        converted.forEach((node) => {
           this.changeNodeState(state, node, true);
         });
       }
 
       state.nodes.forEach((node) => {
-        const exists = (nodes as TreeNode[]).includes(node);
+        const exists = converted.includes(node);
         // Deselect
         if (!exists) {
           this.changeNodeState(state, node, false);
@@ -129,8 +142,8 @@ export class SelectionService {
       });
 
       if (state.changed.length > 0) {
-        if (nodes) {
-          state.nodes = nodes;
+        if (converted) {
+          state.nodes = converted;
         } else {
           state.nodes.length = 0;
         }

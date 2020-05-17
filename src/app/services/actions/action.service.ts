@@ -15,7 +15,7 @@ export class ActionService {
   action:BaseAction = null;
   /**
    * Start change keyframes
-   * @param keyframes
+   * @param keyframes list of the keyframes.
    */
   StartTransaction(keyframes: Array<Keyframe>) {
     const changeValue = new ChangeValue();

@@ -22,7 +22,7 @@ export class DocumentService {
     private selectionService: SelectionService,
     private outlineService: OutlineService
   ) {
-    this.propertiesService.сhanged.subscribe((p) => {
+    this.propertiesService.changed.subscribe((p) => {
       const doc = this.documentSubject.getValue();
       this.onDocumentChanged(doc, true);
     });
@@ -58,7 +58,7 @@ export class DocumentService {
       return;
     }
 
-    const initializer = this.appFactory.getViewportIntializer(document);
+    const initializer = this.appFactory.getViewportInitializer(document);
     if (!initializer) {
       this.logger.log(
         `Cannot open document ${document.title}. Cannot find a parser for file.`
@@ -76,7 +76,7 @@ export class DocumentService {
 
     this.dispose(refresh);
     try {
-      const data = initializer.intialize(document, this.viewService.playerHost);
+      const data = initializer.initialize(document, this.viewService.playerHost);
 
       this.viewService.setViewportSize(data.size);
       this.playerService.setPlayer(data.player);

@@ -311,7 +311,7 @@ export class SelectionTool extends BaseSelectionTool {
     if (event.ctrlKey) {
       mode = SelectionMode.Revert;
     } else if (event.shiftKey) {
-      mode = SelectionMode.Add;
+      mode = SelectionMode.Append;
     }
 
     if (this.selectionService.selectedAdorner !== AdornerType.None) {

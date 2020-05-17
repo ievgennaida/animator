@@ -10,7 +10,7 @@ import { CursorType } from '../models/cursor-type';
 })
 export class CursorService {
   cursorSubject = new BehaviorSubject<CursorType>(CursorType.Default);
-  public get сhanged(): Observable<CursorType> {
+  public get changed(): Observable<CursorType> {
     return this.cursorSubject.asObservable();
   }
 
