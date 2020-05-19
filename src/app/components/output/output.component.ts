@@ -63,6 +63,6 @@ export class OutputComponent extends BaseComponent implements OnInit, OnDestroy 
   }
 
   close() {
-    this.viewService.toogleCode();
+    this.viewService.toggleCode();
   }
 }

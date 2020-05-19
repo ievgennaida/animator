@@ -17,8 +17,8 @@ export class ScrollbarsPanTool extends BaseTool {
   }
 
   private scrollData: any = {};
-  private panChangedProgramatically = false;
-  private scrollChangedProgramatically = false;
+  private panChangedProgrammatically = false;
+  private scrollChangedProgrammatically = false;
   private recalcScrollRef = null;
   scrollBarElement: HTMLElement;
   scrollContentElement: HTMLElement;
@@ -26,14 +26,14 @@ export class ScrollbarsPanTool extends BaseTool {
   onViewportMouseWheel(event: MouseEventArgs) {
     event.preventDefault();
 
-    const whell = event.args as WheelEvent;
+    const wheel = event.args as WheelEvent;
     const speed = -event.deltaY * consts.wheelPanSpeed;
     const pan = this.viewService.getPan();
     if (speed === 0) {
       return;
     }
 
-    if (whell.shiftKey) {
+    if (wheel.shiftKey) {
       pan.x += speed;
     } else {
       pan.y += speed;
@@ -50,8 +50,8 @@ export class ScrollbarsPanTool extends BaseTool {
     this.scrollContentElement = scrollContentElement;
     this.viewService.transformed
       .subscribe(() => {
-        if (this.panChangedProgramatically) {
-          this.panChangedProgramatically = false;
+        if (this.panChangedProgrammatically) {
+          this.panChangedProgrammatically = false;
           return;
         }
 
@@ -62,8 +62,8 @@ export class ScrollbarsPanTool extends BaseTool {
   }
 
   onScroll() {
-    if (this.scrollChangedProgramatically) {
-      this.scrollChangedProgramatically = false;
+    if (this.scrollChangedProgrammatically) {
+      this.scrollChangedProgrammatically = false;
       return;
     }
 
@@ -90,7 +90,7 @@ export class ScrollbarsPanTool extends BaseTool {
     const y =
       this.scrollData.panY +
       (this.scrollData.scrollTop - this.scrollBarElement.scrollTop);
-    this.panChangedProgramatically = true;
+    this.panChangedProgrammatically = true;
     this.panTool.pan(x, y);
   }
 
@@ -135,10 +135,10 @@ export class ScrollbarsPanTool extends BaseTool {
 
     // Raw scroll let and top are saved to avoid rounding.
     this.scrollData.scrollLeft = Math.max(0, left * -1);
-    this.scrollChangedProgramatically = true;
+    this.scrollChangedProgrammatically = true;
     this.scrollBarElement.scrollLeft = this.scrollData.scrollLeft;
     this.scrollData.scrollTop = Math.max(0, top * -1);
-    this.scrollChangedProgramatically = true;
+    this.scrollChangedProgrammatically = true;
     this.scrollBarElement.scrollTop = this.scrollData.scrollTop;
   }
 }

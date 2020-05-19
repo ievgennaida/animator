@@ -109,7 +109,7 @@ export class BaseSelectionTool extends BaseTool {
 
     const pan = this.viewService.getPan();
     let done = false;
-    // TODO: determine autopan automatically.
+    // TODO: determine auto pan automatically.
     const panByMouseSpeed = this.autoPanSpeed;
     if (mousePosition.x < containerSize.left) {
       pan.x += panByMouseSpeed;

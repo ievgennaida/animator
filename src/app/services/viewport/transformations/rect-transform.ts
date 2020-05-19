@@ -2,8 +2,8 @@ import { MatrixTransform } from "./matrix-transform";
 import { TransformsService } from "./transforms.service";
 
 export class RectTransform extends MatrixTransform {
-  tranformPropertyX = "x";
-  tranformPropertyY = "y";
+  transformPropertyX = "x";
+  transformPropertyY = "y";
   constructor(
     element: SVGGraphicsElement,
     transformsService: TransformsService
@@ -36,7 +36,7 @@ export class RectTransform extends MatrixTransform {
         changed = true;
       }
     } else if (transformList.numberOfItems > 1) {
-      let consilidationRequired = true;
+      let consolidationRequired = true;
       for (let i = 0; i <= transformList.numberOfItems; i++) {
         const tr = transformList[i];
         if (
@@ -46,12 +46,12 @@ export class RectTransform extends MatrixTransform {
           tr.matrix.e &&
           tr.matrix.f
         ) {
-          consilidationRequired = true;
+          consolidationRequired = true;
           break;
         }
       }
 
-      if (consilidationRequired) {
+      if (consolidationRequired) {
         const transform = transformList.consolidate();
         offsetX = transform.matrix.e;
         offsetY = transform.matrix.f;
@@ -69,12 +69,12 @@ export class RectTransform extends MatrixTransform {
     }
 
     if (offsetX) {
-      this.setX(this.element[this.tranformPropertyX].baseVal.value + offsetX);
+      this.setX(this.element[this.transformPropertyX].baseVal.value + offsetX);
       changed = true;
     }
 
     if (offsetY) {
-      this.setY(this.element[this.tranformPropertyY].baseVal.value + offsetY);
+      this.setY(this.element[this.transformPropertyY].baseVal.value + offsetY);
       changed = true;
     }
 
@@ -86,23 +86,23 @@ export class RectTransform extends MatrixTransform {
    * Should be consolidated first to get proper value.
    */
   getX() {
-    return this.element[this.tranformPropertyX].baseVal.value;
+    return this.element[this.transformPropertyX].baseVal.value;
   }
 
   getY() {
-    return this.element[this.tranformPropertyY].baseVal.value;
+    return this.element[this.transformPropertyY].baseVal.value;
   }
 
   setX(val: number) {
     this.element.setAttribute(
-      this.tranformPropertyX,
+      this.transformPropertyX,
       String(Math.round(val * 100) / 100)
     );
   }
 
   setY(val: number) {
     this.element.setAttribute(
-      this.tranformPropertyY,
+      this.transformPropertyY,
       String(Math.round(val * 100) / 100)
     );
   }

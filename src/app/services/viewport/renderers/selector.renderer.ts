@@ -45,7 +45,7 @@ export class SelectorRenderer extends BaseRenderer {
     );
     this.ctx.strokeStyle = consts.selector.stroke;
     this.ctx.fillStyle = consts.selector.fill;
-    this.ctx.lineWidth = consts.selector.strokeThinkness;
+    this.ctx.lineWidth = consts.selector.strokeThickness;
     this.ctx.fillRect(
       transformed.x,
       transformed.y,

@@ -58,16 +58,16 @@ export class ViewService implements ICTMProvider {
       this.emitViewportResized();
     }
   }
-  toogleBreadcrumbs() {
+  toggleBreadcrumbs() {
     this.breadcrumbsVisibleSubject.next(
       !this.breadcrumbsVisibleSubject.getValue()
     );
   }
-  toogleCode() {
+  toggleCode() {
     this.codeVisibleSubject.next(!this.codeVisibleSubject.getValue());
   }
 
-  toogleMenu() {
+  toggleMenu() {
     this.menuVisibleSubject.next(!this.menuVisibleSubject.getValue());
   }
 

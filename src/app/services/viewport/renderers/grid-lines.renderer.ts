@@ -4,6 +4,7 @@ import { LoggerService } from "../../logger.service";
 import { consts } from "src/environments/consts";
 import { BaseRenderer } from "./base.renderer";
 import { BehaviorSubject } from "rxjs";
+import { TimelineUtils } from 'animation-timeline-js';
 
 @Injectable({
   providedIn: "root",
@@ -22,12 +23,12 @@ export class GridLinesRenderer extends BaseRenderer {
   rulerHCTX: CanvasRenderingContext2D = null;
 
   denominators = [1, 2, 5, 10];
-  toogleShowGridLines() {
+  toggleShowGridLines() {
     this.gridLinesVisibleSubject.next(!this.gridLinesVisibleSubject.getValue());
     this.invalidate();
   }
 
-  toogleRuler() {
+  toggleRuler() {
     this.rulerVisibleSubject.next(!this.rulerVisibleSubject.getValue());
     this.invalidate();
   }
@@ -66,32 +67,6 @@ export class GridLinesRenderer extends BaseRenderer {
     // Margin left:
     pointOnLine += 0;
     return pointOnLine;
-  }
-
-  findGoodStep(originaStep, divisionCheck) {
-    let step = originaStep;
-    let lastDistance = null;
-    const pow = this.getPowArgument(originaStep);
-    const denominators = this.denominators;
-    for (const denominator of denominators) {
-      const calculatedStep = denominator * Math.pow(10, pow);
-      if (divisionCheck && divisionCheck % calculatedStep !== 0) {
-        continue;
-      }
-
-      const distance = this.getDistance(originaStep, calculatedStep);
-
-      if (distance === 0 || (distance <= 0.1 && pow > 0)) {
-        lastDistance = distance;
-        step = calculatedStep;
-        break;
-      } else if (!lastDistance || lastDistance > distance) {
-        lastDistance = distance;
-        step = calculatedStep;
-      }
-    }
-
-    return step;
   }
 
   drawTicks(
@@ -139,8 +114,8 @@ export class GridLinesRenderer extends BaseRenderer {
     // Find the nearest 'beautiful' step for a gauge.
     // This step should be dividable by 1/2/5/10!
 
-    const step = this.findGoodStep(valueStep, null);
-    const smallStep = this.findGoodStep(valueStep / 5, null);
+    const step = TimelineUtils.findGoodStep(valueStep, null);
+    const smallStep = TimelineUtils.findGoodStep(valueStep / 5, null);
 
     // Find beautiful start point:
     const fromVal = Math.floor(from / step) * step;
@@ -334,7 +309,7 @@ export class GridLinesRenderer extends BaseRenderer {
     if (!toCheck || toCheck === 0 || !Number.isFinite(toCheck)) {
       return 1;
     }
-    // some optimiazation for numbers:
+    // some optimization for numbers:
     if (toCheck >= 10 && toCheck < 100) {
       return 1;
     } else if (toCheck >= 100 && toCheck < 1000) {
@@ -345,7 +320,7 @@ export class GridLinesRenderer extends BaseRenderer {
 
     toCheck = Math.abs(toCheck);
     let category = 0;
-    const s = Math.sign(toCheck);
+    const s = TimelineUtils.sign(toCheck);
     if (toCheck > 1) {
       while (toCheck >= 1) {
         toCheck = Math.floor(toCheck / 10.0);

@@ -233,8 +233,8 @@ export class MainToolbarComponent extends BaseComponent
   redo() {
     this.undoService.redo();
   }
-  toogleMenu() {
-    this.viewService.toogleMenu();
+  toggleMenu() {
+    this.viewService.toggleMenu();
   }
   undo() {
     this.undoService.undo();
@@ -251,17 +251,17 @@ export class MainToolbarComponent extends BaseComponent
   fitViewport() {
     this.toolsService.fitViewport();
   }
-  toogleGridLines() {
-    this.gridLinesRenderer.toogleShowGridLines();
+  toggleGridLines() {
+    this.gridLinesRenderer.toggleShowGridLines();
   }
-  toogleRuler() {
-    this.gridLinesRenderer.toogleRuler();
+  toggleRuler() {
+    this.gridLinesRenderer.toggleRuler();
   }
-  toogleBreadcrumbs() {
-    this.viewService.toogleBreadcrumbs();
+  toggleBreadcrumbs() {
+    this.viewService.toggleBreadcrumbs();
   }
-  toogleCode() {
-    this.viewService.toogleCode();
+  toggleCode() {
+    this.viewService.toggleCode();
   }
   cut() {
     this.pasteService.cut();

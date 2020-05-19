@@ -33,7 +33,7 @@ export class PlayerToolbarComponent extends BaseComponent implements OnInit, OnD
     super();
   }
 
-  scrollbarInputValue = "100";
+  scrollbarsInputValue = "100";
 
   ngOnInit(): void {
     this.gridLinesRenderer.gridLinesVisibleSubject
@@ -58,15 +58,15 @@ export class PlayerToolbarComponent extends BaseComponent implements OnInit, OnD
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         const value = String((this.viewService.getZoom() * 100).toFixed(2));
-        if (value !== this.scrollbarInputValue) {
-          this.scrollbarInputValue = value;
+        if (value !== this.scrollbarsInputValue) {
+          this.scrollbarsInputValue = value;
           this.cdRef.markForCheck();
         }
       });
   }
 
-  toogleGridLines() {
-    this.gridLinesRenderer.toogleShowGridLines();
+  toggleGridLines() {
+    this.gridLinesRenderer.toggleShowGridLines();
   }
 
   setZoomLevel(zoom: any, direction = 0) {

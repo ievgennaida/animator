@@ -52,12 +52,12 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
 
   @ViewChild("propertiesPanel", { read: ElementRef })
   propertiesPanelEl: ElementRef<HTMLElement>;
-  toogleProp() {
+  toggleProp() {
     this.propExpanded = !this.propExpanded;
     this.stateChanged();
     this.cdRef.detectChanges();
   }
-  toogleOutline() {
+  toggleOutline() {
     this.outlineExpanded = !this.outlineExpanded;
     this.stateChanged();
     this.cdRef.detectChanges();

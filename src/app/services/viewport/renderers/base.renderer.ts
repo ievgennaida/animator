@@ -109,13 +109,13 @@ export class BaseRenderer {
       return Math.abs(x1 - y1);
     }
   }
-  getSharpPos(point: DOMPoint, thinkess = 1) {
-    point.x = this.getSharp(point.x, thinkess);
-    point.y = this.getSharp(point.y, thinkess);
+  getSharpPos(point: DOMPoint, thickness = 1) {
+    point.x = this.getSharp(point.x, thickness);
+    point.y = this.getSharp(point.y, thickness);
     return point;
   }
 
-  getSharp(pos: number, thinkess = this.devicePixelRatio): number {
+  getSharp(pos: number, thickness = this.devicePixelRatio): number {
     const offset = this.onePixel / 2;
     pos = Math.floor(pos) + offset;
     return pos;
@@ -123,7 +123,7 @@ export class BaseRenderer {
 
   drawPath(
     ctx: CanvasRenderingContext2D,
-    thikness: number,
+    thickness: number,
     stroke: string,
     fillStyle: string,
     closed: boolean,
@@ -153,11 +153,11 @@ export class BaseRenderer {
       ctx.fill();
     }
 
-    if (thikness) {
-      ctx.lineWidth = thikness;
+    if (thickness) {
+      ctx.lineWidth = thickness;
     }
 
-    if (stroke && thikness) {
+    if (stroke && thickness) {
       ctx.strokeStyle = stroke;
       ctx.stroke();
     }
@@ -183,13 +183,13 @@ export class BaseRenderer {
 
   drawAdornerRect(
     ctx: CanvasRenderingContext2D,
-    thikness: number,
+    thickness: number,
     stroke: string,
     adornerData: AdornerData
   ) {
     this.drawPath(
       ctx,
-      thikness,
+      thickness,
       stroke,
       null,
       true,

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
-import { AdornerType } from './viewport/adorners/adorner-type';
+import { AdornerType } from "./viewport/adorners/adorner-type";
 
 @Injectable({
   providedIn: "root",
@@ -12,13 +12,11 @@ export class MouseOverService {
   setMouseOverHandle(value: AdornerType) {
     this.handles = value;
   }
-  isMouseOverHandle(value: AdornerType){
-   // tslint:disable-next-line: no-bitwise
-   return (this.handles & value) === value;
+  isMouseOverHandle(value: AdornerType) {
+    // tslint:disable-next-line: no-bitwise
+    return (this.handles & value) === value;
   }
-  setMouseLeaveHandle(){
-    
-  }
+  setMouseLeaveHandle() {}
   getValue(): TreeNode {
     return this.mouseOverSubject.getValue();
   }

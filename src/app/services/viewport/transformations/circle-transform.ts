@@ -2,7 +2,7 @@ import { RectTransform } from './rect-transform';
 
 export class CircleTransform extends RectTransform {
     // override
-    tranformPropertyX = 'cx';
+    transformPropertyX = 'cx';
     // override
-    tranformPropertyY = 'cy';
+    transformPropertyY = 'cy';
 }

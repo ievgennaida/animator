@@ -13,7 +13,7 @@ export const consts = {
   selector: {
     fill: "RGBA(51,153,255,0.11)",
     stroke: "#3399FF",
-    strokeThinkness: 1,
+    strokeThickness: 1,
   },
   breadcrumbVisible: false,
   appearance: {
@@ -65,9 +65,9 @@ export const consts = {
   mouseOverBoundsColor: "#3399FF",
   mainSelectionStroke: "#3399FF",
   altSelectionStroke: "RGBA(51,153,255,0.9)",
-  mouseOverBorderThikness: 1,
-  mainSelectionThikness: 2,
-  altSelectionThikness: 1,
+  mouseOverBorderThickness: 1,
+  mainSelectionThickness: 2,
+  altSelectionThickness: 1,
   handleFillColor: "#3399FF",
   handleSelectedFillColor: "red",
   handleStrokeSize: 0,

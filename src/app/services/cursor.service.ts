@@ -20,7 +20,7 @@ export class CursorService {
     }
   }
   public getCursorResize(
-    adorenerData: AdornerData,
+    adornersData: AdornerData,
     adornerType: AdornerType
   ): CursorType {
     if (
@@ -29,11 +29,11 @@ export class CursorService {
     ) {
       return CursorType.Default;
     }
-    const point = adorenerData.get(adornerType);
+    const point = adornersData.get(adornerType);
     if (!point) {
       return CursorType.Default;
     }
-    const deg = Utils.angle(point, adorenerData.center) + 180;
+    const deg = Utils.angle(point, adornersData.center) + 180;
     if ((deg >= 0 && deg <= 20) || (deg >= 340 && deg <= 360)) {
       return CursorType.WResize;
     } else if (deg >= 20 && deg <= 60) {
@@ -53,14 +53,14 @@ export class CursorService {
     }
   }
   public getCursorRotate(
-    adorenerData: AdornerData,
+    adornersData: AdornerData,
     adornerType: AdornerType
   ): CursorType {
-    const point = adorenerData.get(adornerType);
+    const point = adornersData.get(adornerType);
     if (!point) {
       return CursorType.Default;
     }
-    const deg = Utils.angle(point, adorenerData.center) + 180;
+    const deg = Utils.angle(point, adornersData.center) + 180;
     if (deg >= 0 && deg <= 90) {
       return CursorType.RotateTR;
     } else if (deg >= 90 && deg <= 180) {

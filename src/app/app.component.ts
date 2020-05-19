@@ -124,7 +124,7 @@ export class AppComponent extends BaseComponent implements OnInit {
     if (this.contextMenuService.isOpened()) {
       this.contextMenuService.close();
     }
-    // Method is used becaus HostListener doesnot have
+    // Method is used because HostListener doesn't have
     // 'passive' option support.
     this.out(() => {
       this.toolsService.onWindowMouseWheel(event);

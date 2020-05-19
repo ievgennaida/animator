@@ -2,7 +2,7 @@
     <mat-icon>zoom_in</mat-icon>
 </button>
 <input class="zoom-input" #zoomInput type="text" (blur)="setZoomLevel(zoomInput.value)"
-    (keyup.enter)="setZoomLevel(zoomInput.value)" [value]="scrollbarInputValue">
+    (keyup.enter)="setZoomLevel(zoomInput.value)" [value]="scrollbarsInputValue">
 <button mat-button class="zoom-icon" (click)="zoomOut()">
     <mat-icon>zoom_out</mat-icon>
 </button>
@@ -22,6 +22,6 @@
     <button mat-menu-item (click)="setZoomLevel(300)">300%</button>
     <button mat-menu-item (click)="setZoomLevel(500)">500%</button>
 </mat-menu>
-<button [ngClass]="{'displayed': showGridLines}" mat-button (click)="toogleGridLines()" >
+<button [ngClass]="{'displayed': showGridLines}" mat-button (click)="toggleGridLines()" >
     <mat-icon>grid_on</mat-icon>
 </button>

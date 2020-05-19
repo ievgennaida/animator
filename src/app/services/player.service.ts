@@ -134,7 +134,7 @@ export class PlayerService {
     return false;
   }
 
-  tooglePlay() {
+  togglePlay() {
     if (this.isPlaying()) {
       this.pause();
     } else {

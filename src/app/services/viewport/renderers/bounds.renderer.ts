@@ -221,9 +221,9 @@ export class BoundsRenderer extends BaseRenderer {
       const elementsColor = multiple
         ? consts.altSelectionStroke
         : consts.mainSelectionStroke;
-      const elementsThinkness = multiple
-        ? consts.altSelectionThikness
-        : consts.mainSelectionThikness;
+      const elementsThickness = multiple
+        ? consts.altSelectionThickness
+        : consts.mainSelectionThickness;
 
       renderable.forEach((node: TreeNode) => {
         if (node.selected) {
@@ -231,7 +231,7 @@ export class BoundsRenderer extends BaseRenderer {
           if (adornerData) {
             this.drawAdornerRect(
               ctx,
-              elementsThinkness,
+              elementsThickness,
               elementsColor,
               adornerData
             );
@@ -249,13 +249,13 @@ export class BoundsRenderer extends BaseRenderer {
       // Draw global bounds:
       if (renderable && renderable.length > 1) {
         // TODO: cached, reuse
-        const adroners = renderable.map((p) =>
+        const adorners = renderable.map((p) =>
           p.getScreenAdorners(this.screenCTM)
         );
-        const bounds = Utils.getBBoxBounds(...adroners);
+        const bounds = Utils.getBBoxBounds(...adorners);
         this.drawPath(
           ctx,
-          consts.mainSelectionThikness,
+          consts.mainSelectionThickness,
           consts.mainSelectionStroke,
           null,
           true,
@@ -265,7 +265,7 @@ export class BoundsRenderer extends BaseRenderer {
           new DOMPoint(bounds.x, bounds.y + bounds.height)
         );
         // let totalBounds = Utils.getBBoxBounds(...renderable);
-        // this.drawAdornerRect(ctx, consts.mainSelectionThikness, consts.mainSelectionStroke, adornerData);
+        // this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, adornerData);
         // this.adornersDataService.getElementAdornerData(null,totalBounds);
       }
     }

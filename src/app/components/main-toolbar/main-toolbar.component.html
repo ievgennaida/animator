@@ -73,20 +73,20 @@
         <button mat-menu-item [matMenuTriggerFor]="appearance">
             <mat-icon></mat-icon>Viewport
         </button>
-        <button mat-menu-item (click)="toogleMenu()">
+        <button mat-menu-item (click)="toggleMenu()">
             <mat-icon><span *ngIf="showProperties">check</span></mat-icon>Properties
         </button>
         <mat-menu #appearance>
-            <button mat-menu-item (click)="toogleGridLines()">
+            <button mat-menu-item (click)="toggleGridLines()">
                 <mat-icon><span *ngIf="showGridLines">check</span></mat-icon>Grid Lines
             </button>
-            <button mat-menu-item (click)="toogleRuler()">
+            <button mat-menu-item (click)="toggleRuler()">
                 <mat-icon><span *ngIf="rulerVisible">check</span></mat-icon>Ruler
             </button>
-            <button mat-menu-item (click)="toogleBreadcrumbs()">
+            <button mat-menu-item (click)="toggleBreadcrumbs()">
                 <mat-icon><span *ngIf="breadcrumbsVisible">check</span></mat-icon>Breadcrumbs
             </button>
-            <button mat-menu-item (click)="toogleCode()">
+            <button mat-menu-item (click)="toggleCode()">
                 <mat-icon><span *ngIf="codeVisible">check</span></mat-icon>Code
             </button>            
             <mat-divider></mat-divider>
@@ -108,7 +108,7 @@
         </mat-menu>
     </mat-menu>
     <span class="toolbar-center">{{title}}</span>
-    <button class="menu-button" (click)="toogleMenu()" mat-button>
+    <button class="menu-button" (click)="toggleMenu()" mat-button>
         <mat-icon class="example-icon" aria-hidden="false">menu</mat-icon>
     </button>
 </mat-toolbar>

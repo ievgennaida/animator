@@ -64,7 +64,7 @@ export class SelectionTool extends BaseSelectionTool {
   selectionStarted(event: MouseEventArgs) {
     this.lastDeg = null;
     super.selectionStarted(event);
-    // dont allow to transfrom on right click:
+    // don't allow to transform on right click:
     if (event.rightClicked()) {
       this.cleanUp();
       return;

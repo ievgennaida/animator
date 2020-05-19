@@ -62,7 +62,7 @@ export class PathDirectSelectionTool extends BaseSelectionTool {
 
   selectionStarted(event: MouseEventArgs) {
     super.selectionStarted(event);
-    // dont allow to transfrom on right click:
+    // don't allow to transform on right click:
     if (event.rightClicked()) {
       this.cleanUp();
       return;

@@ -27,8 +27,8 @@ export class MouseOverRenderer extends BaseRenderer {
       }
 
       const adornerData = this.node.getScreenAdorners(this.screenCTM);
-      const thikness = consts.mouseOverBorderThikness * this.onePixel;
-      this.drawAdornerRect(this.ctx, thikness, consts.mouseOverBoundsColor, adornerData);
+      const thickness = consts.mouseOverBorderThickness * this.onePixel;
+      this.drawAdornerRect(this.ctx, thickness, consts.mouseOverBoundsColor, adornerData);
     }
   }
 }

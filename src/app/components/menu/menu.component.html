@@ -1,6 +1,6 @@
 <div class="accordion" (window:mousemove)="dragMove($event)" (window:mouseup)="dragFinished($event)">
     <div #propertiesPanel class="panel" [class.expanded]="propExpanded">
-        <div class="header" (click)="toogleProp()">
+        <div class="header" (click)="toggleProp()">
             <mat-icon>{{propExpanded?'expand_less':'expand_more'}}</mat-icon>
             <div class="header-text">Properties</div>
         </div>
@@ -10,7 +10,7 @@
         <div *ngIf="propExpanded && outlineExpanded" class="resize"
             [style.height.px]="resizeCursorPrecision" (mousedown)="dragStarted($event)">
         </div>
-        <div class="header" (click)="toogleOutline()">
+        <div class="header" (click)="toggleOutline()">
             <mat-icon>{{outlineExpanded?'expand_less':'expand_more'}}</mat-icon>
             <div class="header-text">Outline</div>
         </div>

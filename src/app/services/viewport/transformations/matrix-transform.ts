@@ -35,22 +35,22 @@ export class MatrixTransform {
     this.vertical = vertical;
     const centerBox = Utils.getCenterTransform(this.element);
     this.offset = pos;
-    const tranformedCenter = centerBox.matrixTransform(
+    const transformedCenter = centerBox.matrixTransform(
       this.element.getScreenCTM()
     );
     this.startOffset = vertical
-      ? tranformedCenter.x - pos.x
-      : tranformedCenter.y - pos.y;
+      ? transformedCenter.x - pos.x
+      : transformedCenter.y - pos.y;
   }
 
   beginMouseRotateTransaction(pos: DOMPoint) {
     this.mode = TransformationMode.Rotate;
     const transformOrigin = this.getTransformOrigin();
-    const tranformedCenter = transformOrigin.matrixTransform(
+    const transformedCenter = transformOrigin.matrixTransform(
       this.element.getScreenCTM()
     );
 
-    this.startOffset = -Utils.angle(tranformedCenter, pos);
+    this.startOffset = -Utils.angle(transformedCenter, pos);
 
     const matrix = this.transformToElement(
       this.element,
@@ -173,12 +173,12 @@ export class MatrixTransform {
   }
 
   skewByMouse(pos: DOMPoint) {
-    const tranformedCenter = new DOMPoint(
+    const transformedCenter = new DOMPoint(
       this.vertical ? pos.x + this.startOffset : this.offset.x,
       this.vertical ? this.offset.y : pos.y + this.startOffset
     );
 
-    let deg = -Utils.angle(tranformedCenter, pos);
+    let deg = -Utils.angle(transformedCenter, pos);
     if (!this.vertical) {
       deg = -deg - 90;
     }

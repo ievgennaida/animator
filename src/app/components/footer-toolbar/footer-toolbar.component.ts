@@ -59,7 +59,7 @@ export class FooterToolbarComponent extends BaseComponent implements OnInit {
     this.playerService.prev();
   }
   play() {
-    this.playerService.tooglePlay();
+    this.playerService.togglePlay();
   }
   pause() {
     this.playerService.pause();

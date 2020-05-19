@@ -29,15 +29,6 @@ export class DocumentService {
   }
 
   documentSubject = new BehaviorSubject<InputDocument>(null);
-
-  deleteElement(array, element) {
-    const index: number = array.indexOf(element);
-    if (index !== -1) {
-      return array.splice(index, 1);
-    }
-    return array;
-  }
-
   public get document(): Observable<InputDocument> {
     return this.documentSubject.asObservable();
   }

@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "Dnumeric",
         "HCTX",
         "ICTM",
         "VCTX",
@@ -8,6 +9,9 @@
         "divs",
         "downlevel",
         "esnext",
-        "timedata"
+        "recalc",
+        "renderable",
+        "timedata",
+        "visibilitychange"
     ]
 }

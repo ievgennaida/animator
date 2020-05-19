@@ -89,12 +89,12 @@ export class PanTool extends BaseTool {
 
   /**
    * fit the pan to the scene.
-   * @param rect rectagle to fit view for. use player svg if null.
+   * @param rect rectangle to fit view for. use player svg if null.
    */
   fit(rect: DOMRect = null) {
     if (!this.viewService.isInit()) {
       this.logger.log(
-        "Pan: cannot center content. vieport should be initiazed first."
+        "Pan: cannot center content. viewport should be initialed first."
       );
       return;
     }
