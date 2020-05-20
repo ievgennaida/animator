@@ -4,7 +4,7 @@ import { LoggerService } from "../../logger.service";
 import { consts } from "src/environments/consts";
 import { BaseRenderer } from "./base.renderer";
 import { BehaviorSubject } from "rxjs";
-import { TimelineUtils } from 'animation-timeline-js';
+import { TimelineUtils } from "animation-timeline-js";
 
 @Injectable({
   providedIn: "root",
@@ -105,17 +105,14 @@ export class GridLinesRenderer extends BaseRenderer {
     if (viewportSizeA === 0 || viewportSizeB === 0) {
       return;
     }
+
     // When step is set by pixel
-    const displayStepsCanFit = viewportSizeA / consts.ruler.tickPx;
-    const valueStep = valDistance / displayStepsCanFit;
-    if (isNaN(valueStep) || !Number.isFinite(valueStep)) {
-      return;
-    }
+    const valueStep = valDistance / (viewportSizeA / consts.ruler.tickPx);
+
     // Find the nearest 'beautiful' step for a gauge.
     // This step should be dividable by 1/2/5/10!
-
-    const step = TimelineUtils.findGoodStep(valueStep, null);
-    const smallStep = TimelineUtils.findGoodStep(valueStep / 5, null);
+    const step = TimelineUtils.findGoodStep(valueStep);
+    const smallStep = TimelineUtils.findGoodStep(valueStep / 5);
 
     // Find beautiful start point:
     const fromVal = Math.floor(from / step) * step;
@@ -124,7 +121,12 @@ export class GridLinesRenderer extends BaseRenderer {
     const toVal = Math.ceil(to / step) * step + step;
 
     const gridLineWidth = this.onePixel;
-    if (step <= 0 || Math.abs(toVal - fromVal) === 0) {
+    if (
+      isNaN(step) ||
+      !Number.isFinite(step) ||
+      step <= 0 ||
+      Math.abs(toVal - fromVal) === 0
+    ) {
       return;
     }
     const rulerActive =
@@ -198,6 +200,10 @@ export class GridLinesRenderer extends BaseRenderer {
         if (rulerActive) {
           ctx.restore();
         }
+      }
+
+      if (smallStep <= 0 || isNaN(smallStep) || !Number.isFinite(smallStep)) {
+        continue;
       }
 
       // Draw small steps
