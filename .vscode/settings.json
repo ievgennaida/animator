@@ -5,13 +5,17 @@
         "ICTM",
         "VCTX",
         "bbox",
+        "codelyzer",
         "consts",
+        "devkit",
         "divs",
         "downlevel",
         "esnext",
+        "jasminewd",
         "recalc",
         "renderable",
         "timedata",
+        "tslib",
         "visibilitychange"
     ]
 }
