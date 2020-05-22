@@ -286,7 +286,7 @@ export class Utils {
       return null;
     }
 
-    if (!bboxCache && !element) {
+    if (!bboxCache && element) {
       bboxCache = element.getBBox();
     }
 
