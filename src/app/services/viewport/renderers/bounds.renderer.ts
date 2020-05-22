@@ -29,7 +29,7 @@ export class BoundsRenderer extends BaseRenderer {
   getAdornerStroke(adornerType: AdornerType): string {
     if (
       this.selectionService.isAdornerHandleSelected(adornerType) ||
-      this.mouseOverService.isMouseOverHandle(adornerType)
+      false // this.mouseOverService.isMouseOverHandle(adornerType)
     ) {
       return consts.handleSelectedFillColor;
     }
@@ -178,7 +178,7 @@ export class BoundsRenderer extends BaseRenderer {
     text: string,
     l1: DOMPoint,
     l2: DOMPoint,
-    opositeSidePoint: DOMPoint
+    oppositeSidePoint: DOMPoint
   ) {
     const textHeight = 10;
     ctx.save();
@@ -186,7 +186,7 @@ export class BoundsRenderer extends BaseRenderer {
     const center = Utils.getCenterPoint(l1, l2);
     const measured = ctx.measureText(text);
     ctx.translate(center.x, center.y);
-    if (Utils.getDirection(l1, l2, opositeSidePoint) > 0) {
+    if (Utils.getDirection(l1, l2, oppositeSidePoint) > 0) {
       const l3 = l2;
       l2 = l1;
       l1 = l3;

@@ -1,26 +1,41 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
-import { AdornerType } from "./viewport/adorners/adorner-type";
+import { HandleData } from "../models/handle-data";
 
 @Injectable({
   providedIn: "root",
 })
 export class MouseOverService {
   mouseOverSubject = new BehaviorSubject<TreeNode>(null);
-  handles: AdornerType = AdornerType.None;
-  setMouseOverHandle(value: AdornerType) {
-    this.handles = value;
+  handleOverSubject = new BehaviorSubject<HandleData>(null);
+  setMouseOverHandle(data: HandleData) {
+    if (data !== this.mouseOverHandle) {
+      this.handleOverSubject.next(data);
+    }
   }
-  isMouseOverHandle(value: AdornerType) {
-    // tslint:disable-next-line: no-bitwise
-    return (this.handles & value) === value;
+  leaveHandle() {
+    this.setMouseOverHandle(null);
   }
-  setMouseLeaveHandle() {}
+  get mouseOverHandle(): HandleData {
+    return this.handleOverSubject.getValue();
+  }
+  isMouseOverHandle(data: HandleData): boolean {
+    const currentHandle = this.handleOverSubject.getValue();
+    if (!currentHandle || !data) {
+      return false;
+    }
+    return (
+      currentHandle.node === data.node &&
+      // tslint:disable-next-line: no-bitwise
+      (currentHandle.handles & data.handles) === data.handles
+    );
+  }
+
   getValue(): TreeNode {
     return this.mouseOverSubject.getValue();
   }
-  setMouseOver(node: TreeNode) {
+  setMouseOver(node: TreeNode): void {
     if (node && !node.mouseOver) {
       node.mouseOver = true;
       this.mouseOverSubject.next(node);

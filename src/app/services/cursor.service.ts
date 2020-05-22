@@ -2,7 +2,7 @@ import { Observable, BehaviorSubject } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Utils } from "./utils/utils";
 import { AdornerData } from "./viewport/adorners/adorner-data";
-import { AdornerType } from './viewport/adorners/adorner-type';
+import { AdornerType, AdornerTypeUtils } from './viewport/adorners/adorner-type';
 import { CursorType } from '../models/cursor-type';
 
 @Injectable({
@@ -56,7 +56,7 @@ export class CursorService {
     adornersData: AdornerData,
     adornerType: AdornerType
   ): CursorType {
-    const point = adornersData.get(adornerType);
+    const point = adornersData.get(AdornerTypeUtils.toMoveAdornerType(adornerType));
     if (!point) {
       return CursorType.Default;
     }

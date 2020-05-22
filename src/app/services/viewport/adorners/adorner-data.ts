@@ -1,6 +1,6 @@
 import { Utils } from "../../utils/utils";
 import { IBBox } from "../../../models/interfaces/bbox";
-import { AdornerType } from "./adorner-type";
+import { AdornerType, AdornerTypeUtils } from "./adorner-type";
 
 export class AdornerData implements IBBox {
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
@@ -34,22 +34,58 @@ export class AdornerData implements IBBox {
   get center(): DOMPoint {
     return this.get(AdornerType.Center);
   }
-
   element: SVGGraphicsElement = null;
   invalid = true;
   get(p: AdornerType): DOMPoint {
     return this.points.get(p);
   }
-  intersectAdorner(point: DOMPoint, accuracy = 6): AdornerType {
+  allowToRotateAdorners(key: AdornerType): boolean {
+    return (
+      key !== AdornerType.TopCenter &&
+      key !== AdornerType.BottomCenter &&
+      key !== AdornerType.LeftCenter &&
+      key !== AdornerType.RightCenter &&
+      key !== AdornerType.Center &&
+      key !== AdornerType.CenterTransform
+    );
+  }
+  intersectAdorner(
+    adorner: AdornerData,
+    point: DOMPoint,
+    accuracy = 6
+  ): AdornerType {
     let toReturn = AdornerType.None;
-    let curLen = accuracy;
+    let minDistance = accuracy;
+    const rotateArea = 2;
     // Find nearest point:
-    this.points.forEach((adornerPoint, key) => {
+    adorner.points.forEach((adornerPoint, key) => {
       if (point) {
-        curLen = Utils.getLength(adornerPoint, point);
-        if (curLen <= accuracy) {
-          toReturn = key;
-          accuracy = curLen;
+        const v = Utils.getVector(adornerPoint, adorner.center, true);
+        const rotateAccuracy = accuracy * rotateArea;
+        const moveAdornerDistance = Utils.getLength(
+          Utils.alongVector(adornerPoint, v, accuracy),
+          point
+        );
+        let rotateDistance = Number.MAX_VALUE;
+        if (this.allowToRotateAdorners(key)) {
+          rotateDistance = Utils.getLength(
+            Utils.alongVector(adornerPoint, v, rotateAccuracy),
+            point
+          );
+        }
+        if (
+          rotateDistance <= minDistance * rotateArea ||
+          moveAdornerDistance <= minDistance
+        ) {
+          // Move has a priority:
+          if (rotateDistance + rotateDistance * 0.2 < moveAdornerDistance) {
+            // Corresponding rotate key:
+            toReturn = AdornerTypeUtils.toRotateAdornerType(key);
+            minDistance = rotateDistance;
+          } else {
+            toReturn = key;
+            minDistance = moveAdornerDistance;
+          }
         }
       }
     });
@@ -121,8 +157,8 @@ export class AdornerData implements IBBox {
   getTransformed(m: DOMMatrix): AdornerData {
     const cloned = new AdornerData();
     cloned.element = this.element;
-    this.points.forEach((addornerPoint, key) => {
-      cloned.points.set(key, addornerPoint.matrixTransform(m));
+    this.points.forEach((adornerPoint, key) => {
+      cloned.points.set(key, adornerPoint.matrixTransform(m));
     });
     return cloned;
   }

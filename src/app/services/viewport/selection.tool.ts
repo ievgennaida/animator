@@ -10,16 +10,20 @@ import { TransformsService } from "./transformations/transforms.service";
 import { Utils } from "../utils/utils";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { CursorService } from "../cursor.service";
-import { MatrixTransform } from "./transformations/matrix-transform";
+import {
+  MatrixTransform,
+  TransformationMode,
+} from "./transformations/matrix-transform";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectionService, SelectionMode } from "../selection.service";
 import { ContextMenuService } from "../context-menu.service";
-import { AdornerType } from "./adorners/adorner-type";
+import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
 import { CursorType } from "src/app/models/cursor-type";
 import { consts } from "src/environments/consts";
 import { AdornerData } from "./adorners/adorner-data";
 import { MouseOverService } from "../mouse-over.service";
+import { HandleData } from "src/app/models/handle-data";
 
 /**
  * Select elements by a mouse move move.
@@ -70,9 +74,10 @@ export class SelectionTool extends BaseSelectionTool {
       return;
     }
     const startedNode = this.mouseOverService.getValue();
-    if (startedNode) {
-      this.startedNode = startedNode;
-      if (!startedNode || !startedNode.selected) {
+    const handle = this.mouseOverService.mouseOverHandle;
+    if (startedNode || handle) {
+      this.startedNode = handle ? handle.node : startedNode;
+      if (!this.startedNode || !this.startedNode.selected) {
         return;
       }
 
@@ -85,16 +90,24 @@ export class SelectionTool extends BaseSelectionTool {
         const transformation = this.transformFactory.getTransformForElement(
           p.getElement()
         );
-        transformation.beginMouseTransaction(event.getDOMPoint());
-        transformation.beginHandleTransformation(this.mouseOverService.handles);
+        if (handle) {
+          if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
+            transformation.beginMouseRotateTransaction(event.getDOMPoint());
+          } else {
+            transformation.beginMouseRotateTransaction(event.getDOMPoint());
+          }
+        } else {
+          transformation.beginMouseTransaction(event.getDOMPoint());
+        }
         return transformation;
       });
 
-      transformations.forEach((p) => p.moveByMouse(event.getDOMPoint()));
+      transformations.forEach((p) => {
+        if (p.mode === TransformationMode.Translate) {
+          p.moveByMouse(event.getDOMPoint());
+        }
+      });
       this.transformations = transformations;
-      if (this.mouseOverService.handles !== AdornerType.None) {
-        this.selectionService.setSelectedAdorner(this.mouseOverService.handles);
-      }
     }
     // Use when accurate selection will be implemented, or to select groups:
     /* if (!this.startedNode) {
@@ -141,10 +154,11 @@ export class SelectionTool extends BaseSelectionTool {
   cleanUp() {
     this.mouseOverRenderer.resume();
     this.lastDeg = null;
+    this.transformations = null;
     this.startedNode = null;
     super.cleanUp();
     this.cursor.setCursor(CursorType.Default);
-    this.mouseOverService.setMouseLeaveHandle();
+    this.mouseOverService.leaveHandle();
     this.selectionService.deselectAdorner();
   }
 
@@ -152,7 +166,7 @@ export class SelectionTool extends BaseSelectionTool {
     if (this.startedNode && this.startedNode.selected && this.containerRect) {
       if (!this.mouseOverRenderer.suspended) {
         this.mouseOverRenderer.suspend();
-        // Dont draw mouse over when transformation is started:
+        // Don't draw mouse over when transformation is started:
         this.mouseOverRenderer.clear();
       }
       const element = this.startedNode.getElement();
@@ -164,28 +178,34 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const data = this.getAdornerHandleIntersection(event.screenPoint);
-        const handle = data[0];
-        if (handle !== this.mouseOverService.handles) {
+        const handle = this.getAdornerHandleIntersection(event.screenPoint);
+        if (!handle) {
+          this.mouseOverService.leaveHandle();
+          this.cursor.setCursor(CursorType.Default);
+        } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
           this.mouseOverService.setMouseOverHandle(handle);
-          if (handle === AdornerType.None) {
+          if (handle.handles === AdornerType.None) {
             this.cursor.setCursor(CursorType.Default);
           } else {
-            this.cursor.setCursor(
-              this.cursor.getCursorResize(data[1].getElementAdorner(), handle)
-            );
+            const adorner = handle.node.getElementAdorner();
+            const cursor = handle.rotate
+              ? this.cursor.getCursorRotate(adorner, handle.handles)
+              : this.cursor.getCursorResize(adorner, handle.handles);
+            this.cursor.setCursor(cursor);
           }
           this.boundsRenderer.invalidate();
         }
-        if (handle === AdornerType.None) {
+
+        if (!handle) {
           super.onWindowMouseMove(event);
         }
       }
     }
   }
-  getAdornerHandleIntersection(screenPoint: DOMPoint): [AdornerType, TreeNode] {
-    let type: AdornerType = AdornerType.None;
+  getAdornerHandleIntersection(screenPoint: DOMPoint): HandleData | null {
     const selectedItems = this.selectionService.getSelected();
+    let results: HandleData = null;
+    // TODO: general selection adorner.
     const toReturn = selectedItems.find((node) => {
       const adorner = node.getElementAdorner();
       const elPoint = Utils.toElementPoint(node, screenPoint);
@@ -197,42 +217,22 @@ export class SelectionTool extends BaseSelectionTool {
         elPoint
       );
 
-      //const v = Utils.getVector(elPoint, adorner.center, true);
-
-      const intersects = this.intersectAdorner(
-        adorner,
-        elPoint,
-        screenPointSize * consts.handleSize
-      );
-      if (type !== intersects && intersects !== AdornerType.None) {
-        type = intersects;
+      const accuracy = screenPointSize * consts.handleSize;
+      const intersects = adorner.intersectAdorner(adorner, elPoint, accuracy);
+      if (intersects !== AdornerType.None) {
+        if (!results) {
+          results = new HandleData();
+        }
+        results.rotate = AdornerTypeUtils.isRotateAdornerType(intersects);
+        results.handles = intersects;
         return true;
       }
     });
-
-    return [type, toReturn];
-  }
-  intersectAdorner(
-    adorner: AdornerData,
-    point: DOMPoint,
-    accuracy = 6
-  ): AdornerType {
-    let toReturn = AdornerType.None;
-    let curLen = accuracy;
-    // Find nearest point:
-    adorner.points.forEach((adornerPoint, key) => {
-      if (point) {
-        const vect = Utils.getVector( adornerPoint, adorner.center, true);
-        const movePoint = Utils.alongVector(adornerPoint, vect, accuracy);
-        curLen = Utils.getLength(movePoint, point);
-        if (curLen <= accuracy) {
-          toReturn = key;
-          accuracy = curLen;
-        }
-      }
-    });
-
-    return toReturn;
+    if (!toReturn) {
+      return null;
+    }
+    results.node = toReturn;
+    return results;
   }
 
   getTopSelectedNode(node: TreeNode) {
@@ -307,6 +307,9 @@ export class SelectionTool extends BaseSelectionTool {
    * override
    */
   selectionEnded(event: MouseEventArgs) {
+    if (this.transformations !== null && this.transformations.length > 0) {
+      return;
+    }
     let mode = SelectionMode.Normal;
     if (event.ctrlKey) {
       mode = SelectionMode.Revert;
