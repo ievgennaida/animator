@@ -34,8 +34,9 @@ import { HandleData } from "src/app/models/handle-data";
 export class SelectionTool extends BaseSelectionTool {
   iconName = "navigation";
   renderableElements: Array<TreeNode> = [];
-  cachedMouse: TreeNode = null;
-  startedNode: TreeNode = null;
+  cachedMouse: TreeNode | null = null;
+  startedNode: TreeNode | null = null;
+  startedHandle: HandleData | null = null;
   lastDeg: number = null;
   transformations: Array<MatrixTransform> = null;
   constructor(
@@ -76,6 +77,7 @@ export class SelectionTool extends BaseSelectionTool {
     const startedNode = this.mouseOverService.getValue();
     const handle = this.mouseOverService.mouseOverHandle;
     if (startedNode || handle) {
+      this.startedHandle = handle;
       this.startedNode = handle ? handle.node : startedNode;
       if (!this.startedNode || !this.startedNode.selected) {
         return;
@@ -156,6 +158,7 @@ export class SelectionTool extends BaseSelectionTool {
     this.lastDeg = null;
     this.transformations = null;
     this.startedNode = null;
+    this.startedHandle = null;
     super.cleanUp();
     this.cursor.setCursor(CursorType.Default);
     this.mouseOverService.leaveHandle();
@@ -164,6 +167,7 @@ export class SelectionTool extends BaseSelectionTool {
 
   onWindowMouseMove(event: MouseEventArgs) {
     if (this.startedNode && this.startedNode.selected && this.containerRect) {
+      this.updateHandleCursor(this.startedHandle, event.screenPoint);
       if (!this.mouseOverRenderer.suspended) {
         this.mouseOverRenderer.suspend();
         // Don't draw mouse over when transformation is started:
@@ -184,15 +188,7 @@ export class SelectionTool extends BaseSelectionTool {
           this.cursor.setCursor(CursorType.Default);
         } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
           this.mouseOverService.setMouseOverHandle(handle);
-          if (handle.handles === AdornerType.None) {
-            this.cursor.setCursor(CursorType.Default);
-          } else {
-            const adorner = handle.node.getElementAdorner();
-            const cursor = handle.rotate
-              ? this.cursor.getCursorRotate(adorner, handle.handles)
-              : this.cursor.getCursorResize(adorner, handle.handles);
-            this.cursor.setCursor(cursor);
-          }
+          this.updateHandleCursor(handle, event.screenPoint);
           this.boundsRenderer.invalidate();
         }
 
@@ -201,6 +197,33 @@ export class SelectionTool extends BaseSelectionTool {
         }
       }
     }
+  }
+  updateHandleCursor(handle: HandleData, screenPoint: DOMPoint) {
+    if (
+      !handle ||
+      !screenPoint ||
+      handle.handles === AdornerType.None ||
+      handle.handles === AdornerType.Center ||
+      handle.handles === AdornerType.CenterTransform
+    ) {
+      console.log('def');
+      this.cursor.setCursor(CursorType.Default);
+    } else {
+      const angle = this.getCursorAngle(handle, screenPoint);
+      const cursor = handle.rotate
+        ? this.cursor.getCursorRotate(angle)
+        : this.cursor.getCursorResize(angle);
+
+      this.cursor.setCursor(cursor);
+    }
+  }
+  getCursorAngle(handle: HandleData, screenPoint: DOMPoint): number {
+    const deg =
+      Utils.angle(
+        screenPoint,
+        Utils.toScreenPoint(handle.node, handle.adornerData.center)
+      ) + 180;
+    return deg;
   }
   getAdornerHandleIntersection(screenPoint: DOMPoint): HandleData | null {
     const selectedItems = this.selectionService.getSelected();
@@ -232,6 +255,7 @@ export class SelectionTool extends BaseSelectionTool {
       return null;
     }
     results.node = toReturn;
+    results.adornerData = toReturn.getElementAdorner();
     return results;
   }
 
