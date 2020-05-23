@@ -154,7 +154,11 @@ export class Utils {
     el: SVGGraphicsElement | ICTMProvider,
     screenPoint: DOMPoint
   ): DOMPoint {
-    const current = screenPoint.matrixTransform(el.getScreenCTM().inverse());
+    const ctm = el.getScreenCTM();
+    if (!ctm) {
+      return null;
+    }
+    const current = screenPoint.matrixTransform(ctm.inverse());
     return current;
   }
 
@@ -186,7 +190,7 @@ export class Utils {
     }
     return element.getCTM();
   }
-  public static deleteElement<T>(array:Array<T>, element:T) {
+  public static deleteElement<T>(array: Array<T>, element: T) {
     const index: number = array.indexOf(element);
     if (index !== -1) {
       return array.splice(index, 1);
