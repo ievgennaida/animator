@@ -19,7 +19,6 @@ export class CursorService {
 
   public setCursor(cursor: CursorType) {
     if (cursor !== this.cursorSubject.getValue()) {
-      console.log('set:'+ cursor);
       this.cursorSubject.next(cursor);
     }
   }
@@ -30,7 +29,7 @@ export class CursorService {
     return this.getHandleCursor(deg, true);
   }
   private getHandleCursor(deg: number, rotate = false) {
-    const tolerance = 10;
+    const tolerance = 15;
     if (
       (deg >= 0 && deg <= 0 + tolerance) ||
       (deg >= 360 - tolerance && deg <= 360)

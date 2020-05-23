@@ -49,7 +49,7 @@ export class AdornerData implements IBBox {
   ): AdornerType {
     let toReturn = AdornerType.None;
     let minDistance = accuracy;
-    const rotateArea = 2;
+    const rotateArea = 1.5;
     // Find nearest point:
     adorner.points.forEach((adornerPoint, key) => {
       if (point) {
@@ -62,7 +62,7 @@ export class AdornerData implements IBBox {
         let rotateDistance = Number.MAX_VALUE;
         if (this.allowToRotateAdorners(key)) {
           rotateDistance = Utils.getLength(
-            Utils.alongVector(adornerPoint, v, rotateAccuracy),
+            Utils.alongVector(adornerPoint, v, accuracy * rotateArea),
             point
           );
         }
@@ -98,6 +98,14 @@ export class AdornerData implements IBBox {
       bounds = renderable.getBBox();
     }
 
+    this.decomposeRect(bounds);
+    this.points.set(
+      AdornerType.CenterTransform,
+      Utils.getCenterTransform(renderable, bounds)
+    );
+    return this;
+  }
+  decomposeRect(bounds: DOMRect) {
     this.points.set(AdornerType.TopLeft, new DOMPoint(bounds.x, bounds.y));
     this.points.set(
       AdornerType.TopRight,
@@ -132,12 +140,11 @@ export class AdornerData implements IBBox {
       AdornerType.Center,
       new DOMPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
     );
-    this.points.set(
-      AdornerType.CenterTransform,
-      Utils.getCenterTransform(renderable, bounds)
-    );
-    return this;
   }
+
+  /**
+   * Compose rect back
+   */
   getBBox(): DOMRect {
     return new DOMRect(
       this.topLeft.x,
@@ -147,11 +154,20 @@ export class AdornerData implements IBBox {
     );
   }
 
+  /**
+   * Get adorner handle
+   */
+  getAdornerHandle(type: AdornerType): DOMRect {
+    return new DOMRect(0, 0, 100, 100);
+  }
+
   getTransformed(m: DOMMatrix): AdornerData {
     const cloned = new AdornerData();
     cloned.element = this.element;
     this.points.forEach((adornerPoint, key) => {
-      cloned.points.set(key, adornerPoint.matrixTransform(m));
+      if (adornerPoint) {
+        cloned.points.set(key, adornerPoint.matrixTransform(m));
+      }
     });
     return cloned;
   }

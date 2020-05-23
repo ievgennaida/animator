@@ -185,13 +185,12 @@ export class SelectionTool extends BaseSelectionTool {
         const handle = this.getAdornerHandleIntersection(event.screenPoint);
         if (!handle) {
           this.mouseOverService.leaveHandle();
-          this.cursor.setCursor(CursorType.Default);
         } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
           this.mouseOverService.setMouseOverHandle(handle);
-          this.updateHandleCursor(handle, event.screenPoint);
           this.boundsRenderer.invalidate();
         }
 
+        this.updateHandleCursor(handle, event.screenPoint);
         if (!handle) {
           super.onWindowMouseMove(event);
         }
@@ -206,7 +205,6 @@ export class SelectionTool extends BaseSelectionTool {
       handle.handles === AdornerType.Center ||
       handle.handles === AdornerType.CenterTransform
     ) {
-      console.log('def');
       this.cursor.setCursor(CursorType.Default);
     } else {
       const angle = this.getCursorAngle(handle, screenPoint);
