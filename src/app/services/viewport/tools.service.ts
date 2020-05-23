@@ -165,7 +165,6 @@ export class ToolsService {
     this.activeTool.onWindowBlur(event);
   }
 
-  getPan() {}
   fitViewportToSelected() {
     const selectedItems = this.selectionService.getSelectedElements();
     let bounds = Utils.getBoundingClientRect(...selectedItems);

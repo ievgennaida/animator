@@ -10,22 +10,23 @@ import {
   NgZone,
 } from "@angular/core";
 
-
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { ViewService } from "src/app/services/view.service";
 import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
 import { CursorService } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
-import { BaseComponent } from '../base-component';
-import { CursorType } from 'src/app/models/cursor-type';
+import { BaseComponent } from "../base-component";
+import { CursorType } from "src/app/models/cursor-type";
+import { PanTool } from "src/app/services/viewport/pan.tool";
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
   styleUrls: ["./player.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy {
+export class PlayerComponent extends BaseComponent
+  implements OnInit, OnDestroy {
   @Input("isPlaying")
   get isPaused() {
     return false;
@@ -73,6 +74,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   constructor(
     private viewService: ViewService,
     private toolsService: ToolsService,
+    private panTool: PanTool,
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
@@ -169,6 +171,32 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     this.ngZone.runOutsideAngular(callback);
   }
 
+  adjustPan() {
+    // TODO: Automatically adjust pan when viewport is resized.
+    this.viewService.resized
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((size) => {
+        if (size && size.prevClientWidth && size.prevClientHeight) {
+          const changedW = size.clientWidth - size.prevClientWidth;
+          const changedPercentW =
+            changedW !== 0 ? changedW / size.clientWidth : 0;
+          const changedH = size.clientHeight - size.prevClientHeight;
+          const changedPercentH =
+            changedH !== 0 ? changedH / size.clientHeight : 0;
+          const bounds = this.viewService.getDisplayedBounds();
+
+          if (bounds) {
+            const pan = this.panTool.getPan();
+            const x = pan.x + bounds.width * changedPercentW;
+            const y = pan.y + bounds.height * changedPercentH;
+            if (x !== pan.x || y !== pan.y) {
+              this.panTool.pan(x, y);
+            }
+          }
+        }
+      });
+  }
+
   ngOnInit() {
     this.out(() => {
       this.calcRealScrollBarSize();
@@ -180,6 +208,8 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
             el.style.cursor = cursor;
           }
         });
+
+      // this.adjustPan();
     });
     this.gridLinesRenderer.rulerVisibleSubject
       .asObservable()

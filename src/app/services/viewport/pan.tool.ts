@@ -3,11 +3,11 @@ import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
 import { ViewService } from "../view.service";
-import { CursorService } from '../cursor.service';
-import { CursorType } from 'src/app/models/cursor-type';
+import { CursorService } from "../cursor.service";
+import { CursorType } from "src/app/models/cursor-type";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class PanTool extends BaseTool {
   svgMatrix: DOMMatrix = null;
@@ -21,10 +21,10 @@ export class PanTool extends BaseTool {
   ) {
     super();
   }
-  onActivate(){
+  onActivate() {
     this.cursor.setCursor(CursorType.Grab);
   }
-  onDeactivate(){
+  onDeactivate() {
     this.cursor.setCursor(CursorType.Default);
   }
 
@@ -41,7 +41,9 @@ export class PanTool extends BaseTool {
     event.preventDefault();
     event.handled = true;
     this.svgMatrix = this.viewService.getCTM();
-    this.mouseDownPos = event.screenPoint.matrixTransform(this.svgMatrix.inverse());
+    this.mouseDownPos = event.screenPoint.matrixTransform(
+      this.svgMatrix.inverse()
+    );
     this.cursor.setCursor(CursorType.Grabbing);
   }
 
@@ -80,6 +82,13 @@ export class PanTool extends BaseTool {
     this.cleanUp();
   }
 
+  public getPan(): DOMPoint {
+    const ctm = this.viewService.getCTM();
+    if (!ctm) {
+      return new DOMPoint();
+    }
+    return new DOMPoint(ctm.e, ctm.f);
+  }
   pan(panX: number, panY: number) {
     const matrix = this.viewService.getCTM();
     matrix.e = panX;
@@ -99,7 +108,7 @@ export class PanTool extends BaseTool {
       return;
     }
 
-    const zoom = this.viewService.getZoom()
+    const zoom = this.viewService.getZoom();
     if (!rect) {
       rect = this.viewService.getWorkAreaSize();
     }
@@ -109,7 +118,7 @@ export class PanTool extends BaseTool {
     const x = rect.x * zoom;
     const y = rect.y * zoom;
 
-    const parent = this.viewService.viewport.ownerSVGElement;
+    const parent = this.viewService.svgRoot();
     const parentWidth = parent.clientWidth;
     const parentHeight = parent.clientHeight;
 

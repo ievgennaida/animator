@@ -4,8 +4,12 @@ import { consts } from "src/environments/consts";
 import { Utils } from "./utils/utils";
 import { ViewMode } from "src/app/models/view-mode";
 import { ICTMProvider } from "../models/interfaces/ctm-provider";
-import { Line } from "../models/line";
-
+export class ClientSize {
+  prevClientWidth = 0;
+  prevClientHeight = 0;
+  clientWidth = 0;
+  clientHeight = 0;
+}
 @Injectable({
   providedIn: "root",
 })
@@ -47,7 +51,10 @@ export class ViewService implements ICTMProvider {
   // Expected view port size:
   viewportSizeSubject = new BehaviorSubject<DOMRect | any>(this.defaultSize);
 
-  viewportResizedSubject = new Subject();
+  /**
+   * Player client bounds.
+   */
+  viewportResizedSubject = new BehaviorSubject<ClientSize>(new ClientSize());
   /**
    * On elements count of the svg is changed. deleted, added etc.
    */
@@ -78,12 +85,28 @@ export class ViewService implements ICTMProvider {
     return this.viewportTransformedSubject.asObservable();
   }
 
-  public get resized(): Observable<any> {
+  public get resized(): Observable<ClientSize> {
     return this.viewportResizedSubject.asObservable();
   }
 
   public emitViewportResized() {
-    this.viewportResizedSubject.next();
+    const area = this.viewportResizedSubject.getValue();
+    const svg = this.svgRoot();
+    if (svg) {
+      if (
+        svg.clientHeight !== area.clientHeight ||
+        svg.clientWidth !== area.clientWidth
+      ) {
+        area.prevClientHeight = area.clientHeight;
+        area.prevClientWidth = area.clientWidth;
+        area.clientHeight = svg.clientHeight;
+        area.clientWidth = svg.clientWidth;
+
+        this.viewportResizedSubject.next(area);
+      }
+    } else {
+      this.viewportResizedSubject.next(area);
+    }
   }
 
   public get elementsChanged(): Observable<any> {
@@ -126,14 +149,6 @@ export class ViewService implements ICTMProvider {
     return ctm.a;
   }
 
-  public getPan(): DOMPoint {
-    const ctm = this.getCTM();
-    if (!ctm) {
-      return new DOMPoint();
-    }
-    return new DOMPoint(ctm.e, ctm.f);
-  }
-
   public getScreenSize(): DOMPoint {
     if (!this.isInit()) {
       return null;
@@ -147,17 +162,15 @@ export class ViewService implements ICTMProvider {
     toPoint.y = svg.clientHeight;
     return toPoint;
   }
-  public getDisplayedBounds(): Line {
+  public getDisplayedBounds(): DOMRect {
     if (!this.viewport) {
       return null;
     }
     const matrix = this.getCTM().inverse();
-    const toPoint = this.getScreenSize().matrixTransform(matrix);
-    const line = new Line();
     const svg = this.svgRoot();
-    line.a = svg.createSVGPoint().matrixTransform(matrix);
-    line.b = toPoint;
-    return line;
+    const toPoint = this.getScreenSize().matrixTransform(matrix);
+    const from = svg.createSVGPoint().matrixTransform(matrix);
+    return new DOMRect(from.x, from.y, toPoint.x - from.x, toPoint.y - from.y);
   }
 
   /**
@@ -220,6 +233,7 @@ export class ViewService implements ICTMProvider {
   init(viewport: SVGGraphicsElement, host: SVGElement) {
     this.playerHost = host;
     this.viewportSubject.next(viewport);
+    this.emitViewportResized();
   }
 
   setViewportSize(rect: DOMRect) {

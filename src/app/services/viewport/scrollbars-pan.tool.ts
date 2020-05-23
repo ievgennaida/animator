@@ -28,7 +28,7 @@ export class ScrollbarsPanTool extends BaseTool {
 
     const wheel = event.args as WheelEvent;
     const speed = -event.deltaY * consts.wheelPanSpeed;
-    const pan = this.viewService.getPan();
+    const pan = this.panTool.getPan();
     if (speed === 0) {
       return;
     }
@@ -107,7 +107,7 @@ export class ScrollbarsPanTool extends BaseTool {
 
     // TODO: This data should be cached until the browser resize:
     const parentPos = this.viewService.getContainerClientRect();
-    const pan = this.viewService.getPan();
+    const pan = this.panTool.getPan();
 
     const relativePos = {
       width: viewPortRect.width,

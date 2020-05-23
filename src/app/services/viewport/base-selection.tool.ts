@@ -42,7 +42,7 @@ export class BaseSelectionTool extends BaseTool {
     if (bounds) {
       const zoom = this.viewService.getZoom();
       this.autoPanSpeed =
-        consts.autoPanSpeed * zoom * Math.abs(bounds.a.x - bounds.b.x);
+        consts.autoPanSpeed * zoom * Math.abs(bounds.width);
     }
     this.click = true;
     this.selectionStarted(e);
@@ -107,7 +107,7 @@ export class BaseSelectionTool extends BaseTool {
       return;
     }
 
-    const pan = this.viewService.getPan();
+    const pan = this.panTool.getPan();
     let done = false;
     // TODO: determine auto pan automatically.
     const panByMouseSpeed = this.autoPanSpeed;
