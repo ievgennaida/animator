@@ -1,6 +1,6 @@
 <div class="main">
     <div class="scroll-and-controls-container">
-        <app-player-toolbar [style.height.px]="scrollbarSize"></app-player-toolbar>
+        <app-player-toolbar [style.height.px]="scrollbarsSize"></app-player-toolbar>
         <div (scroll)="onScroll()" #scrollContainer class="scroll-container">
             <div #scrollContent class="scroll-content"></div>
         </div>
@@ -37,7 +37,7 @@
         <canvas #rulerV class="canvas-ruler-v" *ngIf="rulerVisible"></canvas>
         <app-player-adorners></app-player-adorners>
     </div>
-    <button [style.height.px]="scrollbarSize" [style.width.px]="scrollbarSize" mat-button #resetButton
+    <button [style.height.px]="scrollbarsSize" [style.width.px]="scrollbarsSize" mat-button #resetButton
         class="reset-button" (click)="fitViewport()">
         <mat-icon>aspect_ratio</mat-icon>
     </button>

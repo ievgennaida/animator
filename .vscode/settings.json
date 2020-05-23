@@ -12,10 +12,12 @@
         "downlevel",
         "esnext",
         "jasminewd",
+        "noselect",
         "recalc",
         "renderable",
         "timedata",
         "tslib",
-        "visibilitychange"
+        "visibilitychange",
+        "workarea"
     ]
 }

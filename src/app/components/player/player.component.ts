@@ -85,21 +85,21 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
   workAreaSize = this.viewService.viewportSizeSubject.getValue();
   shadowAreaSize = this.workAreaSize;
-  scrollbarSize = 17;
+  scrollbarsSize = 17;
 
   calcRealScrollBarSize() {
     const scrollBars = this.scrollBarsRef.nativeElement;
     const offsetElement = this.svgContainer.nativeElement;
-    // add the real scrollbar offset size as style.
+    // add the real scrollbars offset size as style.
 
     const scrollBarWidth = scrollBars.offsetWidth - scrollBars.clientWidth;
-    // Change in a case of the non-standart scrollbar width.
+    // Change in a case of the non-standard scrollbars width.
     if (scrollBarWidth !== this.defaultBrowserScrollSize) {
-      this.scrollbarSize = scrollBarWidth;
+      this.scrollbarsSize = scrollBarWidth;
       const sizeStr = scrollBarWidth + "px";
-      const sizeWithoutScrollbar = `calc(100% - ${sizeStr})`;
-      offsetElement.style.width = sizeWithoutScrollbar;
-      offsetElement.style.height = sizeWithoutScrollbar;
+      const sizeWithoutScrollbars = `calc(100% - ${sizeStr})`;
+      offsetElement.style.width = sizeWithoutScrollbars;
+      offsetElement.style.height = sizeWithoutScrollbars;
     }
   }
 
