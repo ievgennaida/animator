@@ -174,6 +174,9 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Drag menu bounds, resize panel.
+   */
   dragFinished(event: MouseEvent) {
     if (this.dragStartedArgs) {
       this.dragStartedArgs = null;
