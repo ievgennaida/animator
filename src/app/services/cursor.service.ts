@@ -61,13 +61,21 @@ export class CursorService {
       return CursorType.Default;
     }
     const deg = Utils.angle(point, adornersData.center) + 180;
-    if (deg >= 0 && deg <= 90) {
+    if ((deg >= 0 && deg <= 20) || (deg >= 340 && deg <= 360)) {
+      return CursorType.RotateRC;
+    } else if (deg >= 20 && deg <= 60) {
       return CursorType.RotateTR;
-    } else if (deg >= 90 && deg <= 180) {
+    } else if (deg >= 60 && deg <= 120) {
+      return CursorType.RotateTC;
+    } else if (deg >= 120 && deg <= 160) {
       return CursorType.RotateTL;
-    } else if (deg >= 180 && deg <= 270) {
+    } else if (deg >= 160 && deg <= 200) {
+      return CursorType.RotateLC;
+    } else if (deg >= 200 && deg <= 240) {
       return CursorType.RotateBL;
-    } else if (deg >= 270 && deg <= 360) {
+    } else if (deg >= 240 && deg <= 300) {
+      return CursorType.RotateBC;
+    } else if (deg >= 300 && deg <= 340) {
       return CursorType.RotateBR;
     }
   }

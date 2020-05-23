@@ -38,4 +38,8 @@ export enum CursorType {
     RotateBR = "url('/assets/images/rotate_br.png') 0 0, pointer",
     RotateTL = "url('/assets/images/rotate_tl.png') 0 0, pointer",
     RotateTR = "url('/assets/images/rotate_tr.png') 0 0, pointer",
+    RotateBC = "url('/assets/images/rotate_bc.png') 0 0, pointer",
+    RotateLC = "url('/assets/images/rotate_lc.png') 0 0, pointer",
+    RotateTC = "url('/assets/images/rotate_tc.png') 0 0, pointer",
+    RotateRC = "url('/assets/images/rotate_rc.png') 0 0, pointer",
   }

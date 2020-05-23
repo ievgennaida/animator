@@ -40,14 +40,7 @@ export class AdornerData implements IBBox {
     return this.points.get(p);
   }
   allowToRotateAdorners(key: AdornerType): boolean {
-    return (
-      key !== AdornerType.TopCenter &&
-      key !== AdornerType.BottomCenter &&
-      key !== AdornerType.LeftCenter &&
-      key !== AdornerType.RightCenter &&
-      key !== AdornerType.Center &&
-      key !== AdornerType.CenterTransform
-    );
+    return key !== AdornerType.Center && key !== AdornerType.CenterTransform;
   }
   intersectAdorner(
     adorner: AdornerData,
