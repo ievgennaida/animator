@@ -158,10 +158,12 @@ export class RectTransform extends MatrixTransform {
   }
 
   setSizeX(val: number) {
+    val = Utils.roundTwo(val);
     this.setAttribute(this.sizePropertyX, val);
   }
 
   setSizeY(val: number) {
+    val = Utils.roundTwo(val);
     this.setAttribute(this.sizePropertyY, val);
   }
 
@@ -172,11 +174,13 @@ export class RectTransform extends MatrixTransform {
 
   setY(val: number) {
     val = Utils.roundTwo(val);
-    this.setAttribute(this.transformPropertyY, val.toString());
+    this.setAttribute(this.transformPropertyY, val);
   }
 
-  setAttribute(prop: string, val: number | string) {
-    this.element.setAttribute(prop, val.toString());
+  setAttribute(prop: string, val: number) {
+    if (val >= 0) {
+      this.element.setAttribute(prop, val.toString());
+    }
   }
 
   translate(point: DOMPoint) {
