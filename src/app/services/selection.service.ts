@@ -38,8 +38,7 @@ export class SelectionService {
     this.selectedAdorner = value;
   }
   isAdornerHandleSelected(value: AdornerType) {
-    // tslint:disable-next-line: no-bitwise
-    return (this.selectedAdorner & value) === value;
+    return Utils.bitwiseEquals(this.selectedAdorner, value);
   }
   getSelected(): TreeNode[] {
     const selector = this.selectedSubject.getValue();

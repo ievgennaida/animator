@@ -92,14 +92,18 @@ export class SelectionTool extends BaseSelectionTool {
         const transformation = this.transformFactory.getTransformForElement(
           p.getElement()
         );
+        const screenPoint = event.getDOMPoint();
         if (handle) {
           if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
-            transformation.beginMouseRotateTransaction(event.getDOMPoint());
+            transformation.beginMouseRotateTransaction(screenPoint);
           } else {
-            transformation.beginMouseRotateTransaction(event.getDOMPoint());
+            transformation.beginHandleTransformation(
+              handle,
+              screenPoint
+            );
           }
         } else {
-          transformation.beginMouseTransaction(event.getDOMPoint());
+          transformation.beginMouseTransaction(screenPoint);
         }
         return transformation;
       });
@@ -187,7 +191,6 @@ export class SelectionTool extends BaseSelectionTool {
           this.mouseOverService.leaveHandle();
         } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
           this.mouseOverService.setMouseOverHandle(handle);
-          this.boundsRenderer.invalidate();
         }
 
         this.updateHandleCursor(handle, event.screenPoint);

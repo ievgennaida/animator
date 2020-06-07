@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
 import { HandleData } from "../models/handle-data";
+import { AdornerType } from "./viewport/adorners/adorner-type";
+import { Utils } from './utils/utils';
 
 @Injectable({
   providedIn: "root",
@@ -9,13 +11,15 @@ import { HandleData } from "../models/handle-data";
 export class MouseOverService {
   mouseOverSubject = new BehaviorSubject<TreeNode>(null);
   handleOverSubject = new BehaviorSubject<HandleData>(null);
-  setMouseOverHandle(data: HandleData) {
+  setMouseOverHandle(data: HandleData): boolean {
     if (data !== this.mouseOverHandle) {
       this.handleOverSubject.next(data);
+      return true;
     }
+    return false;
   }
-  leaveHandle() {
-    this.setMouseOverHandle(null);
+  leaveHandle(): boolean {
+    return this.setMouseOverHandle(null);
   }
   get mouseOverHandle(): HandleData {
     return this.handleOverSubject.getValue();
@@ -25,11 +29,18 @@ export class MouseOverService {
     if (!currentHandle || !data) {
       return false;
     }
+
     return (
       currentHandle.node === data.node &&
-      // tslint:disable-next-line: no-bitwise
-      (currentHandle.handles & data.handles) === data.handles
+      Utils.bitwiseEquals(currentHandle.handles, data.handles)
     );
+  }
+  isMouseOverAdornerHandle(data: AdornerType): boolean {
+    const currentHandle = this.handleOverSubject.getValue();
+    if (!currentHandle || !data) {
+      return false;
+    }
+    return Utils.bitwiseEquals(currentHandle.handles, data);
   }
 
   getValue(): TreeNode {

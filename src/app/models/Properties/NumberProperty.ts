@@ -4,6 +4,7 @@ import { PropertyDataType } from "./PropertyDataType";
 import { Keyframe } from "../keyframes/Keyframe";
 import { LottieModel } from "../Lottie/LottieModel";
 import { TreeNode } from "src/app/models/tree-node";
+import { Utils } from 'src/app/services/utils/utils';
 
 export class NumberProperty extends Property {
   constructor(node: TreeNode, key, name, data, description) {
@@ -28,7 +29,7 @@ export class NumberProperty extends Property {
 
     if ((this.value || this.value === 0) && this.value) {
       // two digits after coma.
-      this.value = Math.round(this.value * 100) / 100;
+      this.value = Utils.roundTwo(this.value);
     }
   }
 

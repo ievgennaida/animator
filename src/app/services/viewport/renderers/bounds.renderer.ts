@@ -29,7 +29,8 @@ export class BoundsRenderer extends BaseRenderer {
   getAdornerStroke(adornerType: AdornerType): string {
     if (
       this.selectionService.isAdornerHandleSelected(adornerType) ||
-      false // this.mouseOverService.isMouseOverHandle(adornerType)
+      // TODO: check adorner type.
+      this.mouseOverService.isMouseOverAdornerHandle(adornerType)
     ) {
       return consts.handleSelectedFillColor;
     }

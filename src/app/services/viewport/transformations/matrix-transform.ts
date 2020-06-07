@@ -2,17 +2,20 @@ import { DecomposedMatrix } from "./decompose-matrix";
 import { Utils } from "../../utils/utils";
 import { TransformsService } from "./transforms.service";
 import { AdornerType } from "../adorners/adorner-type";
+import { HandleData } from "src/app/models/handle-data";
 export enum TransformationMode {
   Skew,
   Translate,
+  Handle,
   Rotate,
 }
 export class MatrixTransform {
-  offset: DOMPoint = null;
+  start: DOMPoint = null;
+  initBBox: DOMRect = null;
   startOffset = 0;
   vertical = true;
   mode: TransformationMode = TransformationMode.Translate;
-
+  handle: HandleData;
   /**
    *
    */
@@ -21,12 +24,15 @@ export class MatrixTransform {
     protected transformsService: TransformsService
   ) {}
 
-  handle: AdornerType = AdornerType.None;
-  beginHandleTransformation(handle: AdornerType) {
+  beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
+    const startPoint = Utils.toElementPoint(this.element, screenPos);
+    this.start = new DOMPoint(startPoint.x, startPoint.y);
     this.handle = handle;
+    this.mode = TransformationMode.Handle;
   }
-  beginMouseTransaction(pos: DOMPoint) {
-    this.offset = Utils.toElementPoint(this.element, pos);
+  beginMouseTransaction(screenPos: DOMPoint) {
+    const startPoint = Utils.toElementPoint(this.element, screenPos);
+    this.start = new DOMPoint(startPoint.x, startPoint.y);
     this.mode = TransformationMode.Translate;
   }
 
@@ -34,13 +40,19 @@ export class MatrixTransform {
     this.mode = TransformationMode.Skew;
     this.vertical = vertical;
     const centerBox = Utils.getCenterTransform(this.element);
-    this.offset = pos;
+    this.start = new DOMPoint(centerBox.x, centerBox.y);
     const transformedCenter = centerBox.matrixTransform(
       this.element.getScreenCTM()
     );
     this.startOffset = vertical
       ? transformedCenter.x - pos.x
       : transformedCenter.y - pos.y;
+  }
+  getSizeX(): number {
+    return this.element.getBBox().width;
+  }
+  getSizeY(): number {
+    return this.element.getBBox().height;
   }
 
   beginMouseRotateTransaction(pos: DOMPoint) {
@@ -90,14 +102,23 @@ export class MatrixTransform {
       this.skewByMouse(screenPos);
     } else if (this.mode === TransformationMode.Translate) {
       this.moveByMouse(screenPos);
+    } else if (this.mode === TransformationMode.Handle) {
+      this.transformHandle(screenPos);
     }
   }
-
+  transformHandle(screenPos: DOMPoint) {
+    const elementPoint = Utils.toElementPoint(this.element, screenPos);
+    if (this.start) {
+      elementPoint.x -= this.start.x;
+      elementPoint.y -= this.start.y;
+    }
+    this.translate(elementPoint);
+  }
   moveByMouse(screenPos: DOMPoint) {
     const elementPoint = Utils.toElementPoint(this.element, screenPos);
-    if (this.offset) {
-      elementPoint.x -= this.offset.x;
-      elementPoint.y -= this.offset.y;
+    if (this.start) {
+      elementPoint.x -= this.start.x;
+      elementPoint.y -= this.start.y;
     }
     this.translate(elementPoint);
   }
@@ -174,8 +195,8 @@ export class MatrixTransform {
 
   skewByMouse(pos: DOMPoint) {
     const transformedCenter = new DOMPoint(
-      this.vertical ? pos.x + this.startOffset : this.offset.x,
-      this.vertical ? this.offset.y : pos.y + this.startOffset
+      this.vertical ? pos.x + this.startOffset : this.start.x,
+      this.vertical ? this.start.y : pos.y + this.startOffset
     );
 
     let deg = -Utils.angle(transformedCenter, pos);
@@ -183,7 +204,7 @@ export class MatrixTransform {
       deg = -deg - 90;
     }
 
-    this.offset = pos;
+    this.start = new DOMPoint(pos.x, pos.y);
     this.skewOffset(deg, this.vertical);
   }
 

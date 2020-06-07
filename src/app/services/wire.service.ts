@@ -74,6 +74,9 @@ export class WireService {
       }
       mouseOverRenderer.invalidate();
     });
+    mouseOverService.handleOverSubject.subscribe((p) => {
+      boundsRenderer.invalidate();
+    });
   }
   cleanCache() {
     this.outlineService

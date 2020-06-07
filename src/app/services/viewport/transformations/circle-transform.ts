@@ -5,4 +5,6 @@ export class CircleTransform extends RectTransform {
     transformPropertyX = 'cx';
     // override
     transformPropertyY = 'cy';
+    sizePropertyX = "rx";
+    sizePropertyY = "ry";
 }

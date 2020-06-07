@@ -5,6 +5,7 @@ import { consts } from "src/environments/consts";
 import { BaseRenderer } from "./base.renderer";
 import { BehaviorSubject } from "rxjs";
 import { TimelineUtils } from "animation-timeline-js";
+import { Utils } from '../../utils/utils';
 
 @Injectable({
   providedIn: "root",
@@ -301,7 +302,7 @@ export class GridLinesRenderer extends BaseRenderer {
 
   format(ms: number): string {
     // round two after coma:
-    ms = Math.round(ms * 100) / 100;
+    ms = Utils.roundTwo(ms);
     let postfix = "";
     if (Math.abs(ms) >= 1000) {
       ms = ms / 1000;

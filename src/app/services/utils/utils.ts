@@ -2,6 +2,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { PathData } from "../../models/path/path-data";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { IBBox } from "../../models/interfaces/bbox";
+import { AdornerType } from '../viewport/adorners/adorner-type';
 
 export class Utils {
   static getVector(
@@ -183,7 +184,10 @@ export class Utils {
     transform.setMatrix(matrix);
     element.transform.baseVal.initialize(transform);
   }
-
+  public static bitwiseEquals(a: AdornerType, b: AdornerType) {
+    // tslint:disable-next-line: no-bitwise
+    return (a & b) === b;
+  }
   public static getCTM(element: SVGElement | any): DOMMatrix {
     if (!element) {
       return null;
