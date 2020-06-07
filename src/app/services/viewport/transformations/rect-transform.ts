@@ -17,7 +17,12 @@ export class RectTransform extends MatrixTransform {
   }
   beginHandleTransformation(handle: HandleData, pos: DOMPoint) {
     super.beginHandleTransformation(handle, pos);
-    this.initBBox = new DOMRect(this.getX(), this.getY(), this.getSizeX(), this.getSizeY());
+    this.initBBox = new DOMRect(
+      this.getX(),
+      this.getY(),
+      this.getSizeX(),
+      this.getSizeY()
+    );
   }
   beginMouseTransaction(mousePos: DOMPoint) {
     this.consolidate(this.element);
@@ -110,61 +115,64 @@ export class RectTransform extends MatrixTransform {
     return this.getProp(this.sizePropertyY);
   }
   getProp(prop: string) {
-    return this.element[prop].baseVal.value;
+    const propAttribute = this.element[prop];
+    return propAttribute.baseVal.value;
   }
+
   transformHandle(screenPos: DOMPoint) {
-    const elementPoint = Utils.toElementPoint(this.element, screenPos);
+    const offset = Utils.toElementPoint(this.element, screenPos);
     if (this.start) {
-      elementPoint.x -= this.start.x;
-      elementPoint.y -= this.start.y;
+      offset.x -= this.start.x;
+      offset.y -= this.start.y;
     }
 
     const handle = this.handle.handles;
     if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
-      this.setSizeX(this.initBBox.width + elementPoint.x);
-      this.setSizeY(this.initBBox.height + elementPoint.y);
+      this.setSizeX(this.initBBox.width + offset.x);
+      this.setSizeY(this.initBBox.height + offset.y);
     } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
-      const newH = this.initBBox.height + elementPoint.y;
-      this.setSizeY(newH);
+      this.setSizeY(this.initBBox.height + offset.y);
     } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
-      this.setSizeX(this.initBBox.width + elementPoint.x);
+      this.setSizeX(this.initBBox.width + offset.x);
     } else if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
-      this.setY(this.initBBox.y + elementPoint.y);
-      this.setX(this.initBBox.x + elementPoint.x);
-      this.setSizeX(this.initBBox.width - elementPoint.x);
-      this.setSizeY(this.initBBox.height - elementPoint.y);
+      this.setY(this.initBBox.y + offset.y);
+      this.setX(this.initBBox.x + offset.x);
+      this.setSizeX(this.initBBox.width - offset.x);
+      this.setSizeY(this.initBBox.height - offset.y);
     } else if (Utils.bitwiseEquals(handle, AdornerType.TopCenter)) {
-      this.setY(this.initBBox.y + elementPoint.y);
-      this.setSizeY(this.initBBox.height - elementPoint.y);
+      this.setY(this.initBBox.y + offset.y);
+      this.setSizeY(this.initBBox.height - offset.y);
     } else if (Utils.bitwiseEquals(handle, AdornerType.TopRight)) {
-      this.setY(this.initBBox.y + elementPoint.y);
-      this.setSizeY(this.initBBox.height - elementPoint.y);
-      this.setSizeX(this.initBBox.width + elementPoint.x);
-    }else if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
-      this.setX(this.initBBox.x + elementPoint.x);
-      this.setSizeX(this.initBBox.width - elementPoint.x);
-    }else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
-      this.setX(this.initBBox.x + elementPoint.x);
-      this.setSizeX(this.initBBox.width - elementPoint.x);
-      this.setSizeY(this.initBBox.height + elementPoint.y);
+      this.setY(this.initBBox.y + offset.y);
+      this.setSizeY(this.initBBox.height - offset.y);
+      this.setSizeX(this.initBBox.width + offset.x);
+    } else if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
+      this.setX(this.initBBox.x + offset.x);
+      this.setSizeX(this.initBBox.width - offset.x);
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
+      this.setX(this.initBBox.x + offset.x);
+      this.setSizeX(this.initBBox.width - offset.x);
+      this.setSizeY(this.initBBox.height + offset.y);
     }
     this.transformsService.emitTransformed(this.element);
   }
 
   setSizeX(val: number) {
-    this.setAttribute(this.sizePropertyX, Utils.roundTwo(val));
+    this.setAttribute(this.sizePropertyX, val);
   }
 
   setSizeY(val: number) {
-    this.setAttribute(this.sizePropertyY, Utils.roundTwo(val));
+    this.setAttribute(this.sizePropertyY, val);
   }
 
   setX(val: number) {
-    this.setAttribute(this.transformPropertyX, Utils.roundTwo(val).toString());
+    val = Utils.roundTwo(val);
+    this.setAttribute(this.transformPropertyX, val);
   }
 
   setY(val: number) {
-    this.setAttribute(this.transformPropertyY, Utils.roundTwo(val).toString());
+    val = Utils.roundTwo(val);
+    this.setAttribute(this.transformPropertyY, val.toString());
   }
 
   setAttribute(prop: string, val: number | string) {

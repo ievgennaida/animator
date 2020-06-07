@@ -1,10 +1,10 @@
-import { RectTransform } from './rect-transform';
+import { EllipseTransform } from './ellipse-transform';
 
-export class CircleTransform extends RectTransform {
+export class CircleTransform extends EllipseTransform {
     // override
     transformPropertyX = 'cx';
     // override
     transformPropertyY = 'cy';
-    sizePropertyX = "rx";
-    sizePropertyY = "ry";
+    sizePropertyX = "r";
+    sizePropertyY = "r";
 }
