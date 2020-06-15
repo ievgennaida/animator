@@ -2,7 +2,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { PathData } from "../../models/path/path-data";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { IBBox } from "../../models/interfaces/bbox";
-import { AdornerType } from '../viewport/adorners/adorner-type';
+import { AdornerType } from "../viewport/adorners/adorner-type";
 
 export class Utils {
   static getVector(
@@ -159,8 +159,13 @@ export class Utils {
     if (!ctm) {
       return null;
     }
-    const current = screenPoint.matrixTransform(ctm.inverse());
-    return current;
+    try {
+      const current = screenPoint.matrixTransform(ctm.inverse());
+      return current;
+    } catch (err) {
+      console.log("Cannot inverse matrix:" + err);
+      return null;
+    }
   }
 
   static matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect {

@@ -97,10 +97,7 @@ export class SelectionTool extends BaseSelectionTool {
           if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
             transformation.beginMouseRotateTransaction(screenPoint);
           } else {
-            transformation.beginHandleTransformation(
-              handle,
-              screenPoint
-            );
+            transformation.beginHandleTransformation(handle, screenPoint);
           }
         } else {
           transformation.beginMouseTransaction(screenPoint);
@@ -233,6 +230,9 @@ export class SelectionTool extends BaseSelectionTool {
     const toReturn = selectedItems.find((node) => {
       const adorner = node.getElementAdorner();
       const elPoint = Utils.toElementPoint(node, screenPoint);
+      if (!elPoint) {
+        return false;
+      }
       const screenPointSize = Utils.getLength(
         Utils.toElementPoint(
           node,
