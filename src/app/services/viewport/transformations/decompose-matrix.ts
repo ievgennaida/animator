@@ -4,13 +4,14 @@
  */
 export class DecomposedMatrix {
   rotateZ = 0;
-  scaleX = 0;
-  scaleY = 0;
+  scaleX = 1;
+  scaleY = 1;
   skewX = 0;
   skewY = 0;
   translateX = 0;
   translateY = 0;
   matrix: DOMMatrix;
+
   /**
    * https://www.w3.org/TR/css-transforms-1/
    * @param m matrix to be decomposed.
@@ -34,10 +35,10 @@ export class DecomposedMatrix {
         scaleY = -scaleY;
       }
 
-    // Compute rotation and renormalize matrix.
+    // Compute rotation and re-normalize matrix.
     let angle = Math.atan2(row0y, row0x);
 
-    // Renormalize matrix to remove scale.
+    // Re-normalize matrix to remove scale.
     if (scaleX) {
       row0x *= 1 / scaleX;
       row0y *= 1 / scaleX;
@@ -77,5 +78,18 @@ export class DecomposedMatrix {
     decomposedMatrix.scaleY = scaleY;
     decomposedMatrix.matrix = new DOMMatrix([row0x, row0y, row1x, row1y, 0, 0]);
     return decomposedMatrix;
+  }
+  add(data: DecomposedMatrix): DecomposedMatrix {
+    if (!data) {
+      return this;
+    }
+    this.rotateZ += data.rotateZ;
+    this.scaleX *= data.scaleX;
+    this.scaleY *= data.scaleY;
+    this.skewX += data.skewX;
+    this.skewY += data.skewY;
+    this.translateX += data.translateX;
+    this.translateY += data.translateY;
+    return this;
   }
 }

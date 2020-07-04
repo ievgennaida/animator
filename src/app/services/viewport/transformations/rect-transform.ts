@@ -1,4 +1,4 @@
-import { MatrixTransform } from "./matrix-transform";
+import { MatrixTransform, TransformationMode } from "./matrix-transform";
 import { TransformsService } from "./transforms.service";
 import { Utils } from "../../utils/utils";
 import { AdornerType } from "../adorners/adorner-type";
@@ -15,14 +15,16 @@ export class RectTransform extends MatrixTransform {
   ) {
     super(element, transformsService);
   }
-  beginHandleTransformation(handle: HandleData, pos: DOMPoint) {
-    super.beginHandleTransformation(handle, pos);
+  beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
+    this.start = Utils.toElementPoint(this.element, screenPos);
+    this.handle = handle;
     this.initBBox = new DOMRect(
       this.getX(),
       this.getY(),
       this.getSizeX(),
       this.getSizeY()
     );
+    this.mode = TransformationMode.Handle;
   }
   beginMouseTransaction(mousePos: DOMPoint) {
     this.consolidate(this.element);
@@ -159,12 +161,16 @@ export class RectTransform extends MatrixTransform {
 
   setSizeX(val: number) {
     val = Utils.roundTwo(val);
-    this.setAttribute(this.sizePropertyX, val);
+    if (val >= 0) {
+      this.setAttribute(this.sizePropertyX, val);
+    }
   }
 
   setSizeY(val: number) {
     val = Utils.roundTwo(val);
-    this.setAttribute(this.sizePropertyY, val);
+    if (val >= 0) {
+      this.setAttribute(this.sizePropertyY, val);
+    }
   }
 
   setX(val: number) {
@@ -178,9 +184,7 @@ export class RectTransform extends MatrixTransform {
   }
 
   setAttribute(prop: string, val: number) {
-    if (val >= 0) {
-      this.element.setAttribute(prop, val.toString());
-    }
+    this.element.setAttribute(prop, val.toString());
   }
 
   translate(point: DOMPoint) {

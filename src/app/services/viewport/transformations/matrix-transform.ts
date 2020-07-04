@@ -3,6 +3,8 @@ import { Utils } from "../../utils/utils";
 import { TransformsService } from "./transforms.service";
 import { AdornerType } from "../adorners/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
+import { DecomposeTransform } from "./decompose-transform";
+import { point } from "src/app/models/Lottie/effects/point";
 export enum TransformationMode {
   Skew,
   Translate,
@@ -25,14 +27,15 @@ export class MatrixTransform {
   ) {}
 
   beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
-    const startPoint = Utils.toElementPoint(this.element, screenPos);
-    this.start = new DOMPoint(startPoint.x, startPoint.y);
+    this.start = Utils.toElementPoint(this.element, screenPos);
     this.handle = handle;
     this.mode = TransformationMode.Handle;
+    this.initBBox = this.element.getBBox();
   }
+
   beginMouseTransaction(screenPos: DOMPoint) {
     const startPoint = Utils.toElementPoint(this.element, screenPos);
-    this.start = new DOMPoint(startPoint.x, startPoint.y);
+    this.start = startPoint;
     this.mode = TransformationMode.Translate;
   }
 
@@ -40,10 +43,8 @@ export class MatrixTransform {
     this.mode = TransformationMode.Skew;
     this.vertical = vertical;
     const centerBox = Utils.getCenterTransform(this.element);
-    this.start = new DOMPoint(centerBox.x, centerBox.y);
-    const transformedCenter = centerBox.matrixTransform(
-      this.element.getScreenCTM()
-    );
+    this.start = centerBox;
+    const transformedCenter = Utils.toScreenPoint(this.element, centerBox);
     this.startOffset = vertical
       ? transformedCenter.x - pos.x
       : transformedCenter.y - pos.y;
@@ -58,10 +59,10 @@ export class MatrixTransform {
   beginMouseRotateTransaction(pos: DOMPoint) {
     this.mode = TransformationMode.Rotate;
     const transformOrigin = this.getTransformOrigin();
-    const transformedCenter = transformOrigin.matrixTransform(
-      this.element.getScreenCTM()
+    const transformedCenter = Utils.toScreenPoint(
+      this.element,
+      transformOrigin
     );
-
     this.startOffset = -Utils.angle(transformedCenter, pos);
 
     const matrix = this.transformToElement(
@@ -107,31 +108,118 @@ export class MatrixTransform {
     }
   }
   transformHandle(screenPos: DOMPoint) {
-    const elementPoint = Utils.toElementPoint(this.element, screenPos);
-    if (this.start) {
-      elementPoint.x -= this.start.x;
-      elementPoint.y -= this.start.y;
-    }
-    this.translate(elementPoint);
+    this.scaleByMouse(screenPos);
   }
-  moveByMouse(screenPos: DOMPoint) {
-    const elementPoint = Utils.toElementPoint(this.element, screenPos);
-    if (this.start) {
-      elementPoint.x -= this.start.x;
-      elementPoint.y -= this.start.y;
+  scaleByMouse(screenPos: DOMPoint) {
+    const newElementPos = Utils.toElementPoint(this.element, screenPos);
+    const offset = newElementPos;
+    if (!offset) {
+      return;
     }
-    this.translate(elementPoint);
+
+    const bbox = this.initBBox; //this.element.getBBox();
+    const handle = this.handle.handles;
+    let newWidth = bbox.width;
+    let newHeight = bbox.height;
+    let scaleX = null;
+    let scaleY = null;
+    const x = bbox.x;
+    const y = bbox.y;
+    const transformPoint = new DOMPoint(x + bbox.width, y + bbox.height);
+    if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
+      newWidth = x + bbox.width - newElementPos.x;
+      newHeight = y + bbox.height - newElementPos.y;
+      scaleX = newWidth / bbox.width;
+      scaleY = newHeight / bbox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
+      newWidth = bbox.x + bbox.width - newElementPos.x;
+      scaleX = newWidth / bbox.width;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.TopCenter)) {
+      newHeight = bbox.y + bbox.height - newElementPos.y;
+      scaleY = newHeight / bbox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.TopRight)) {
+      transformPoint.x = bbox.x;
+      newWidth = newElementPos.x - bbox.x;
+      scaleX = newWidth / bbox.width;
+      newHeight = y + bbox.height - newElementPos.y;
+      scaleY = newHeight / bbox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
+      transformPoint.x = x;
+      transformPoint.y = y;
+      newWidth = newElementPos.x - bbox.x;
+      scaleX = newWidth / bbox.width;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
+      transformPoint.x = x;
+      transformPoint.y = y;
+      newWidth = newElementPos.x - bbox.x;
+      newHeight = newElementPos.y - bbox.y;
+      scaleX = newWidth / bbox.width;
+      scaleY = newHeight / bbox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
+      transformPoint.x = x;
+      transformPoint.y = y;
+      newHeight = newElementPos.y - bbox.y;
+      scaleY = newHeight / bbox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
+      transformPoint.y = y;
+      newWidth = x + bbox.width - newElementPos.x;
+      scaleX = newWidth / bbox.width;
+      newHeight = newElementPos.y - bbox.y;
+      scaleY = newHeight / bbox.height;
+    }
+
+    this.scaleOffset(scaleX, scaleY, transformPoint);
   }
 
-  translate(point: DOMPoint) {
+  moveByMouse(screenPos: DOMPoint) {
+    const offset = Utils.toElementPoint(this.element, screenPos);
+    if (!offset) {
+      return;
+    }
+    if (this.start) {
+      offset.x -= this.start.x;
+      offset.y -= this.start.y;
+    }
+    this.translate(offset);
+  }
+
+  translate(screenPoint: DOMPoint) {
+    // console.log("move:" + point.x + "x" + point.y);
+    const transformList = this.element.transform;
+    if (transformList.baseVal.numberOfItems === 0) {
+      const svgTransform = this.element.ownerSVGElement.createSVGTransform();
+      svgTransform.setTranslate(screenPoint.x, screenPoint.y);
+      transformList.baseVal.appendItem(svgTransform);
+      this.transformsService.emitTransformed(this.element);
+      return;
+    } else if (transformList.baseVal.numberOfItems === 1) {
+      const svgTransform = transformList.baseVal[0];
+      if (svgTransform.type === svgTransform.SVG_TRANSFORM_TRANSLATE) {
+        const decompose = DecomposeTransform.decomposeTransformList(
+          transformList.baseVal
+        );
+        if (decompose && decompose.translateX && decompose.translateY) {
+          svgTransform.setTranslate(
+            decompose.translateX + screenPoint.x,
+            decompose.translateY + screenPoint.y
+          );
+        } else {
+          svgTransform.setTranslate(screenPoint.x, screenPoint.y);
+        }
+        this.transformsService.emitTransformed(this.element);
+        return;
+      }
+    }
+
     const transform =
       this.element.transform.baseVal.consolidate() ||
       this.element.ownerSVGElement.createSVGTransform();
 
-    const matrix = transform.matrix.translate(point.x, point.y);
+    const matrix = transform.matrix.translate(screenPoint.x, screenPoint.y);
     transform.setMatrix(matrix);
 
     this.element.transform.baseVal.initialize(transform);
+
     this.transformsService.emitTransformed(this.element);
   }
 
@@ -147,28 +235,114 @@ export class MatrixTransform {
   rotateByMouse(currentViewPoint: DOMPoint) {
     const transformPoint = this.getTransformOrigin();
 
-    const screenTransformOrigin = transformPoint.matrixTransform(
-      this.element.getScreenCTM()
+    const screenTransformOrigin = Utils.toScreenPoint(
+      this.element,
+      transformPoint
     );
-
     let angle = -Utils.angle(screenTransformOrigin, currentViewPoint);
 
     angle -= this.startOffset;
+
     this.rotate(angle, transformPoint);
+  }
+  scaleOffset(offsetX: number, offsetY: number, transformPoint: DOMPoint) {
+    const transformList = this.element.transform;
+    /*
+    if (transformList.baseVal.numberOfItems === 0) {
+      transformList.baseVal.appendItem(svgTransform);
+      this.transformsService.emitTransformed(this.element);
+      return;
+    } else if (transformList.baseVal.numberOfItems === 1) {
+      const svgTransform = transformList.baseVal[0];
+      if (svgTransform.type === svgTransform.SVG_TRANSFORM_SCALE) {
+        const decomposed = this.decomposeMatrix(svgTransform.matrix);
+
+        const offsetX = scale.x / decomposed.scaleX;
+        const offsetY = scale.y / decomposed.scaleY;
+        svgTransform.setScale(
+          offsetX,
+          offsetY
+        );
+        this.transformsService.emitTransformed(this.element);
+        return;
+      }
+    }*/
+
+    const transform =
+      this.element.transform.baseVal.consolidate() ||
+      this.element.ownerSVGElement.createSVGTransform();
+    transformPoint = transformPoint.matrixTransform(transform.matrix);
+
+    const svgTransform = this.element.ownerSVGElement.createSVGTransform();
+    offsetY = offsetY === null ? 1 : offsetY;
+    offsetX = offsetX === null ? 1 : offsetX;
+    svgTransform.setScale(offsetX, offsetY);
+
+    const matrix = this.element.ownerSVGElement
+      .createSVGMatrix()
+      .translate(transformPoint.x, transformPoint.y)
+      // multiply is used instead of the scale while proportional scale is applied for a scale (?)
+      .multiply(svgTransform.matrix)
+      .translate(-transformPoint.x, -transformPoint.y)
+      .multiply(transform.matrix);
+
+    transform.setMatrix(matrix);
+    this.element.transform.baseVal.initialize(transform);
+    // TODO: use generic monitoring for the elements
+    this.transformsService.emitTransformed(this.element);
+  }
+
+  /**
+   * Set direct scale value.
+   */
+  scale(scaleX: number, scaleY: number, transformPoint: DOMPoint) {
+    const transformList = this.element.transform;
+    const transform =
+      this.element.transform.baseVal.consolidate() ||
+      this.element.ownerSVGElement.createSVGTransform();
+    transformPoint = transformPoint.matrixTransform(transform.matrix);
+    const decomposed = this.decomposeMatrix(transform.matrix);
+    if (
+      decomposed.rotateZ === -180 &&
+      (decomposed.scaleX !== 1 || decomposed.scaleY !== 1)
+    ) {
+      decomposed.rotateZ = 0;
+      decomposed.scaleX = -decomposed.scaleX;
+      decomposed.scaleY = -decomposed.scaleY;
+    }
+
+    const offsetX = scaleX ? scaleX / decomposed.scaleX : 1;
+    const offsetY = scaleY ? scaleY / decomposed.scaleY : 1;
+
+    const svgTransform = this.element.ownerSVGElement.createSVGTransform();
+    svgTransform.setScale(offsetX, offsetY);
+
+    const matrix = this.element.ownerSVGElement
+      .createSVGMatrix()
+      .translate(transformPoint.x, transformPoint.y)
+      // multiply is used instead of the scale while proportional scale is applied for a scale (?)
+      .multiply(svgTransform.matrix)
+      .translate(-transformPoint.x, -transformPoint.y)
+      .multiply(transform.matrix);
+
+    transform.setMatrix(matrix);
+    this.element.transform.baseVal.initialize(transform);
+    // TODO: use generic monitoring for the elements
+    this.transformsService.emitTransformed(this.element);
   }
 
   rotate(angle: number, transformPoint: DOMPoint) {
     const transformList = this.element.transform;
     if (transformList.baseVal.numberOfItems === 0) {
-      const rotation = this.element.ownerSVGElement.createSVGTransform();
-      rotation.setRotate(angle, transformPoint.x, transformPoint.y);
-      transformList.baseVal.appendItem(rotation);
+      const svgTransform = this.element.ownerSVGElement.createSVGTransform();
+      svgTransform.setRotate(angle, transformPoint.x, transformPoint.y);
+      transformList.baseVal.appendItem(svgTransform);
       this.transformsService.emitTransformed(this.element);
       return;
     } else if (transformList.baseVal.numberOfItems === 1) {
-      const rotation = transformList.baseVal[0];
-      if (rotation.type === rotation.SVG_TRANSFORM_ROTATE) {
-        rotation.setRotate(angle, transformPoint.x, transformPoint.y);
+      const svgTransform = transformList.baseVal[0];
+      if (svgTransform.type === svgTransform.SVG_TRANSFORM_ROTATE) {
+        svgTransform.setRotate(angle, transformPoint.x, transformPoint.y);
         this.transformsService.emitTransformed(this.element);
         return;
       }
@@ -177,6 +351,7 @@ export class MatrixTransform {
     const transform =
       this.element.transform.baseVal.consolidate() ||
       this.element.ownerSVGElement.createSVGTransform();
+
     transformPoint = transformPoint.matrixTransform(transform.matrix);
     const currentAngle = this.decomposeMatrix(transform.matrix).rotateZ;
 
@@ -184,27 +359,28 @@ export class MatrixTransform {
     const matrix = this.element.ownerSVGElement
       .createSVGMatrix()
       .translate(transformPoint.x, transformPoint.y)
-      .rotate(offset, 0, 0)
+      .rotate(offset, 0)
       .translate(-transformPoint.x, -transformPoint.y)
       .multiply(transform.matrix);
 
     transform.setMatrix(matrix);
     this.element.transform.baseVal.initialize(transform);
+    // TODO: use generic monitoring for the elements
     this.transformsService.emitTransformed(this.element);
   }
 
-  skewByMouse(pos: DOMPoint) {
+  skewByMouse(screenPos: DOMPoint) {
     const transformedCenter = new DOMPoint(
-      this.vertical ? pos.x + this.startOffset : this.start.x,
-      this.vertical ? this.start.y : pos.y + this.startOffset
+      this.vertical ? screenPos.x + this.startOffset : this.start.x,
+      this.vertical ? this.start.y : screenPos.y + this.startOffset
     );
 
-    let deg = -Utils.angle(transformedCenter, pos);
+    let deg = -Utils.angle(transformedCenter, screenPos);
     if (!this.vertical) {
       deg = -deg - 90;
     }
 
-    this.start = new DOMPoint(pos.x, pos.y);
+    this.start = new DOMPoint(screenPos.x, screenPos.y);
     this.skewOffset(deg, this.vertical);
   }
 
