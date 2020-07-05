@@ -110,63 +110,54 @@ export class MatrixTransform {
     this.scaleByMouse(screenPos);
   }
   scaleByMouse(screenPos: DOMPoint) {
-    const newElementPos = Utils.toElementPoint(this.element, screenPos);
-    const offset = newElementPos;
+    const offset = Utils.toElementPoint(this.element, screenPos);
     if (!offset) {
       return;
     }
-
-    const bbox = this.initBBox; //this.element.getBBox();
-    const handle = this.handle.handles;
-    let newWidth = bbox.width;
-    let newHeight = bbox.height;
-    let scaleX = null;
-    let scaleY = null;
-    const x = bbox.x;
-    const y = bbox.y;
-    const transformPoint = new DOMPoint(x + bbox.width, y + bbox.height);
-    if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
-      newWidth = x + bbox.width - newElementPos.x;
-      newHeight = y + bbox.height - newElementPos.y;
-      scaleX = newWidth / bbox.width;
-      scaleY = newHeight / bbox.height;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
-      newWidth = bbox.x + bbox.width - newElementPos.x;
-      scaleX = newWidth / bbox.width;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.TopCenter)) {
-      newHeight = bbox.y + bbox.height - newElementPos.y;
-      scaleY = newHeight / bbox.height;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.TopRight)) {
-      transformPoint.x = bbox.x;
-      newWidth = newElementPos.x - bbox.x;
-      scaleX = newWidth / bbox.width;
-      newHeight = y + bbox.height - newElementPos.y;
-      scaleY = newHeight / bbox.height;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
-      transformPoint.x = x;
-      transformPoint.y = y;
-      newWidth = newElementPos.x - bbox.x;
-      scaleX = newWidth / bbox.width;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
-      transformPoint.x = x;
-      transformPoint.y = y;
-      newWidth = newElementPos.x - bbox.x;
-      newHeight = newElementPos.y - bbox.y;
-      scaleX = newWidth / bbox.width;
-      scaleY = newHeight / bbox.height;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
-      transformPoint.x = x;
-      transformPoint.y = y;
-      newHeight = newElementPos.y - bbox.y;
-      scaleY = newHeight / bbox.height;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
-      transformPoint.y = y;
-      newWidth = x + bbox.width - newElementPos.x;
-      scaleX = newWidth / bbox.width;
-      newHeight = newElementPos.y - bbox.y;
-      scaleY = newHeight / bbox.height;
+    if (this.start) {
+      offset.x -= this.start.x;
+      offset.y -= this.start.y;
     }
 
+    const handle = this.handle.handles;
+    let scaleX = null;
+    let scaleY = null;
+    const transformPoint = new DOMPoint(
+      this.initBBox.x + this.initBBox.width,
+      this.initBBox.y + this.initBBox.height
+    );
+
+    if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
+      transformPoint.y = this.initBBox.y + this.initBBox.height / 2;
+      scaleX = (this.initBBox.width - offset.x) / this.initBBox.width;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
+      scaleX = (this.initBBox.width - offset.x) / this.initBBox.width;
+      scaleY = (this.initBBox.height - offset.y) / this.initBBox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.TopCenter)) {
+      transformPoint.x = this.initBBox.x + this.initBBox.width / 2;
+      scaleY = (this.initBBox.height - offset.y) / this.initBBox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.TopRight)) {
+      transformPoint.x = this.initBBox.x;
+      scaleX = (this.initBBox.width + offset.x) / this.initBBox.width;
+      scaleY = (this.initBBox.height - offset.y) / this.initBBox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
+      transformPoint.x = this.initBBox.x;
+      transformPoint.y = this.initBBox.y + this.initBBox.height / 2;
+      scaleX = (this.initBBox.width + offset.x) / this.initBBox.width;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
+      transformPoint.x = this.initBBox.x;
+      transformPoint.y = this.initBBox.y;
+      scaleX = (this.initBBox.width + offset.x) / this.initBBox.width;
+      scaleY = (this.initBBox.height + offset.y) / this.initBBox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
+      transformPoint.x = this.initBBox.x + this.initBBox.width / 2;
+      transformPoint.y = this.initBBox.y;
+      scaleY = (this.initBBox.height + offset.y) / this.initBBox.height;
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
+      transformPoint.y = this.initBBox.y;
+      scaleX = (this.initBBox.width - offset.x) / this.initBBox.width;
+      scaleY = (this.initBBox.height + offset.y) / this.initBBox.height;
+    }
     this.scaleOffset(scaleX, scaleY, transformPoint);
   }
 
@@ -182,12 +173,12 @@ export class MatrixTransform {
     this.translate(offset);
   }
 
-  translate(screenPoint: DOMPoint) {
+  translate(pos: DOMPoint) {
     // console.log("move:" + point.x + "x" + point.y);
     const transformList = this.element.transform;
     if (transformList.baseVal.numberOfItems === 0) {
       const svgTransform = this.element.ownerSVGElement.createSVGTransform();
-      svgTransform.setTranslate(screenPoint.x, screenPoint.y);
+      svgTransform.setTranslate(pos.x, pos.y);
       transformList.baseVal.appendItem(svgTransform);
       this.transformsService.emitTransformed(this.element);
       return;
@@ -199,11 +190,11 @@ export class MatrixTransform {
         );
         if (decompose && decompose.translateX && decompose.translateY) {
           svgTransform.setTranslate(
-            decompose.translateX + screenPoint.x,
-            decompose.translateY + screenPoint.y
+            decompose.translateX + pos.x,
+            decompose.translateY + pos.y
           );
         } else {
-          svgTransform.setTranslate(screenPoint.x, screenPoint.y);
+          svgTransform.setTranslate(pos.x, pos.y);
         }
         this.transformsService.emitTransformed(this.element);
         return;
@@ -214,7 +205,7 @@ export class MatrixTransform {
       this.element.transform.baseVal.consolidate() ||
       this.element.ownerSVGElement.createSVGTransform();
 
-    const matrix = transform.matrix.translate(screenPoint.x, screenPoint.y);
+    const matrix = transform.matrix.translate(pos.x, pos.y);
     transform.setMatrix(matrix);
 
     this.element.transform.baseVal.initialize(transform);
@@ -246,22 +237,33 @@ export class MatrixTransform {
   }
   scaleOffset(offsetX: number, offsetY: number, transformPoint: DOMPoint) {
     const transformList = this.element.transform;
-    /*
-    if (transformList.baseVal.numberOfItems === 0) {
-      transformList.baseVal.appendItem(svgTransform);
+    offsetY = offsetY === null ? 1 : offsetY;
+    offsetX = offsetX === null ? 1 : offsetX;
+    if (offsetX > Number.MAX_VALUE) {
+      offsetX = Number.MAX_VALUE;
+    }
+    if (offsetY > Number.MAX_VALUE) {
+      offsetY = Number.MAX_VALUE;
+    }
+    /* if (transformList.baseVal.numberOfItems === 0) {
+      const newScaleTransform = this.element.ownerSVGElement.createSVGTransform();
+      newScaleTransform.setScale(offsetX, offsetY);
+      transformList.baseVal.appendItem(newScaleTransform);
       this.transformsService.emitTransformed(this.element);
       return;
     } else if (transformList.baseVal.numberOfItems === 1) {
-      const svgTransform = transformList.baseVal[0];
-      if (svgTransform.type === svgTransform.SVG_TRANSFORM_SCALE) {
-        const decomposed = this.decomposeMatrix(svgTransform.matrix);
-
-        const offsetX = scale.x / decomposed.scaleX;
-        const offsetY = scale.y / decomposed.scaleY;
-        svgTransform.setScale(
-          offsetX,
-          offsetY
-        );
+      const existingScale = transformList.baseVal[0];
+      if (existingScale.type === existingScale.SVG_TRANSFORM_SCALE) {
+        const svgTransform = this.element.ownerSVGElement.createSVGTransform();
+        svgTransform.setScale(offsetX, offsetY);
+        const matrix = this.element.ownerSVGElement
+          .createSVGMatrix()
+          .translate(transformPoint.x, transformPoint.y)
+          // multiply is used instead of the scale while proportional scale is applied for a scale (?)
+          .multiply(svgTransform.matrix)
+          .translate(-transformPoint.x, -transformPoint.y)
+          .multiply(existingScale.matrix);
+        // Get current x and y.
         this.transformsService.emitTransformed(this.element);
         return;
       }
@@ -270,20 +272,17 @@ export class MatrixTransform {
     const transform =
       this.element.transform.baseVal.consolidate() ||
       this.element.ownerSVGElement.createSVGTransform();
-    transformPoint = transformPoint.matrixTransform(transform.matrix);
 
     const svgTransform = this.element.ownerSVGElement.createSVGTransform();
-    offsetY = offsetY === null ? 1 : offsetY;
-    offsetX = offsetX === null ? 1 : offsetX;
     svgTransform.setScale(offsetX, offsetY);
 
     const matrix = this.element.ownerSVGElement
       .createSVGMatrix()
+      .multiply(transform.matrix)
       .translate(transformPoint.x, transformPoint.y)
       // multiply is used instead of the scale while proportional scale is applied for a scale (?)
       .multiply(svgTransform.matrix)
-      .translate(-transformPoint.x, -transformPoint.y)
-      .multiply(transform.matrix);
+      .translate(-transformPoint.x, -transformPoint.y);
 
     transform.setMatrix(matrix);
     this.element.transform.baseVal.initialize(transform);

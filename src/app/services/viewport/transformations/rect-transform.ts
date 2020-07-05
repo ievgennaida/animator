@@ -129,16 +129,12 @@ export class RectTransform extends MatrixTransform {
     }
 
     const handle = this.handle.handles;
-    if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
-      this.setSizeX(this.initBBox.width + offset.x);
-      this.setSizeY(this.initBBox.height + offset.y);
-    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
-      this.setSizeY(this.initBBox.height + offset.y);
-    } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
-      this.setSizeX(this.initBBox.width + offset.x);
-    } else if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
-      this.setY(this.initBBox.y + offset.y);
+    if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
       this.setX(this.initBBox.x + offset.x);
+      this.setSizeX(this.initBBox.width - offset.x);
+    } else if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
+      this.setX(this.initBBox.x + offset.x);
+      this.setY(this.initBBox.y + offset.y);
       this.setSizeX(this.initBBox.width - offset.x);
       this.setSizeY(this.initBBox.height - offset.y);
     } else if (Utils.bitwiseEquals(handle, AdornerType.TopCenter)) {
@@ -148,9 +144,13 @@ export class RectTransform extends MatrixTransform {
       this.setY(this.initBBox.y + offset.y);
       this.setSizeY(this.initBBox.height - offset.y);
       this.setSizeX(this.initBBox.width + offset.x);
-    } else if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
-      this.setX(this.initBBox.x + offset.x);
-      this.setSizeX(this.initBBox.width - offset.x);
+    } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
+      this.setSizeX(this.initBBox.width + offset.x);
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
+      this.setSizeX(this.initBBox.width + offset.x);
+      this.setSizeY(this.initBBox.height + offset.y);
+    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
+      this.setSizeY(this.initBBox.height + offset.y);
     } else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
       this.setX(this.initBBox.x + offset.x);
       this.setSizeX(this.initBBox.width - offset.x);
