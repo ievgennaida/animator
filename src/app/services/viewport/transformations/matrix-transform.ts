@@ -331,7 +331,7 @@ export class MatrixTransform {
 
   rotate(angle: number, transformPoint: DOMPoint) {
     const transformList = this.element.transform;
-    if (transformList.baseVal.numberOfItems === 0) {
+    /*if (transformList.baseVal.numberOfItems === 0) {
       const svgTransform = this.element.ownerSVGElement.createSVGTransform();
       svgTransform.setRotate(angle, transformPoint.x, transformPoint.y);
       transformList.baseVal.appendItem(svgTransform);
@@ -344,7 +344,7 @@ export class MatrixTransform {
         this.transformsService.emitTransformed(this.element);
         return;
       }
-    }
+    }*/
 
     const transform =
       this.element.transform.baseVal.consolidate() ||
