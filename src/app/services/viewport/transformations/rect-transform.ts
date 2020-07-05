@@ -16,7 +16,8 @@ export class RectTransform extends MatrixTransform {
     super(element, transformsService);
   }
   beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
-    this.start = Utils.toElementPoint(this.element, screenPos);
+    const element = this.getElement();
+    this.start = Utils.toElementPoint(element, screenPos);
     this.handle = handle;
     this.initBBox = new DOMRect(
       this.getX(),
@@ -27,7 +28,8 @@ export class RectTransform extends MatrixTransform {
     this.mode = TransformationMode.Handle;
   }
   beginMouseTransaction(mousePos: DOMPoint) {
-    this.consolidate(this.element);
+    const element = this.getElement();
+    this.consolidate(element);
     super.beginMouseTransaction(mousePos);
     this.start.x -= this.getX();
     this.start.y -= this.getY();
@@ -84,21 +86,19 @@ export class RectTransform extends MatrixTransform {
     }
 
     if (offsetX) {
-      const toSet =
-        this.element[this.transformPropertyX].baseVal.value + offsetX;
+      const toSet = element[this.transformPropertyX].baseVal.value + offsetX;
       this.setX(toSet);
       changed = true;
     }
 
     if (offsetY) {
-      const toSet =
-        this.element[this.transformPropertyY].baseVal.value + offsetY;
+      const toSet = element[this.transformPropertyY].baseVal.value + offsetY;
       this.setY(toSet);
       changed = true;
     }
 
     if (changed) {
-      this.transformsService.emitTransformed(this.element);
+      this.transformsService.emitTransformed(element);
     }
   }
   /**
@@ -117,12 +117,25 @@ export class RectTransform extends MatrixTransform {
     return this.getProp(this.sizePropertyY);
   }
   getProp(prop: string) {
-    const propAttribute = this.element[prop];
-    return propAttribute.baseVal.value;
+    const element = this.getElement();
+    const propAttribute = element[prop];
+    if (!propAttribute) {
+      return null;
+    }
+    const val = propAttribute.baseVal;
+    if (!val) {
+      return null;
+    }
+    if (val.numberOfItems > 0) {
+      return val[0].value;
+    } else {
+      return val.value;
+    }
   }
 
   transformHandle(screenPos: DOMPoint) {
-    const offset = Utils.toElementPoint(this.element, screenPos);
+    const element = this.getElement();
+    const offset = Utils.toElementPoint(element, screenPos);
     if (this.start) {
       offset.x -= this.start.x;
       offset.y -= this.start.y;
@@ -156,7 +169,7 @@ export class RectTransform extends MatrixTransform {
       this.setSizeX(this.initBBox.width - offset.x);
       this.setSizeY(this.initBBox.height + offset.y);
     }
-    this.transformsService.emitTransformed(this.element);
+    this.transformsService.emitTransformed(element);
   }
 
   setSizeX(val: number) {
@@ -184,12 +197,14 @@ export class RectTransform extends MatrixTransform {
   }
 
   setAttribute(prop: string, val: number) {
-    this.element.setAttribute(prop, val.toString());
+    const element = this.getElement();
+    element.setAttribute(prop, val.toString());
   }
 
   translate(point: DOMPoint) {
+    const element = this.getElement();
     this.setX(point.x);
     this.setY(point.y);
-    this.transformsService.emitTransformed(this.element);
+    this.transformsService.emitTransformed(element);
   }
 }

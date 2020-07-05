@@ -240,7 +240,9 @@ export class BoundsRenderer extends BaseRenderer {
               // draw when resized.
               // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
               // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-              this.drawAdornersHandles(ctx, adornerData);
+              if (node.allowResize) {
+                this.drawAdornersHandles(ctx, adornerData);
+              }
               this.drawCross(ctx, adornerData.centerTransform);
             }
           }

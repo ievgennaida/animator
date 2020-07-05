@@ -4,6 +4,8 @@ import { CircleTransform } from "./circle-transform";
 import { MatrixTransform } from "./matrix-transform";
 import { Subject } from "rxjs";
 import { EllipseTransform } from "./ellipse-transform";
+import { TextTransform } from "./text-transform";
+import { PathTransform } from "./path-transform";
 
 /**
  * Each element can be transformed in a different way: x,y, cx,cy and etc.
@@ -27,8 +29,16 @@ export class TransformsService {
       return null;
     }
 
-    if (element.nodeName === "rect" || element.nodeName === "text") {
+    if (element.nodeName === "rect") {
       return new RectTransform(element, this);
+    } else if (
+      element.nodeName === "text" ||
+      element.nodeName === "textPath" ||
+      element.nodeName === "tspan"
+    ) {
+      return new TextTransform(element, this);
+    } else if (element.nodeName === "path") {
+      return new PathTransform(element, this);
     } else if (element.nodeName === "circle") {
       return new CircleTransform(element, this);
     } else if (element.nodeName === "ellipse") {

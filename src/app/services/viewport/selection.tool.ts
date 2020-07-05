@@ -92,12 +92,17 @@ export class SelectionTool extends BaseSelectionTool {
         const transformation = this.transformFactory.getTransformForElement(
           p.getElement()
         );
+
         const screenPoint = event.getDOMPoint();
         if (handle) {
           if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
-            transformation.beginMouseRotateTransaction(screenPoint);
+            if (p.allowRotate) {
+              transformation.beginMouseRotateTransaction(screenPoint);
+            }
           } else {
-            transformation.beginHandleTransformation(handle, screenPoint);
+            if (p.allowResize) {
+              transformation.beginHandleTransformation(handle, screenPoint);
+            }
           }
         } else {
           transformation.beginMouseTransaction(screenPoint);
@@ -228,6 +233,9 @@ export class SelectionTool extends BaseSelectionTool {
     let results: HandleData = null;
     // TODO: general selection adorner.
     const toReturn = selectedItems.find((node) => {
+      if (!node.allowResize) {
+        return false;
+      }
       const adorner = node.getElementAdorner();
       const elPoint = Utils.toElementPoint(node, screenPoint);
       if (!elPoint) {

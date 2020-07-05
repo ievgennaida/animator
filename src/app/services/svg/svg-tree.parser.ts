@@ -80,6 +80,14 @@ export class SvgTreeParser {
         currentNode.icon = "timeline";
       } else if (tagName === "polygon") {
         currentNode.icon = "star_border";
+      } else if (tagName === "tspan") {
+        currentNode.icon = "text_fields";
+        currentNode.allowRotate = false;
+        currentNode.allowResize = false;
+      } else if (tagName === "text") {
+        currentNode.icon = "text_fields";
+      } else if (tagName === "textpath") {
+        currentNode.icon = "text_fields";
       }
 
       this.addChildNodes(currentNode, currentNode.children, el);

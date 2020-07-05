@@ -34,6 +34,9 @@ export class TreeNode implements ICTMProvider, IBBox {
   layer?: baseLayer;
   level: number;
   transformable = true;
+  allowTranslate = true;
+  allowRotate = true;
+  allowResize = true;
   // TODO: create cache controller for this.
   cache: any;
   cacheIndex: number;
