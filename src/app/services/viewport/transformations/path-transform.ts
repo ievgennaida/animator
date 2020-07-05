@@ -1,4 +1,4 @@
-import { RectTransform } from './rect-transform';
+import { MatrixTransform } from './matrix-transform';
 
-export class PathTransform extends RectTransform {
+export class PathTransform extends MatrixTransform {
 }
