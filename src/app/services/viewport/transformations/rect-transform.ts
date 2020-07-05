@@ -142,32 +142,81 @@ export class RectTransform extends MatrixTransform {
     }
 
     const handle = this.handle.handles;
+    let w = null;
+    let h = null;
+    let x = null;
+    let y = null;
+
     if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
-      this.setX(this.initBBox.x + offset.x);
-      this.setSizeX(this.initBBox.width - offset.x);
+      w = this.initBBox.width - offset.x;
+      if (w < 0) {
+        offset.x += w;
+        w = 0;
+      }
+      x = this.initBBox.x + offset.x;
     } else if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
-      this.setX(this.initBBox.x + offset.x);
-      this.setY(this.initBBox.y + offset.y);
-      this.setSizeX(this.initBBox.width - offset.x);
-      this.setSizeY(this.initBBox.height - offset.y);
+      w = this.initBBox.width - offset.x;
+      if (w < 0) {
+        offset.x += w;
+        w = 0;
+      }
+      h = this.initBBox.height - offset.y;
+      if (h < 0) {
+        offset.y += h;
+        h = 0;
+      }
+      x = this.initBBox.x + offset.x;
+      y = this.initBBox.y + offset.y;
     } else if (Utils.bitwiseEquals(handle, AdornerType.TopCenter)) {
-      this.setY(this.initBBox.y + offset.y);
-      this.setSizeY(this.initBBox.height - offset.y);
+      h = this.initBBox.height - offset.y;
+      if (h < 0) {
+        offset.y += h;
+        h = 0;
+      }
+      y = this.initBBox.y + offset.y;
     } else if (Utils.bitwiseEquals(handle, AdornerType.TopRight)) {
-      this.setY(this.initBBox.y + offset.y);
-      this.setSizeY(this.initBBox.height - offset.y);
-      this.setSizeX(this.initBBox.width + offset.x);
+      h = this.initBBox.height - offset.y;
+      if (h < 0) {
+        offset.y += h;
+        h = 0;
+      }
+      y = this.initBBox.y + offset.y;
+      w = this.initBBox.width + offset.x;
     } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
-      this.setSizeX(this.initBBox.width + offset.x);
+      w = this.initBBox.width + offset.x;
     } else if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
-      this.setSizeX(this.initBBox.width + offset.x);
-      this.setSizeY(this.initBBox.height + offset.y);
+      w = this.initBBox.width + offset.x;
+      h = this.initBBox.height + offset.y;
     } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
-      this.setSizeY(this.initBBox.height + offset.y);
+      h = this.initBBox.height + offset.y;
     } else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
-      this.setX(this.initBBox.x + offset.x);
-      this.setSizeX(this.initBBox.width - offset.x);
-      this.setSizeY(this.initBBox.height + offset.y);
+      w = this.initBBox.width - offset.x;
+      if (w < 0) {
+        offset.x += w;
+        w = 0;
+      }
+      h = this.initBBox.height + offset.y;
+      x = this.initBBox.x + offset.x;
+    }
+    if (w !== null && w < 0) {
+      w = 0;
+    }
+    if (h !== null && h < 0) {
+      h = 0;
+    }
+    if (x !== null && Number.isFinite(x) && !Number.isNaN(x)) {
+      this.setX(x);
+    }
+    if (y !== null && Number.isFinite(y) && !Number.isNaN(y)) {
+      this.setY(y);
+    }
+    // TODO: revert scale
+    if (w !== null && Number.isFinite(w) && !Number.isNaN(w)) {
+      this.setSizeX(w);
+    }
+
+    if (h !== null && Number.isFinite(h) && !Number.isNaN(h)) {
+      this.setSizeY(h);
     }
     this.transformsService.emitTransformed(element);
   }
