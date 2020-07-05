@@ -4,7 +4,6 @@ import { TransformsService } from "./transforms.service";
 import { AdornerType } from "../adorners/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { DecomposeTransform } from "./decompose-transform";
-import { point } from "src/app/models/Lottie/effects/point";
 export enum TransformationMode {
   Skew,
   Translate,
