@@ -1,9 +1,7 @@
 import { Component, OnInit, Input, OnDestroy } from "@angular/core";
-import { Property } from "src/app/models/Properties/Property";
 import { NumberProperty } from "src/app/models/Properties/NumberProperty";
 import { PropertiesService } from "src/app/services/properties.service";
 import { PlayerService } from "src/app/services/player.service";
-import { Subscription } from "rxjs";
 import { TimeData } from "src/app/models/timedata";
 import { BaseComponent } from '../../base-component';
 import { takeUntil } from 'rxjs/operators';
@@ -34,7 +32,7 @@ export class NumericComponent extends BaseComponent implements OnInit {
       if (this.property) {
         this.property.setValueAtTime(value.frame);
       }
-    })
+    });
   }
 
   onValueChanged(event) {

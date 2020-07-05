@@ -33,7 +33,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     this.cdRef.detach();
   }
   // resize:
-  initialDragSize = 0
+  initialDragSize = 0;
   dragStartedArgs: MouseEvent = null;
   resizeMenuPanel = false;
   resizeCursorPrecision = 6;
