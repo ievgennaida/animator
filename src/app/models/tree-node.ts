@@ -25,6 +25,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   properties: Properties;
   children: TreeNode[];
   parent: TreeNode;
+  nodeName = "";
   tag: any;
   shape: any;
   type: any;
@@ -102,6 +103,10 @@ export class TreeNode implements ICTMProvider, IBBox {
 
     this.pathDataCache = PathData.getPathData(this.getElement());
     return this.pathDataCache;
+  }
+  public setPathData(data: PathData) {
+    this.pathDataCache = data;
+    PathData.setPathData(data, this.getElement());
   }
   /**
    * get cached bounding client rect.

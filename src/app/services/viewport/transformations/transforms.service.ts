@@ -6,6 +6,7 @@ import { Subject } from "rxjs";
 import { EllipseTransform } from "./ellipse-transform";
 import { TextTransform } from "./text-transform";
 import { PathTransform } from "./path-transform";
+import { TreeNode } from 'src/app/models/tree-node';
 
 /**
  * Each element can be transformed in a different way: x,y, cx,cy and etc.
@@ -24,26 +25,27 @@ export class TransformsService {
   emitTransformed(element: SVGElement) {
     this.transformedSubject.next(element);
   }
-  getTransformForElement(element: SVGGraphicsElement): MatrixTransform {
-    if (!element) {
+  getTransformForElement(node: TreeNode): MatrixTransform {
+    if (!node) {
       return null;
     }
 
-    if (element.nodeName === "rect") {
-      return new RectTransform(element, this);
+    const nodeName = node.nodeName;
+    if (nodeName === "rect") {
+      return new RectTransform(node, this);
     } else if (
-      element.nodeName === "text" ||
-      element.nodeName === "textPath" ||
-      element.nodeName === "tspan"
+      nodeName === "text" ||
+      nodeName === "textPath" ||
+      nodeName === "tspan"
     ) {
-      return new TextTransform(element, this);
-    } else if (element.nodeName === "path") {
-      return new PathTransform(element, this);
-    } else if (element.nodeName === "circle") {
-      return new CircleTransform(element, this);
-    } else if (element.nodeName === "ellipse") {
-      return new EllipseTransform(element, this);
+      return new TextTransform(node, this);
+    } else if (nodeName === "path") {
+      return new PathTransform(node, this);
+    } else if (nodeName === "circle") {
+      return new CircleTransform(node, this);
+    } else if (nodeName === "ellipse") {
+      return new EllipseTransform(node, this);
     }
-    return new MatrixTransform(element, this);
+    return new MatrixTransform(node, this);
   }
 }

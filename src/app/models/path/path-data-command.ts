@@ -1,42 +1,44 @@
-// Should be replaced by a DOM type when avaliable.
+// Should be replaced by a DOM type when available.
 export interface SVGPathSegmentEx {
   type: string;
   values: number[];
 }
 
 export class PathDataCommand implements SVGPathSegmentEx {
-  constructor(public type: string, public values: number[] = []) {
-    this.p = this.getPoint(type, values);
-    this.update();
-  }
+  constructor(public type: string, public values: number[] = []) {}
   public selected = false;
-  public p: DOMPoint;
 
   /**
    * absolute version of current command.
    */
   public absolute: PathDataCommand;
-  public update() {}
-  public getPoint(type: string, values: Array<number>): DOMPoint {
-    if (!values) {
+
+  public offset(x: number, y: number) {
+    if (this.values && this.values.length >= 2) {
+      this.values[this.values.length - 2] += x;
+      this.values[this.values.length - 1] += y;
+    }
+  }
+  public offsetHandles(x: number, y: number) {}
+  public set p(point: DOMPoint) {
+    this.setPointValues(point.x, point.y);
+  }
+  public get p(): DOMPoint {
+    if (!this.values) {
       return null;
     }
-    if (values.length >= 2) {
-      return new DOMPoint(values[values.length - 2], values[values.length - 1]);
-    } else if (values.length === 1) {
-      if (type === "H" || type === "h") {
-        return new DOMPoint(values[0], 0);
-      } else {
-        return new DOMPoint(0, values[0]);
-      }
+    if (this.values.length >= 2) {
+      return new DOMPoint(
+        this.values[this.values.length - 2],
+        this.values[this.values.length - 1]
+      );
     }
     return null;
   }
-
-  public setPoint(values: Array<number>, point: DOMPoint) {
-    if (values && values.length >= 2) {
-      values[values.length - 2] = point.x;
-      values[values.length - 1] = point.y;
+  public setPointValues(x: number, y: number) {
+    if (this.values && this.values.length >= 2) {
+      this.values[this.values.length - 2] = x;
+      this.values[this.values.length - 1] = y;
     }
 
     return null;
@@ -59,5 +61,30 @@ export class PathDataCommand implements SVGPathSegmentEx {
     }
     const code = this.type.charCodeAt(0);
     return code >= 65 && code <= 90;
+  }
+}
+export class OneHandleDataCommand extends PathDataCommand {
+  // tslint:disable-next-line: variable-name
+  public _a: DOMPoint;
+  public get a(): DOMPoint {
+    if (!this._a) {
+      this._a = new DOMPoint();
+    }
+    this._a.x = this.values[0];
+    this._a.y = this.values[1];
+    return this._a;
+  }
+  public set a(point: DOMPoint) {
+    this._a = point;
+    this.values[0] = point.x;
+    this.values[1] = point.y;
+  }
+
+  public offsetHandles(x: number, y: number) {
+    super.offsetHandles(x, y);
+    const a = this.a;
+    a.x += x;
+    a.y += y;
+    this.a = a;
   }
 }

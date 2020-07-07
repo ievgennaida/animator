@@ -89,9 +89,7 @@ export class SelectionTool extends BaseSelectionTool {
         .filter((value, index, self) => value && self.indexOf(value) === index);
 
       const transformations = nodesToSelect.map((p) => {
-        const transformation = this.transformFactory.getTransformForElement(
-          p.getElement()
-        );
+        const transformation = this.transformFactory.getTransformForElement(p);
 
         const screenPoint = event.getDOMPoint();
         if (handle) {

@@ -3,6 +3,7 @@ import { TransformsService } from "./transforms.service";
 import { Utils } from "../../utils/utils";
 import { AdornerType } from "../adorners/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
+import { TreeNode } from 'src/app/models/tree-node';
 
 export class RectTransform extends MatrixTransform {
   transformPropertyX = "x";
@@ -10,10 +11,10 @@ export class RectTransform extends MatrixTransform {
   sizePropertyX = "width";
   sizePropertyY = "height";
   constructor(
-    element: SVGGraphicsElement,
+    node: TreeNode,
     transformsService: TransformsService
   ) {
-    super(element, transformsService);
+    super(node, transformsService);
   }
   beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
     const element = this.getElement();

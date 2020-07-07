@@ -34,6 +34,7 @@ export class SvgTreeParser {
     const root = new TreeNode();
     root.tag = document;
     root.name = document.title;
+    root.nodeName = "root";
     root.transformable = false;
     root.icon = "assignment";
     const collection = [root];
@@ -68,7 +69,7 @@ export class SvgTreeParser {
         el.getAttribute("label") || el.id || `[${el.nodeName}]`;
       currentNode.tag = el;
       const tagName = el.tagName.toLowerCase();
-
+      currentNode.nodeName = el.nodeName;
       currentNode.type = tagName;
       if (tagName === "circle") {
         currentNode.icon = "fiber_manual_record";

@@ -4,6 +4,7 @@ import { TransformsService } from "./transforms.service";
 import { AdornerType } from "../adorners/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { DecomposeTransform } from "./decompose-transform";
+import { TreeNode } from "src/app/models/tree-node";
 export enum TransformationMode {
   None,
   Skew,
@@ -22,12 +23,16 @@ export class MatrixTransform {
    *
    */
   constructor(
-    protected element: SVGGraphicsElement,
+    protected node: TreeNode,
     protected transformsService: TransformsService
   ) {}
 
   getElement(): SVGGraphicsElement {
-    return this.element;
+    if (this.node) {
+      return this.node.getElement();
+    }
+
+    return null;
   }
   beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
     const element = this.getElement();

@@ -1,17 +1,25 @@
 import { Utils } from "../../services/utils/utils";
-import { PathDataCommand } from './path-data-command';
-import { APathDataCommand } from './apath-data-command';
-import { MPathDataCommand } from './mpath-data-command';
-import { LPathDataCommand } from './lpath-data-command';
-import { TPathDataCommand } from './tpath-data-command';
-import { CPathDataCommand } from './cpath-data-command';
-import { QPathDataCommand } from './qpath-data-command';
-import { SPathDataCommand } from './spath-data-command';
-import { HPathDataCommand } from './hpath-data-command';
-import { VPathDataCommand } from './vpath-data-command';
+import { PathDataCommand } from "./path-data-command";
+import { APathDataCommand } from "./apath-data-command";
+import { MPathDataCommand } from "./mpath-data-command";
+import { LPathDataCommand } from "./lpath-data-command";
+import { TPathDataCommand } from "./tpath-data-command";
+import { CPathDataCommand } from "./cpath-data-command";
+import { QPathDataCommand } from "./qpath-data-command";
+import { SPathDataCommand } from "./spath-data-command";
+import { HPathDataCommand } from "./hpath-data-command";
+import { VPathDataCommand } from "./vpath-data-command";
 
 export class PathData {
   constructor(public commands: PathDataCommand[] = null) {}
+  public static setPathData(
+    data: PathData,
+    element: any | SVGGraphicsElement
+  ): void {
+    if (element.setPathData) {
+      element.setPathData(data.commands);
+    }
+  }
   public static getPathData(element: any | SVGGraphicsElement): PathData {
     if (element.getPathData) {
       return PathData.wrap(element.getPathData());
@@ -84,7 +92,7 @@ export class PathData {
     let curX = 0;
     let curY = 0;
 
-    let subpath = new DOMPoint();
+    let subPath = new DOMPoint();
     let prev: PathDataCommand = null;
     data.commands.forEach((seg) => {
       const type = seg.type;
@@ -97,11 +105,12 @@ export class PathData {
         type === "Q" ||
         type === "S"
       ) {
-        curX = seg.p.x;
-        curY = seg.p.y;
+        const p = seg.p;
+        curX = p.x;
+        curY = p.y;
 
         if (isMove) {
-          subpath = seg.p;
+          subPath = p;
         }
       } else if (
         type === "m" ||
@@ -119,7 +128,7 @@ export class PathData {
         curX = point.x;
         curY = point.y;
         if (isMove) {
-          subpath = point;
+          subPath = point;
         }
       } else if (type === "a" || type === "A") {
         const absolute = type === "A";
@@ -144,7 +153,7 @@ export class PathData {
 
         const c = seg.getAbsolute() as APathDataCommand;
         const abs = prev.getAbsolute().p;
-
+        // TODO: move to the type by itself.
         c.center = Utils.ellipseCenter(
           abs.x,
           abs.y,
@@ -160,26 +169,24 @@ export class PathData {
         curY = y;
       } else if (type === "H") {
         curX = seg.values[0];
-        seg.p = new DOMPoint(curX, curY);
+        seg.setPointValues(curX, curY);
       } else if (type === "V") {
         curY = seg.values[0];
-        seg.p = new DOMPoint(curX, curY);
+        seg.setPointValues(curX, curY);
       } else if (type === "h") {
         const x = curX + seg.values[0];
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [x]);
         curX = x;
-        seg.absolute.p.x = curX;
-        seg.absolute.p.y = curY;
+        seg.absolute.setPointValues(curX, curY);
       } else if (type === "v") {
         const y = curY + seg.values[0];
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [y]);
         curY = y;
-        seg.absolute.p.x = curX;
-        seg.absolute.p.y = curY;
+        seg.absolute.setPointValues(curX, curY);
       } else if (type === "Z" || type === "z") {
         seg.absolute = PathData.wrapCommand("Z");
-        curY = subpath.y;
-        curX = subpath.x;
+        curY = subPath.y;
+        curX = subPath.x;
       }
 
       prev = seg;

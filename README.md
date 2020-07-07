@@ -9,8 +9,8 @@ Suppose to be a simple (svg) animation editor:
 CURRENT STATE: spike.
 
 Steps: 
-- editor interfaces and general views <- in progress.
-- svg wysiwyg.
+- editor interfaces and general views 
+- svg wysiwyg.<- in progress.
 - edit existing transformations with the timeline keyframes.
 - edit other properties with the timeline.
 - easing functions.

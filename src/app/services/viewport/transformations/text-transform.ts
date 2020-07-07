@@ -12,13 +12,15 @@ export class TextTransform extends RectTransform {
    * @override
    */
   getElement(): SVGGraphicsElement {
-    if (this.element && this.element.nodeName === "textPath") {
-      const textNode = this.element.parentNode;
+    const currentElement = super.getElement();
+
+    if (currentElement && currentElement.nodeName === "textPath") {
+      const textNode = currentElement.parentNode;
       if (textNode.nodeName === "text") {
         return textNode as SVGGraphicsElement;
       }
     }
-    return this.element;
+    return currentElement;
   }
   /**
    * get parent text element.

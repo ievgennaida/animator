@@ -76,10 +76,14 @@ export class PathRenderer extends BaseRenderer {
         data.commands.forEach((command, index) => {
           // const prev = index > 0 ? data.commands[index - 1] : null;
           const abs = command.getAbsolute();
-          if (!abs || !abs.p) {
+          if (!abs) {
             return;
           }
-          const point = abs.p.matrixTransform(ctm);
+          const p = abs.p;
+          if (!p) {
+            return;
+          }
+          const point = p.matrixTransform(ctm);
 
           // draw handles:
           if (abs instanceof CPathDataCommand) {
