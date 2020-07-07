@@ -24,7 +24,7 @@ export class PathTransform extends MatrixTransform {
     if (pathData && pathData.commands) {
       pathData.commands.forEach((command) => {
         if (command && command.isAbsolute()) {
-          if (offsetX && offsetY) {
+          if (offsetX || offsetY) {
             changed = true;
             command.offset(offsetX, offsetY);
             command.offsetHandles(offsetX, offsetY);

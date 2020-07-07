@@ -177,11 +177,7 @@ export class SelectionTool extends BaseSelectionTool {
         // Don't draw mouse over when transformation is started:
         this.mouseOverRenderer.clear();
       }
-      const element = this.startedNode.getElement();
-      if (element) {
-        // this.rotateByMouse(event, element);
-        this.moveByMouse(event, element);
-      }
+      this.moveByMouse(event);
     } else {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
@@ -286,12 +282,35 @@ export class SelectionTool extends BaseSelectionTool {
     return toReturn;
   }
 
-  moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {
+  /**
+   * @override
+   */
+  autoPan(mousePosition: DOMPoint, containerSize: DOMRect): boolean {
+    // override the code to auto pan when translate is operation is running.
+    const isDone = super.autoPan(mousePosition, containerSize);
+    if (this.transformations) {
+      if (this.currentArgs) {
+        this.moveByMouse(this.currentArgs, false);
+      }
+    }
+    return isDone;
+  }
+  moveByMouse(event: MouseEventArgs, allowPan = true) {
     if (this.transformations) {
       const screenPos = event.getDOMPoint();
       try {
         this.boundsRenderer.suspend();
-        this.transformations.forEach((p) => p.transformByMouse(screenPos));
+        let autoPan = false;
+        this.transformations.forEach((p) => {
+          if (p.mode === TransformationMode.Translate) {
+            autoPan = true;
+          }
+          p.transformByMouse(screenPos);
+        });
+        if (autoPan && allowPan) {
+          this.currentArgs = event;
+          this.startAutoPan();
+        }
       } finally {
         this.boundsRenderer.resume();
       }
@@ -339,6 +358,7 @@ export class SelectionTool extends BaseSelectionTool {
    */
   selectionEnded(event: MouseEventArgs) {
     if (this.transformations !== null && this.transformations.length > 0) {
+      this.stopAutoPan();
       return;
     }
     let mode = SelectionMode.Normal;

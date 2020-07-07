@@ -41,8 +41,7 @@ export class BaseSelectionTool extends BaseTool {
     const bounds = this.viewService.getDisplayedBounds();
     if (bounds) {
       const zoom = this.viewService.getZoom();
-      this.autoPanSpeed =
-        consts.autoPanSpeed * zoom * Math.abs(bounds.width);
+      this.autoPanSpeed = consts.autoPanSpeed * zoom * Math.abs(bounds.width);
     }
     this.click = true;
     this.selectionStarted(e);
@@ -101,10 +100,10 @@ export class BaseSelectionTool extends BaseTool {
     this.selectorRenderer.setRect(this.selectionRect);
   }
 
-  autoPan(mousePosition: DOMPoint, containerSize: DOMRect) {
+  autoPan(mousePosition: DOMPoint, containerSize: DOMRect): boolean {
     // Pan by scroll
     if (!mousePosition || !this.autoPanSpeed) {
-      return;
+      return false;
     }
 
     const pan = this.panTool.getPan();
