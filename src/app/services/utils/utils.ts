@@ -1,5 +1,3 @@
-import { TreeNode } from "src/app/models/tree-node";
-import { PathData } from "../../models/path/path-data";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { IBBox } from "../../models/interfaces/bbox";
 import { AdornerType } from "../viewport/adorners/adorner-type";
@@ -58,9 +56,25 @@ export class Utils {
     return xOverlap && yOverlap;
   }
 
-  static deg(rad: number): number {
-    return ((rad % 360) * Math.PI) / 180;
+  /**
+   * Convert deg to radians.
+   * @param angle in deg.
+   */
+  static rad(deg: number): number {
+    return ((deg % 360) * Math.PI) / 180;
   }
+  /**
+   * Convert radians to degrees.
+   * @param angle in rad.
+   */
+  static deg(rad: number): number {
+    return (rad * 180) / Math.PI;
+  }
+  static angle(p1: DOMPoint, p2: DOMPoint): number {
+    const rad = Math.atan2(p1.y - p2.y, p2.x - p1.x);
+    return Utils.deg(rad);
+  }
+
   /**
    * https://stackoverflow.com/a/11467200/39428
    */
@@ -75,7 +89,7 @@ export class Utils {
     x2: number,
     y2: number
   ): DOMPoint {
-    const phi = Utils.deg(rotateDeg);
+    const phi = Utils.rad(rotateDeg);
     const m = new DOMMatrix([
       Math.cos(phi),
       -Math.sin(phi),
@@ -285,10 +299,6 @@ export class Utils {
       Math.pow(a.x - (b ? b.x : 0), 2) + Math.pow(a.y - (b ? b.y : 0), 2)
     );
     return leng;
-  }
-
-  static angle(p1: DOMPoint, p2: DOMPoint): number {
-    return (Math.atan2(p1.y - p2.y, p2.x - p1.x) * 180) / Math.PI;
   }
 
   static getCenterTransform(
