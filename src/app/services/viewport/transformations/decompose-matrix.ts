@@ -27,14 +27,14 @@ export class DecomposedMatrix {
 
     // If determinant is negative, one axis was flipped.
     const determinant = row0x * row1y - row0y * row1x;
-    if (determinant < 0)
+    if (determinant < 0) {
       if (row0x < row1y) {
         // Flip axis with minimum unit vector dot product.
         scaleX = -scaleX;
       } else {
         scaleY = -scaleY;
       }
-
+    }
     // Compute rotation and re-normalize matrix.
     let angle = Math.atan2(row0y, row0x);
 
