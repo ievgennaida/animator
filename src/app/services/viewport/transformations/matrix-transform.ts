@@ -257,7 +257,6 @@ export class MatrixTransform {
   }
   scaleOffset(offsetX: number, offsetY: number, transformPoint: DOMPoint) {
     const element = this.getElement();
-    const transformList = element.transform;
     offsetY = offsetY === null ? 1 : offsetY;
     offsetX = offsetX === null ? 1 : offsetX;
     if (!Number.isFinite(offsetX)) {
@@ -272,7 +271,9 @@ export class MatrixTransform {
     if (offsetY > Number.MAX_VALUE) {
       offsetY = Number.MAX_VALUE;
     }
-    /* if (transformList.baseVal.numberOfItems === 0) {
+    /* 
+    const transformList = element.transform;
+    if (transformList.baseVal.numberOfItems === 0) {
       const newScaleTransform = element.ownerSVGElement.createSVGTransform();
       newScaleTransform.setScale(offsetX, offsetY);
       transformList.baseVal.appendItem(newScaleTransform);
