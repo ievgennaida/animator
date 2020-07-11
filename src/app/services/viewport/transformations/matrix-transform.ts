@@ -357,6 +357,11 @@ export class MatrixTransform {
     this.transformsService.emitTransformed(element);
   }
 
+  /**
+   * Set direct angle value.
+   * @param angle rotation angle.
+   * @param transformPoint transform center.
+   */
   rotate(angle: number, transformPoint: DOMPoint) {
     const element = this.getElement();
     const transformList = element.transform;
