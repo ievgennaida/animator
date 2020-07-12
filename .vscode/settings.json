@@ -19,6 +19,8 @@
         "lpath",
         "mpath",
         "noselect",
+        "polyb",
+        "polybézier",
         "qpath",
         "recalc",
         "renderable",
@@ -28,6 +30,7 @@
         "tslib",
         "visibilitychange",
         "vpath",
-        "workarea"
+        "workarea",
+        "zier"
     ]
 }
