@@ -7,10 +7,7 @@ import { MouseEventArgs } from "../../../models/mouse-event-args";
 import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from "../../utils/utils";
 import { consts } from "src/environments/consts";
-import { CPathDataCommand } from "src/app/models/path/cpath-data-command";
-import { SPathDataCommand } from "src/app/models/path/spath-data-command";
-import { QPathDataCommand } from "src/app/models/path/qpath-data-command";
-import { APathDataCommand } from "src/app/models/path/apath-data-command";
+import { PathType } from "src/app/models/path/path-type";
 
 @Injectable({
   providedIn: "root",
@@ -86,8 +83,11 @@ export class PathRenderer extends BaseRenderer {
           const point = p.matrixTransform(ctm);
 
           // draw handles:
-          if (abs instanceof CPathDataCommand) {
-            const c = abs as CPathDataCommand;
+          if (
+            abs.type === PathType.cubicBezier ||
+            abs.type === PathType.cubicBezierAbs
+          ) {
+            const c = abs;
 
             const a = c.a.matrixTransform(ctm);
             const b = c.b.matrixTransform(ctm);
@@ -123,8 +123,11 @@ export class PathRenderer extends BaseRenderer {
               point,
               b
             );
-          } else if (abs instanceof SPathDataCommand) {
-            const c = abs as SPathDataCommand;
+          } else if (
+            abs.type === PathType.shorthandSmooth ||
+            abs.type === PathType.shorthandSmoothAbs
+          ) {
+            const c = abs;
             const a = c.a.matrixTransform(ctm);
             this.drawHandle(
               node,
@@ -141,8 +144,11 @@ export class PathRenderer extends BaseRenderer {
               point,
               a
             );
-          } else if (abs instanceof QPathDataCommand) {
-            const c = abs as QPathDataCommand;
+          } else if (
+            abs.type === PathType.quadraticBezier ||
+            abs.type === PathType.quadraticBezierAbs
+          ) {
+            const c = abs;
             const a = c.a.matrixTransform(ctm);
             this.drawHandle(
               node,
@@ -159,8 +165,11 @@ export class PathRenderer extends BaseRenderer {
               point,
               a
             );
-          } else if (abs instanceof APathDataCommand) {
-            const c = abs as APathDataCommand;
+          } else if (
+            abs.type === PathType.arc ||
+            abs.type === PathType.arcAbs
+          ) {
+            const c = abs;
             const m = this.screenCTM.multiply(node.getScreenCTM());
             this.ctx.lineWidth = 1;
             this.ctx.strokeStyle = consts.pathHandleLineStroke;

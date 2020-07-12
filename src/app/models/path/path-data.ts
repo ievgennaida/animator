@@ -1,14 +1,6 @@
 import { Utils } from "../../services/utils/utils";
 import { PathDataCommand } from "./path-data-command";
-import { APathDataCommand } from "./apath-data-command";
-import { MPathDataCommand } from "./mpath-data-command";
-import { LPathDataCommand } from "./lpath-data-command";
-import { TPathDataCommand } from "./tpath-data-command";
-import { CPathDataCommand } from "./cpath-data-command";
-import { QPathDataCommand } from "./qpath-data-command";
-import { SPathDataCommand } from "./spath-data-command";
-import { HPathDataCommand } from "./hpath-data-command";
-import { VPathDataCommand } from "./vpath-data-command";
+import { PathType } from "./path-type";
 
 export class PathData {
   constructor(public commands: PathDataCommand[] = null) {}
@@ -41,27 +33,14 @@ export class PathData {
     if (!type) {
       return null;
     }
-    if (type === "A" || type === "a") {
-      return new APathDataCommand(type, values);
-    } else if (type === "M" || type === "m") {
-      return new MPathDataCommand(type, values);
-    } else if (type === "L" || type === "l") {
-      return new LPathDataCommand(type, values);
-    } else if (type === "T" || type === "t") {
-      return new TPathDataCommand(type, values);
-    } else if (type === "C" || type === "c") {
-      return new CPathDataCommand(type, values);
-    } else if (type === "Q" || type === "q") {
-      return new QPathDataCommand(type, values);
-    } else if (type === "S" || type === "s") {
-      return new SPathDataCommand(type, values);
-    } else if (type === "H" || type === "h") {
-      return new HPathDataCommand(type, values);
-    } else if (type === "V" || type === "v") {
-      return new VPathDataCommand(type, values);
-    } else {
-      return new PathDataCommand(type, values);
-    }
+    return new PathDataCommand(type, values);
+  }
+
+  public static convertCommand(
+    command: PathDataCommand,
+    destinationType: string
+  ) {
+    command.type = destinationType;
   }
 
   /**
@@ -139,8 +118,8 @@ export class PathData {
         if (isMove) {
           subPath = point;
         }
-      } else if (type === "a" || type === "A") {
-        const absolute = type === "A";
+      } else if (type === PathType.arc || type === PathType.arcAbs) {
+        const absolute = type === PathType.arcAbs;
         let x = seg.x;
         let y = seg.y;
         if (!absolute) {
@@ -158,31 +137,30 @@ export class PathData {
             x,
             y,
           ];
-          seg.absolute = PathData.wrapCommand("A", cloned) as APathDataCommand;
+          seg.absolute = PathData.wrapCommand(PathType.arcAbs, cloned);
           seg.absolute.prev = seg.prev;
           seg.absolute.next = seg.next;
         }
 
         curX = x;
         curY = y;
-      } else if (type === "H") {
+      } else if (type === PathType.horizontalAbs) {
         curX = seg.x;
         seg.setPointValues(curX, curY);
-      } else if (type === "V") {
+      } else if (type === PathType.verticalAbs) {
         curY = seg.y;
         seg.setPointValues(curX, curY);
-      } else if (type === "h") {
+      } else if (type === PathType.horizontal) {
         const x = curX + seg.x;
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [x]);
         curX = x;
         seg.absolute.setPointValues(curX, curY);
-      } else if (type === "v") {
+      } else if (type === PathType.vertical) {
         const y = curY + seg.y;
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [y]);
         curY = y;
         seg.absolute.setPointValues(curX, curY);
-      } else if (type === "Z" || type === "z") {
-        seg.absolute = PathData.wrapCommand("Z");
+      } else if (type === PathType.close || type === PathType.closeAbs) {
         curY = subPath.y;
         curX = subPath.x;
       }
