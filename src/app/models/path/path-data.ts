@@ -40,6 +40,19 @@ export class PathData {
     command: PathDataCommand,
     destinationType: string
   ) {
+    if (
+      command.type === PathType.horizontal ||
+      command.type === PathType.horizontalAbs
+    ) {
+      command.values[1] = command.y;
+    } else if (
+      command.type === PathType.vertical ||
+      command.type === PathType.verticalAbs
+    ) {
+      const y = command.y;
+      command.values[0] = command.x;
+      command.values[1] = y;
+    }
     command.type = destinationType;
   }
 
