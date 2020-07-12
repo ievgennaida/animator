@@ -10,16 +10,13 @@ export class VPathDataCommand extends PathDataCommand {
   public set y(val: number) {
     this.values[0] = val;
   }
-  public offset(x: number, y: number, offsetHandles = true) {
-    this.values[0] += y;
+
+  // tslint:disable-next-line: variable-name
+  private _x = 0;
+  public get x(): number {
+    return this._x;
   }
-  public get p(): DOMPoint {
-    return new DOMPoint(this.values[0], 0);
-  }
-  public set p(point: DOMPoint) {
-    this.setPointValues(point.x, point.y);
-  }
-  public setPointValues(x: number, y: number) {
-    this.values[0] = y;
+  public set x(val: number) {
+    this._x = val;
   }
 }

@@ -73,13 +73,22 @@ export class PathData {
       return null;
     }
 
+    let prev: PathDataCommand = null;
     const data =
       pathData instanceof PathData
         ? (pathData as PathData)
         : new PathData(
             pathData
               .filter((p) => !!p)
-              .map((p) => PathData.wrapCommand(p.type, p.values))
+              .map((p) => {
+                const command = PathData.wrapCommand(p.type, p.values);
+                if (prev) {
+                  prev.next = command;
+                }
+                command.prev = prev;
+                prev = command;
+                return command;
+              })
           );
 
     if (!data || !data.commands) {
@@ -93,7 +102,7 @@ export class PathData {
     let curY = 0;
 
     let subPath = new DOMPoint();
-    let prev: PathDataCommand = null;
+    prev = null;
     data.commands.forEach((seg) => {
       const type = seg.type;
       const isMove = type === "m" || type === "M";
@@ -132,54 +141,43 @@ export class PathData {
         }
       } else if (type === "a" || type === "A") {
         const absolute = type === "A";
-        let x = seg.values[seg.values.length - 2];
-        let y = seg.values[seg.values.length - 1];
+        let x = seg.x;
+        let y = seg.y;
         if (!absolute) {
           x += curX;
           y += curY;
         }
-        const cloned = [
-          seg.values[0],
-          seg.values[1],
-          seg.values[2],
-          seg.values[3],
-          seg.values[4],
-          x,
-          y,
-        ];
+
         if (!absolute) {
+          const cloned = [
+            seg.values[0],
+            seg.values[1],
+            seg.values[2],
+            seg.values[3],
+            seg.values[4],
+            x,
+            y,
+          ];
           seg.absolute = PathData.wrapCommand("A", cloned) as APathDataCommand;
+          seg.absolute.prev = seg.prev;
+          seg.absolute.next = seg.next;
         }
 
-        const c = seg.getAbsolute() as APathDataCommand;
-        const abs = prev.getAbsolute().p;
-        // TODO: move to the type by itself.
-        c.center = Utils.ellipseCenter(
-          abs.x,
-          abs.y,
-          c.r.x,
-          c.r.y,
-          c.rotation,
-          c.large ? 0 : 1,
-          c.sweep ? 0 : 1,
-          x,
-          y
-        );
         curX = x;
         curY = y;
       } else if (type === "H") {
-        curX = seg.values[0];
+        curX = seg.x;
         seg.setPointValues(curX, curY);
       } else if (type === "V") {
-        curY = seg.values[0];
+        curY = seg.y;
         seg.setPointValues(curX, curY);
       } else if (type === "h") {
-        const x = curX + seg.values[0];
+        const x = curX + seg.x;
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [x]);
         curX = x;
         seg.absolute.setPointValues(curX, curY);
       } else if (type === "v") {
-        const y = curY + seg.values[0];
+        const y = curY + seg.y;
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [y]);
         curY = y;
         seg.absolute.setPointValues(curX, curY);

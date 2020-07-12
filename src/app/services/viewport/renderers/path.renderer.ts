@@ -167,16 +167,19 @@ export class PathRenderer extends BaseRenderer {
             this.ctx.beginPath();
             this.ctx.setTransform(m);
             let center = c.center;
-            this.ctx.ellipse(
-              center.x,
-              center.y,
-              c.r.x,
-              c.r.y,
-              Utils.deg(c.rotation),
-              0,
-              360
-            );
-            this.ctx.resetTransform();
+            try {
+              this.ctx.ellipse(
+                center.x,
+                center.y,
+                c.r.x,
+                c.r.y,
+                Utils.rad(c.rotation),
+                0,
+                360
+              );
+            } finally {
+              this.ctx.resetTransform();
+            }
             this.ctx.stroke();
             center = center.matrixTransform(ctm);
             this.drawHandle(

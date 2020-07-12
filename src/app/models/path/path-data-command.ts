@@ -12,14 +12,36 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * absolute version of current command.
    */
   public absolute: PathDataCommand;
+  prev: PathDataCommand;
+  next: PathDataCommand;
 
   public offset(x: number, y: number) {
-    if (this.values && this.values.length >= 2) {
-      this.values[this.values.length - 2] += x;
-      this.values[this.values.length - 1] += y;
-    }
+    this.x += x;
+    this.y += y;
   }
   public offsetHandles(x: number, y: number) {}
+  public get x(): number {
+    if (this.values && this.values.length >= 2) {
+      return this.values[this.values.length - 2];
+    }
+    return 0;
+  }
+  public set x(val: number) {
+    if (this.values && this.values.length >= 2) {
+      this.values[this.values.length - 2] = val;
+    }
+  }
+  public get y(): number {
+    if (this.values && this.values.length >= 2) {
+      return this.values[this.values.length - 1];
+    }
+    return 0;
+  }
+  public set y(val: number) {
+    if (this.values && this.values.length >= 2) {
+      this.values[this.values.length - 1] = val;
+    }
+  }
   public set p(point: DOMPoint) {
     this.setPointValues(point.x, point.y);
   }
@@ -27,21 +49,11 @@ export class PathDataCommand implements SVGPathSegmentEx {
     if (!this.values) {
       return null;
     }
-    if (this.values.length >= 2) {
-      return new DOMPoint(
-        this.values[this.values.length - 2],
-        this.values[this.values.length - 1]
-      );
-    }
-    return null;
+    return new DOMPoint(this.x, this.y);
   }
   public setPointValues(x: number, y: number) {
-    if (this.values && this.values.length >= 2) {
-      this.values[this.values.length - 2] = x;
-      this.values[this.values.length - 1] = y;
-    }
-
-    return null;
+    this.x = x;
+    this.y = y;
   }
 
   /**

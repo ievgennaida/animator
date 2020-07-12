@@ -10,17 +10,12 @@ export class HPathDataCommand extends PathDataCommand {
   public set x(val: number) {
     this.values[0] = val;
   }
-
-  public offset(x: number, y: number, offsetHandles = true) {
-    this.values[0] += x;
+  // tslint:disable-next-line: variable-name
+  private _y = 0;
+  public get y(): number {
+    return this._y;
   }
-  public get p(): DOMPoint {
-    return new DOMPoint(this.values[0], 0);
-  }
-  public set p(point: DOMPoint) {
-    this.setPointValues(point.x, point.y);
-  }
-  public setPointValues(x: number, y: number) {
-    this.values[0] = x;
+  public set y(val: number) {
+    this._y = val;
   }
 }
