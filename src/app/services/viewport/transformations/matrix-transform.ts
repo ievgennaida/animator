@@ -271,7 +271,7 @@ export class MatrixTransform {
     if (offsetY > Number.MAX_VALUE) {
       offsetY = Number.MAX_VALUE;
     }
-    /* 
+    /*
     const transformList = element.transform;
     if (transformList.baseVal.numberOfItems === 0) {
       const newScaleTransform = element.ownerSVGElement.createSVGTransform();

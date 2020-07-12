@@ -22,8 +22,8 @@ export class PathTransform extends MatrixTransform {
     const pathData = this.node.getPathData();
     let changed = false;
     if (pathData && pathData.commands) {
-      pathData.commands.forEach((command) => {
-        if (command && command.isAbsolute()) {
+      pathData.commands.forEach((command, index) => {
+        if (command && (command.isAbsolute() || index === 0)) {
           if (offsetX || offsetY) {
             changed = true;
             command.offset(offsetX, offsetY);
