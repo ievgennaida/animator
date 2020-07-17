@@ -142,6 +142,7 @@ export class MatrixTransform {
     const handle = this.handle.handles;
     let scaleX = null;
     let scaleY = null;
+
     const transformPoint = new DOMPoint(
       this.initBBox.x + this.initBBox.width,
       this.initBBox.y + this.initBBox.height
@@ -255,22 +256,24 @@ export class MatrixTransform {
 
     this.rotate(angle, transformPoint);
   }
-  scaleOffset(offsetX: number, offsetY: number, transformPoint: DOMPoint) {
+  normalizeScale(scale: number | null): number {
+    scale = scale === null ? 1 : scale;
+    if (!Number.isFinite(scale)) {
+      scale = 1;
+    }
+    if (scale > Number.MAX_VALUE) {
+      scale = Number.MAX_VALUE;
+    }
+    return scale;
+  }
+  scaleOffset(
+    offsetX: number | null,
+    offsetY: number | null,
+    transformPoint: DOMPoint
+  ) {
     const element = this.getElement();
-    offsetY = offsetY === null ? 1 : offsetY;
-    offsetX = offsetX === null ? 1 : offsetX;
-    if (!Number.isFinite(offsetX)) {
-      offsetX = 1;
-    }
-    if (!Number.isFinite(offsetY)) {
-      offsetY = 1;
-    }
-    if (offsetX > Number.MAX_VALUE) {
-      offsetX = Number.MAX_VALUE;
-    }
-    if (offsetY > Number.MAX_VALUE) {
-      offsetY = Number.MAX_VALUE;
-    }
+    offsetY = this.normalizeScale(offsetY);
+    offsetX = this.normalizeScale(offsetX);
     /*
     const transformList = element.transform;
     if (transformList.baseVal.numberOfItems === 0) {
