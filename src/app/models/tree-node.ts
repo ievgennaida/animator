@@ -96,13 +96,17 @@ export class TreeNode implements ICTMProvider, IBBox {
     this.cacheScreenAdorers.invalidate();
   }
 
-  public getPathData(): PathData {
-    if (this.pathDataCache) {
+  public getPathData(cache = true): PathData {
+    if (this.pathDataCache && cache) {
       return this.pathDataCache;
     }
 
-    this.pathDataCache = PathData.getPathData(this.getElement());
-    return this.pathDataCache;
+    const pathData = PathData.getPathData(this.getElement());
+    if (cache) {
+      this.pathDataCache = pathData;
+    }
+
+    return pathData;
   }
   public setPathData(data: PathData) {
     this.pathDataCache = data;
