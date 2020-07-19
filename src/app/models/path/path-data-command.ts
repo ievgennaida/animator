@@ -163,6 +163,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     if (this.values && this.values.length >= 3) {
       this.values[0] = point.x;
       this.values[1] = point.y;
+      this._center = null;
     }
   }
 
@@ -185,6 +186,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this._b = point;
     this.values[2] = point.x;
     this.values[3] = point.y;
+    this._center = null;
   }
 
   public offsetHandles(x: number, y: number) {
@@ -241,9 +243,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
   public set r(point: DOMPoint) {
     this._r = point;
-    this._center = null;
     this.values[0] = point.x;
     this.values[1] = point.y;
+    this._center = null;
   }
   /**
    * the x-axis of the ellipse is rotated by x-axis-rotation
