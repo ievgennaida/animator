@@ -176,12 +176,13 @@ export class PathRenderer extends BaseRenderer {
             this.ctx.beginPath();
             this.ctx.setTransform(m);
             let center = c.center;
+            const r = c.r;
             try {
               this.ctx.ellipse(
                 center.x,
                 center.y,
-                c.r.x,
-                c.r.y,
+                r.x,
+                r.y,
                 Utils.rad(c.rotation),
                 0,
                 360
@@ -190,6 +191,37 @@ export class PathRenderer extends BaseRenderer {
               this.ctx.resetTransform();
             }
             this.ctx.stroke();
+
+            let rx = new DOMPoint(center.x + r.x, center.y);
+            rx = rx.matrixTransform(
+              ctm
+                .translate(center.x, center.y)
+                .rotate(c.rotation)
+                .translate(-center.x, -center.y)
+            );
+
+            this.drawHandle(
+              node,
+              rx,
+              consts.pathHandleSize,
+              consts.pathHandleStroke
+            );
+
+            let ry = new DOMPoint(center.x, center.y + r.y);
+            ry = ry.matrixTransform(
+              ctm
+                .translate(center.x, center.y)
+                .rotate(c.rotation)
+                .translate(-center.x, -center.y)
+            );
+
+            this.drawHandle(
+              node,
+              ry,
+              consts.pathHandleSize,
+              consts.pathHandleStroke
+            );
+
             center = center.matrixTransform(ctm);
             this.drawHandle(
               node,
