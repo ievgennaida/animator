@@ -27,7 +27,13 @@ export class PathDataCommand implements SVGPathSegmentEx {
   public absolute: PathDataCommand;
   prev: PathDataCommand;
   next: PathDataCommand;
-
+  public clone(): PathDataCommand {
+    const cloned = new PathDataCommand(this.type, [...this.values]);
+    if (cloned.absolute) {
+      cloned.absolute = this.absolute.clone();
+    }
+    return cloned;
+  }
   public offset(x: number, y: number) {
     this.x += x;
     this.y += y;
@@ -44,6 +50,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
         this.type === PathType.vertical ||
         this.type === PathType.verticalAbs
       ) {
+        if (this.prev) {
+          return this.prev.x;
+        }
         return this._x;
       }
 
@@ -85,6 +94,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
         this.type === PathType.horizontal ||
         this.type === PathType.horizontalAbs
       ) {
+        if (this.prev) {
+          return this.prev.y;
+        }
         return this._y;
       }
       if (this.values.length >= 2) {
@@ -271,11 +283,15 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * is evaluated such that theta starts at an angle corresponding to the current point
    * and increases positively until the arc reaches
    */
-  public get sweep(): number {
-    return this.values[4];
+  public get sweep(): boolean {
+    return this.values[4] === 1;
   }
-  public set sweep(val: number) {
-    this.values[4] = val;
+  public set sweep(val: boolean) {
+    if (val) {
+      this.values[4] = 1;
+    } else {
+      this.values[4] = 0;
+    }
     this._center = null;
   }
 }

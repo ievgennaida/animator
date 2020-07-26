@@ -3,7 +3,7 @@ import { PathDataCommand } from "./path-data-command";
 import { PathType } from "./path-type";
 
 export class PathData {
-  constructor(public commands: PathDataCommand[] = null) {}
+  constructor(public commands: PathDataCommand[] = []) {}
   public static setPathData(
     data: PathData,
     element: any | SVGGraphicsElement
@@ -159,20 +159,16 @@ export class PathData {
         curY = y;
       } else if (type === PathType.horizontalAbs) {
         curX = seg.x;
-        seg.setPointValues(curX, curY);
       } else if (type === PathType.verticalAbs) {
         curY = seg.y;
-        seg.setPointValues(curX, curY);
       } else if (type === PathType.horizontal) {
         const x = curX + seg.x;
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [x]);
         curX = x;
-        seg.absolute.setPointValues(curX, curY);
       } else if (type === PathType.vertical) {
         const y = curY + seg.y;
         seg.absolute = PathData.wrapCommand(type.toUpperCase(), [y]);
         curY = y;
-        seg.absolute.setPointValues(curX, curY);
       } else if (type === PathType.close || type === PathType.closeAbs) {
         curY = subPath.y;
         curX = subPath.x;
@@ -183,7 +179,30 @@ export class PathData {
 
     return data;
   }
+  public clone(): PathData {
+    const cloned = new PathData();
+    if (this.commands) {
+      this.commands.forEach((command, index) => {
+        const clonedCommand = command.clone();
+        if (index > 0) {
+          const prev = cloned.commands[index - 1];
+          clonedCommand.prev = prev;
+          prev.next = clonedCommand;
 
+          if (command.absolute) {
+            if (prev) {
+              if (prev.absolute) {
+                command.absolute.prev = prev.absolute;
+                prev.absolute.next = command.absolute;
+              }
+            }
+          }
+        }
+        cloned.commands.push(clonedCommand);
+      });
+    }
+    return cloned;
+  }
   /**
    * recalculate self.
    */

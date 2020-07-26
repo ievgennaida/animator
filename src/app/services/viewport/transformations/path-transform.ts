@@ -2,9 +2,12 @@ import { MatrixTransform, TransformationMode } from "./matrix-transform";
 import { Utils } from "../../utils/utils";
 import { PathType } from "src/app/models/path/path-type";
 import { PathData } from "src/app/models/path/path-data";
+import { AdornerType } from "../adorners/adorner-type";
+import { HandleData } from "src/app/models/handle-data";
 export class PathTransform extends MatrixTransform {
   prevAngle = 0;
   transformOrigin: DOMPoint = null;
+  initPathData: PathData = null;
   beginMouseTransaction(mousePos: DOMPoint) {
     super.beginMouseTransaction(mousePos);
   }
@@ -17,6 +20,10 @@ export class PathTransform extends MatrixTransform {
 
     this.translate(elementPoint);
     this.start = elementPoint;
+  }
+  beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
+    super.beginHandleTransformation(handle, screenPos);
+    this.initPathData = this.node.getPathData(false);
   }
   beginMouseRotateTransaction(pos: DOMPoint) {
     const element = this.getElement();
@@ -48,20 +55,29 @@ export class PathTransform extends MatrixTransform {
     this.prevAngle = angleBefore;
   }
 
-  rotateOffset(angle: number, transformPoint: DOMPoint) {
+  scaleOffset(offsetX: number, offsetY: number, transformPoint: DOMPoint) {
+    offsetY = this.normalizeScale(offsetY);
+    offsetX = this.normalizeScale(offsetX);
     const element = this.getElement();
-
+    const svgTransform = element.ownerSVGElement.createSVGTransform();
+    svgTransform.setScale(offsetX, offsetY);
     const matrix = element.ownerSVGElement
       .createSVGMatrix()
       .translate(transformPoint.x, transformPoint.y)
-      .rotate(angle, 0, 0)
+      .multiply(svgTransform.matrix)
       .translate(-transformPoint.x, -transformPoint.y);
-
-    const pathData = this.node.getPathData();
+    const pathData = this.initPathData.clone();
+    const changed = this.transformPathByMatrix(matrix, pathData);
+    if (changed) {
+      this.node.setPathData(pathData);
+      this.transformsService.emitTransformed(this.getElement());
+    }
+  }
+  transformPathByMatrix(matrix: DOMMatrix, pathData: PathData): boolean {
     let changed = false;
     if (pathData && pathData.commands) {
-      pathData.commands.forEach((command) => {
-        if (command && command.isAbsolute()) {
+      pathData.commands.forEach((command, index) => {
+        if (command && (command.isAbsolute() || index === 0)) {
           if (
             command.type === PathType.horizontal ||
             command.type === PathType.vertical
@@ -90,31 +106,87 @@ export class PathTransform extends MatrixTransform {
             command.b = b.matrixTransform(matrix);
             changed = true;
           }
+          if (
+            command.type === PathType.arc ||
+            command.type === PathType.arcAbs
+          ) {
+            const r = command.r;
+            if (r) {
+              const center = command.center;
+              const rx = new DOMPoint(center.x + r.x, center.y).matrixTransform(
+                matrix
+                  .translate(center.x, center.y)
+                  .rotate(command.rotation)
+                  .translate(-center.x, -center.y)
+              );
+
+              const ry = new DOMPoint(center.x, center.y + r.y).matrixTransform(
+                matrix
+                  .translate(center.x, center.y)
+                  .rotate(command.rotation)
+                  .translate(-center.x, -center.y)
+              );
+
+              const newCenter = center.matrixTransform(matrix);
+              const ryLen = Utils.getLength(ry, newCenter);
+              const rxLen = Utils.getLength(rx, newCenter);
+              command.r = new DOMPoint(rxLen, ryLen);
+              changed = true;
+            }
+            const rotatedMatrix = matrix.rotate(command.rotation);
+            const decomposedRotation = this.decomposeMatrix(rotatedMatrix);
+            if (decomposedRotation) {
+              if (
+                decomposedRotation.scaleX < 0 ||
+                (decomposedRotation.scaleY < 0 &&
+                  !(
+                    decomposedRotation.scaleX < 0 &&
+                    decomposedRotation.scaleY < 0
+                  ))
+              ) {
+                command.sweep = !command.sweep;
+                changed = true;
+              }
+              if (command.rotation !== decomposedRotation.rotateZ) {
+                command.rotation = decomposedRotation.rotateZ;
+                changed = true;
+              }
+            }
+          }
         }
       });
     }
+
+    return changed;
+  }
+  rotateOffset(angle: number, transformPoint: DOMPoint) {
+    const element = this.getElement();
+
+    const matrix = element.ownerSVGElement
+      .createSVGMatrix()
+      .translate(transformPoint.x, transformPoint.y)
+      .rotate(angle, 0)
+      .translate(-transformPoint.x, -transformPoint.y);
+    const pathData = this.node.getPathData();
+    const changed = this.transformPathByMatrix(matrix, pathData);
     if (changed) {
       this.node.setPathData(pathData);
       this.transformsService.emitTransformed(this.getElement());
     }
   }
   translate(elementPoint: DOMPoint) {
+    // Translate by offset
     const offsetX = elementPoint.x - this.start.x;
     const offsetY = elementPoint.y - this.start.y;
-    // console.log(Utils.roundTwo(offsetX) + "x" + Utils.roundTwo(offsetY));
-    const pathData = this.node.getPathData();
-    let changed = false;
-    if (pathData && pathData.commands) {
-      pathData.commands.forEach((command, index) => {
-        if (command && (command.isAbsolute() || index === 0)) {
-          if (offsetX || offsetY) {
-            changed = true;
-            command.offset(offsetX, offsetY);
-            command.offsetHandles(offsetX, offsetY);
-          }
-        }
-      });
+    if (!offsetX && !offsetY) {
+      return;
     }
+    const element = this.getElement();
+    const matrix = element.ownerSVGElement
+      .createSVGMatrix()
+      .translate(offsetX, offsetY);
+    const pathData = this.node.getPathData();
+    const changed = this.transformPathByMatrix(matrix, pathData);
     if (changed) {
       this.node.setPathData(pathData);
       this.transformsService.emitTransformed(this.getElement());
