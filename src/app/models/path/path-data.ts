@@ -97,14 +97,14 @@ export class PathData {
     prev = null;
     data.commands.forEach((seg) => {
       const type = seg.type;
-      const isMove = type === "m" || type === "M";
+      const isMove = type === PathType.move || type === PathType.moveAbs;
       if (
-        type === "M" ||
-        type === "L" ||
-        type === "T" ||
-        type === "C" ||
-        type === "Q" ||
-        type === "S"
+        type === PathType.moveAbs ||
+        type === PathType.lineAbs ||
+        type === PathType.smoothQuadraticBezierAbs ||
+        type === PathType.cubicBezierAbs ||
+        type === PathType.quadraticBezierAbs ||
+        type === PathType.shorthandSmoothAbs
       ) {
         const p = seg.p;
         curX = p.x;
@@ -114,12 +114,12 @@ export class PathData {
           subPath = p;
         }
       } else if (
-        type === "m" ||
-        type === "l" ||
-        type === "t" ||
-        type === "c" ||
-        type === "q" ||
-        type === "s"
+        type === PathType.move ||
+        type === PathType.line ||
+        type === PathType.smoothQuadraticBezier ||
+        type === PathType.cubicBezier ||
+        type === PathType.quadraticBezier ||
+        type === PathType.shorthandSmooth
       ) {
         const clonedArray = seg.values.map((p, index) =>
           !(index % 2) ? curX + p : curY + p
