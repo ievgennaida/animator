@@ -179,6 +179,30 @@ export class PathData {
 
     return data;
   }
+  public normalize(normalizeTypes: string[] = null): PathData {
+    const data = this;
+    if (!data || !data.commands) {
+      return data;
+    }
+    data.commands.forEach((command) => {
+      if (normalizeTypes && !normalizeTypes.includes(command.type)) {
+        return;
+      }
+      if (
+        command.type === PathType.horizontal ||
+        command.type === PathType.vertical
+      ) {
+        PathData.convertCommand(command, PathType.line);
+      } else if (
+        command.type === PathType.horizontalAbs ||
+        command.type === PathType.verticalAbs
+      ) {
+        PathData.convertCommand(command, PathType.lineAbs);
+      }
+    });
+
+    return data;
+  }
   public clone(): PathData {
     const cloned = new PathData();
     if (this.commands) {

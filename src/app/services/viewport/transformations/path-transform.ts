@@ -2,7 +2,6 @@ import { MatrixTransform, TransformationMode } from "./matrix-transform";
 import { Utils } from "../../utils/utils";
 import { PathType } from "src/app/models/path/path-type";
 import { PathData } from "src/app/models/path/path-data";
-import { AdornerType } from "../adorners/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 export class PathTransform extends MatrixTransform {
   prevAngle = 0;
@@ -78,17 +77,6 @@ export class PathTransform extends MatrixTransform {
     if (pathData && pathData.commands) {
       pathData.commands.forEach((command, index) => {
         if (command && (command.isAbsolute() || index === 0)) {
-          if (
-            command.type === PathType.horizontal ||
-            command.type === PathType.vertical
-          ) {
-            PathData.convertCommand(command, PathType.line);
-          } else if (
-            command.type === PathType.horizontalAbs ||
-            command.type === PathType.verticalAbs
-          ) {
-            PathData.convertCommand(command, PathType.lineAbs);
-          }
           const p = command.p;
           // Command point:
           if (p) {
@@ -168,6 +156,12 @@ export class PathTransform extends MatrixTransform {
       .rotate(angle, 0)
       .translate(-transformPoint.x, -transformPoint.y);
     const pathData = this.node.getPathData();
+    pathData.normalize([
+      PathType.horizontal,
+      PathType.vertical,
+      PathType.horizontalAbs,
+      PathType.verticalAbs,
+    ]);
     const changed = this.transformPathByMatrix(matrix, pathData);
     if (changed) {
       this.node.setPathData(pathData);
