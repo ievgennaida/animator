@@ -26,10 +26,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
    */
   public absolute: PathDataCommand;
   prev: PathDataCommand;
-  next: PathDataCommand;
   public clone(): PathDataCommand {
     const cloned = new PathDataCommand(this.type, [...this.values]);
-    if (cloned.absolute) {
+    if (this.absolute) {
       cloned.absolute = this.absolute.clone();
     }
     return cloned;
@@ -50,10 +49,15 @@ export class PathDataCommand implements SVGPathSegmentEx {
         this.type === PathType.vertical ||
         this.type === PathType.verticalAbs
       ) {
-        if (this.prev) {
-          return this.prev.x;
+        if (this.isAbsolute()) {
+          if (this.prev) {
+            const abs = this.prev.getAbsolute();
+            if (abs) {
+              return abs.x;
+            }
+          }
         }
-        return this._x;
+        return 0;
       }
 
       if (this.values.length >= 2) {
@@ -94,10 +98,16 @@ export class PathDataCommand implements SVGPathSegmentEx {
         this.type === PathType.horizontal ||
         this.type === PathType.horizontalAbs
       ) {
-        if (this.prev) {
-          return this.prev.y;
+        if (this.isAbsolute()) {
+          if (this.prev) {
+            const abs = this.prev.getAbsolute();
+            if (abs) {
+              return abs.y;
+            }
+          }
         }
-        return this._y;
+
+        return 0;
       }
       if (this.values.length >= 2) {
         return this.values[this.values.length - 1];
@@ -227,10 +237,20 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return this._center;
     }
     const c = this.getAbsolute();
-    const abs = this.prev.getAbsolute().p;
+    let absX = 0;
+    let absY = 0;
+    // can be first segment
+    if (this.prev) {
+      const prevAbs = this.prev.getAbsolute();
+      if (prevAbs) {
+        absX = prevAbs.x;
+        absY = prevAbs.y;
+      }
+    }
+
     this._center = Utils.ellipseCenter(
-      abs.x,
-      abs.y,
+      absX,
+      absY,
       c.r.x,
       c.r.y,
       c.rotation,
@@ -243,6 +263,26 @@ export class PathDataCommand implements SVGPathSegmentEx {
     return this._center;
   }
 
+  public getRel(x: number | null, y: number | null): DOMPoint | null {
+    if (x === null || y === null) {
+      return null;
+    }
+    if (this.prev) {
+      const prevAbs = this.prev.getAbsolute();
+      if (prevAbs) {
+        const point = prevAbs.p as DOMPoint;
+        if (point) {
+          x = x - point.x;
+          y = y - point.y;
+        }
+      }
+    }
+    return new DOMPoint(x, y);
+  }
+  public calculateRelPoint(): DOMPoint {
+    const abs = this.getAbsolute();
+    return this.getRel(abs ? abs.x : 0, abs ? abs.y : 0);
+  }
   /** Arc rotation point. */
   public get r(): DOMPoint {
     if (!this._r) {

@@ -3,6 +3,7 @@ import { Utils } from "../../utils/utils";
 import { PathType } from "src/app/models/path/path-type";
 import { PathData } from "src/app/models/path/path-data";
 import { HandleData } from "src/app/models/handle-data";
+import { PathDataCommand } from 'src/app/models/path/path-data-command';
 export class PathTransform extends MatrixTransform {
   prevAngle = 0;
   transformOrigin: DOMPoint = null;
@@ -75,53 +76,51 @@ export class PathTransform extends MatrixTransform {
   transformPathByMatrix(matrix: DOMMatrix, pathData: PathData): boolean {
     let changed = false;
     if (pathData && pathData.commands) {
-      pathData.commands.forEach((command, index) => {
-        if (command && (command.isAbsolute() || index === 0)) {
-          const p = command.p;
+      pathData.commands.forEach((command) => {
+        const abs = command.getAbsolute();
+        if (abs) {
+          const p = abs.p;
           // Command point:
           if (p) {
             changed = true;
-            command.p = p.matrixTransform(matrix);
+            abs.p = p.matrixTransform(matrix);
           }
           // Command handles:
-          const a = command.a;
+          const a = abs.a;
           if (a) {
-            command.a = a.matrixTransform(matrix);
+            abs.a = a.matrixTransform(matrix);
             changed = true;
           }
-          const b = command.b;
+          const b = abs.b;
           if (b) {
-            command.b = b.matrixTransform(matrix);
+            abs.b = b.matrixTransform(matrix);
             changed = true;
           }
-          if (
-            command.type === PathType.arc ||
-            command.type === PathType.arcAbs
-          ) {
-            const r = command.r;
+          if (abs.type === PathType.arc || abs.type === PathType.arcAbs) {
+            const r = abs.r;
             if (r) {
-              const center = command.center;
+              const center = abs.center;
               const rx = new DOMPoint(center.x + r.x, center.y).matrixTransform(
                 matrix
                   .translate(center.x, center.y)
-                  .rotate(command.rotation)
+                  .rotate(abs.rotation)
                   .translate(-center.x, -center.y)
               );
 
               const ry = new DOMPoint(center.x, center.y + r.y).matrixTransform(
                 matrix
                   .translate(center.x, center.y)
-                  .rotate(command.rotation)
+                  .rotate(abs.rotation)
                   .translate(-center.x, -center.y)
               );
 
               const newCenter = center.matrixTransform(matrix);
               const ryLen = Utils.getLength(ry, newCenter);
               const rxLen = Utils.getLength(rx, newCenter);
-              command.r = new DOMPoint(rxLen, ryLen);
+              abs.r = new DOMPoint(rxLen, ryLen);
               changed = true;
             }
-            const rotatedMatrix = matrix.rotate(command.rotation);
+            const rotatedMatrix = matrix.rotate(abs.rotation);
             const decomposedRotation = this.decomposeMatrix(rotatedMatrix);
             if (decomposedRotation) {
               if (
@@ -132,14 +131,19 @@ export class PathTransform extends MatrixTransform {
                     decomposedRotation.scaleY < 0
                   ))
               ) {
-                command.sweep = !command.sweep;
+                abs.sweep = !abs.sweep;
                 changed = true;
               }
-              if (command.rotation !== decomposedRotation.rotateZ) {
-                command.rotation = decomposedRotation.rotateZ;
+              if (abs.rotation !== decomposedRotation.rotateZ) {
+                abs.rotation = decomposedRotation.rotateZ;
                 changed = true;
               }
             }
+          }
+          if (!command.isAbsolute()) {
+            command.values = [...abs.values];
+            const calcRelative = abs.calculateRelPoint();
+            command.p = calcRelative;
           }
         }
       });

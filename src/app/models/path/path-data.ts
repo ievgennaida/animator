@@ -26,16 +26,6 @@ export class PathData {
     return PathData.analyze(elements) as PathData;
   }
 
-  public static wrapCommand(
-    type: string,
-    values: Array<number> = []
-  ): PathDataCommand {
-    if (!type) {
-      return null;
-    }
-    return new PathDataCommand(type, values);
-  }
-
   public static convertCommand(
     command: PathDataCommand,
     destinationType: string
@@ -73,10 +63,7 @@ export class PathData {
             pathData
               .filter((p) => !!p)
               .map((p) => {
-                const command = PathData.wrapCommand(p.type, p.values);
-                if (prev) {
-                  prev.next = command;
-                }
+                const command = new PathDataCommand(p.type, p.values);
                 command.prev = prev;
                 prev = command;
                 return command;
@@ -95,7 +82,7 @@ export class PathData {
 
     let subPath = new DOMPoint();
     prev = null;
-    data.commands.forEach((seg) => {
+    data.commands.forEach((seg, segIndex) => {
       const type = seg.type;
       const isMove = type === PathType.move || type === PathType.moveAbs;
       if (
@@ -124,7 +111,7 @@ export class PathData {
         const clonedArray = seg.values.map((p, index) =>
           !(index % 2) ? curX + p : curY + p
         );
-        seg.absolute = PathData.wrapCommand(type.toUpperCase(), clonedArray);
+        seg.absolute = new PathDataCommand(type.toUpperCase(), clonedArray);
         const point = seg.absolute.p;
         curX = point.x;
         curY = point.y;
@@ -150,9 +137,7 @@ export class PathData {
             x,
             y,
           ];
-          seg.absolute = PathData.wrapCommand(PathType.arcAbs, cloned);
-          seg.absolute.prev = seg.prev;
-          seg.absolute.next = seg.next;
+          seg.absolute = new PathDataCommand(PathType.arcAbs, cloned);
         }
 
         curX = x;
@@ -163,17 +148,19 @@ export class PathData {
         curY = seg.y;
       } else if (type === PathType.horizontal) {
         const x = curX + seg.x;
-        seg.absolute = PathData.wrapCommand(type.toUpperCase(), [x]);
+        seg.absolute = new PathDataCommand(type.toUpperCase(), [x]);
         curX = x;
       } else if (type === PathType.vertical) {
         const y = curY + seg.y;
-        seg.absolute = PathData.wrapCommand(type.toUpperCase(), [y]);
+        seg.absolute = new PathDataCommand(type.toUpperCase(), [y]);
         curY = y;
       } else if (type === PathType.close || type === PathType.closeAbs) {
         curY = subPath.y;
         curX = subPath.x;
       }
-
+      if (seg.absolute) {
+        seg.absolute.prev = seg.prev;
+      }
       prev = seg;
     });
 
@@ -211,15 +198,8 @@ export class PathData {
         if (index > 0) {
           const prev = cloned.commands[index - 1];
           clonedCommand.prev = prev;
-          prev.next = clonedCommand;
-
-          if (command.absolute) {
-            if (prev) {
-              if (prev.absolute) {
-                command.absolute.prev = prev.absolute;
-                prev.absolute.next = command.absolute;
-              }
-            }
+          if (clonedCommand.absolute) {
+            clonedCommand.absolute.prev = prev;
           }
         }
         cloned.commands.push(clonedCommand);
