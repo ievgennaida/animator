@@ -37,7 +37,8 @@ export class WireService {
     pathRenderer: PathRenderer
   ) {
     toolsService.activeToolChanged().subscribe((activeTool) => {
-      boundsRenderer.drawNodeHandles = activeTool === toolsService.selectionTool;
+      boundsRenderer.drawNodeHandles =
+        activeTool === toolsService.selectionTool;
       pathRenderer.invalidate();
     });
     selectionService.selected.subscribe(() => {
@@ -79,7 +80,8 @@ export class WireService {
       }
       mouseOverRenderer.invalidate();
     });
-    mouseOverService.handleOverSubject.subscribe((p) => {
+    mouseOverService.handleOverSubject.subscribe((selectedHandle) => {
+      mouseOverRenderer.invalidate();
       boundsRenderer.invalidate();
     });
   }

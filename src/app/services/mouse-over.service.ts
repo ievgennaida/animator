@@ -3,18 +3,19 @@ import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
 import { HandleData } from "../models/handle-data";
 import { AdornerType } from "./viewport/adorners/adorner-type";
-import { Utils } from './utils/utils';
+import { Utils } from "./utils/utils";
 
 @Injectable({
   providedIn: "root",
 })
 export class MouseOverService {
-  constructor(){
-
-  }
+  constructor() {}
+  /**
+   * Mouse over node.
+   */
   mouseOverSubject = new BehaviorSubject<TreeNode>(null);
   /**
-   * Resize adorner handle
+   * Mouse over resize adorner handle
    */
   handleOverSubject = new BehaviorSubject<HandleData>(null);
   setMouseOverHandle(data: HandleData): boolean {
@@ -41,11 +42,15 @@ export class MouseOverService {
       Utils.bitwiseEquals(currentHandle.handles, data.handles)
     );
   }
-  isMouseOverAdornerHandle(data: AdornerType): boolean {
+  isMouseOverAdornerHandle(data: AdornerType | null = null): boolean {
     const currentHandle = this.handleOverSubject.getValue();
-    if (!currentHandle || !data) {
+    if (!data) {
+      return !!currentHandle;
+    }
+    if (!currentHandle) {
       return false;
     }
+
     return Utils.bitwiseEquals(currentHandle.handles, data);
   }
 

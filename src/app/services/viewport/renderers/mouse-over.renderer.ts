@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
 import { TreeNode } from "src/app/models/tree-node";
+import { MouseOverService } from '../../mouse-over.service';
 
 /**
  * Mouse over renderer
@@ -10,6 +11,9 @@ import { TreeNode } from "src/app/models/tree-node";
   providedIn: "root",
 })
 export class MouseOverRenderer extends BaseRenderer {
+  constructor(private mouseOverService: MouseOverService) {
+    super();
+  }
   node: TreeNode;
   setMouseOver(node: TreeNode) {
     if (this.node !== node) {
@@ -20,7 +24,12 @@ export class MouseOverRenderer extends BaseRenderer {
   redraw() {
     this.invalidated = false;
     this.clear();
-    if (this.node && this.node.mouseOver && !this.node.selected) {
+    if (
+      this.node &&
+      this.node.mouseOver &&
+      !this.node.selected &&
+      !this.mouseOverService.isMouseOverAdornerHandle()
+    ) {
       const element = this.node.getElement();
       if (!element || !element.getScreenCTM) {
         return;
@@ -28,7 +37,12 @@ export class MouseOverRenderer extends BaseRenderer {
 
       const adornerData = this.node.getScreenAdorners(this.screenCTM);
       const thickness = consts.mouseOverBorderThickness * this.onePixel;
-      this.drawAdornerRect(this.ctx, thickness, consts.mouseOverBoundsColor, adornerData);
+      this.drawAdornerRect(
+        this.ctx,
+        thickness,
+        consts.mouseOverBoundsColor,
+        adornerData
+      );
     }
   }
 }
