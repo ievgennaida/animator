@@ -1,5 +1,6 @@
 import { Utils } from "src/app/services/utils/utils";
 import { PathType } from "src/app/models/path/path-type";
+
 // Should be replaced by a DOM type when available.
 export interface SVGPathSegmentEx {
   type: string;
@@ -270,7 +271,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     if (this.prev) {
       const prevAbs = this.prev.getAbsolute();
       if (prevAbs) {
-        const point = prevAbs.p as DOMPoint;
+        const point = prevAbs.p;
         if (point) {
           x = x - point.x;
           y = y - point.y;
@@ -282,6 +283,16 @@ export class PathDataCommand implements SVGPathSegmentEx {
   public calculateRelPoint(): DOMPoint {
     const abs = this.getAbsolute();
     return this.getRel(abs ? abs.x : 0, abs ? abs.y : 0);
+  }
+  public calculateRelA(): DOMPoint {
+    const abs = this.getAbsolute();
+    const a = abs.a;
+    return this.getRel(a ? a.x : null, a ? a.y : null);
+  }
+  public calculateRelB(): DOMPoint {
+    const abs = this.getAbsolute();
+    const b = abs.b;
+    return this.getRel(b ? b.x : null, b ? b.y : null);
   }
   /** Arc rotation point. */
   public get r(): DOMPoint {
