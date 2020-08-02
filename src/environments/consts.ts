@@ -34,6 +34,7 @@ export const consts = {
    */
   autoPanSpeed: 0.006,
   clickThreshold: 8,
+  doubleClickToleranceMs: 500,
   wheelPanSpeed: 15,
   zoom: {
     sensitivityWheel: 0.04,

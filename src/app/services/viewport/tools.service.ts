@@ -7,7 +7,6 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { SelectionTool } from "./selection.tool";
 import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 import { Utils } from "../utils/utils";
-import { OutlineService } from "../outline.service";
 import { ViewService } from "../view.service";
 import { consts } from "src/environments/consts";
 import { SelectionService } from "../selection.service";
@@ -26,12 +25,12 @@ export class ToolsService {
   viewportMouseMoveSubject = new Subject<MouseEventArgs>();
   public tools: Array<BaseTool> = [];
   private activeTool: BaseTool = null;
-
+  private prevMouseUpArgs: MouseEventArgs | null = null;
   constructor(
     private panTool: PanTool,
     private zoomTool: ZoomTool,
-    selectionTool: SelectionTool,
-    pathTool: PathDirectSelectionTool,
+    private selectionTool: SelectionTool,
+    private pathTool: PathDirectSelectionTool,
     createPathTool: PathTool,
     private selectionService: SelectionService,
     private viewService: ViewService,
@@ -155,7 +154,30 @@ export class ToolsService {
     this.activeTool.onWindowMouseMove(args);
   }
   onWindowMouseUp(event: MouseEvent) {
-    this.activeTool.onWindowMouseUp(new MouseEventArgs(event));
+    const mouseEventsArgs = new MouseEventArgs(event);
+    if (
+      this.prevMouseUpArgs &&
+      mouseEventsArgs.executedMs - this.prevMouseUpArgs.executedMs <=
+        consts.doubleClickToleranceMs &&
+      Utils.getLength(
+        mouseEventsArgs.getDOMPoint(),
+        this.prevMouseUpArgs.getDOMPoint()
+      ) <= consts.clickThreshold
+    ) {
+      // TODO: make generic event
+      if (this.activeTool === this.selectionTool) {
+        this.activeTool.onWindowMouseUp(mouseEventsArgs);
+        const overSelectedNode = this.selectionTool.isOverNode();
+        if (overSelectedNode) {
+          this.setActiveTool(this.pathTool);
+        }
+        return;
+      }
+    }
+
+    this.prevMouseUpArgs = mouseEventsArgs;
+
+    this.activeTool.onWindowMouseUp(mouseEventsArgs);
   }
   onWindowMouseWheel(event: WheelEvent) {
     this.activeTool.onWindowMouseWheel(new MouseEventArgs(event));

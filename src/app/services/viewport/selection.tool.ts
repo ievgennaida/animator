@@ -120,8 +120,15 @@ export class SelectionTool extends BaseSelectionTool {
       this.startedNode = this.getIntersects(true) as TreeNode;
     } */
   }
-
-  getIntersects(onlyFirst: boolean = false): TreeNode[] | TreeNode {
+  isOverNode(): boolean {
+    const startedNode = this.mouseOverService.getValue();
+    const handle = this.mouseOverService.mouseOverHandle;
+    return !handle && !!startedNode;
+  }
+  getIntersects(
+    selector: DOMRect,
+    onlyFirst: boolean = false
+  ): TreeNode[] | TreeNode {
     const matrix = this.viewService.getCTM();
     const transformed = Utils.matrixRectTransform(this.selectionRect, matrix);
 
@@ -136,8 +143,8 @@ export class SelectionTool extends BaseSelectionTool {
               continue;
             }
 
-            bounds.x -= this.containerRect.left;
-            bounds.y -= this.containerRect.top;
+            bounds.x -= selector.left;
+            bounds.y -= selector.top;
 
             if (Utils.rectsIntersect(bounds, transformed)) {
               if (onlyFirst) {
@@ -377,7 +384,7 @@ export class SelectionTool extends BaseSelectionTool {
       const mouseOverTransform = this.mouseOverService.getValue();
       this.selectionService.setSelected(mouseOverTransform, mode);
     } else if (!this.startedNode) {
-      const selected = this.getIntersects() as TreeNode[];
+      const selected = this.getIntersects(this.containerRect) as TreeNode[];
       this.selectionService.setSelected(selected, mode);
     }
   }

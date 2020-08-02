@@ -10,6 +10,7 @@ export class MouseEventArgs {
   handled = false;
   ctrlKey = false;
   shiftKey = false;
+  executedMs = 0;
   args: MouseEvent | TouchEvent | WheelEvent;
   /**
    * Screen DOM point.
@@ -32,10 +33,12 @@ export class MouseEventArgs {
     if (!e) {
       return false;
     }
-    if ("which" in e)
+    if ("which" in e) {
       // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
       return e.which === 3;
-    else if ("button" in e) return e.button === 2;
+    } else if ("button" in e) {
+      return e.button === 2;
+    }
     return false;
   }
 
@@ -51,7 +54,7 @@ export class MouseEventArgs {
 
   constructor(event: MouseEvent | WheelEvent | TouchEvent) {
     this.args = event;
-
+    this.executedMs = Date.now();
     if (!event) {
       return;
     }
