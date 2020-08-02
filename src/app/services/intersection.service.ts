@@ -80,6 +80,8 @@ export class IntersectionService {
       if (!elPoint) {
         return false;
       }
+
+      // Get 1px length in element coordinates.
       const screenPointSize = Utils.getLength(
         Utils.toElementPoint(
           node,
