@@ -38,6 +38,7 @@ export class WireService {
   ) {
     selectionService.selected.subscribe(() => {
       boundsRenderer.invalidate();
+      pathRenderer.invalidate();
     });
 
     documentService.documentSubject.asObservable().subscribe(() => {

@@ -86,7 +86,7 @@ export class PathDirectSelectionTool extends BaseSelectionTool {
       nodes.forEach((node) => {
         const data = node.getPathData();
         const p = Utils.toElementPoint(node, screenPos);
-        if (!p && data.commands) {
+        if (!p && data && data.commands) {
           data.commands.forEach((command) => {
             const abs = command.getAbsolute();
             const l = Utils.getLength(p, abs.p);

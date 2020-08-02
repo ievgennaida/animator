@@ -13,7 +13,7 @@ export class PathData {
     }
   }
   public static getPathData(element: any | SVGGraphicsElement): PathData {
-    if (element.getPathData) {
+    if (element && element.getPathData) {
       return PathData.wrap(element.getPathData());
     }
     return null;
