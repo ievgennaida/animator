@@ -180,6 +180,9 @@ export class PathData {
         command.type === PathType.vertical
       ) {
         PathData.convertCommand(command, PathType.line);
+        if (command.absolute) {
+          PathData.convertCommand(command.absolute, PathType.lineAbs);
+        }
       } else if (
         command.type === PathType.horizontalAbs ||
         command.type === PathType.verticalAbs
