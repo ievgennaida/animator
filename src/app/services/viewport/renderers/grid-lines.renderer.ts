@@ -5,7 +5,7 @@ import { consts } from "src/environments/consts";
 import { BaseRenderer } from "./base.renderer";
 import { BehaviorSubject } from "rxjs";
 import { TimelineUtils } from "animation-timeline-js";
-import { Utils } from '../../utils/utils';
+import { Utils } from "../../utils/utils";
 
 @Injectable({
   providedIn: "root",
@@ -61,7 +61,9 @@ export class GridLinesRenderer extends BaseRenderer {
   valToPx(min, max, val, displaySize) {
     const distance = this.getDistance(min, max);
     let distanceOnLine = this.getDistance(min, val);
-    if (val <= min) distanceOnLine = -distanceOnLine;
+    if (val <= min) {
+      distanceOnLine = -distanceOnLine;
+    }
     const ratioDistances = distanceOnLine / distance;
 
     let pointOnLine = -ratioDistances * 0 + ratioDistances * displaySize;
