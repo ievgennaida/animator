@@ -9,7 +9,13 @@ import { Utils } from './utils/utils';
   providedIn: "root",
 })
 export class MouseOverService {
+  constructor(){
+
+  }
   mouseOverSubject = new BehaviorSubject<TreeNode>(null);
+  /**
+   * Resize adorner handle
+   */
   handleOverSubject = new BehaviorSubject<HandleData>(null);
   setMouseOverHandle(data: HandleData): boolean {
     if (data !== this.mouseOverHandle) {

@@ -17,11 +17,11 @@ import {
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectionService, SelectionMode } from "../selection.service";
+import { IntersectionService } from "../intersection.service";
 import { ContextMenuService } from "../context-menu.service";
 import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
 import { CursorType } from "src/app/models/cursor-type";
-import { consts } from "src/environments/consts";
-import { AdornerData } from "./adorners/adorner-data";
+
 import { MouseOverService } from "../mouse-over.service";
 import { HandleData } from "src/app/models/handle-data";
 
@@ -33,7 +33,6 @@ import { HandleData } from "src/app/models/handle-data";
 })
 export class SelectionTool extends BaseSelectionTool {
   iconName = "navigation";
-  renderableElements: Array<TreeNode> = [];
   cachedMouse: TreeNode | null = null;
   startedNode: TreeNode | null = null;
   startedHandle: HandleData | null = null;
@@ -45,19 +44,17 @@ export class SelectionTool extends BaseSelectionTool {
     logger: LoggerService,
     panTool: PanTool,
     selectorRenderer: SelectorRenderer,
-    private selectionService: SelectionService,
-    private boundsRenderer: BoundsRenderer,
-    private transformFactory: TransformsService,
-    private outlineService: OutlineService,
-    private mouseOverService: MouseOverService,
-    private mouseOverRenderer: MouseOverRenderer,
-    private cursor: CursorService,
-    private contextMenu: ContextMenuService
+    protected intersectionService: IntersectionService,
+    protected selectionService: SelectionService,
+    protected boundsRenderer: BoundsRenderer,
+    protected transformFactory: TransformsService,
+    protected outlineService: OutlineService,
+    protected mouseOverService: MouseOverService,
+    protected mouseOverRenderer: MouseOverRenderer,
+    protected cursor: CursorService,
+    protected contextMenu: ContextMenuService
   ) {
     super(selectorRenderer, transformsService, viewService, logger, panTool);
-    this.outlineService.flatList.subscribe((flatItems) => {
-      this.renderableElements = flatItems;
-    });
   }
   onViewportContextMenu(event: MouseEventArgs) {
     const startedNode = this.mouseOverService.mouseOverSubject.getValue();
@@ -85,7 +82,7 @@ export class SelectionTool extends BaseSelectionTool {
 
       const nodesToSelect = this.selectionService
         .getSelected()
-        .map((item) => this.getTopSelectedNode(item))
+        .map((item) => this.selectionService.getTopSelectedNode(item))
         .filter((value, index, self) => value && self.indexOf(value) === index);
 
       const transformations = nodesToSelect.map((p) => {
@@ -125,44 +122,6 @@ export class SelectionTool extends BaseSelectionTool {
     const handle = this.mouseOverService.mouseOverHandle;
     return !handle && !!startedNode;
   }
-  getIntersects(
-    selector: DOMRect,
-    onlyFirst: boolean = false
-  ): TreeNode[] | TreeNode {
-    const matrix = this.viewService.getCTM();
-    const transformed = Utils.matrixRectTransform(this.selectionRect, matrix);
-
-    let selected: TreeNode[] = null;
-    if (this.renderableElements && this.renderableElements.length > 0) {
-      for (let i = this.renderableElements.length - 1; i >= 0; i--) {
-        const node = this.renderableElements[i];
-        if (node) {
-          try {
-            const bounds = node.getBoundingClientRect();
-            if (!bounds) {
-              continue;
-            }
-
-            bounds.x -= selector.left;
-            bounds.y -= selector.top;
-
-            if (Utils.rectsIntersect(bounds, transformed)) {
-              if (onlyFirst) {
-                return node;
-              }
-              if (!selected) {
-                selected = [];
-              }
-              selected.push(node);
-            }
-          } catch (err) {
-            this.logger.warn(`Cannot check intersection ${err}`);
-          }
-        }
-      }
-    }
-    return selected;
-  }
 
   cleanUp() {
     this.mouseOverRenderer.resume();
@@ -178,7 +137,7 @@ export class SelectionTool extends BaseSelectionTool {
 
   onWindowMouseMove(event: MouseEventArgs) {
     if (this.startedNode && this.startedNode.selected && this.containerRect) {
-      this.updateHandleCursor(this.startedHandle, event.screenPoint);
+      this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
       if (!this.mouseOverRenderer.suspended) {
         this.mouseOverRenderer.suspend();
         // Don't draw mouse over when transformation is started:
@@ -189,111 +148,30 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const handle = this.getAdornerHandleIntersection(event.screenPoint);
+        // TODO: general selection adorner.
+        const handle = this.intersectionService.getAdornerHandleIntersection(
+          event.screenPoint,
+          this.selectionService.getSelected()
+        );
         if (!handle) {
           this.mouseOverService.leaveHandle();
         } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
           this.mouseOverService.setMouseOverHandle(handle);
         }
 
-        this.updateHandleCursor(handle, event.screenPoint);
+        this.cursor.setHandleCursor(handle, event.screenPoint);
         if (!handle) {
           super.onWindowMouseMove(event);
         }
       }
     }
   }
-  updateHandleCursor(handle: HandleData, screenPoint: DOMPoint) {
-    if (
-      !handle ||
-      !screenPoint ||
-      handle.handles === AdornerType.None ||
-      handle.handles === AdornerType.Center ||
-      handle.handles === AdornerType.CenterTransform
-    ) {
-      this.cursor.setCursor(CursorType.Default);
-    } else {
-      const angle = this.getCursorAngle(handle, screenPoint);
-      const cursor = handle.rotate
-        ? this.cursor.getCursorRotate(angle)
-        : this.cursor.getCursorResize(angle);
-
-      this.cursor.setCursor(cursor);
-    }
-  }
-  getCursorAngle(handle: HandleData, screenPoint: DOMPoint): number {
-    const deg =
-      Utils.angle(
-        screenPoint,
-        Utils.toScreenPoint(handle.node, handle.adornerData.center)
-      ) + 180;
-    return deg;
-  }
-  getAdornerHandleIntersection(screenPoint: DOMPoint): HandleData | null {
-    const selectedItems = this.selectionService.getSelected();
-    let results: HandleData = null;
-    // TODO: general selection adorner.
-    const toReturn = selectedItems.find((node) => {
-      if (!node.allowResize) {
-        return false;
-      }
-      const adorner = node.getElementAdorner();
-      const elPoint = Utils.toElementPoint(node, screenPoint);
-      if (!elPoint) {
-        return false;
-      }
-      const screenPointSize = Utils.getLength(
-        Utils.toElementPoint(
-          node,
-          new DOMPoint(screenPoint.x + 1, screenPoint.y + 1)
-        ),
-        elPoint
-      );
-
-      const accuracy = screenPointSize * consts.handleSize;
-      const intersects = adorner.intersectAdorner(adorner, elPoint, accuracy);
-      if (intersects !== AdornerType.None) {
-        if (!results) {
-          results = new HandleData();
-        }
-        results.rotate = AdornerTypeUtils.isRotateAdornerType(intersects);
-        results.handles = intersects;
-        return true;
-      }
-    });
-    if (!toReturn) {
-      return null;
-    }
-    results.node = toReturn;
-    results.adornerData = toReturn.getElementAdorner();
-    return results;
-  }
-
-  getTopSelectedNode(node: TreeNode) {
-    if (!node.selected || !node.transformable) {
-      return null;
-    }
-
-    let toReturn = node;
-    while (node != null) {
-      node = node.parent;
-      if (node) {
-        if (node.selected && node.transformable) {
-          toReturn = node;
-        } else if (!node.transformable) {
-          break;
-        }
-      }
-    }
-
-    return toReturn;
-  }
 
   /**
    * @override
    */
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect): boolean {
-    // override the code to auto pan when translate is operation is running.
+    // override the auto pan code to run it when translate operation is running.
     const isDone = super.autoPan(mousePosition, containerSize);
     if (this.transformations) {
       if (this.currentArgs) {
@@ -338,9 +216,9 @@ export class SelectionTool extends BaseSelectionTool {
 
   onPlayerMouseOut(event: MouseEventArgs) {
     if (this.cachedMouse && this.cachedMouse.tag !== event.args.target) {
-      const node = this.renderableElements.find(
-        (p) => p.tag === event.args.target
-      );
+      const node = this.outlineService
+        .getAllNodes()
+        .find((p) => p.tag === event.args.target);
       this.mouseOverService.setMouseLeave(node);
     } else {
       this.mouseOverService.setMouseLeave(this.cachedMouse);
@@ -349,9 +227,9 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   onPlayerMouseOver(event: MouseEventArgs) {
-    const node = this.renderableElements.find(
-      (p) => p.tag === event.args.target
-    );
+    const node = this.outlineService
+      .getAllNodes()
+      .find((p) => p.tag === event.args.target);
     if (!node) {
       return;
     }
@@ -361,7 +239,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   /**
-   * override
+   * @override
    */
   selectionEnded(event: MouseEventArgs) {
     if (this.transformations !== null && this.transformations.length > 0) {
@@ -384,7 +262,9 @@ export class SelectionTool extends BaseSelectionTool {
       const mouseOverTransform = this.mouseOverService.getValue();
       this.selectionService.setSelected(mouseOverTransform, mode);
     } else if (!this.startedNode) {
-      const selected = this.getIntersects(this.containerRect) as TreeNode[];
+      const selected = this.intersectionService.getIntersects(
+        this.selectionRect
+      ) as TreeNode[];
       this.selectionService.setSelected(selected, mode);
     }
   }

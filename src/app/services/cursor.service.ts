@@ -7,6 +7,7 @@ import {
   AdornerTypeUtils,
 } from "./viewport/adorners/adorner-type";
 import { CursorType } from "../models/cursor-type";
+import { HandleData } from '../models/handle-data';
 
 @Injectable({
   providedIn: "root",
@@ -50,5 +51,32 @@ export class CursorService {
     } else if (deg >= 270 + tolerance && deg <= 360 - tolerance) {
       return rotate ? CursorType.RotateBR : CursorType.NWResize;
     }
+  }
+
+  setHandleCursor(handle: HandleData, screenPoint: DOMPoint) {
+    if (
+      !handle ||
+      !screenPoint ||
+      handle.handles === AdornerType.None ||
+      handle.handles === AdornerType.Center ||
+      handle.handles === AdornerType.CenterTransform
+    ) {
+      this.setCursor(CursorType.Default);
+    } else {
+      const angle = this.getCursorAngle(handle, screenPoint);
+      const cursor = handle.rotate
+        ? this.getCursorRotate(angle)
+        : this.getCursorResize(angle);
+
+      this.setCursor(cursor);
+    }
+  }
+  getCursorAngle(handle: HandleData, screenPoint: DOMPoint): number {
+    const deg =
+      Utils.angle(
+        screenPoint,
+        Utils.toScreenPoint(handle.node, handle.adornerData.center)
+      ) + 180;
+    return deg;
   }
 }

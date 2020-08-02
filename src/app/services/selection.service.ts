@@ -12,15 +12,15 @@ export enum SelectionMode {
   /**
    * Select new items. deselect changed.
    */
-  Normal = 'normal',
+  Normal = "normal",
   /**
    * Append current selection.
    */
-  Append = 'append',
+  Append = "append",
   /**
    * Revert selection of a specified nodes.
    */
-  Revert = 'revert',
+  Revert = "revert",
 }
 
 @Injectable({
@@ -40,6 +40,31 @@ export class SelectionService {
   isAdornerHandleSelected(value: AdornerType) {
     return Utils.bitwiseEquals(this.selectedAdorner, value);
   }
+
+  /**
+   * Get top most selected node from current.
+   * @param node Node to start top-search from.
+   */
+  getTopSelectedNode(node: TreeNode) {
+    if (!node.selected || !node.transformable) {
+      return null;
+    }
+
+    let toReturn = node;
+    while (node != null) {
+      node = node.parent;
+      if (node) {
+        if (node.selected && node.transformable) {
+          toReturn = node;
+        } else if (!node.transformable) {
+          break;
+        }
+      }
+    }
+
+    return toReturn;
+  }
+
   getSelected(): TreeNode[] {
     const selector = this.selectedSubject.getValue();
     return selector.nodes;
