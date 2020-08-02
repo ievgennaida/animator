@@ -30,8 +30,13 @@ export class BaseRenderer {
     }
   }
 
-  public suspend() {
-    this.suspended = true;
+  public suspend(clean = false) {
+    if (!this.suspended) {
+      this.suspended = true;
+      if (clean) {
+        this.clear();
+      }
+    }
   }
 
   public clear() {
