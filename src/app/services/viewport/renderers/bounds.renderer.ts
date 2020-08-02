@@ -26,6 +26,21 @@ export class BoundsRenderer extends BaseRenderer {
     super();
   }
 
+  /**
+   * Value indicating whether main selection should be rendered
+   */
+  // tslint:disable-next-line: variable-name
+  private _suppressMainSelection = true;
+  get suppressMainSelection() {
+    return this._suppressMainSelection;
+  }
+  set suppressMainSelection(value: boolean) {
+    if (this._suppressMainSelection !== value) {
+      this._suppressMainSelection = value;
+      this.invalidate();
+    }
+  }
+
   // tslint:disable-next-line: variable-name
   private _drawNodeHandles = true;
   get drawNodeHandles() {
@@ -246,12 +261,14 @@ export class BoundsRenderer extends BaseRenderer {
 
     const multiple = renderable.length > 1;
 
-    const elementsColor = multiple
-      ? consts.altSelectionStroke
-      : consts.mainSelectionStroke;
-    const elementsThickness = multiple
-      ? consts.altSelectionThickness
-      : consts.mainSelectionThickness;
+    const elementsColor =
+      multiple || this.suppressMainSelection
+        ? consts.altSelectionStroke
+        : consts.mainSelectionStroke;
+    const elementsThickness =
+      multiple || this.suppressMainSelection
+        ? consts.altSelectionThickness
+        : consts.mainSelectionThickness;
 
     renderable.forEach((node: TreeNode) => {
       if (node.selected) {
@@ -277,7 +294,7 @@ export class BoundsRenderer extends BaseRenderer {
     });
 
     // Draw global bounds:
-    if (renderable && renderable.length > 1) {
+    if (renderable && renderable.length > 1 && !this.suppressMainSelection) {
       // TODO: cached, reuse
       const adorners = renderable.map((p) =>
         p.getScreenAdorners(this.screenCTM)

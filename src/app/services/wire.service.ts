@@ -37,8 +37,9 @@ export class WireService {
     pathRenderer: PathRenderer
   ) {
     toolsService.activeToolChanged().subscribe((activeTool) => {
-      boundsRenderer.drawNodeHandles =
-        activeTool === toolsService.selectionTool;
+      const isSelectionToolActive = activeTool === toolsService.selectionTool;
+      boundsRenderer.drawNodeHandles = isSelectionToolActive;
+      boundsRenderer.suppressMainSelection = !isSelectionToolActive;
       pathRenderer.invalidate();
     });
     selectionService.selected.subscribe(() => {
