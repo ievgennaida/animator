@@ -12,7 +12,7 @@ import { SelectionService } from "./selection.service";
 import { PathRenderer } from "./viewport/renderers/path.renderer";
 import { ToolsService } from "./viewport/tools.service";
 import { DocumentService } from "./document.service";
-import { MouseOverService } from './mouse-over.service';
+import { MouseOverService } from "./mouse-over.service";
 
 /**
  * Wire services together
@@ -36,6 +36,9 @@ export class WireService {
     documentService: DocumentService,
     pathRenderer: PathRenderer
   ) {
+    toolsService.activeToolChanged().subscribe(() => {
+      pathRenderer.invalidate();
+    });
     selectionService.selected.subscribe(() => {
       boundsRenderer.invalidate();
       pathRenderer.invalidate();
@@ -80,9 +83,7 @@ export class WireService {
     });
   }
   cleanCache() {
-    this.outlineService
-      .getAllNodes()
-      .forEach((node) => node.cleanCache());
+    this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }
   init() {}
 }

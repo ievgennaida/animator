@@ -19,9 +19,7 @@ export class PathRenderer extends BaseRenderer {
     private selectionService: SelectionService
   ) {
     super();
-    if (!logger.isDebug()) {
-      this.suspend();
-    }
+    this.suspend();
   }
 
   onWindowMouseMove(event: MouseEventArgs) {}
@@ -83,156 +81,157 @@ export class PathRenderer extends BaseRenderer {
             return;
           }
           const point = p.matrixTransform(ctm);
+          const drawHandles = false;
+          if (drawHandles) {
+            // draw handles:
+            if (
+              abs.type === PathType.cubicBezier ||
+              abs.type === PathType.cubicBezierAbs
+            ) {
+              const c = abs;
 
-          // draw handles:
-          if (
-            abs.type === PathType.cubicBezier ||
-            abs.type === PathType.cubicBezierAbs
-          ) {
-            const c = abs;
-
-            const a = c.a.matrixTransform(ctm);
-            const b = c.b.matrixTransform(ctm);
-            // handles:
-            this.drawHandle(
-              node,
-              a,
-              consts.pathHandleSize,
-              consts.pathHandleStroke
-            );
-            this.drawHandle(
-              node,
-              b,
-              consts.pathHandleSize,
-              consts.pathHandleStroke
-            );
-            // handle lines:
-            this.drawPath(
-              this.ctx,
-              1,
-              consts.pathHandleLineStroke,
-              null,
-              false,
-              prevPoint,
-              a
-            );
-            this.drawPath(
-              this.ctx,
-              1,
-              consts.pathHandleLineStroke,
-              null,
-              false,
-              point,
-              b
-            );
-          } else if (
-            abs.type === PathType.shorthandSmooth ||
-            abs.type === PathType.shorthandSmoothAbs
-          ) {
-            const c = abs;
-            const a = c.a.matrixTransform(ctm);
-            this.drawHandle(
-              node,
-              a,
-              consts.pathHandleSize,
-              consts.pathHandleStroke
-            );
-            this.drawPath(
-              this.ctx,
-              1,
-              consts.pathHandleLineStroke,
-              null,
-              false,
-              point,
-              a
-            );
-          } else if (
-            abs.type === PathType.quadraticBezier ||
-            abs.type === PathType.quadraticBezierAbs
-          ) {
-            const c = abs;
-            const a = c.a.matrixTransform(ctm);
-            this.drawHandle(
-              node,
-              a,
-              consts.pathHandleSize,
-              consts.pathHandleStroke
-            );
-            this.drawPath(
-              this.ctx,
-              1,
-              consts.pathHandleLineStroke,
-              null,
-              false,
-              point,
-              a
-            );
-          } else if (
-            abs.type === PathType.arc ||
-            abs.type === PathType.arcAbs
-          ) {
-            const c = abs;
-            const m = this.screenCTM.multiply(node.getScreenCTM());
-            this.ctx.lineWidth = 1;
-            this.ctx.strokeStyle = consts.pathHandleLineStroke;
-            this.ctx.beginPath();
-            this.ctx.setTransform(m);
-            let center = c.center;
-            const r = c.r;
-            try {
-              this.ctx.ellipse(
-                center.x,
-                center.y,
-                r.x,
-                r.y,
-                Utils.rad(c.rotation),
-                0,
-                360
+              const a = c.a.matrixTransform(ctm);
+              const b = c.b.matrixTransform(ctm);
+              // handles:
+              this.drawHandle(
+                node,
+                a,
+                consts.pathHandleSize,
+                consts.pathHandleStroke
               );
-            } finally {
-              this.ctx.resetTransform();
+              this.drawHandle(
+                node,
+                b,
+                consts.pathHandleSize,
+                consts.pathHandleStroke
+              );
+              // handle lines:
+              this.drawPath(
+                this.ctx,
+                1,
+                consts.pathHandleLineStroke,
+                null,
+                false,
+                prevPoint,
+                a
+              );
+              this.drawPath(
+                this.ctx,
+                1,
+                consts.pathHandleLineStroke,
+                null,
+                false,
+                point,
+                b
+              );
+            } else if (
+              abs.type === PathType.shorthandSmooth ||
+              abs.type === PathType.shorthandSmoothAbs
+            ) {
+              const c = abs;
+              const a = c.a.matrixTransform(ctm);
+              this.drawHandle(
+                node,
+                a,
+                consts.pathHandleSize,
+                consts.pathHandleStroke
+              );
+              this.drawPath(
+                this.ctx,
+                1,
+                consts.pathHandleLineStroke,
+                null,
+                false,
+                point,
+                a
+              );
+            } else if (
+              abs.type === PathType.quadraticBezier ||
+              abs.type === PathType.quadraticBezierAbs
+            ) {
+              const c = abs;
+              const a = c.a.matrixTransform(ctm);
+              this.drawHandle(
+                node,
+                a,
+                consts.pathHandleSize,
+                consts.pathHandleStroke
+              );
+              this.drawPath(
+                this.ctx,
+                1,
+                consts.pathHandleLineStroke,
+                null,
+                false,
+                point,
+                a
+              );
+            } else if (
+              abs.type === PathType.arc ||
+              abs.type === PathType.arcAbs
+            ) {
+              const c = abs;
+              const m = this.screenCTM.multiply(node.getScreenCTM());
+              this.ctx.lineWidth = 1;
+              this.ctx.strokeStyle = consts.pathHandleLineStroke;
+              this.ctx.beginPath();
+              this.ctx.setTransform(m);
+              let center = c.center;
+              const r = c.r;
+              try {
+                this.ctx.ellipse(
+                  center.x,
+                  center.y,
+                  r.x,
+                  r.y,
+                  Utils.rad(c.rotation),
+                  0,
+                  360
+                );
+              } finally {
+                this.ctx.resetTransform();
+              }
+              this.ctx.stroke();
+
+              let rx = new DOMPoint(center.x + r.x, center.y);
+              rx = rx.matrixTransform(
+                ctm
+                  .translate(center.x, center.y)
+                  .rotate(c.rotation)
+                  .translate(-center.x, -center.y)
+              );
+
+              this.drawHandle(
+                node,
+                rx,
+                consts.pathHandleSize,
+                consts.pathHandleStroke
+              );
+
+              let ry = new DOMPoint(center.x, center.y + r.y);
+              ry = ry.matrixTransform(
+                ctm
+                  .translate(center.x, center.y)
+                  .rotate(c.rotation)
+                  .translate(-center.x, -center.y)
+              );
+
+              this.drawHandle(
+                node,
+                ry,
+                consts.pathHandleSize,
+                consts.pathHandleStroke
+              );
+
+              center = center.matrixTransform(ctm);
+              this.drawHandle(
+                node,
+                center,
+                consts.pathHandleSize,
+                consts.pathHandleStroke
+              );
             }
-            this.ctx.stroke();
-
-            let rx = new DOMPoint(center.x + r.x, center.y);
-            rx = rx.matrixTransform(
-              ctm
-                .translate(center.x, center.y)
-                .rotate(c.rotation)
-                .translate(-center.x, -center.y)
-            );
-
-            this.drawHandle(
-              node,
-              rx,
-              consts.pathHandleSize,
-              consts.pathHandleStroke
-            );
-
-            let ry = new DOMPoint(center.x, center.y + r.y);
-            ry = ry.matrixTransform(
-              ctm
-                .translate(center.x, center.y)
-                .rotate(c.rotation)
-                .translate(-center.x, -center.y)
-            );
-
-            this.drawHandle(
-              node,
-              ry,
-              consts.pathHandleSize,
-              consts.pathHandleStroke
-            );
-
-            center = center.matrixTransform(ctm);
-            this.drawHandle(
-              node,
-              center,
-              consts.pathHandleSize,
-              consts.pathHandleStroke
-            );
           }
-
           if (point) {
             this.drawPoint(
               node,
