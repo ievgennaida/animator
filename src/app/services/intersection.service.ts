@@ -20,12 +20,18 @@ export class IntersectionService {
     private logger: LoggerService
   ) {}
 
+  /**
+   * get intersection by the viewport coordinates selector.
+   */
   getIntersects(
-    selector: DOMRect | DOMPoint,
+    viewportSelector: DOMRect | DOMPoint,
     onlyFirst: boolean = false
   ): TreeNode[] | TreeNode {
     const matrix = this.viewService.getCTM();
-    const transformed = Utils.matrixRectTransform(selector as DOMRect, matrix);
+    const transformed = Utils.matrixRectTransform(
+      viewportSelector as DOMRect,
+      matrix
+    );
 
     let selected: TreeNode[] = null;
     const nodes = this.outlineService.getAllNodes();

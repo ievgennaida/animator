@@ -17,7 +17,9 @@ import { OutlineService } from "../outline.service";
 import { PanTool } from "./pan.tool";
 import { PathRenderer } from "./renderers/path.renderer";
 import { IntersectionService } from "../intersection.service";
-import { Utils } from '../utils/utils';
+import { Utils } from "../utils/utils";
+import { TreeNode } from "src/app/models/tree-node";
+import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root",
@@ -64,19 +66,25 @@ export class PathDirectSelectionTool extends SelectionTool {
     );
   }
 
+  /**
+   * Override
+   */
   onDeactivate() {
     this.pathRenderer.suspend();
     this.pathRenderer.clear();
-    this.mouseOverRenderer.resume();
     super.onDeactivate();
   }
+  /**
+   * Override
+   */
   onActivate() {
-    this.mouseOverRenderer.suspend();
     this.pathRenderer.invalidate();
     this.pathRenderer.resume();
     super.onActivate();
   }
-
+  /**
+   * Override
+   */
   onViewportContextMenu(event: MouseEventArgs) {
     /*const startedNode = this.outlineService.mouseOverSubject.getValue();
     if (startedNode) {
@@ -84,18 +92,20 @@ export class PathDirectSelectionTool extends SelectionTool {
     }*/
     super.onViewportContextMenu(event);
   }
-
+  /**
+   * Override
+   */
   selectionStarted(event: MouseEventArgs) {
-    super.selectionStarted(event);
+    // super.selectionStarted(event);
     // don't allow to transform on right click:
     if (event.rightClicked()) {
       this.cleanUp();
       return;
     }
-
-    const screenPoint = event.getDOMPoint();
   }
-
+  /**
+   * Override
+   */
   cleanUp() {
     this.mouseOverRenderer.resume();
     // this.lastDeg = null;
@@ -104,20 +114,63 @@ export class PathDirectSelectionTool extends SelectionTool {
     // this.cursor.setCursor(CursorType.Default);
   }
 
+  selectionRectToNodeCoordinates(node: TreeNode): DOMRect {
+    if (!node) {
+      return null;
+    }
+
+    const screenCTM = node.getScreenCTM();
+    const viewportScreenCTM = this.viewService.getScreenCTM();
+    if (!screenCTM || !viewportScreenCTM) {
+      return;
+    }
+    const outputRect = Utils.matrixRectTransform(
+      this.selectionRect,
+      screenCTM.inverse().multiply(viewportScreenCTM)
+    );
+
+    return outputRect;
+  }
+  /**
+   * Override
+   */
   onWindowMouseMove(event: MouseEventArgs) {
+    if (this.selectionRect && !this.click) {
+      this.mouseOverRenderer.suspend(true);
+    }
+
+    super.onWindowMouseMove(event);
+
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
     if (nodes) {
       nodes.forEach((node) => {
         const data = node.getPathData();
         const p = Utils.toElementPoint(node, screenPos);
-        if (!p && data && data.commands) {
-          data.commands.forEach((command) => {
+        const rectSelector = this.selectionRectToNodeCoordinates(node);
+        if (p && data && data.commands) {
+          data.commands.forEach((command, index) => {
             const abs = command.getAbsolute();
             const l = Utils.getLength(p, abs.p);
-            const selected = l <= 10;
-            if (command.selected !== selected) {
-              command.selected = selected;
+            // TODO: extract, reuse
+            const screenPointSize = Utils.getLength(
+              Utils.toElementPoint(
+                node,
+                new DOMPoint(screenPos.x + 1, screenPos.y + 1)
+              ),
+              p
+            );
+
+            const accuracy = screenPointSize * consts.handleSize;
+
+            let selected = l <= accuracy;
+            if (rectSelector) {
+              selected =
+                selected || Utils.rectIntersectPoint(rectSelector, abs.p);
+            }
+
+            if (abs.selected !== selected) {
+              abs.selected = selected;
               this.pathRenderer.invalidate();
             }
           });
@@ -127,7 +180,7 @@ export class PathDirectSelectionTool extends SelectionTool {
   }
 
   /**
-   * override
+   * Override
    */
   selectionUpdate(event: MouseEventArgs) {
     if (!this.selectionRect) {
@@ -138,12 +191,12 @@ export class PathDirectSelectionTool extends SelectionTool {
     // this.outlineService.setSelected(selected);
   }
 
-  onPlayerMouseOut(event: MouseEventArgs) {}
-
-  onPlayerMouseOver(event: MouseEventArgs) {}
-
   /**
-   * override
+   * Override
    */
-  selectionEnded(event: MouseEventArgs) {}
+  selectionEnded(event: MouseEventArgs) {
+    if (this.click) {
+      super.selectionEnded(event);
+    }
+  }
 }
