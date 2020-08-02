@@ -1,22 +1,10 @@
-import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Injectable } from "@angular/core";
-import { LoggerService } from "../logger.service";
-import { ViewService } from "../view.service";
+import { BaseTool } from "./base.tool";
 import { CursorService } from "../cursor.service";
-import { CursorType } from "src/app/models/cursor-type";
-import { SelectionTool } from "./selection.tool";
-import { TransformsService } from "./transformations/transforms.service";
-import { SelectorRenderer } from "./renderers/selector.renderer";
+import { LoggerService } from "../logger.service";
 import { SelectionService } from "../selection.service";
-import { BoundsRenderer } from "./renderers/bounds.renderer";
-import { ContextMenuService } from "../context-menu.service";
-import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
-import { MouseOverService } from "../mouse-over.service";
-import { OutlineService } from "../outline.service";
-import { PanTool } from "./pan.tool";
-import { PathRenderer } from "./renderers/path.renderer";
-import { IntersectionService } from "../intersection.service";
+import { PathRenderer } from './renderers/path.renderer';
+import { MouseOverRenderer } from './renderers/mouse-over.renderer';
 
 @Injectable({
   providedIn: "root",
@@ -24,44 +12,19 @@ import { IntersectionService } from "../intersection.service";
 /**
  * Create path tool
  */
-export class PathTool extends SelectionTool {
+export class PathTool extends BaseTool {
   svgMatrix: DOMMatrix = null;
   mouseDownPos: DOMPoint = null;
   iconName = "ink_pen";
-
   constructor(
+    private selectionService: SelectionService,
+    private logger: LoggerService,
+    private cursor: CursorService,
     private pathRenderer: PathRenderer,
-    transformsService: TransformsService,
-    viewService: ViewService,
-    logger: LoggerService,
-    panTool: PanTool,
-    selectorRenderer: SelectorRenderer,
-    intersectionService: IntersectionService,
-    selectionService: SelectionService,
-    boundsRenderer: BoundsRenderer,
-    transformFactory: TransformsService,
-    outlineService: OutlineService,
-    mouseOverService: MouseOverService,
-    mouseOverRenderer: MouseOverRenderer,
-    cursor: CursorService,
-    contextMenu: ContextMenuService
+    private mouseOverRenderer: MouseOverRenderer
   ) {
-    super(
-      transformsService,
-      viewService,
-      logger,
-      panTool,
-      selectorRenderer,
-      intersectionService,
-      selectionService,
-      boundsRenderer,
-      transformFactory,
-      outlineService,
-      mouseOverService,
-      mouseOverRenderer,
-      cursor,
-      contextMenu
-    );
+    super();
+    // this.pathRenderer.suspend();
   }
 
   onDeactivate() {

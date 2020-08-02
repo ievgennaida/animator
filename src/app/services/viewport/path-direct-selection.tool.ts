@@ -1,18 +1,23 @@
-import { Injectable } from "@angular/core";
 import { BaseTool } from "./base.tool";
-import { CursorService } from "../cursor.service";
+import { MouseEventArgs } from "../../models/mouse-event-args";
+import { Injectable } from "@angular/core";
 import { LoggerService } from "../logger.service";
-import { SelectionService } from "../selection.service";
-import { PathRenderer } from "./renderers/path.renderer";
-import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
-import { BaseSelectionTool } from "./base-selection.tool";
+import { ViewService } from "../view.service";
+import { CursorService } from "../cursor.service";
+import { CursorType } from "src/app/models/cursor-type";
+import { SelectionTool } from "./selection.tool";
 import { TransformsService } from "./transformations/transforms.service";
 import { SelectorRenderer } from "./renderers/selector.renderer";
+import { SelectionService } from "../selection.service";
+import { BoundsRenderer } from "./renderers/bounds.renderer";
+import { ContextMenuService } from "../context-menu.service";
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { MouseOverService } from "../mouse-over.service";
+import { OutlineService } from "../outline.service";
 import { PanTool } from "./pan.tool";
-import { ViewService } from "../view.service";
-import { MouseEventArgs } from "../../models/mouse-event-args";
-import { Utils } from "../utils/utils";
-import { PathDataCommand } from 'src/app/models/path/path-data-command';
+import { PathRenderer } from "./renderers/path.renderer";
+import { IntersectionService } from "../intersection.service";
+import { Utils } from '../utils/utils';
 
 @Injectable({
   providedIn: "root",
@@ -20,23 +25,43 @@ import { PathDataCommand } from 'src/app/models/path/path-data-command';
 /**
  * Path direct selection
  */
-export class PathDirectSelectionTool extends BaseSelectionTool {
+export class PathDirectSelectionTool extends SelectionTool {
   svgMatrix: DOMMatrix = null;
   mouseDownPos: DOMPoint = null;
   iconName = "navigation_outline";
   constructor(
-    private selectionService: SelectionService,
-    logger: LoggerService,
-    private cursor: CursorService,
     private pathRenderer: PathRenderer,
-    private mouseOverRenderer: MouseOverRenderer,
-    selectorRenderer: SelectorRenderer,
     transformsService: TransformsService,
     viewService: ViewService,
-    panTool: PanTool
+    logger: LoggerService,
+    panTool: PanTool,
+    selectorRenderer: SelectorRenderer,
+    intersectionService: IntersectionService,
+    selectionService: SelectionService,
+    boundsRenderer: BoundsRenderer,
+    transformFactory: TransformsService,
+    outlineService: OutlineService,
+    mouseOverService: MouseOverService,
+    mouseOverRenderer: MouseOverRenderer,
+    cursor: CursorService,
+    contextMenu: ContextMenuService
   ) {
-    super(selectorRenderer, transformsService, viewService, logger, panTool);
-    // this.pathRenderer.suspend();
+    super(
+      transformsService,
+      viewService,
+      logger,
+      panTool,
+      selectorRenderer,
+      intersectionService,
+      selectionService,
+      boundsRenderer,
+      transformFactory,
+      outlineService,
+      mouseOverService,
+      mouseOverRenderer,
+      cursor,
+      contextMenu
+    );
   }
 
   onDeactivate() {
@@ -100,8 +125,6 @@ export class PathDirectSelectionTool extends BaseSelectionTool {
       });
     }
   }
-
-  moveByMouse(event: MouseEventArgs, element: SVGGraphicsElement) {}
 
   /**
    * override
