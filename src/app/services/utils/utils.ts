@@ -182,7 +182,10 @@ export class Utils {
     }
   }
 
-  static matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect {
+  static matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect | null {
+    if (!rect || !matrix) {
+      return null;
+    }
     const start = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
     const end = new DOMPoint(
       rect.x + rect.width,
