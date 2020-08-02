@@ -19,7 +19,9 @@ export class PathRenderer extends BaseRenderer {
     private selectionService: SelectionService
   ) {
     super();
-    this.suspend();
+    if (!logger.isDebug()) {
+      this.suspend();
+    }
   }
 
   onWindowMouseMove(event: MouseEventArgs) {}

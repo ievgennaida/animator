@@ -2,11 +2,14 @@ import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class LoggerService {
   constructor() {}
 
+  isDebug() {
+    return !environment.debug;
+  }
   log(str) {
     if (str && !environment.production) {
       console.log(str);
