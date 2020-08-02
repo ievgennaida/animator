@@ -85,40 +85,7 @@ export class PathData {
     data.commands.forEach((seg, segIndex) => {
       const type = seg.type;
       const isMove = type === PathType.move || type === PathType.moveAbs;
-      if (
-        type === PathType.moveAbs ||
-        type === PathType.lineAbs ||
-        type === PathType.smoothQuadraticBezierAbs ||
-        type === PathType.cubicBezierAbs ||
-        type === PathType.quadraticBezierAbs ||
-        type === PathType.shorthandSmoothAbs
-      ) {
-        const p = seg.p;
-        curX = p.x;
-        curY = p.y;
-
-        if (isMove) {
-          subPath = p;
-        }
-      } else if (
-        type === PathType.move ||
-        type === PathType.line ||
-        type === PathType.smoothQuadraticBezier ||
-        type === PathType.cubicBezier ||
-        type === PathType.quadraticBezier ||
-        type === PathType.shorthandSmooth
-      ) {
-        const clonedArray = seg.values.map((p, index) =>
-          !(index % 2) ? curX + p : curY + p
-        );
-        seg.absolute = new PathDataCommand(type.toUpperCase(), clonedArray);
-        const point = seg.absolute.p;
-        curX = point.x;
-        curY = point.y;
-        if (isMove) {
-          subPath = point;
-        }
-      } else if (type === PathType.arc || type === PathType.arcAbs) {
+      if (type === PathType.arc || type === PathType.arcAbs) {
         const absolute = type === PathType.arcAbs;
         let x = seg.x;
         let y = seg.y;
@@ -157,6 +124,20 @@ export class PathData {
       } else if (type === PathType.close || type === PathType.closeAbs) {
         curY = subPath.y;
         curX = subPath.x;
+      } else {
+        const absolute = seg.isAbsolute();
+        if (!absolute) {
+          const clonedArray = seg.values.map((p, index) =>
+            !(index % 2) ? curX + p : curY + p
+          );
+          seg.absolute = new PathDataCommand(type.toUpperCase(), clonedArray);
+        }
+        const point = absolute ? seg.p : seg.absolute.p;
+        curX = point.x;
+        curY = point.y;
+        if (isMove) {
+          subPath = point;
+        }
       }
       if (seg.absolute) {
         seg.absolute.prev = seg.prev;
