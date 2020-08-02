@@ -70,10 +70,10 @@ export class PathRenderer extends BaseRenderer {
       if (data && data.commands) {
         const ctm = this.screenCTM.multiply(node.getScreenCTM());
         let prevPoint: DOMPoint = null;
-        data.commands.forEach((command, index) => {
+        data.commands.forEach((command) => {
           // const prev = index > 0 ? data.commands[index - 1] : null;
           const abs = command.getAbsolute();
-          if (!abs) {
+          if (!abs || abs.type === PathType.closeAbs) {
             return;
           }
           const p = abs.p;
@@ -81,6 +81,7 @@ export class PathRenderer extends BaseRenderer {
             return;
           }
           const point = p.matrixTransform(ctm);
+          // TODO: draw handles when siblings nodes are selected
           const drawHandles = false;
           if (drawHandles) {
             // draw handles:
