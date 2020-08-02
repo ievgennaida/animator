@@ -36,7 +36,8 @@ export class WireService {
     documentService: DocumentService,
     pathRenderer: PathRenderer
   ) {
-    toolsService.activeToolChanged().subscribe(() => {
+    toolsService.activeToolChanged().subscribe((activeTool) => {
+      boundsRenderer.drawNodeHandles = activeTool === toolsService.selectionTool;
       pathRenderer.invalidate();
     });
     selectionService.selected.subscribe(() => {

@@ -26,6 +26,17 @@ export class BoundsRenderer extends BaseRenderer {
     super();
   }
 
+  // tslint:disable-next-line: variable-name
+  private _drawNodeHandles = true;
+  get drawNodeHandles() {
+    return this._drawNodeHandles;
+  }
+  set drawNodeHandles(value: boolean) {
+    if (this._drawNodeHandles !== value) {
+      this._drawNodeHandles = value;
+      this.invalidate();
+    }
+  }
   getAdornerStroke(adornerType: AdornerType): string {
     if (
       this.selectionService.isAdornerHandleSelected(adornerType) ||
@@ -206,7 +217,24 @@ export class BoundsRenderer extends BaseRenderer {
     ctx.fillText(text, center.x - measured.width / 2, center.y + hOffset);
     ctx.restore();
   }
+  isShowHandles(aboutToBeRendered: TreeNode[] = null) {
+    if (!this.drawNodeHandles) {
+      return false;
+    }
+    const renderable = aboutToBeRendered || this.getRenderable();
+    const multiple = !!renderable && renderable.length > 1;
+    return !multiple;
+  }
 
+  getRenderable(): TreeNode[] {
+    const nodes = this.selectionService.getSelected();
+    if (nodes && nodes.length > 0) {
+      const renderable = nodes.filter((node) => !!node.getElement());
+      return renderable;
+    }
+
+    return [];
+  }
   redraw() {
     if (!this.ctx) {
       return;
@@ -214,63 +242,61 @@ export class BoundsRenderer extends BaseRenderer {
     const ctx = this.ctx;
     this.invalidated = false;
     this.clear();
-    const nodes = this.selectionService.getSelected();
-    if (nodes && nodes.length > 0) {
-      const renderable = nodes.filter((node) => !!node.getElement());
-      const multiple = renderable.length > 1;
+    const renderable = this.getRenderable();
 
-      const elementsColor = multiple
-        ? consts.altSelectionStroke
-        : consts.mainSelectionStroke;
-      const elementsThickness = multiple
-        ? consts.altSelectionThickness
-        : consts.mainSelectionThickness;
+    const multiple = renderable.length > 1;
 
-      renderable.forEach((node: TreeNode) => {
-        if (node.selected) {
-          const adornerData = node.getScreenAdorners(this.screenCTM);
-          if (adornerData) {
-            this.drawAdornerRect(
-              ctx,
-              elementsThickness,
-              elementsColor,
-              adornerData
-            );
-            if (!multiple) {
-              // draw when resized.
-              // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
-              // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-              if (node.allowResize) {
-                this.drawAdornersHandles(ctx, adornerData);
-              }
+    const elementsColor = multiple
+      ? consts.altSelectionStroke
+      : consts.mainSelectionStroke;
+    const elementsThickness = multiple
+      ? consts.altSelectionThickness
+      : consts.mainSelectionThickness;
+
+    renderable.forEach((node: TreeNode) => {
+      if (node.selected) {
+        const adornerData = node.getScreenAdorners(this.screenCTM);
+        if (adornerData) {
+          this.drawAdornerRect(
+            ctx,
+            elementsThickness,
+            elementsColor,
+            adornerData
+          );
+          if (!multiple) {
+            // draw when resized.
+            // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
+            // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
+            if (node.allowResize && this.drawNodeHandles) {
+              this.drawAdornersHandles(ctx, adornerData);
               this.drawCross(ctx, adornerData.centerTransform);
             }
           }
         }
-      });
-
-      // Draw global bounds:
-      if (renderable && renderable.length > 1) {
-        // TODO: cached, reuse
-        const adorners = renderable.map((p) =>
-          p.getScreenAdorners(this.screenCTM)
-        );
-        const bounds = Utils.getBBoxBounds(...adorners);
-        this.drawPath(
-          ctx,
-          consts.mainSelectionThickness,
-          consts.mainSelectionStroke,
-          null,
-          true,
-          new DOMPoint(bounds.x, bounds.y),
-          new DOMPoint(bounds.x + bounds.width, bounds.y),
-          new DOMPoint(bounds.x + bounds.width, bounds.y + bounds.height),
-          new DOMPoint(bounds.x, bounds.y + bounds.height)
-        );
-        // let totalBounds = Utils.getBBoxBounds(...renderable);
-        // this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, adornerData);
-        // this.adornersDataService.getElementAdornerData(null,totalBounds);
       }
+    });
+
+    // Draw global bounds:
+    if (renderable && renderable.length > 1) {
+      // TODO: cached, reuse
+      const adorners = renderable.map((p) =>
+        p.getScreenAdorners(this.screenCTM)
+      );
+      const bounds = Utils.getBBoxBounds(...adorners);
+      this.drawPath(
+        ctx,
+        consts.mainSelectionThickness,
+        consts.mainSelectionStroke,
+        null,
+        true,
+        new DOMPoint(bounds.x, bounds.y),
+        new DOMPoint(bounds.x + bounds.width, bounds.y),
+        new DOMPoint(bounds.x + bounds.width, bounds.y + bounds.height),
+        new DOMPoint(bounds.x, bounds.y + bounds.height)
+      );
+      // let totalBounds = Utils.getBBoxBounds(...renderable);
+      // this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, adornerData);
+      // this.adornersDataService.getElementAdornerData(null,totalBounds);
     }
   }
 }

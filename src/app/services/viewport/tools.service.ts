@@ -29,8 +29,8 @@ export class ToolsService {
   constructor(
     private panTool: PanTool,
     private zoomTool: ZoomTool,
-    private selectionTool: SelectionTool,
-    private pathTool: PathDirectSelectionTool,
+    public selectionTool: SelectionTool,
+    public pathTool: PathDirectSelectionTool,
     createPathTool: PathTool,
     private selectionService: SelectionService,
     private viewService: ViewService,

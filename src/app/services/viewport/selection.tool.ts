@@ -148,11 +148,15 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
+        const selectedNodes = this.selectionService.getSelected();
+        const showHandles = this.boundsRenderer.isShowHandles();
         // TODO: general selection adorner.
-        const handle = this.intersectionService.getAdornerHandleIntersection(
-          event.screenPoint,
-          this.selectionService.getSelected()
-        );
+        const handle = showHandles
+          ? this.intersectionService.getAdornerHandleIntersection(
+              event.screenPoint,
+              selectedNodes
+            )
+          : null;
         if (!handle) {
           this.mouseOverService.leaveHandle();
         } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
