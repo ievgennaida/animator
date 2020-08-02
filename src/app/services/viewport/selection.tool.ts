@@ -138,11 +138,8 @@ export class SelectionTool extends BaseSelectionTool {
   onWindowMouseMove(event: MouseEventArgs) {
     if (this.startedNode && this.startedNode.selected && this.containerRect) {
       this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
-      if (!this.mouseOverRenderer.suspended) {
-        this.mouseOverRenderer.suspend();
-        // Don't draw mouse over when transformation is started:
-        this.mouseOverRenderer.clear();
-      }
+      // Don't draw mouse over when transformation is started:
+      this.mouseOverRenderer.suspend(true);
       this.moveByMouse(event);
     } else {
       if (this.startedNode) {
@@ -172,7 +169,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   /**
-   * @override
+   * Override
    */
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect): boolean {
     // override the auto pan code to run it when translate operation is running.
@@ -207,6 +204,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   onPlayerMouseOut(event: MouseEventArgs) {
+    // TODO: wrong place for this global event. Should be extracted.
     if (this.cachedMouse && this.cachedMouse.tag !== event.args.target) {
       const node = this.outlineService
         .getAllNodes()
@@ -231,7 +229,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   /**
-   * @override
+   * Override
    */
   selectionEnded(event: MouseEventArgs) {
     if (this.transformations !== null && this.transformations.length > 0) {
