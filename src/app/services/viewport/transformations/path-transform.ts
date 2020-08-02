@@ -3,7 +3,6 @@ import { Utils } from "../../utils/utils";
 import { PathType } from "src/app/models/path/path-type";
 import { PathData } from "src/app/models/path/path-data";
 import { HandleData } from "src/app/models/handle-data";
-import { PathDataCommand } from 'src/app/models/path/path-data-command';
 export class PathTransform extends MatrixTransform {
   prevAngle = 0;
   transformOrigin: DOMPoint = null;
@@ -144,6 +143,16 @@ export class PathTransform extends MatrixTransform {
             command.values = [...abs.values];
             const calcRelative = abs.calculateRelPoint();
             command.p = calcRelative;
+            if (command.type !== PathType.arc) {
+              const relA = abs.calculateRelA();
+              if (relA) {
+                command.a = relA;
+              }
+              const relB = abs.calculateRelB();
+              if (relB) {
+                command.b = relB;
+              }
+            }
           }
         }
       });
