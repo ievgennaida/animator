@@ -202,18 +202,6 @@ export class SelectionTool extends BaseSelectionTool {
     }
   }
 
-  /**
-   * override
-   */
-  selectionUpdate(event: MouseEventArgs) {
-    if (!this.selectionRect) {
-      return;
-    }
-
-    // const selected = this.getIntersects() as TreeNode[];
-    // this.outlineService.setSelected(selected);
-  }
-
   onPlayerMouseOut(event: MouseEventArgs) {
     if (this.cachedMouse && this.cachedMouse.tag !== event.args.target) {
       const node = this.outlineService
