@@ -144,12 +144,13 @@ export class PathDirectSelectionTool extends SelectionTool {
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
     if (nodes) {
+      const mouseOverItems: Array<number> = [];
       nodes.forEach((node) => {
         const data = node.getPathData();
         const p = Utils.toElementPoint(node, screenPos);
         const rectSelector = this.selectionRectToNodeCoordinates(node);
         if (p && data && data.commands) {
-          data.commands.forEach((command, index) => {
+          data.commands.forEach((command, commandIndex) => {
             const abs = command.getAbsolute();
             const l = Utils.getLength(p, abs.p);
             // TODO: extract, reuse
@@ -168,14 +169,14 @@ export class PathDirectSelectionTool extends SelectionTool {
               selected =
                 selected || Utils.rectIntersectPoint(rectSelector, abs.p);
             }
-
-            if (abs.selected !== selected) {
-              abs.selected = selected;
-              this.pathRenderer.invalidate();
+            if (selected) {
+              mouseOverItems.push(commandIndex);
             }
           });
         }
       });
+
+     // this.mouseOverService.setMouseOverPathData(node, mouseOverItems)
     }
   }
 

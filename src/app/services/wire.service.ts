@@ -42,9 +42,10 @@ export class WireService {
       boundsRenderer.suppressMainSelection = !isSelectionToolActive;
       pathRenderer.invalidate();
     });
-    selectionService.selected.subscribe(() => {
+    selectionService.selected.subscribe((state) => {
       boundsRenderer.invalidate();
       pathRenderer.invalidate();
+      // state.removed.forEach((p) => mouseOverService.leavePathDataNode(p));
     });
 
     documentService.documentSubject.asObservable().subscribe(() => {
@@ -81,7 +82,12 @@ export class WireService {
       }
       mouseOverRenderer.invalidate();
     });
-    mouseOverService.handleOverSubject.subscribe((selectedHandle) => {
+    mouseOverService.mouseOverPathDataHandleSubject.subscribe((state) => {
+      mouseOverRenderer.invalidate();
+      boundsRenderer.invalidate();
+      console.log("mouse over handle changed");
+    });
+    mouseOverService.mouseOverHandleSubject.subscribe((selectedHandle) => {
       mouseOverRenderer.invalidate();
       boundsRenderer.invalidate();
     });

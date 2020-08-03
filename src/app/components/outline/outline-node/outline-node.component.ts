@@ -12,13 +12,12 @@ import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "src/app/services/outline.service";
 import { takeUntil } from "rxjs/operators";
 import {
-  SelectionService,
-  SelectionMode,
+  SelectionService
 } from "src/app/services/selection.service";
 import { ContextMenuService } from "src/app/services/context-menu.service";
 import { BaseComponent } from "../../base-component";
 import { MouseOverService } from "src/app/services/mouse-over.service";
-
+import { ChangeStateMode } from "src/app/services/state-subject";
 @Component({
   selector: "app-outline-node",
   templateUrl: "./outline-node.component.html",
@@ -67,11 +66,11 @@ export class OutlineNodeComponent extends BaseComponent
   }
 
   setSelected(event: MouseEvent, node: TreeNode) {
-    let mode = SelectionMode.Normal;
+    let mode = ChangeStateMode.Normal;
     const nodes = [];
     if (event && event.ctrlKey) {
       nodes.push(node);
-      mode = SelectionMode.Revert;
+      mode = ChangeStateMode.Revert;
       OutlineNodeComponent.lastSelected = node;
     } else if (event && event.shiftKey) {
       const selected = OutlineNodeComponent.lastSelected;

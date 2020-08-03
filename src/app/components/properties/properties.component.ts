@@ -8,12 +8,12 @@ import {
 import { takeUntil } from "rxjs/operators";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
-import { ChangedArgs } from "src/app/models/changed-args";
 import { Properties } from "src/app/models/Properties/Properties";
 import { Property } from "src/app/models/Properties/Property";
 import { OutlineService } from "src/app/services/outline.service";
 import { SelectionService } from "src/app/services/selection.service";
 import { BaseComponent } from "../base-component";
+import { State } from 'src/app/services/state-subject';
 
 @Component({
   selector: "app-properties",
@@ -43,17 +43,17 @@ export class PropertiesComponent extends BaseComponent
   ngOnInit() {
     this.selectionService.selected
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((p: ChangedArgs) => {
-        if (p.nodes) {
-          if (p.nodes.length === 0) {
+      .subscribe((p: State<TreeNode>) => {
+        if (p.values) {
+          if (p.values.length === 0) {
             this.properties = null;
             this.nameProperty = null;
             this.name = null;
             this.type = null;
             this.namePropertiesVisible = false;
-          } else if (p.nodes.length === 1) {
+          } else if (p.values.length === 1) {
             this.namePropertiesVisible = true;
-            this.node = p.nodes[0];
+            this.node = p.values[0];
             if (this.node) {
               this.properties = this.node.properties;
               this.nameProperty = this.nameProperty;
@@ -66,9 +66,9 @@ export class PropertiesComponent extends BaseComponent
             // TODO: merge sibling properties, allow to edit.
             this.properties = null;
             this.nameProperty = null;
-            this.name = `Selected (${p.nodes.length})`;
+            this.name = `Selected (${p.values.length})`;
             const uniqueTypes: Array<TreeNode> = [];
-            p.nodes.forEach((element) => {
+            p.values.forEach((element) => {
               if (
                 !uniqueTypes.find(
                   (uniqueType) => uniqueType.type === element.type

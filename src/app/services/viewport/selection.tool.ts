@@ -7,7 +7,6 @@ import { PanTool } from "./pan.tool";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../outline.service";
 import { TransformsService } from "./transformations/transforms.service";
-import { Utils } from "../utils/utils";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { CursorService } from "../cursor.service";
 import {
@@ -16,7 +15,8 @@ import {
 } from "./transformations/matrix-transform";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
-import { SelectionService, SelectionMode } from "../selection.service";
+import { SelectionService } from "../selection.service";
+import { ChangeStateMode } from "../state-subject";
 import { IntersectionService } from "../intersection.service";
 import { ContextMenuService } from "../context-menu.service";
 import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
@@ -236,11 +236,11 @@ export class SelectionTool extends BaseSelectionTool {
       this.stopAutoPan();
       return;
     }
-    let mode = SelectionMode.Normal;
+    let mode = ChangeStateMode.Normal;
     if (event.ctrlKey) {
-      mode = SelectionMode.Revert;
+      mode = ChangeStateMode.Revert;
     } else if (event.shiftKey) {
-      mode = SelectionMode.Append;
+      mode = ChangeStateMode.Append;
     }
 
     if (this.selectionService.selectedAdorner !== AdornerType.None) {

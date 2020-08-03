@@ -8,10 +8,10 @@ import {
 
 import { SelectionService } from "src/app/services/selection.service";
 import { takeUntil } from "rxjs/operators";
-import { ChangedArgs } from "src/app/models/changed-args";
 import { Breadcrumb } from "./breadcrumb-item/breadcrumb-item.component";
 import { TreeNode } from "src/app/models/tree-node";
 import { BaseComponent } from '../../base-component';
+import { State } from 'src/app/services/state-subject';
 
 @Component({
   selector: "app-breadcrumb",
@@ -34,15 +34,15 @@ export class BreadcrumbComponent extends BaseComponent implements OnInit, OnDest
     this.empty.title = "None";
     this.selectionService.selected
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((event: ChangedArgs) => {
-        if (event.nodes && event.nodes.length > 0) {
-          if (event.nodes.length === 1) {
+      .subscribe((event: State<TreeNode>) => {
+        if (event.any()) {
+          if (event.values.length === 1) {
             this.items.length = 0;
-            const selected = event.nodes[0];
+            const selected = event.values[0];
             this.populateBreadcrumbs(this.items, selected);
           } else {
             this.items.length = 0;
-            this.empty.title = `Selected (${event.nodes.length})`;
+            this.empty.title = `Selected (${event.values.length})`;
             this.items.push(this.empty);
           }
         } else {

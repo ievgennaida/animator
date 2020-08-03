@@ -8,11 +8,11 @@ import {
 } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import {
-  SelectionService,
-  SelectionMode,
+  SelectionService
 } from "src/app/services/selection.service";
 import { BaseComponent } from 'src/app/components/base-component';
 import { MouseOverService } from 'src/app/services/mouse-over.service';
+import { ChangeStateMode } from 'src/app/services/state-subject';
 export class Breadcrumb {
   node: TreeNode;
   title: string;
@@ -55,7 +55,7 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
     if (!this.item || !this.item.node) {
       return;
     }
-    const mode = SelectionMode.Normal;
+    const mode = ChangeStateMode.Normal;
     this.ngZone.runOutsideAngular(() => {
       this.selectionService.setSelected(this.item.node, mode);
     });

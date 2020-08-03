@@ -9,7 +9,6 @@ export interface SVGPathSegmentEx {
 
 export class PathDataCommand implements SVGPathSegmentEx {
   constructor(public type: string, public values: number[] = []) {}
-  public selected = false;
   // tslint:disable-next-line: variable-name
   private _r: DOMPoint;
   // tslint:disable-next-line: variable-name

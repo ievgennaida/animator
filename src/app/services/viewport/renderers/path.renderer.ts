@@ -8,6 +8,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from "../../utils/utils";
 import { consts } from "src/environments/consts";
 import { PathType } from "src/app/models/path/path-type";
+import { MouseOverService } from "../../mouse-over.service";
 
 @Injectable({
   providedIn: "root",
@@ -16,6 +17,7 @@ export class PathRenderer extends BaseRenderer {
   constructor(
     protected viewService: ViewService,
     protected logger: LoggerService,
+    private mouseOverService: MouseOverService,
     private selectionService: SelectionService
   ) {
     super();
@@ -70,7 +72,7 @@ export class PathRenderer extends BaseRenderer {
       if (data && data.commands) {
         const ctm = this.screenCTM.multiply(node.getScreenCTM());
         let prevPoint: DOMPoint = null;
-        data.commands.forEach((command) => {
+        data.commands.forEach((command, commandIndex) => {
           // const prev = index > 0 ? data.commands[index - 1] : null;
           const abs = command.getAbsolute();
           if (!abs || abs.type === PathType.closeAbs) {
@@ -234,12 +236,16 @@ export class PathRenderer extends BaseRenderer {
             }
           }
           if (point) {
+            const mouseOver = this.mouseOverService.isMouseOverPathData(
+              node,
+              commandIndex
+            );
             this.drawPoint(
               node,
               point,
               consts.pathPointSize,
-              abs.selected ? "red" : consts.pathHandleStroke,
-              abs.selected ? "red" : consts.pathPointFill
+              mouseOver ? "yellow" : consts.pathHandleStroke,
+              mouseOver ? "yellow" : consts.pathPointFill
             );
           }
 

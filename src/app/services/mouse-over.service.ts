@@ -2,8 +2,10 @@ import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
 import { HandleData } from "../models/handle-data";
+import { PathDataHandle } from "../models/path-data-handle";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 import { Utils } from "./utils/utils";
+import { StateSubject } from "./state-subject";
 
 @Injectable({
   providedIn: "root",
@@ -17,10 +19,33 @@ export class MouseOverService {
   /**
    * Mouse over resize adorner handle
    */
-  handleOverSubject = new BehaviorSubject<HandleData>(null);
+  mouseOverHandleSubject = new BehaviorSubject<HandleData>(null);
+
+  /**
+   * Mouse over path data handle
+   */
+  mouseOverPathDataHandleSubject = new StateSubject<PathDataHandle>();
+
+
+  leavePathDataNode(node: TreeNode) {
+    const allData = this.getMouseOverPathData();
+    const filteredMouseOverData = allData.filter((p) => p.node !== node);
+    if (allData.length !== filteredMouseOverData.length) {
+      this.mouseOverPathDataHandleSubject.change(filteredMouseOverData);
+    }
+  }
+
+  getMouseOverPathData(nodeFilter: TreeNode = null): Array<PathDataHandle> {
+    const array = this.mouseOverPathDataHandleSubject.getValues();
+    if (nodeFilter) {
+      return array.filter((p) => p.node === nodeFilter);
+    }
+    return array || [];
+  }
+
   setMouseOverHandle(data: HandleData): boolean {
     if (data !== this.mouseOverHandle) {
-      this.handleOverSubject.next(data);
+      this.mouseOverHandleSubject.next(data);
       return true;
     }
     return false;
@@ -29,10 +54,16 @@ export class MouseOverService {
     return this.setMouseOverHandle(null);
   }
   get mouseOverHandle(): HandleData {
-    return this.handleOverSubject.getValue();
+    return this.mouseOverHandleSubject.getValue();
+  }
+  isMouseOverPathData(node: TreeNode, index: number): boolean {
+    const mouseOver = this.mouseOverPathDataHandleSubject
+      .getValues()
+      .find((p) => p.node === node && p.commandIndex === index);
+    return !!mouseOver;
   }
   isMouseOverHandle(data: HandleData): boolean {
-    const currentHandle = this.handleOverSubject.getValue();
+    const currentHandle = this.mouseOverHandleSubject.getValue();
     if (!currentHandle || !data) {
       return false;
     }
@@ -43,7 +74,7 @@ export class MouseOverService {
     );
   }
   isMouseOverAdornerHandle(data: AdornerType | null = null): boolean {
-    const currentHandle = this.handleOverSubject.getValue();
+    const currentHandle = this.mouseOverHandleSubject.getValue();
     if (!data) {
       return !!currentHandle;
     }
