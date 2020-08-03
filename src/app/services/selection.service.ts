@@ -5,7 +5,7 @@ import { Observable } from "rxjs";
 import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 import { StateSubject, State, ChangeStateMode } from "./state-subject";
-
+import { PathDataSelectionSubject } from "./path-data-subject";
 @Injectable({
   providedIn: "root",
 })
@@ -22,6 +22,7 @@ export class SelectionService {
       return false;
     }
   );
+  pathDataSubject = new PathDataSelectionSubject();
   selectedAdorner: AdornerType = AdornerType.None;
   deselectAdorner() {
     this.setSelectedAdorner(AdornerType.None);

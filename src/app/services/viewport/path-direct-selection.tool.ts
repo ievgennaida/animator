@@ -20,6 +20,9 @@ import { IntersectionService } from "../intersection.service";
 import { Utils } from "../utils/utils";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
+import { PathDataCommand } from "src/app/models/path/path-data-command";
+import { PathDataHandle } from "src/app/models/path-data-handle";
+import { ChangeStateMode } from "../state-subject";
 
 @Injectable({
   providedIn: "root",
@@ -114,23 +117,6 @@ export class PathDirectSelectionTool extends SelectionTool {
     // this.cursor.setCursor(CursorType.Default);
   }
 
-  selectionRectToNodeCoordinates(node: TreeNode): DOMRect {
-    if (!node) {
-      return null;
-    }
-
-    const screenCTM = node.getScreenCTM();
-    const viewportScreenCTM = this.viewService.getScreenCTM();
-    if (!screenCTM || !viewportScreenCTM) {
-      return;
-    }
-    const outputRect = Utils.matrixRectTransform(
-      this.selectionRect,
-      screenCTM.inverse().multiply(viewportScreenCTM)
-    );
-
-    return outputRect;
-  }
   /**
    * Override
    */
@@ -140,44 +126,18 @@ export class PathDirectSelectionTool extends SelectionTool {
     }
 
     super.onWindowMouseMove(event);
-
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
-    if (nodes) {
-      const mouseOverItems: Array<number> = [];
-      nodes.forEach((node) => {
-        const data = node.getPathData();
-        const p = Utils.toElementPoint(node, screenPos);
-        const rectSelector = this.selectionRectToNodeCoordinates(node);
-        if (p && data && data.commands) {
-          data.commands.forEach((command, commandIndex) => {
-            const abs = command.getAbsolute();
-            const l = Utils.getLength(p, abs.p);
-            // TODO: extract, reuse
-            const screenPointSize = Utils.getLength(
-              Utils.toElementPoint(
-                node,
-                new DOMPoint(screenPos.x + 1, screenPos.y + 1)
-              ),
-              p
-            );
+    const overPoints = this.intersectionService.intersectPathDataHandles(
+      nodes,
+      this.selectionRect,
+      screenPos
+    );
 
-            const accuracy = screenPointSize * consts.handleSize;
-
-            let selected = l <= accuracy;
-            if (rectSelector) {
-              selected =
-                selected || Utils.rectIntersectPoint(rectSelector, abs.p);
-            }
-            if (selected) {
-              mouseOverItems.push(commandIndex);
-            }
-          });
-        }
-      });
-
-     // this.mouseOverService.setMouseOverPathData(node, mouseOverItems)
-    }
+    this.mouseOverService.pathDataSubject.change(
+      overPoints,
+      ChangeStateMode.Normal
+    );
   }
 
   /**
@@ -198,6 +158,23 @@ export class PathDirectSelectionTool extends SelectionTool {
   selectionEnded(event: MouseEventArgs) {
     if (this.click) {
       super.selectionEnded(event);
+    } else {
+      const screenPos = event.getDOMPoint();
+      const nodes = this.selectionService.getSelected();
+      const overPoints = this.intersectionService.intersectPathDataHandles(
+        nodes,
+        this.selectionRect,
+        screenPos
+      );
+
+      this.pathRenderer.suspend();
+      this.mouseOverService.pathDataSubject.leaveAll();
+      this.selectionService.pathDataSubject.change(
+        overPoints,
+        ChangeStateMode.Normal
+      );
+
+      this.pathRenderer.resume();
     }
   }
 }

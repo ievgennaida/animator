@@ -10,6 +10,7 @@ import { TreeNode } from "../models/tree-node";
 import { ViewService } from "./view.service";
 import { OutlineService } from "./outline.service";
 import { LoggerService } from "./logger.service";
+import { PathDataHandle } from "../models/path-data-handle";
 @Injectable({
   providedIn: "root",
 })
@@ -113,5 +114,72 @@ export class IntersectionService {
     results.node = toReturn;
     results.adornerData = toReturn.getElementAdorner();
     return results;
+  }
+  intersectPathDataHandles(
+    nodes: TreeNode[],
+    selectorRect: DOMRect,
+    screenPos: DOMPoint
+  ): Array<PathDataHandle> {
+    const mouseOverItems: Array<PathDataHandle> = [];
+
+    if (nodes) {
+      nodes.forEach((node) => {
+        const data = node.getPathData();
+        const p = Utils.toElementPoint(node, screenPos);
+        const rectSelector = this.selectionRectToNodeCoordinates(
+          selectorRect,
+          node
+        );
+        if (p && data && data.commands) {
+          data.commands.forEach((command, commandIndex) => {
+            const abs = command.getAbsolute();
+            let selected = false;
+            if (rectSelector) {
+              selected =
+                selected || Utils.rectIntersectPoint(rectSelector, abs.p);
+            }
+
+            if (screenPos && !rectSelector) {
+              const l = Utils.getLength(p, abs.p);
+              // TODO: select a,b helper handles.
+              const screenPointSize = Utils.getLength(
+                Utils.toElementPoint(
+                  node,
+                  new DOMPoint(screenPos.x + 1, screenPos.y + 1)
+                ),
+                p
+              );
+
+              const accuracy = screenPointSize * consts.handleSize;
+              selected = l <= accuracy;
+            }
+
+            if (selected) {
+              mouseOverItems.push(new PathDataHandle(node, commandIndex));
+            }
+          });
+        }
+      });
+    }
+    return mouseOverItems;
+  }
+  selectionRectToNodeCoordinates(
+    selectorRect: DOMRect,
+    node: TreeNode
+  ): DOMRect {
+    if (!node) {
+      return null;
+    }
+    const screenCTM = node.getScreenCTM();
+    const viewportScreenCTM = this.viewService.getScreenCTM();
+    if (!screenCTM || !viewportScreenCTM) {
+      return;
+    }
+    const outputRect = Utils.matrixRectTransform(
+      selectorRect,
+      screenCTM.inverse().multiply(viewportScreenCTM)
+    );
+
+    return outputRect;
   }
 }

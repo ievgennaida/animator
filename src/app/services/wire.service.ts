@@ -82,10 +82,13 @@ export class WireService {
       }
       mouseOverRenderer.invalidate();
     });
-    mouseOverService.mouseOverPathDataHandleSubject.subscribe((state) => {
-      mouseOverRenderer.invalidate();
-      boundsRenderer.invalidate();
-      console.log("mouse over handle changed");
+    selectionService.pathDataSubject.subscribe((state) => {
+      pathRenderer.invalidate();
+      // console.log("handle selection changed");
+    });
+    mouseOverService.pathDataSubject.subscribe((state) => {
+      pathRenderer.invalidate();
+      // console.log("mouse over handle changed");
     });
     mouseOverService.mouseOverHandleSubject.subscribe((selectedHandle) => {
       mouseOverRenderer.invalidate();

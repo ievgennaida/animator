@@ -236,16 +236,33 @@ export class PathRenderer extends BaseRenderer {
             }
           }
           if (point) {
-            const mouseOver = this.mouseOverService.isMouseOverPathData(
+            let handleStroke = consts.pathHandleStroke;
+            let handleFill = consts.pathPointFill;
+            const isSelected = this.selectionService.pathDataSubject.getHandle(
               node,
               commandIndex
             );
+            if (isSelected) {
+              // TODO: move to config
+              handleStroke = "red";
+              handleFill = "red";
+            } else {
+              const mouseOver = this.mouseOverService.pathDataSubject.getHandle(
+                node,
+                commandIndex
+              );
+
+              if (mouseOver) {
+                handleFill = "yellow";
+              }
+            }
+
             this.drawPoint(
               node,
               point,
               consts.pathPointSize,
-              mouseOver ? "yellow" : consts.pathHandleStroke,
-              mouseOver ? "yellow" : consts.pathPointFill
+              handleStroke,
+              handleFill
             );
           }
 

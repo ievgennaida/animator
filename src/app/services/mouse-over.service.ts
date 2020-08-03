@@ -5,7 +5,8 @@ import { HandleData } from "../models/handle-data";
 import { PathDataHandle } from "../models/path-data-handle";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 import { Utils } from "./utils/utils";
-import { StateSubject } from "./state-subject";
+import { StateSubject, ChangeStateMode } from "./state-subject";
+import { PathDataSelectionSubject } from "./path-data-subject";
 
 @Injectable({
   providedIn: "root",
@@ -24,25 +25,14 @@ export class MouseOverService {
   /**
    * Mouse over path data handle
    */
-  mouseOverPathDataHandleSubject = new StateSubject<PathDataHandle>();
+  pathDataSubject = new PathDataSelectionSubject();
 
-
-  leavePathDataNode(node: TreeNode) {
-    const allData = this.getMouseOverPathData();
-    const filteredMouseOverData = allData.filter((p) => p.node !== node);
-    if (allData.length !== filteredMouseOverData.length) {
-      this.mouseOverPathDataHandleSubject.change(filteredMouseOverData);
-    }
+  setMouseOverPathData(node: TreeNode, mouseOverItems: Array<number>) {
+    this.pathDataSubject.change(
+      mouseOverItems.map((p) => new PathDataHandle(node, p)),
+      ChangeStateMode.Normal
+    );
   }
-
-  getMouseOverPathData(nodeFilter: TreeNode = null): Array<PathDataHandle> {
-    const array = this.mouseOverPathDataHandleSubject.getValues();
-    if (nodeFilter) {
-      return array.filter((p) => p.node === nodeFilter);
-    }
-    return array || [];
-  }
-
   setMouseOverHandle(data: HandleData): boolean {
     if (data !== this.mouseOverHandle) {
       this.mouseOverHandleSubject.next(data);
@@ -55,12 +45,6 @@ export class MouseOverService {
   }
   get mouseOverHandle(): HandleData {
     return this.mouseOverHandleSubject.getValue();
-  }
-  isMouseOverPathData(node: TreeNode, index: number): boolean {
-    const mouseOver = this.mouseOverPathDataHandleSubject
-      .getValues()
-      .find((p) => p.node === node && p.commandIndex === index);
-    return !!mouseOver;
   }
   isMouseOverHandle(data: HandleData): boolean {
     const currentHandle = this.mouseOverHandleSubject.getValue();
