@@ -7,15 +7,19 @@ export enum ChangeStateMode {
   /**
    * Select new items. deselect changed.
    */
-  Normal = "normal",
+  Normal = 1,
   /**
    * Append current selection.
    */
-  Append = "append",
+  Append = 2,
   /**
    * Revert selected items state.
    */
-  Revert = "revert",
+  Revert = 3,
+  /**
+   * Remove
+   */
+  Remove = 4,
 }
 type StateChangeCallback<T> = (node: T, value: boolean) => boolean;
 export class State<T> {
@@ -35,9 +39,8 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     super(new State<T>());
   }
 
-  getValues(): Array<T> {
-    const state = this.getValue();
-    return state ? state.values || [] : [];
+  protected equals(first: T, second: T) {
+    return first === second;
   }
   protected changeState(state: State<T>, node: T, value: boolean): boolean {
     const isChanged = this.changeStateCallback
@@ -53,8 +56,14 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     }
     return isChanged;
   }
-
-  change(values: T[] | T, mode: ChangeStateMode = ChangeStateMode.Normal) {
+  public getValues(): Array<T> {
+    const state = this.getValue();
+    return state ? state.values || [] : [];
+  }
+  public change(
+    values: T[] | T,
+    mode: ChangeStateMode = ChangeStateMode.Normal
+  ): boolean {
     if (!values) {
       values = [];
     }
@@ -71,16 +80,23 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
 
     if (converted && mode === ChangeStateMode.Append) {
       converted.forEach((node) => {
-        if (!state.values.includes(node)) {
+        if (!state.values.find((p) => this.equals(p, node))) {
           const changed = this.changeState(state, node, true);
           if (changed) {
             state.values.push(node);
           }
         }
       });
+    } else if (converted && mode === ChangeStateMode.Remove) {
+      converted.forEach((node) => {
+        if (state.values.find((p) => this.equals(p, node))) {
+          this.changeState(state, node, false);
+          Utils.deleteElement<T>(state.values, node);
+        }
+      });
     } else if (converted && mode === ChangeStateMode.Revert) {
       converted.forEach((node) => {
-        if (state.values.includes(node)) {
+        if (state.values.find((p) => this.equals(p, node))) {
           this.changeState(state, node, false);
           Utils.deleteElement<T>(state.values, node);
         } else {
@@ -91,12 +107,14 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     } else if (mode === ChangeStateMode.Normal) {
       if (converted) {
         converted.forEach((node) => {
-          this.changeState(state, node, true);
+          if (!state.values.find((p) => this.equals(p, node))) {
+            this.changeState(state, node, true);
+          }
         });
       }
 
       state.values.forEach((node) => {
-        const exists = converted.includes(node);
+        const exists = converted.find((p) => this.equals(p, node));
         // change values for old selected nodes (deselect old)
         if (!exists) {
           this.changeState(state, node, false);
@@ -114,6 +132,9 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
 
     if (state.changed.length > 0) {
       this.next(state);
+      return true;
     }
+
+    return false;
   }
 }
