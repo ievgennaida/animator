@@ -99,11 +99,13 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   selectionStarted(event: MouseEventArgs) {
-    // super.selectionStarted(event);
     // don't allow to transform on right click:
     if (event.rightClicked()) {
       this.cleanUp();
       return;
+    }
+    if (!event.ctrlKey && !event.shiftKey) {
+      this.selectionService.pathDataSubject.setNone();
     }
   }
   /**
@@ -156,25 +158,30 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   selectionEnded(event: MouseEventArgs) {
+    const screenPos = event.getDOMPoint();
+    const nodes = this.selectionService.getSelected();
+    const overPoints = this.intersectionService.intersectPathDataHandles(
+      nodes,
+      this.click ? null : this.selectionRect,
+      screenPos
+    );
+
+    let changeStateMode = ChangeStateMode.Normal;
     if (this.click) {
-      super.selectionEnded(event);
+      if (!overPoints || overPoints.length === 0) {
+        super.selectionEnded(event);
+      }
+      if (event.shiftKey || event.ctrlKey) {
+        changeStateMode = ChangeStateMode.Revert;
+      }
     } else {
-      const screenPos = event.getDOMPoint();
-      const nodes = this.selectionService.getSelected();
-      const overPoints = this.intersectionService.intersectPathDataHandles(
-        nodes,
-        this.selectionRect,
-        screenPos
-      );
-
-      this.pathRenderer.suspend();
-      this.mouseOverService.pathDataSubject.leaveAll();
-      this.selectionService.pathDataSubject.change(
-        overPoints,
-        ChangeStateMode.Normal
-      );
-
-      this.pathRenderer.resume();
+      changeStateMode = ChangeStateMode.Append;
     }
+    this.pathRenderer.suspend();
+    this.mouseOverService.pathDataSubject.setNone();
+    this.selectionService.pathDataSubject.change(overPoints, changeStateMode);
+
+    this.pathRenderer.resume();
+    this.selectionRect = null;
   }
 }

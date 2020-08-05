@@ -20,10 +20,6 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     return first.equals(second);
   }
 
-  leaveAll() {
-    this.change([], ChangeStateMode.Normal);
-  }
-
   getHandle(
     node: TreeNode,
     commandIndex: number,
