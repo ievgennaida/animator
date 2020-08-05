@@ -61,7 +61,7 @@ export const consts = {
      */
     tickPx: 120,
     /**
-     * approximate smal ruler step in px for 1 tick
+     * approximate small ruler step in px for 1 tick
      */
     smallTickPx: 80,
     smallTickColor: "#D5D5D5",
