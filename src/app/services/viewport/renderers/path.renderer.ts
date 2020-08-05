@@ -45,7 +45,6 @@ export class PathRenderer extends BaseRenderer {
   }
 
   drawHandle(
-    node: TreeNode,
     point: DOMPoint,
     size: number,
     stroke: string = "black",
@@ -53,13 +52,20 @@ export class PathRenderer extends BaseRenderer {
   ) {
     this.ctx.beginPath();
     this.ctx.lineWidth = 1;
-    this.ctx.strokeStyle = stroke;
+
     this.ctx.ellipse(point.x, point.y, size, size, 0, 0, 360);
-    this.ctx.stroke();
+    if (stroke) {
+      this.ctx.strokeStyle = stroke;
+      this.ctx.stroke();
+    }
+    if (fill) {
+      this.ctx.fillStyle = fill;
+      this.ctx.fill();
+    }
   }
 
   redraw() {
-    if (!this.ctx) {
+    if (!this.ctx || !this.screenCTM) {
       return;
     }
 
@@ -70,7 +76,11 @@ export class PathRenderer extends BaseRenderer {
     nodes.forEach((node) => {
       const data = node.getPathData();
       if (data && data.commands) {
-        const ctm = this.screenCTM.multiply(node.getScreenCTM());
+        const nodeMatrix = node.getScreenCTM();
+        if (!nodeMatrix) {
+          return;
+        }
+        const ctm = this.screenCTM.multiply(nodeMatrix);
         let prevPoint: DOMPoint = null;
         data.commands.forEach((command, commandIndex) => {
           // const prev = index > 0 ? data.commands[index - 1] : null;
@@ -83,8 +93,16 @@ export class PathRenderer extends BaseRenderer {
             return;
           }
           const point = p.matrixTransform(ctm);
-          // TODO: draw handles when siblings nodes are selected
-          const drawHandles = false;
+          if (!point) {
+            return;
+          }
+
+          const isSelected = this.selectionService.pathDataSubject.getHandle(
+            node,
+            commandIndex
+          );
+
+          const drawHandles = isSelected;
           if (drawHandles) {
             // draw handles:
             if (
@@ -97,16 +115,16 @@ export class PathRenderer extends BaseRenderer {
               const b = c.b.matrixTransform(ctm);
               // handles:
               this.drawHandle(
-                node,
                 a,
                 consts.pathHandleSize,
-                consts.pathHandleStroke
+                consts.pathHandleStroke,
+                consts.pathHandleFill
               );
               this.drawHandle(
-                node,
                 b,
                 consts.pathHandleSize,
-                consts.pathHandleStroke
+                consts.pathHandleStroke,
+                consts.pathHandleFill
               );
               // handle lines:
               this.drawPath(
@@ -134,10 +152,10 @@ export class PathRenderer extends BaseRenderer {
               const c = abs;
               const a = c.a.matrixTransform(ctm);
               this.drawHandle(
-                node,
                 a,
                 consts.pathHandleSize,
-                consts.pathHandleStroke
+                consts.pathHandleStroke,
+                consts.pathHandleFill
               );
               this.drawPath(
                 this.ctx,
@@ -155,10 +173,10 @@ export class PathRenderer extends BaseRenderer {
               const c = abs;
               const a = c.a.matrixTransform(ctm);
               this.drawHandle(
-                node,
                 a,
                 consts.pathHandleSize,
-                consts.pathHandleStroke
+                consts.pathHandleStroke,
+                consts.pathHandleFill
               );
               this.drawPath(
                 this.ctx,
@@ -205,10 +223,10 @@ export class PathRenderer extends BaseRenderer {
               );
 
               this.drawHandle(
-                node,
                 rx,
                 consts.pathHandleSize,
-                consts.pathHandleStroke
+                consts.pathHandleStroke,
+                consts.pathHandleFill
               );
 
               let ry = new DOMPoint(center.x, center.y + r.y);
@@ -220,47 +238,41 @@ export class PathRenderer extends BaseRenderer {
               );
 
               this.drawHandle(
-                node,
                 ry,
                 consts.pathHandleSize,
-                consts.pathHandleStroke
+                consts.pathHandleStroke,
+                consts.pathHandleFill
               );
 
               center = center.matrixTransform(ctm);
               this.drawHandle(
-                node,
                 center,
                 consts.pathHandleSize,
-                consts.pathHandleStroke
+                consts.pathHandleStroke,
+                consts.pathHandleFill
               );
             }
           }
           if (point) {
-            let handleStroke = consts.pathHandleStroke;
+            let handleStroke = consts.pathPointStroke;
             let handleFill = consts.pathPointFill;
-            const isSelected = this.selectionService.pathDataSubject.getHandle(
+            const mouseOver = this.mouseOverService.pathDataSubject.getHandle(
               node,
               commandIndex
             );
-            if (isSelected) {
-              // TODO: move to config
-              handleStroke = "red";
-              handleFill = "red";
-            } else {
-              const mouseOver = this.mouseOverService.pathDataSubject.getHandle(
-                node,
-                commandIndex
-              );
 
-              if (mouseOver) {
-                handleFill = "yellow";
-              }
+            if (mouseOver) {
+              handleStroke = consts.pathMouseOverPointStroke;
+              handleFill = consts.pathMouseOverPointFill;
+             } else if (isSelected) {
+              handleStroke = consts.pathSelectedPointStroke;
+              handleFill = consts.pathSelectedPointFill;
             }
 
             this.drawPoint(
               node,
               point,
-              consts.pathPointSize,
+              isSelected ? consts.pathPointSelectedSize : consts.pathPointSize,
               handleStroke,
               handleFill
             );
