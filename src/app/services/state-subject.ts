@@ -60,6 +60,9 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     const state = this.getValue();
     return state ? state.values || [] : [];
   }
+  public setNone() {
+    this.change([], ChangeStateMode.Normal);
+  }
   public change(
     values: T[] | T,
     mode: ChangeStateMode = ChangeStateMode.Normal
@@ -89,16 +92,18 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
       });
     } else if (converted && mode === ChangeStateMode.Remove) {
       converted.forEach((node) => {
-        if (state.values.find((p) => this.equals(p, node))) {
+        const foundEqualItem = state.values.find((p) => this.equals(p, node));
+        if (foundEqualItem) {
           this.changeState(state, node, false);
-          Utils.deleteElement<T>(state.values, node);
+          Utils.deleteElement<T>(state.values, foundEqualItem);
         }
       });
     } else if (converted && mode === ChangeStateMode.Revert) {
       converted.forEach((node) => {
-        if (state.values.find((p) => this.equals(p, node))) {
+        const foundEqualItem = state.values.find((p) => this.equals(p, node));
+        if (foundEqualItem) {
           this.changeState(state, node, false);
-          Utils.deleteElement<T>(state.values, node);
+          Utils.deleteElement<T>(state.values, foundEqualItem);
         } else {
           this.changeState(state, node, true);
           state.values.push(node);
