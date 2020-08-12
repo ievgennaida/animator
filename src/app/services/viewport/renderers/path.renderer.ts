@@ -9,6 +9,7 @@ import { Utils } from "../../utils/utils";
 import { consts } from "src/environments/consts";
 import { PathType } from "src/app/models/path/path-type";
 import { MouseOverService } from "../../mouse-over.service";
+import { environment } from "src/environments/environment";
 
 @Injectable({
   providedIn: "root",
@@ -50,6 +51,9 @@ export class PathRenderer extends BaseRenderer {
     stroke: string = "black",
     fill: string = null
   ) {
+    if (!point) {
+      return;
+    }
     this.ctx.beginPath();
     this.ctx.lineWidth = 1;
 
@@ -102,17 +106,21 @@ export class PathRenderer extends BaseRenderer {
             commandIndex
           );
 
-          const drawHandles = isSelected;
+          const drawHandles = this.selectionService.isPathHandlesActivated(
+            node,
+            commandIndex
+          );
           if (drawHandles) {
             // draw handles:
             if (
-              abs.type === PathType.cubicBezier ||
-              abs.type === PathType.cubicBezierAbs
+              abs.type === PathType.cubicBezierAbs ||
+              abs.type === PathType.shorthandSmoothAbs
             ) {
               const c = abs;
-
-              const a = c.a.matrixTransform(ctm);
-              const b = c.b.matrixTransform(ctm);
+              let a = c.a;
+              let b = c.b;
+              a = a ? a.matrixTransform(ctm) : null;
+              b = b ? b.matrixTransform(ctm) : null;
               // handles:
               this.drawHandle(
                 a,
@@ -146,8 +154,8 @@ export class PathRenderer extends BaseRenderer {
                 b
               );
             } else if (
-              abs.type === PathType.shorthandSmooth ||
-              abs.type === PathType.shorthandSmoothAbs
+              abs.type === PathType.quadraticBezierAbs ||
+              abs.type === PathType.smoothQuadraticBezierAbs
             ) {
               const c = abs;
               const a = c.a.matrixTransform(ctm);
@@ -166,25 +174,13 @@ export class PathRenderer extends BaseRenderer {
                 point,
                 a
               );
-            } else if (
-              abs.type === PathType.quadraticBezier ||
-              abs.type === PathType.quadraticBezierAbs
-            ) {
-              const c = abs;
-              const a = c.a.matrixTransform(ctm);
-              this.drawHandle(
-                a,
-                consts.pathHandleSize,
-                consts.pathHandleStroke,
-                consts.pathHandleFill
-              );
               this.drawPath(
                 this.ctx,
                 1,
                 consts.pathHandleLineStroke,
                 null,
                 false,
-                point,
+                prevPoint,
                 a
               );
             } else if (
@@ -264,7 +260,7 @@ export class PathRenderer extends BaseRenderer {
             if (mouseOver) {
               handleStroke = consts.pathMouseOverPointStroke;
               handleFill = consts.pathMouseOverPointFill;
-             } else if (isSelected) {
+            } else if (isSelected) {
               handleStroke = consts.pathSelectedPointStroke;
               handleFill = consts.pathSelectedPointFill;
             }
