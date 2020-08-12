@@ -134,13 +134,16 @@ export class BaseRenderer {
     closed: boolean,
     ...points: Array<DOMPoint>
   ) {
-    if (!ctx) {
+    if (!ctx || !points || points.length === 0) {
       return;
     }
     ctx.beginPath();
 
     points.forEach((point, index) => {
       const p = point;
+      if (!p) {
+        return;
+      }
       // const p = this.getSharpPos(point);
       if (index === 0) {
         ctx.moveTo(p.x, p.y);
