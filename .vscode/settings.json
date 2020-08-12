@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "Coef",
         "Dnumeric",
         "HCTX",
         "ICTM",
@@ -13,6 +14,7 @@
         "divs",
         "downlevel",
         "esnext",
+        "hodograph",
         "hpath",
         "jasminewd",
         "leng",
@@ -31,6 +33,8 @@
         "visibilitychange",
         "vpath",
         "workarea",
+        "xbase",
+        "ybase",
         "zier"
     ]
 }
