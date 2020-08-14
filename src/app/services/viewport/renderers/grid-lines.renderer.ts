@@ -59,8 +59,8 @@ export class GridLinesRenderer extends BaseRenderer {
   }
 
   valToPx(min, max, val, displaySize) {
-    const distance = this.getDistance(min, max);
-    let distanceOnLine = this.getDistance(min, val);
+    const distance = Utils.getDistance(min, max);
+    let distanceOnLine = Utils.getDistance(min, val);
     if (val <= min) {
       distanceOnLine = -distanceOnLine;
     }
@@ -90,7 +90,7 @@ export class GridLinesRenderer extends BaseRenderer {
       from = wasToVal;
     }
 
-    const valDistance = this.getDistance(from, to);
+    const valDistance = Utils.getDistance(from, to);
     if (valDistance <= 0) {
       return;
     }
@@ -143,7 +143,7 @@ export class GridLinesRenderer extends BaseRenderer {
     let lastTextLim = null;
     let lastTextStart = 0;
     for (let i = fromVal; i <= toVal; i += step) {
-      if (this.getDistance(i, toVal) > step / 4) {
+      if (Utils.getDistance(i, toVal) > step / 4) {
         let pos = this.valToPx(from, to, i, viewportSizeA);
         pos = this.getSharp(pos, gridLineWidth);
         if (rulerActive) {

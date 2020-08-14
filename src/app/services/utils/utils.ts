@@ -74,7 +74,12 @@ export class Utils {
     const rad = Math.atan2(p1.y - p2.y, p2.x - p1.x);
     return Utils.deg(rad);
   }
-
+  static mod(x: number, m: number) {
+    return ((x % m) + m) % m;
+  }
+  static clamp(val: number, min: number, max: number) {
+    return Math.min(Math.max(val, min), max);
+  }
   /**
    * https://stackoverflow.com/a/11467200/39428
    */
@@ -168,7 +173,10 @@ export class Utils {
   static toElementPoint(
     el: SVGGraphicsElement | ICTMProvider,
     screenPoint: DOMPoint
-  ): DOMPoint {
+  ): DOMPoint | null {
+    if (!screenPoint) {
+      return null;
+    }
     const ctm = el.getScreenCTM();
     if (!ctm) {
       return null;
@@ -296,6 +304,12 @@ export class Utils {
     vector.y /= mag;
     return vector;
   }
+  static getPointAtLength(a: DOMPoint, b: DOMPoint, pos: number): DOMPoint {
+    const fraction = pos / Utils.getLength(a, b);
+    const newDeltaX = (b.x - a.x) * fraction;
+    const newDeltaY = (b.y - a.y) * fraction;
+    return new DOMPoint(a.x + newDeltaX, a.y + newDeltaY);
+  }
 
   static getLength(a: DOMPoint, b: DOMPoint = null): number {
     const leng = Math.sqrt(
@@ -303,7 +317,13 @@ export class Utils {
     );
     return leng;
   }
-
+  static getDistance(x1: number, y1: number, x2?: number, y2?: number) {
+    if (x2 !== undefined && y2 !== undefined) {
+      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    } else {
+      return Math.abs(x1 - y1);
+    }
+  }
   static getCenterTransform(
     element: SVGGraphicsElement,
     bboxCache: DOMRect = null
