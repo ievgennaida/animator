@@ -192,6 +192,44 @@ export class PathData {
     return cloned;
   }
   /**
+   * Iterate all absolute commands.
+   */
+  forEach(
+    iterator: (
+      command: PathDataCommand,
+      absCommand: PathDataCommand,
+      index: number
+    ) => void
+  ) {
+    if (!iterator || !this.commands) {
+      return;
+    }
+    this.commands.forEach((command, index) => {
+      if (command) {
+        const abs = command.getAbsolute();
+        if (abs) {
+          iterator(command, abs, index);
+        }
+      }
+    });
+  }
+  /**
+   * Iterate all absolute commands.
+   */
+  forEachAbs(iterator: (absCommand: PathDataCommand, index: number) => void) {
+    if (!iterator || !this.commands) {
+      return;
+    }
+    this.commands.forEach((command, index) => {
+      if (command) {
+        const abs = command.getAbsolute();
+        if (abs) {
+          iterator(abs, index);
+        }
+      }
+    });
+  }
+  /**
    * recalculate self.
    */
   recalculate(): PathData {
