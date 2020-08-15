@@ -107,13 +107,6 @@ export class BaseRenderer {
     }
   }
 
-  getDistance(x1: number, y1: number, x2?: number, y2?: number) {
-    if (x2 !== undefined && y2 !== undefined) {
-      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-    } else {
-      return Math.abs(x1 - y1);
-    }
-  }
   getSharpPos(point: DOMPoint, thickness = 1) {
     point.x = this.getSharp(point.x, thickness);
     point.y = this.getSharp(point.y, thickness);
@@ -126,6 +119,25 @@ export class BaseRenderer {
     return pos;
   }
 
+  drawRect(
+    ctx: CanvasRenderingContext2D,
+    thickness: number,
+    stroke: string,
+    fillStyle: string,
+    rect: DOMRect
+  ) {
+    this.drawPath(
+      ctx,
+      thickness,
+      stroke,
+      fillStyle,
+      false,
+      new DOMPoint(rect.x, rect.y),
+      new DOMPoint(rect.x + rect.width, rect.y),
+      new DOMPoint(rect.x + rect.width, rect.y + rect.height),
+      new DOMPoint(rect.x, rect.y + rect.height)
+    );
+  }
   drawPath(
     ctx: CanvasRenderingContext2D,
     thickness: number,

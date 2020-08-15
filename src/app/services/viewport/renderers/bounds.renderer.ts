@@ -300,16 +300,12 @@ export class BoundsRenderer extends BaseRenderer {
         p.getScreenAdorners(this.screenCTM)
       );
       const bounds = Utils.getBBoxBounds(...adorners);
-      this.drawPath(
+      this.drawRect(
         ctx,
         consts.mainSelectionThickness,
         consts.mainSelectionStroke,
         null,
-        true,
-        new DOMPoint(bounds.x, bounds.y),
-        new DOMPoint(bounds.x + bounds.width, bounds.y),
-        new DOMPoint(bounds.x + bounds.width, bounds.y + bounds.height),
-        new DOMPoint(bounds.x, bounds.y + bounds.height)
+        bounds
       );
       // let totalBounds = Utils.getBBoxBounds(...renderable);
       // this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, adornerData);
