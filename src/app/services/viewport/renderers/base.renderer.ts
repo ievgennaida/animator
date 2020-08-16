@@ -1,5 +1,6 @@
 import { AdornerData } from "../adorners/adorner-data";
 import { consts } from "src/environments/consts";
+import { TreeNode } from "src/app/models/tree-node";
 
 export class BaseRenderer {
   canvasCTM: DOMMatrix = new DOMMatrix();
@@ -107,6 +108,38 @@ export class BaseRenderer {
     }
   }
 
+  drawPathOutline(
+    node: TreeNode,
+    stroke: string,
+    thickness: number = 0
+  ): boolean {
+    if ((!node && Path2D) || !stroke || thickness === 0) {
+      return false;
+    }
+    const data = node.getPathData();
+
+    if (data && data.commands) {
+      const stringPath = data.toString();
+      if (!stringPath) {
+        return false;
+      }
+      const path2d = new Path2D();
+      if (!path2d.addPath) {
+        // Check whether method is supported.
+        return false;
+      }
+      path2d.addPath(
+        new Path2D(stringPath),
+        this.screenCTM.multiply(node.getScreenCTM())
+      );
+      this.ctx.lineWidth = thickness;
+      this.ctx.strokeStyle = stroke;
+      this.ctx.stroke(path2d);
+      return true;
+    }
+
+    return false;
+  }
   getSharpPos(point: DOMPoint, thickness = 1) {
     point.x = this.getSharp(point.x, thickness);
     point.y = this.getSharp(point.y, thickness);
@@ -126,12 +159,15 @@ export class BaseRenderer {
     fillStyle: string,
     rect: DOMRect
   ) {
+    if (!rect) {
+      return;
+    }
     this.drawPath(
       ctx,
       thickness,
       stroke,
       fillStyle,
-      false,
+      true,
       new DOMPoint(rect.x, rect.y),
       new DOMPoint(rect.x + rect.width, rect.y),
       new DOMPoint(rect.x + rect.width, rect.y + rect.height),

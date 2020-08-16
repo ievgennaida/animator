@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
 import { TreeNode } from "src/app/models/tree-node";
-import { MouseOverService } from '../../mouse-over.service';
+import { MouseOverService } from "../../mouse-over.service";
 
 /**
  * Mouse over renderer
@@ -14,6 +14,10 @@ export class MouseOverRenderer extends BaseRenderer {
   constructor(private mouseOverService: MouseOverService) {
     super();
   }
+  /**
+   * Draw path outline on mouse over when possible.
+   */
+  enableDrawPathOutline = false;
   node: TreeNode;
   setMouseOver(node: TreeNode) {
     if (this.node !== node) {
@@ -35,14 +39,25 @@ export class MouseOverRenderer extends BaseRenderer {
         return;
       }
 
-      const adornerData = this.node.getScreenAdorners(this.screenCTM);
-      const thickness = consts.mouseOverBorderThickness * this.onePixel;
-      this.drawAdornerRect(
-        this.ctx,
-        thickness,
-        consts.mouseOverBoundsColor,
-        adornerData
-      );
+      let outlineRendered = false;
+      if (this.enableDrawPathOutline) {
+        outlineRendered = this.drawPathOutline(
+          this.node,
+          consts.mouseOverBoundsColor
+        );
+        // Draw bounds in any case.
+        outlineRendered = false;
+      }
+      if (!outlineRendered) {
+        const adornerData = this.node.getScreenAdorners(this.screenCTM);
+        const thickness = consts.mouseOverBorderThickness * this.onePixel;
+        this.drawAdornerRect(
+          this.ctx,
+          thickness,
+          consts.mouseOverBoundsColor,
+          adornerData
+        );
+      }
     }
   }
 }
