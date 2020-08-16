@@ -1,14 +1,14 @@
 import { TimelineRow } from "animation-timeline-js";
+import { AdornerData } from "../services/viewport/adorners/adorner-data";
+import { IBBox } from "./interfaces/bbox";
+import { ICTMProvider } from "./interfaces/ctm-provider";
 import { baseLayer } from "./Lottie/layers/baseLayer";
-import { Properties } from "./Properties/Properties";
-import { Property } from "./Properties/Property";
-import { shapeType } from "./Lottie/shapes/shapeType";
 import { LottieModel } from "./Lottie/LottieModel";
 import { NodeType } from "./Lottie/NodeType";
-import { AdornerData } from "../services/viewport/adorners/adorner-data";
+import { shapeType } from "./Lottie/shapes/shapeType";
 import { PathData } from "./path/path-data";
-import { ICTMProvider } from "./interfaces/ctm-provider";
-import { IBBox } from "./interfaces/bbox";
+import { Properties } from "./Properties/Properties";
+import { Property } from "./Properties/Property";
 
 /**
  * Application node view model.

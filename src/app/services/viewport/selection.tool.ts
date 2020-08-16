@@ -1,29 +1,29 @@
-import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Injectable } from "@angular/core";
-import { LoggerService } from "../logger.service";
-import { ViewService } from "../view.service";
-import { BaseSelectionTool } from "./base-selection.tool";
-import { PanTool } from "./pan.tool";
+import { CursorType } from "src/app/models/cursor-type";
+import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
-import { OutlineService } from "../outline.service";
-import { TransformsService } from "./transformations/transforms.service";
-import { SelectorRenderer } from "./renderers/selector.renderer";
+import { MouseEventArgs } from "../../models/mouse-event-args";
+import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
-import {
-  MatrixTransform,
-  TransformationMode,
-} from "./transformations/matrix-transform";
-import { BoundsRenderer } from "./renderers/bounds.renderer";
-import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { IntersectionService } from "../intersection.service";
+import { LoggerService } from "../logger.service";
+import { MouseOverService } from "../mouse-over.service";
+import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
-import { IntersectionService } from "../intersection.service";
-import { ContextMenuService } from "../context-menu.service";
+import { ViewService } from "../view.service";
 import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
-import { CursorType } from "src/app/models/cursor-type";
+import { BaseSelectionTool } from "./base-selection.tool";
+import { PanTool } from "./pan.tool";
+import { BoundsRenderer } from "./renderers/bounds.renderer";
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { SelectorRenderer } from "./renderers/selector.renderer";
+import {
+  MatrixTransform,
+  TransformationMode
+} from "./transformations/matrix-transform";
+import { TransformsService } from "./transformations/transforms.service";
 
-import { MouseOverService } from "../mouse-over.service";
-import { HandleData } from "src/app/models/handle-data";
 
 /**
  * Select elements by a mouse move move.
