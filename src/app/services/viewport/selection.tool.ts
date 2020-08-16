@@ -123,6 +123,10 @@ export class SelectionTool extends BaseSelectionTool {
     return !handle && !!startedNode;
   }
 
+  onDeactivate() {
+    super.onDeactivate();
+    this.cleanUp();
+  }
   cleanUp() {
     this.mouseOverRenderer.resume();
     this.lastDeg = null;
