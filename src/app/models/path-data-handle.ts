@@ -4,9 +4,9 @@ import { TreeNode } from "./tree-node";
  */
 export class PathDataHandle {
   constructor(
-    private node: TreeNode,
-    private commandIndex: number,
-    private commandType: PathDataHandleType = PathDataHandleType.Point
+    public node: TreeNode,
+    public commandIndex: number,
+    public commandType: PathDataHandleType = PathDataHandleType.Point
   ) {}
 
   isHandle(
