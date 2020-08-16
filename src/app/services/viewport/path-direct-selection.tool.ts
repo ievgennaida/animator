@@ -1,28 +1,25 @@
-import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Injectable } from "@angular/core";
-import { LoggerService } from "../logger.service";
-import { ViewService } from "../view.service";
-import { CursorService } from "../cursor.service";
-import { CursorType } from "src/app/models/cursor-type";
-import { SelectionTool } from "./selection.tool";
-import { TransformsService } from "./transformations/transforms.service";
-import { SelectorRenderer } from "./renderers/selector.renderer";
-import { SelectionService } from "../selection.service";
-import { BoundsRenderer } from "./renderers/bounds.renderer";
+import {
+  PathDataHandle,
+  PathDataHandleType,
+} from "src/app/models/path-data-handle";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 import { ContextMenuService } from "../context-menu.service";
-import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { CursorService } from "../cursor.service";
+import { IntersectionService } from "../intersection.service";
+import { LoggerService } from "../logger.service";
 import { MouseOverService } from "../mouse-over.service";
 import { OutlineService } from "../outline.service";
-import { PanTool } from "./pan.tool";
-import { PathRenderer } from "./renderers/path.renderer";
-import { IntersectionService } from "../intersection.service";
-import { Utils } from "../utils/utils";
-import { TreeNode } from "src/app/models/tree-node";
-import { consts } from "src/environments/consts";
-import { PathDataCommand } from "src/app/models/path/path-data-command";
-import { PathDataHandle } from "src/app/models/path-data-handle";
+import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
+import { ViewService } from "../view.service";
+import { PanTool } from "./pan.tool";
+import { BoundsRenderer } from "./renderers/bounds.renderer";
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { PathRenderer } from "./renderers/path.renderer";
+import { SelectorRenderer } from "./renderers/selector.renderer";
+import { SelectionTool } from "./selection.tool";
+import { TransformsService } from "./transformations/transforms.service";
 
 @Injectable({
   providedIn: "root",
@@ -73,6 +70,7 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   onDeactivate() {
+    this.mouseOverRenderer.enableDrawPathOutline = false;
     this.pathRenderer.suspend();
     this.pathRenderer.clear();
     super.onDeactivate();
@@ -81,6 +79,7 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   onActivate() {
+    this.mouseOverRenderer.enableDrawPathOutline = true;
     this.pathRenderer.invalidate();
     this.pathRenderer.resume();
     super.onActivate();
@@ -130,12 +129,25 @@ export class PathDirectSelectionTool extends SelectionTool {
     super.onWindowMouseMove(event);
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
-    const overPoints = this.intersectionService.intersectPathDataHandles(
-      nodes,
-      this.selectionRect,
-      screenPos
-    );
+    const overPoints =
+      this.intersectionService.intersectPathDataHandles(
+        nodes,
+        this.selectionRect,
+        screenPos
+      ) || [];
 
+    // No handles selected, select curve if not a rectangular selection:
+    if (overPoints.length === 0 && !this.selectionRect) {
+      const nearest = this.intersectionService.getMouseOverPathCurve(
+        nodes,
+        screenPos
+      );
+      if (nearest) {
+        const curve = new PathDataHandle(nearest.node, nearest.commandIndex);
+        curve.commandType = PathDataHandleType.Curve;
+        overPoints.push(curve);
+      }
+    }
     this.mouseOverService.pathDataSubject.change(
       overPoints,
       ChangeStateMode.Normal

@@ -36,4 +36,5 @@ export enum PathDataHandleType {
   Point,
   HandleA,
   HandleB,
+  Curve,
 }

@@ -147,6 +147,15 @@ export class PathData {
 
     return data;
   }
+  public toString(): string {
+    let d = "";
+
+    for (let i = 0; i < this.commands.length; i += 1) {
+      const seg = this.commands[i];
+      d += (i > 0 ? " " : "") + seg.toString();
+    }
+    return d;
+  }
   public normalize(normalizeTypes: string[] = null): PathData {
     const data = this;
     if (!data || !data.commands) {

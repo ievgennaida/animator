@@ -7,7 +7,7 @@
 // tslint:disable: variable-name
 import { Utils } from "src/app/services/utils/utils";
 import { PathType } from "src/app/models/path/path-type";
-
+import { PointOnPathUtils } from "src/app/models/path/utils/point-on-path";
 // Should be replaced by a DOM type when available.
 export interface SVGPathSegmentEx {
   type: string;
@@ -22,6 +22,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   public _x = 0;
   public _y = 0;
 
+  private pointsCache = new Map<number, DOMPoint>();
   /**
    * Cached segment length.
    */
@@ -41,6 +42,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   private cleanCache() {
     this._center = null;
     this._length = null;
+    this.pointsCache.clear();
   }
   public clone(): PathDataCommand {
     const cloned = new PathDataCommand(this.type, [...this.values]);
@@ -189,19 +191,18 @@ export class PathDataCommand implements SVGPathSegmentEx {
       this.type === PathType.shorthandSmooth ||
       this.type === PathType.shorthandSmoothAbs
     ) {
+      if (!prevAbs) {
+        return null;
+      }
       /**
        * The start control point is a reflection of the end control point of the previous curve command.
        * If the previous command wasn't a cubic Bézier curve, the start control point
        * is the same as the curve starting point (current point).
        */
       if (
-        (prevAbs && prevAbs.type === PathType.shorthandSmoothAbs) ||
+        prevAbs.type === PathType.shorthandSmoothAbs ||
         prevAbs.type === PathType.cubicBezierAbs
       ) {
-        // 2 * cur[0] - c.x,
-        // 2 * cur[1] - c.y,
-
-        // const a = prevAbs.a;
         const b = prevAbs.b;
         // For this mode handle point is calculated.
         const virtualHandle = new DOMPoint(
@@ -211,7 +212,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
         return virtualHandle;
       } else {
         // NOTE: can be prev point. Should be checked
-        return new DOMPoint(this.x, this.y);
+        return new DOMPoint(prevAbs.x, prevAbs.y);
       }
     } else if (
       // T command
@@ -276,7 +277,11 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
 
   public get b(): DOMPoint | null {
-    if (this.type === PathType.arc || this.type === PathType.arcAbs || !this.values ) {
+    if (
+      this.type === PathType.arc ||
+      this.type === PathType.arcAbs ||
+      !this.values
+    ) {
       return null;
     }
 
@@ -384,9 +389,26 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return this._length;
     }
 
-    this._length = 0;
+    this._length = PointOnPathUtils.getSegmentLength(this);
 
     return this._length;
+  }
+
+  public getPointOnPath(fractionLength: number): DOMPoint {
+    // TODO: cache until moved or deselected.
+    const toReturn = this.pointsCache.get(fractionLength);
+    if (toReturn) {
+      return toReturn;
+    }
+    const point = PointOnPathUtils.getPointOnPath(
+      this,
+      fractionLength,
+      this.length
+    );
+    if (point) {
+      this.pointsCache.set(fractionLength, point);
+    }
+    return point;
   }
   public getRel(x: number | null, y: number | null): DOMPoint | null {
     if (x === null || y === null) {
@@ -418,7 +440,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     const b = abs.b;
     return this.getRel(b ? b.x : null, b ? b.y : null);
   }
-  /** Arc rotation point. */
+  /** Arc radius point. */
   public get r(): DOMPoint {
     if (!this._r) {
       this._r = new DOMPoint();
@@ -434,6 +456,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.values[1] = point.y;
     this.cleanCache();
   }
+
+  /**
+   * Arc radius can be set but cannot be less than a distance between path segments.
+   */
+  public getCalculatedRadius(): DOMPoint {
+    // TODO: improve this by a real calculation of a radius.
+    return this.r;
+  }
   /**
    * the x-axis of the ellipse is rotated by x-axis-rotation
    * degrees relative to the x-axis of the current coordinate system.
@@ -441,6 +471,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   public get rotation(): number {
     return this.values[2];
   }
+
   public set rotation(val: number) {
     this.values[2] = val;
     this.cleanCache();
@@ -468,5 +499,64 @@ export class PathDataCommand implements SVGPathSegmentEx {
       this.values[4] = 0;
     }
     this.cleanCache();
+  }
+
+  public toString(): string {
+    if (this.values && this.values.length > 0) {
+      return this.type + " " + this.values.join(" ");
+    }
+
+    return this.type;
+  }
+
+  /**
+   * Get path data command bounds.
+   */
+  public getBounds(): DOMRect {
+    const abs = this.getAbsolute();
+    if (abs.type === PathType.moveAbs) {
+      return null;
+    }
+    const prev = this.absPrevPoint;
+    const p = abs.p;
+    const a = abs.a;
+    const b = abs.b;
+
+    let minX = Math.min(prev.x, p.x);
+    let maxX = Math.max(prev.x, p.x);
+    let minY = Math.min(prev.y, p.y);
+    let maxY = Math.max(prev.y, p.y);
+
+    if (a) {
+      minX = Math.min(a.x, minX);
+      maxX = Math.max(a.x, maxX);
+      minY = Math.min(a.y, minY);
+      maxY = Math.max(a.y, maxY);
+    }
+
+    if (b) {
+      minX = Math.min(b.x, minX);
+      maxX = Math.max(b.x, maxX);
+      minY = Math.min(b.y, minY);
+      maxY = Math.max(b.y, maxY);
+    }
+    if (abs.type === PathType.arcAbs) {
+      // TODO: calculate bounding box of arc
+      const r = this.getCalculatedRadius();
+      const centerArc = this.center;
+      minX = Math.min(centerArc.x + r.x, minX);
+      minX = Math.max(centerArc.x - r.x, minX);
+      minY = Math.min(centerArc.y + r.y, minY);
+      maxY = Math.max(centerArc.y - r.y, maxY);
+      // TODO: return nothing for now
+      return null;
+    }
+    const toReturn = new DOMRect(
+      minX,
+      minY,
+      Math.max(maxX - minX, 1),
+      Math.max(maxY - minY, 1)
+    );
+    return toReturn;
   }
 }

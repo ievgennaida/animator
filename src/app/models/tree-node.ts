@@ -206,4 +206,9 @@ export class TreeNode implements ICTMProvider, IBBox {
     }
     return typeTitle;
   }
+
+  strokeWidth(): number {
+    // TODO: get stroke width calculated value
+    return 1;
+  }
 }
