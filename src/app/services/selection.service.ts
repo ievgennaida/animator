@@ -39,8 +39,8 @@ export class SelectionService {
    * Get top most selected node from current.
    * @param node Node to start top-search from.
    */
-  getTopSelectedNode(node: TreeNode) {
-    if (!node.selected || !node.transformable) {
+  getTopSelectedNode(node: TreeNode): TreeNode | null {
+    if (!node || !node.selected || !node.transformable) {
       return null;
     }
 
