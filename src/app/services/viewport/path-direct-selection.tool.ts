@@ -104,17 +104,20 @@ export class PathDirectSelectionTool extends SelectionTool {
   selectionStarted(event: MouseEventArgs) {
     // don't allow to transform on right click:
     if (event.rightClicked()) {
+      // TODO: context menu for a specific point or selected points
       this.cleanUp();
       return;
     }
 
+    const isAltMode = event.ctrlKey || event.shiftKey;
+
+    if (isAltMode) {
+      return;
+    }
     const overHandles = this.mouseOverService.pathDataSubject.getHandles();
     if (!overHandles || overHandles.length === 0) {
-      const isAltMode = event.ctrlKey || event.shiftKey;
-      if (!isAltMode) {
-        // Start click or rect transform, deselect all selected
-        this.selectionService.pathDataSubject.setNone();
-      }
+      // Start click or rect transform, deselect all selected
+      this.selectionService.pathDataSubject.setNone();
     } else {
       // Get transform handles to be moved
       const handles = this.getTransformHandles();
@@ -188,8 +191,10 @@ export class PathDirectSelectionTool extends SelectionTool {
     if (this.selectionRect && !this.click) {
       this.mouseOverRenderer.suspend(true);
     }
+
+    super.onWindowMouseMove(event);
+    // Transformation transaction is started.
     if (this.transformations) {
-      super.onWindowMouseMove(event);
       return;
     }
 
