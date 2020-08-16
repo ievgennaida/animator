@@ -1,5 +1,5 @@
-import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { IBBox } from "../../models/interfaces/bbox";
+import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { AdornerType } from "../viewport/adorners/adorner-type";
 
 export class Utils {
@@ -131,13 +131,26 @@ export class Utils {
     v.y += (y1 + y2) / 2;
     return v;
   }
-  static shrinkRect(rect: DOMRect, percent: number): DOMRect {
+  static shrinkRectPercent(rect: DOMRect, percent: number): DOMRect | null {
+    if (!rect) {
+      return null;
+    }
     if (!percent) {
       return rect;
     }
 
     const offsetX = rect.width * percent;
     const offsetY = rect.height * percent;
+    return Utils.shrinkRect(rect, offsetX, offsetY);
+  }
+  static shrinkRect(
+    rect: DOMRect,
+    offsetX: number,
+    offsetY: number
+  ): DOMRect | null {
+    if (!rect) {
+      return null;
+    }
     return new DOMRect(
       rect.x - offsetX / 2,
       rect.y - offsetY / 2,

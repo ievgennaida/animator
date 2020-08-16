@@ -195,7 +195,7 @@ export class ToolsService {
         bounds,
         this.viewService.getScreenCTM().inverse()
       );
-      bounds = Utils.shrinkRect(bounds, consts.fitToSelectedExtraBounds);
+      bounds = Utils.shrinkRectPercent(bounds, consts.fitToSelectedExtraBounds);
       this.fitViewport(bounds);
     }
   }
