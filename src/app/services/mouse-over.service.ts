@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
-import { TreeNode } from "../models/tree-node";
 import { BehaviorSubject, Observable } from "rxjs";
 import { HandleData } from "../models/handle-data";
 import { PathDataHandle } from "../models/path-data-handle";
-import { AdornerType } from "./viewport/adorners/adorner-type";
-import { Utils } from "./utils/utils";
-import { StateSubject, ChangeStateMode } from "./state-subject";
+import { TreeNode } from "../models/tree-node";
 import { PathDataSelectionSubject } from "./path-data-subject";
+import { ChangeStateMode } from "./state-subject";
+import { Utils } from "./utils/utils";
+import { AdornerType } from "./viewport/adorners/adorner-type";
 
 @Injectable({
   providedIn: "root",

@@ -32,8 +32,20 @@ export class PathDataHandle {
   }
 }
 export enum PathDataHandleType {
+  /**
+   * Path data point.
+   */
   Point = 0,
+  /**
+   * Handle\Control point for a path data.
+   */
   HandleA = 1,
+  /**
+   * Handle\Control point for a path data.
+   */
   HandleB = 2,
+  /**
+   * Selected bezier curve or a line between two path data commands.
+   */
   Curve = 3,
 }

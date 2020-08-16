@@ -20,6 +20,10 @@ import { PathRenderer } from "./renderers/path.renderer";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { SelectionTool } from "./selection.tool";
 import { TransformsService } from "./transformations/transforms.service";
+import { TransformationMode } from "./transformations/matrix-transform";
+import { AdornerTypeUtils } from "./adorners/adorner-type";
+import { PathTransform } from "./transformations/path-transform";
+import { nullLayer } from "src/app/models/Lottie/layers/nullLayer";
 
 @Injectable({
   providedIn: "root",
@@ -103,9 +107,68 @@ export class PathDirectSelectionTool extends SelectionTool {
       this.cleanUp();
       return;
     }
-    if (!event.ctrlKey && !event.shiftKey) {
-      this.selectionService.pathDataSubject.setNone();
+
+    const overHandles = this.mouseOverService.pathDataSubject.getHandles();
+    if (!overHandles || overHandles.length === 0) {
+      const isAltMode = event.ctrlKey || event.shiftKey;
+      if (!isAltMode) {
+        // Start click or rect transform, deselect all selected
+        this.selectionService.pathDataSubject.setNone();
+      }
+    } else {
+      // Get transform handles to be moved
+      const handles = this.getTransformHandles();
+      // Transform one handle
+      if (handles && handles.length > 0) {
+        this.startedNode = handles[0].node;
+        const nodesToSelect = [];
+        handles.forEach((element) => {
+          if (!nodesToSelect.includes(element.node)) {
+            nodesToSelect.push(element.node);
+          }
+        });
+        const transforms = super
+          .startTransformations(nodesToSelect, event.getDOMPoint(), null)
+          .filter((p) => p instanceof PathTransform) as PathTransform[];
+        transforms.forEach((p) => {
+          p.pathHandles = handles.filter((handle) => handle.node === p.node);
+        });
+        this.transformations = transforms;
+      }
     }
+  }
+  /**
+   * Get list of the path data points, control points or curves to be transformed.
+   */
+  getTransformHandles(): PathDataHandle[] | null {
+    const overHandles = this.mouseOverService.pathDataSubject.getHandles();
+    const transformHandle = overHandles.find(
+      (p) => p.commandType !== PathDataHandleType.Point
+    );
+    if (transformHandle) {
+      return [transformHandle];
+    }
+
+    // Move over point, find all selected point and move together.
+    const mouseOverPoints = overHandles.filter(
+      (p) => p.commandType === PathDataHandleType.Point
+    );
+
+    const selectedPoints = this.selectionService.pathDataSubject.getValues();
+    if (
+      mouseOverPoints.find((mouseOverPoint) =>
+        selectedPoints.find((p) => p.equals(mouseOverPoint))
+      )
+    ) {
+      // Move all selected points when mouse over one of them.
+      return selectedPoints;
+    } else {
+      // Only mouse over is selected now.
+      this.selectionService.pathDataSubject.change(mouseOverPoints);
+      return mouseOverPoints;
+    }
+
+    return null;
   }
   /**
    * Override
@@ -125,8 +188,11 @@ export class PathDirectSelectionTool extends SelectionTool {
     if (this.selectionRect && !this.click) {
       this.mouseOverRenderer.suspend(true);
     }
+    if (this.transformations) {
+      super.onWindowMouseMove(event);
+      return;
+    }
 
-    super.onWindowMouseMove(event);
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
     const overPoints =
@@ -173,6 +239,9 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   selectionEnded(event: MouseEventArgs) {
+    if (this.transformations) {
+      return;
+    }
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
     const overPoints = this.intersectionService.intersectPathDataHandles(

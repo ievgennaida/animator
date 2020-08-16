@@ -23,7 +23,7 @@ export class MatrixTransform {
    *
    */
   constructor(
-    protected node: TreeNode,
+    public node: TreeNode,
     protected transformsService: TransformsService
   ) {}
 

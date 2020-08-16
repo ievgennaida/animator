@@ -20,10 +20,9 @@ import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import {
   MatrixTransform,
-  TransformationMode
+  TransformationMode,
 } from "./transformations/matrix-transform";
 import { TransformsService } from "./transformations/transforms.service";
-
 
 /**
  * Select elements by a mouse move move.
@@ -84,38 +83,50 @@ export class SelectionTool extends BaseSelectionTool {
         .getSelected()
         .map((item) => this.selectionService.getTopSelectedNode(item))
         .filter((value, index, self) => value && self.indexOf(value) === index);
-
-      const transformations = nodesToSelect.map((p) => {
-        const transformation = this.transformFactory.getTransformForElement(p);
-
-        const screenPoint = event.getDOMPoint();
-        if (handle) {
-          if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
-            if (p.allowRotate) {
-              transformation.beginMouseRotateTransaction(screenPoint);
-            }
-          } else {
-            if (p.allowResize) {
-              transformation.beginHandleTransformation(handle, screenPoint);
-            }
-          }
-        } else {
-          transformation.beginMouseTransaction(screenPoint);
-        }
-        return transformation;
-      });
-
-      transformations.forEach((p) => {
-        if (p.mode === TransformationMode.Translate) {
-          p.moveByMouse(event.getDOMPoint());
-        }
-      });
-      this.transformations = transformations;
+      const screenPoint = event.getDOMPoint();
+      this.transformations = this.startTransformations(
+        nodesToSelect,
+        screenPoint,
+        handle
+      );
     }
     // Use when accurate selection will be implemented, or to select groups:
     /* if (!this.startedNode) {
       this.startedNode = this.getIntersects(true) as TreeNode;
     } */
+  }
+  startTransformations(
+    nodes: TreeNode[],
+    screenPoint: DOMPoint,
+    handle: HandleData
+  ): MatrixTransform[] | null {
+    if (!nodes || nodes.length === 0) {
+      return null;
+    }
+    const transformations = nodes.map((p) => {
+      const transformation = this.transformFactory.getTransformForElement(p);
+      if (handle) {
+        if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
+          if (p.allowRotate) {
+            transformation.beginMouseRotateTransaction(screenPoint);
+          }
+        } else {
+          if (p.allowResize) {
+            transformation.beginHandleTransformation(handle, screenPoint);
+          }
+        }
+      } else {
+        transformation.beginMouseTransaction(screenPoint);
+      }
+      return transformation;
+    });
+
+    transformations.forEach((p) => {
+      if (p.mode === TransformationMode.Translate) {
+        p.moveByMouse(screenPoint);
+      }
+    });
+    return transformations;
   }
   isOverNode(): boolean {
     const startedNode = this.mouseOverService.getValue();

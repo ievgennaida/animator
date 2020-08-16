@@ -1,6 +1,7 @@
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
-import { StateSubject, ChangeStateMode } from "./state-subject";
 import { TreeNode } from "../models/tree-node";
+import { ChangeStateMode, StateSubject } from "./state-subject";
+import { ThrowStmt } from "@angular/compiler";
 
 /**
  * Subject to track selected/mouse over path data handles.
@@ -18,6 +19,13 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
       return false;
     }
     return first.equals(second);
+  }
+
+  findByHandle(handle: PathDataHandle) {
+    if (!handle) {
+      return null;
+    }
+    return this.getHandle(handle.node, handle.commandIndex, handle.commandType);
   }
 
   getHandle(

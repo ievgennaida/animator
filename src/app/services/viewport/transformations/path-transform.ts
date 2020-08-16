@@ -1,12 +1,23 @@
-import { MatrixTransform, TransformationMode } from "./matrix-transform";
-import { Utils } from "../../utils/utils";
-import { PathType } from "src/app/models/path/path-type";
-import { PathData } from "src/app/models/path/path-data";
 import { HandleData } from "src/app/models/handle-data";
+import {
+  PathDataHandle,
+  PathDataHandleType,
+} from "src/app/models/path-data-handle";
+import { PathData } from "src/app/models/path/path-data";
+import { PathType } from "src/app/models/path/path-type";
+import { Utils } from "../../utils/utils";
+import { MatrixTransform, TransformationMode } from "./matrix-transform";
+import { PathDataCommand } from "src/app/models/path/path-data-command";
+import { filter } from "rxjs/operators";
+
 export class PathTransform extends MatrixTransform {
   prevAngle = 0;
   transformOrigin: DOMPoint = null;
   initPathData: PathData = null;
+  /**
+   * List of a particular path handles to be transformed.
+   */
+  public pathHandles: PathDataHandle[] | null = null;
   beginMouseTransaction(mousePos: DOMPoint) {
     super.beginMouseTransaction(mousePos);
   }
@@ -66,35 +77,61 @@ export class PathTransform extends MatrixTransform {
       .multiply(svgTransform.matrix)
       .translate(-transformPoint.x, -transformPoint.y);
     const pathData = this.initPathData.clone();
-    const changed = this.transformPathByMatrix(matrix, pathData);
+    const changed = this.transformPathByMatrix(
+      matrix,
+      pathData,
+      this.pathHandles
+    );
     if (changed) {
       this.node.setPathData(pathData);
       this.transformsService.emitTransformed(this.getElement());
     }
   }
-  transformPathByMatrix(matrix: DOMMatrix, pathData: PathData): boolean {
+  /**
+   * transform path data by a matrix.
+   * @param matrix matrix to transform path data
+   * @param pathData path data to transform.
+   * @param filters filter the points to be be transformed.
+   */
+  transformPathByMatrix(
+    matrix: DOMMatrix,
+    pathData: PathData,
+    filters: PathDataHandle[] | null = null
+  ): boolean {
     let changed = false;
     if (pathData && pathData.commands) {
-      pathData.commands.forEach((command) => {
+      pathData.commands.forEach((command, commandIndex) => {
         const abs = command.getAbsolute();
         if (abs) {
           const p = abs.p;
           // Command point:
-          if (p) {
+          const manipulateP = this.allowToManipulatePoint(
+            commandIndex,
+            abs,
+            filters
+          );
+          if (p && manipulateP) {
             changed = true;
             abs.p = p.matrixTransform(matrix);
           }
           // Command handles:
           const a = abs.a;
-          if (a) {
+          const allowedChangeControlPointA =
+            a && this.isAllowMoveHandleA(commandIndex, abs, filters);
+          if (allowedChangeControlPointA) {
             abs.a = a.matrixTransform(matrix);
             changed = true;
           }
           const b = abs.b;
-          if (b) {
+          const allowedChangeControlPointB =
+            b &&
+            (manipulateP ||
+              this.isAllowMoveHandleB(commandIndex, abs, filters));
+          if (allowedChangeControlPointB) {
             abs.b = b.matrixTransform(matrix);
             changed = true;
           }
+
           if (abs.type === PathType.arc || abs.type === PathType.arcAbs) {
             const r = abs.r;
             if (r) {
@@ -139,6 +176,8 @@ export class PathTransform extends MatrixTransform {
               }
             }
           }
+          // We should set this even when points are not changed.
+          // This is important to in order to recalculate relative points by the prev given absolute.
           if (!command.isAbsolute()) {
             command.values = [...abs.values];
             const calcRelative = abs.calculateRelPoint();
@@ -160,6 +199,69 @@ export class PathTransform extends MatrixTransform {
 
     return changed;
   }
+
+  allowToManipulatePoint(
+    commandIndex: number,
+    abs: PathDataCommand,
+    filters: PathDataHandle[]
+  ): boolean {
+    // Allow to manipulate when no filters are specified.
+    if (!filters) {
+      return true;
+    }
+
+    const allowedToManipulatePoint = !!filters.find(
+      (f) =>
+        f.commandIndex === commandIndex &&
+        (f.commandType === PathDataHandleType.Point ||
+          ((abs.type === PathType.closeAbs ||
+            abs.type === PathType.lineAbs ||
+            abs.type === PathType.verticalAbs ||
+            abs.type === PathType.horizontalAbs) &&
+            f.commandType === PathDataHandleType.Curve))
+    );
+
+    return allowedToManipulatePoint;
+  }
+  isAllowMoveHandleA(
+    commandIndex: number,
+    abs: PathDataCommand,
+    filters: PathDataHandle[]
+  ): boolean {
+    // Allow to manipulate when no filters are specified.
+    if (!filters) {
+      return true;
+    }
+
+    // Manipulate prev point with a handle.
+    if (this.allowToManipulatePoint(commandIndex - 1, abs, filters)) {
+      return true;
+    }
+    return !!filters.find(
+      (f) =>
+        f.commandIndex === commandIndex &&
+        (f.commandType === PathDataHandleType.HandleA ||
+          f.commandType === PathDataHandleType.Curve)
+    );
+  }
+  isAllowMoveHandleB(
+    commandIndex: number,
+    abs: PathDataCommand,
+    filters: PathDataHandle[]
+  ): boolean {
+    // Allow to manipulate when no filters are specified.
+    if (!filters) {
+      return true;
+    }
+
+    return !!filters.find(
+      (f) =>
+        f.commandIndex === commandIndex &&
+        (f.commandType === PathDataHandleType.HandleB ||
+          f.commandType === PathDataHandleType.Curve)
+    );
+  }
+
   rotateOffset(angle: number, transformPoint: DOMPoint) {
     const element = this.getElement();
 
@@ -175,7 +277,11 @@ export class PathTransform extends MatrixTransform {
       PathType.horizontalAbs,
       PathType.verticalAbs,
     ]);
-    const changed = this.transformPathByMatrix(matrix, pathData);
+    const changed = this.transformPathByMatrix(
+      matrix,
+      pathData,
+      this.pathHandles
+    );
     if (changed) {
       this.node.setPathData(pathData);
       this.transformsService.emitTransformed(this.getElement());
@@ -193,7 +299,11 @@ export class PathTransform extends MatrixTransform {
       .createSVGMatrix()
       .translate(offsetX, offsetY);
     const pathData = this.node.getPathData();
-    const changed = this.transformPathByMatrix(matrix, pathData);
+    const changed = this.transformPathByMatrix(
+      matrix,
+      pathData,
+      this.pathHandles
+    );
     if (changed) {
       this.node.setPathData(pathData);
       this.transformsService.emitTransformed(this.getElement());
