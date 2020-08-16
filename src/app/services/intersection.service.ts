@@ -14,6 +14,7 @@ import {
   AdornerTypeUtils,
 } from "./viewport/adorners/adorner-type";
 import { SelectionService } from "./selection.service";
+import { PathType } from "../models/path/path-type";
 
 export interface NearestCommandPoint {
   point: DOMPoint;
@@ -150,6 +151,9 @@ export class IntersectionService {
         if (data && data.commands) {
           data.commands.forEach((command, commandIndex) => {
             const abs = command.getAbsolute();
+            if (abs.type === PathType.closeAbs) {
+              return;
+            }
             let pointSelected = false;
             if (rectSelector) {
               pointSelected =
