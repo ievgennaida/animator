@@ -36,6 +36,7 @@ export class HotkeysService {
     });
   }
   initialize() {
+    // TODO: make it language invariant
     this.add(`keydown.control.a`, () => this.selectionService.selectAll());
     this.add(`keydown.control.x`, () => this.pasteService.cut());
     this.add(`keydown.control.z`, () => this.undoService.undo());
