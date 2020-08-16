@@ -12,10 +12,14 @@ export const consts = {
   pathMouseOverPointFill: "red",
   pathSelectedPointStroke: "#3399FF",
   pathSelectedPointFill: "#3399FF",
-  // handle
+  // handle (control point)
   pathHandleSize: 3,
   pathHandleStroke: "#3399FF",
-  pathHandleFill: "RGBA(255,255,255,0.2)",
+  pathHandleFill: "RGBA(255,255,255,0.7)",
+  // path handle mouse over and selected (control point)
+  pathHandleSelectedSize: 3,
+  pathHandleSelectedStroke: "#3399FF",
+  pathHandleSelectedFill: "red",
   pathHandleLineStroke: "#3399FF",
   selector: {
     fill: "RGBA(51,153,255,0.11)",
@@ -88,9 +92,9 @@ export const consts = {
   maxBoundsToRender: 25,
   // Path data
   showPathOutline: true,
-  outlineStrokeColor: 'red',
+  outlineStrokeColor: "#3399FF",
   outlineThickness: 1,
-  outlineSelectedStrokeColor: 'red',
+  outlineSelectedStrokeColor: "red",
   outlineSelectedThickness: 2,
   // grid lines
   showGridLines: true,

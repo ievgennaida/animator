@@ -2,14 +2,18 @@ import { Injectable } from "@angular/core";
 import { consts } from "src/environments/consts";
 import { environment } from "src/environments/environment";
 import { HandleData } from "../models/handle-data";
-import { PathDataHandle } from "../models/path-data-handle";
+import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { TreeNode } from "../models/tree-node";
 import { LoggerService } from "./logger.service";
 import { OutlineService } from "./outline.service";
 import { Utils } from "./utils/utils";
 import { ViewService } from "./view.service";
-import { AdornerType, AdornerTypeUtils } from "./viewport/adorners/adorner-type";
+import {
+  AdornerType,
+  AdornerTypeUtils,
+} from "./viewport/adorners/adorner-type";
+import { SelectionService } from "./selection.service";
 
 export interface NearestCommandPoint {
   point: DOMPoint;
@@ -29,7 +33,8 @@ export class IntersectionService {
   constructor(
     private viewService: ViewService,
     private outlineService: OutlineService,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private selectionService: SelectionService
   ) {}
 
   /**
@@ -150,9 +155,8 @@ export class IntersectionService {
               pointSelected =
                 pointSelected || Utils.rectIntersectPoint(rectSelector, abs.p);
             }
-
+            let handleType = PathDataHandleType.Point;
             if (p && !rectSelector) {
-              const l = Utils.getLength(p, abs.p);
               // TODO: select a,b helper handles.
               const screenPointSize = Utils.getLength(
                 Utils.toElementPoint(
@@ -162,10 +166,36 @@ export class IntersectionService {
                 p
               );
 
-              const accuracy = screenPointSize * consts.handleSize;
+              let accuracy = screenPointSize * consts.pathPointSize;
+              let l = Utils.getLength(p, abs.p);
               if (l <= accuracy && prevBestDistance > l) {
                 prevBestDistance = l;
                 pointSelected = true;
+              }
+              const handlesActivated = this.selectionService.isPathHandlesActivated(
+                node,
+                commandIndex
+              );
+              if (handlesActivated) {
+                accuracy = screenPointSize * consts.pathHandleSelectedSize;
+                const a = abs.a;
+                if (a) {
+                  l = Utils.getLength(p, a);
+                  if (l <= accuracy && prevBestDistance > l) {
+                    handleType = PathDataHandleType.HandleA;
+                    prevBestDistance = l;
+                    pointSelected = true;
+                  }
+                }
+                const b = abs.b;
+                if (b) {
+                  l = Utils.getLength(p, b);
+                  if (l <= accuracy && prevBestDistance > l) {
+                    handleType = PathDataHandleType.HandleB;
+                    prevBestDistance = l;
+                    pointSelected = true;
+                  }
+                }
               }
             }
 
@@ -176,7 +206,9 @@ export class IntersectionService {
                 mouseOverItems.length = 0;
               }
 
-              mouseOverItems.push(new PathDataHandle(node, commandIndex));
+              mouseOverItems.push(
+                new PathDataHandle(node, commandIndex, handleType)
+              );
             }
           });
         }

@@ -88,7 +88,7 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   onViewportContextMenu(event: MouseEventArgs) {
-    /*const startedNode = this.outlineService.mouseOverSubject.getValue();
+    /* const startedNode = this.outlineService.mouseOverSubject.getValue();
     if (startedNode) {
       this.contextMenu.open(event.args as MouseEvent, startedNode);
     }*/
@@ -143,8 +143,11 @@ export class PathDirectSelectionTool extends SelectionTool {
         screenPos
       );
       if (nearest) {
-        const curve = new PathDataHandle(nearest.node, nearest.commandIndex);
-        curve.commandType = PathDataHandleType.Curve;
+        const curve = new PathDataHandle(
+          nearest.node,
+          nearest.commandIndex,
+          PathDataHandleType.Curve
+        );
         overPoints.push(curve);
       }
     }

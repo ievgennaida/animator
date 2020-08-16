@@ -143,6 +143,21 @@ export class Utils {
     const offsetY = rect.height * percent;
     return Utils.shrinkRect(rect, offsetX, offsetY);
   }
+  static samePoints(a: DOMPoint, b: DOMPoint, round = 2) {
+    if (!a && !b) {
+      return true;
+    }
+    if (a && b) {
+      if (
+        Utils.round(a.x, round) === Utils.round(b.x) &&
+        Utils.round(a.y) === Utils.round(b.y)
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
   static shrinkRect(
     rect: DOMRect,
     offsetX: number,
@@ -219,8 +234,17 @@ export class Utils {
   public static getDOMPoint(x: number, y: number): DOMPoint {
     return new DOMPoint(x, y);
   }
-  public static roundTwo(num: number) {
-    return Math.round(num * 100) / 100;
+  public static round(num: number, factor = 2) {
+    let mult = 10;
+    if (factor === 2) {
+      mult = 100;
+    } else {
+      for (let i = 1; i <= factor; i++) {
+        mult *= 10;
+      }
+    }
+
+    return Math.round(num * mult) / mult;
   }
   public static setCTM(element: SVGElement | any, matrix: DOMMatrix) {
     const transform = element.ownerSVGElement.createSVGTransform();

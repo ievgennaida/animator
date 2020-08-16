@@ -85,7 +85,11 @@ export class PathRenderer extends BaseRenderer {
 
       if (data && data.commands) {
         if (consts.showPathOutline) {
-          this.drawPathOutline(node, consts.outlineStrokeColor, consts.outlineThickness);
+          this.drawPathOutline(
+            node,
+            consts.outlineStrokeColor,
+            consts.outlineThickness
+          );
         }
         const nodeMatrix = node.getScreenCTM();
         if (!nodeMatrix) {
@@ -127,12 +131,8 @@ export class PathRenderer extends BaseRenderer {
 
           const isSelected = this.selectionService.pathDataSubject.getHandle(
             node,
-            commandIndex
-          );
-
-          const drawHandles = this.selectionService.isPathHandlesActivated(
-            node,
-            commandIndex
+            commandIndex,
+            PathDataHandleType.Point
           );
 
           if (this.debugHandle && true) {
@@ -151,8 +151,7 @@ export class PathRenderer extends BaseRenderer {
             commandIndex,
             ctm,
             point,
-            prevPoint,
-            drawHandles
+            prevPoint
           );
           if (point) {
             let handleStroke = consts.pathPointStroke;
@@ -191,8 +190,7 @@ export class PathRenderer extends BaseRenderer {
     commandIndex: number,
     ctm: DOMMatrix,
     point: DOMPoint,
-    prevPoint: DOMPoint,
-    drawHandles: boolean
+    prevPoint: DOMPoint
   ) {
     const data = node.getPathData();
     const abs = data.commands[commandIndex].getAbsolute();
@@ -205,6 +203,27 @@ export class PathRenderer extends BaseRenderer {
 
     const outlineColor = consts.outlineSelectedStrokeColor;
     const outlineThickness = consts.outlineSelectedThickness;
+
+    let isHandleASelected = false;
+    let isHandleBSelected = false;
+    const drawHandles = this.selectionService.isPathHandlesActivated(
+      node,
+      commandIndex
+    );
+    if (drawHandles) {
+      isHandleASelected = !!this.mouseOverService.pathDataSubject.getHandle(
+        node,
+        commandIndex,
+        PathDataHandleType.HandleA
+      );
+
+      isHandleBSelected = !!this.mouseOverService.pathDataSubject.getHandle(
+        node,
+        commandIndex,
+        PathDataHandleType.HandleB
+      );
+    }
+
     // Draw only mouse over outline:
     const drawPathOutline = isCurveSelected && !!Path2D;
     if (drawHandles || drawPathOutline) {
@@ -229,38 +248,62 @@ export class PathRenderer extends BaseRenderer {
         if (!drawHandles) {
           return;
         }
-        // handles:
-        this.drawHandle(
-          a,
-          consts.pathHandleSize,
-          consts.pathHandleStroke,
-          consts.pathHandleFill
-        );
-        this.drawHandle(
-          b,
-          consts.pathHandleSize,
-          consts.pathHandleStroke,
-          consts.pathHandleFill
-        );
-        // handle lines:
-        this.drawPath(
-          this.ctx,
-          1,
-          consts.pathHandleLineStroke,
-          null,
-          false,
-          prevPoint,
-          a
-        );
-        this.drawPath(
-          this.ctx,
-          1,
-          consts.pathHandleLineStroke,
-          null,
-          false,
-          point,
-          b
-        );
+        const aSame =
+          Utils.samePoints(prevPoint, a) || Utils.samePoints(point, a);
+        if (!aSame) {
+          // handle lines:
+          this.drawPath(
+            this.ctx,
+            1,
+            consts.pathHandleLineStroke,
+            null,
+            false,
+            prevPoint,
+            a
+          );
+        }
+        const bSame =
+          Utils.samePoints(prevPoint, b) || Utils.samePoints(point, b);
+        if (!Utils.samePoints(point, b)) {
+          this.drawPath(
+            this.ctx,
+            1,
+            consts.pathHandleLineStroke,
+            null,
+            false,
+            point,
+            b
+          );
+        }
+        if (!aSame) {
+          // handles:
+          this.drawHandle(
+            a,
+            isHandleASelected
+              ? consts.pathHandleSelectedSize
+              : consts.pathHandleSize,
+            isHandleASelected
+              ? consts.pathHandleSelectedStroke
+              : consts.pathHandleStroke,
+            isHandleASelected
+              ? consts.pathHandleSelectedFill
+              : consts.pathHandleFill
+          );
+        }
+        if (!bSame) {
+          this.drawHandle(
+            b,
+            isHandleBSelected
+              ? consts.pathHandleSelectedSize
+              : consts.pathHandleSize,
+            isHandleBSelected
+              ? consts.pathHandleSelectedStroke
+              : consts.pathHandleStroke,
+            isHandleBSelected
+              ? consts.pathHandleSelectedFill
+              : consts.pathHandleFill
+          );
+        }
       } else if (
         abs.type === PathType.quadraticBezierAbs ||
         abs.type === PathType.smoothQuadraticBezierAbs
@@ -279,21 +322,19 @@ export class PathRenderer extends BaseRenderer {
         if (!drawHandles) {
           return;
         }
-        this.drawHandle(
-          a,
-          consts.pathHandleSize,
-          consts.pathHandleStroke,
-          consts.pathHandleFill
-        );
-        this.drawPath(
-          this.ctx,
-          1,
-          consts.pathHandleLineStroke,
-          null,
-          false,
-          point,
-          a
-        );
+
+        const aSame = Utils.samePoints(prevPoint, a);
+        if (!aSame) {
+          this.drawPath(
+            this.ctx,
+            1,
+            consts.pathHandleLineStroke,
+            null,
+            false,
+            point,
+            a
+          );
+        }
         this.drawPath(
           this.ctx,
           1,
@@ -303,6 +344,20 @@ export class PathRenderer extends BaseRenderer {
           prevPoint,
           a
         );
+        if (!aSame) {
+          this.drawHandle(
+            a,
+            isHandleASelected
+              ? consts.pathHandleSelectedSize
+              : consts.pathHandleSize,
+            isHandleASelected
+              ? consts.pathHandleSelectedStroke
+              : consts.pathHandleStroke,
+            isHandleASelected
+              ? consts.pathHandleSelectedFill
+              : consts.pathHandleFill
+          );
+        }
       } else if (abs.type === PathType.arc || abs.type === PathType.arcAbs) {
         const c = abs;
         if (drawPathOutline) {

@@ -39,8 +39,8 @@ export class ShapeTool extends BaseTool {
     const element = this.spawn.createRect();
     element.setAttribute("width", "100");
     element.setAttribute("height", "100");
-    element.setAttribute("x", Utils.roundTwo(pos.x).toString());
-    element.setAttribute("y", Utils.roundTwo(pos.y).toString());
+    element.setAttribute("x", Utils.round(pos.x).toString());
+    element.setAttribute("y", Utils.round(pos.y).toString());
     addTo.appendChild(element);
   }
 

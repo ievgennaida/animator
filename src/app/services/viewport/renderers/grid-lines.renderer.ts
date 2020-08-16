@@ -304,7 +304,7 @@ export class GridLinesRenderer extends BaseRenderer {
 
   format(ms: number): string {
     // round two after coma:
-    ms = Utils.roundTwo(ms);
+    ms = Utils.round(ms);
     let postfix = "";
     if (Math.abs(ms) >= 1000) {
       ms = ms / 1000;

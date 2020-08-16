@@ -223,26 +223,26 @@ export class RectTransform extends MatrixTransform {
   }
 
   setSizeX(val: number) {
-    val = Utils.roundTwo(val);
+    val = Utils.round(val);
     if (val >= 0) {
       this.setAttribute(this.sizePropertyX, val);
     }
   }
 
   setSizeY(val: number) {
-    val = Utils.roundTwo(val);
+    val = Utils.round(val);
     if (val >= 0) {
       this.setAttribute(this.sizePropertyY, val);
     }
   }
 
   setX(val: number) {
-    val = Utils.roundTwo(val);
+    val = Utils.round(val);
     this.setAttribute(this.transformPropertyX, val);
   }
 
   setY(val: number) {
-    val = Utils.roundTwo(val);
+    val = Utils.round(val);
     this.setAttribute(this.transformPropertyY, val);
   }
 

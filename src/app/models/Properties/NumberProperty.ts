@@ -29,7 +29,7 @@ export class NumberProperty extends Property {
 
     if ((this.value || this.value === 0) && this.value) {
       // two digits after coma.
-      this.value = Utils.roundTwo(this.value);
+      this.value = Utils.round(this.value);
     }
   }
 

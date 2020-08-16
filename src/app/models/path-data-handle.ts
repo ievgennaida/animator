@@ -3,13 +3,12 @@ import { TreeNode } from "./tree-node";
  * Path data handle.
  */
 export class PathDataHandle {
-  constructor(node: TreeNode, commandIndex: number) {
-    this.node = node;
-    this.commandIndex = commandIndex;
-  }
-  node: TreeNode;
-  commandIndex: number;
-  commandType: PathDataHandleType = PathDataHandleType.Point;
+  constructor(
+    private node: TreeNode,
+    private commandIndex: number,
+    private commandType: PathDataHandleType = PathDataHandleType.Point
+  ) {}
+
   isHandle(
     node: TreeNode,
     commandIndex: number,
@@ -33,8 +32,8 @@ export class PathDataHandle {
   }
 }
 export enum PathDataHandleType {
-  Point,
-  HandleA,
-  HandleB,
-  Curve,
+  Point = 0,
+  HandleA = 1,
+  HandleB = 2,
+  Curve = 3,
 }
