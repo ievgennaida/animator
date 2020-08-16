@@ -5,9 +5,10 @@
  */
 
 // tslint:disable: variable-name
-import { Utils } from "src/app/services/utils/utils";
+import { Utils, CalculatedEllipse } from "src/app/services/utils/utils";
 import { PathType } from "src/app/models/path/path-type";
 import { PointOnPathUtils } from "src/app/models/path/utils/point-on-path";
+import { nullLayer } from "../Lottie/layers/nullLayer";
 // Should be replaced by a DOM type when available.
 export interface SVGPathSegmentEx {
   type: string;
@@ -28,9 +29,10 @@ export class PathDataCommand implements SVGPathSegmentEx {
    */
   public _length: number | null = null;
   /**
-   * Cached calculated arc center.
+   * Cached calculated arc center and rx, ry.
+   * Smaller Rx and Ry can be given for a command than the expected one.
    */
-  private _center: DOMPoint | null = null;
+  private ellipseCache: CalculatedEllipse | null = null;
   /**
    * absolute version of current command.
    */
@@ -40,7 +42,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * Cleanup cached calculations.
    */
   private cleanCache() {
-    this._center = null;
+    this.ellipseCache = null;
     this._length = null;
     this.pointsCache.clear();
   }
@@ -361,13 +363,20 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * Arc center
    */
   public get center(): DOMPoint {
-    if (this._center) {
-      return this._center;
+    const calResults = this.calcEllipse();
+
+    if (!calResults) {
+      return null;
+    }
+    return calResults.center;
+  }
+  public calcEllipse(): CalculatedEllipse {
+    if (this.ellipseCache) {
+      return this.ellipseCache;
     }
     const c = this.getAbsolute();
     const prevAbs = this.absPrevPoint;
-
-    this._center = Utils.ellipseCenter(
+    this.ellipseCache = Utils.ellipseCenter(
       prevAbs.x,
       prevAbs.y,
       c.r.x,
@@ -378,8 +387,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       c.x,
       c.y
     );
-
-    return this._center;
+    return this.ellipseCache;
   }
   /**
    * get segment length
@@ -458,11 +466,17 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
 
   /**
-   * Arc radius can be set but cannot be less than a distance between path segments.
+   * Wrong Arc radius can be set within the path data command.
+   * (small distance between path segments).
+   * This method will calculate real radius for the ellipse.
    */
   public getCalculatedRadius(): DOMPoint {
-    // TODO: improve this by a real calculation of a radius.
-    return this.r;
+    const calResults = this.calcEllipse();
+
+    if (!calResults) {
+      return this.r;
+    }
+    return new DOMPoint(calResults.rx, calResults.ry);
   }
   /**
    * the x-axis of the ellipse is rotated by x-axis-rotation

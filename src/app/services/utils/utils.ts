@@ -2,6 +2,12 @@ import { IBBox } from "../../models/interfaces/bbox";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { AdornerType } from "../viewport/adorners/adorner-type";
 
+export interface CalculatedEllipse {
+  center: DOMPoint;
+  rx: number;
+  ry: number;
+}
+
 export class Utils {
   static getVector(
     a: DOMPoint,
@@ -93,7 +99,7 @@ export class Utils {
     fs: number,
     x2: number,
     y2: number
-  ): DOMPoint {
+  ): CalculatedEllipse {
     const phi = Utils.rad(rotateDeg);
     const m = new DOMMatrix([
       Math.cos(phi),
@@ -129,7 +135,7 @@ export class Utils {
     ).matrixTransform(m);
     v.x += (x1 + x2) / 2;
     v.y += (y1 + y2) / 2;
-    return v;
+    return { center: v, rx, ry } as CalculatedEllipse;
   }
   static shrinkRectPercent(rect: DOMRect, percent: number): DOMRect | null {
     if (!rect) {
