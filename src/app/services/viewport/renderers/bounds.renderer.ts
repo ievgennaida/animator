@@ -1,14 +1,14 @@
 import { Injectable } from "@angular/core";
-import { LoggerService } from "../../logger.service";
-import { OutlineService } from "../../outline.service";
 import { TreeNode } from "src/app/models/tree-node";
-import { BaseRenderer } from "./base.renderer";
 import { consts } from "src/environments/consts";
+import { LoggerService } from "../../logger.service";
+import { MouseOverService } from "../../mouse-over.service";
+import { OutlineService } from "../../outline.service";
+import { SelectionService } from "../../selection.service";
 import { Utils } from "../../utils/utils";
 import { AdornerData } from "../adorners/adorner-data";
-import { SelectionService } from "../../selection.service";
 import { AdornerType } from "../adorners/adorner-type";
-import { MouseOverService } from "../../mouse-over.service";
+import { BaseRenderer } from "./base.renderer";
 
 /**
  * Elements bounds renderer
@@ -269,18 +269,20 @@ export class BoundsRenderer extends BaseRenderer {
       multiple || this.suppressMainSelection
         ? consts.altSelectionThickness
         : consts.mainSelectionThickness;
-
+    const drawSmallBounds = renderable.length <= consts.maxBoundsToRender;
     renderable.forEach((node: TreeNode) => {
       if (node.selected) {
         const adornerData = node.getScreenAdorners(this.screenCTM);
         if (adornerData) {
-          this.drawAdornerRect(
-            ctx,
-            elementsThickness,
-            elementsColor,
-            adornerData
-          );
-          if (!multiple) {
+          if (drawSmallBounds) {
+            this.drawAdornerRect(
+              ctx,
+              elementsThickness,
+              elementsColor,
+              adornerData
+            );
+          }
+          if (!multiple && drawSmallBounds) {
             // draw when resized.
             // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
             // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
@@ -299,6 +301,7 @@ export class BoundsRenderer extends BaseRenderer {
       const adorners = renderable.map((p) =>
         p.getScreenAdorners(this.screenCTM)
       );
+
       const bounds = Utils.getBBoxBounds(...adorners);
       this.drawRect(
         ctx,

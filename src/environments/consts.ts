@@ -81,6 +81,17 @@ export const consts = {
   handleStrokeSize: 0,
   handleStrokeColor: "",
   handleSize: 6,
+  /**
+   * Max selected bounds to be rendered.
+   * Render global bounds if more nodes are selected.
+   */
+  maxBoundsToRender: 25,
+  // Path data
+  showPathOutline: true,
+  outlineStrokeColor: 'red',
+  outlineThickness: 1,
+  outlineSelectedStrokeColor: 'red',
+  outlineSelectedThickness: 2,
   // grid lines
   showGridLines: true,
   showRuler: true,
