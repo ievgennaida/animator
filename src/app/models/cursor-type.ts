@@ -1,6 +1,6 @@
 export enum CursorType {
     Alias = "alias",
-    AllAcroll = "all-scroll",
+    AllScroll = "all-scroll",
     Auto = "auto",
     Cell = "cell",
     ContextMenu = "context-menu",
