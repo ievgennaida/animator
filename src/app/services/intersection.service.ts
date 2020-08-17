@@ -15,6 +15,7 @@ import {
 } from "./viewport/adorners/adorner-type";
 import { SelectionService } from "./selection.service";
 import { PathType } from "../models/path/path-type";
+import { AdornerData } from "./viewport/adorners/adorner-data";
 
 export interface NearestCommandPoint {
   point: DOMPoint;
@@ -115,7 +116,7 @@ export class IntersectionService {
       );
 
       const accuracy = screenPointSize * consts.handleSize;
-      const intersects = adorner.intersectAdorner(adorner, elPoint, accuracy);
+      const intersects = this.intersectAdorner(adorner, elPoint, accuracy);
       if (intersects !== AdornerType.None) {
         if (!results) {
           results = new HandleData();
@@ -435,5 +436,49 @@ export class IntersectionService {
       nearest.allPoints.push(nearest.point);
     }
     return nearest;
+  }
+
+  intersectAdorner(
+    adorner: AdornerData,
+    point: DOMPoint,
+    accuracy = 6
+  ): AdornerType {
+    let toReturn = AdornerType.None;
+    let minDistance = accuracy;
+    const rotateArea = 1.5;
+    // Find nearest point:
+    adorner.points.forEach((adornerPoint, key) => {
+      if (point) {
+        const v = Utils.getVector(adornerPoint, adorner.center, true);
+        const rotateAccuracy = accuracy * rotateArea;
+        const moveAdornerDistance = Utils.getLength(
+          Utils.alongVector(adornerPoint, v, accuracy),
+          point
+        );
+        let rotateDistance = Number.MAX_VALUE;
+        if (adorner.allowToRotateAdorners(key)) {
+          rotateDistance = Utils.getLength(
+            Utils.alongVector(adornerPoint, v, accuracy * rotateArea),
+            point
+          );
+        }
+        if (
+          rotateDistance <= minDistance * rotateArea ||
+          moveAdornerDistance <= minDistance
+        ) {
+          // Move has a priority:
+          if (rotateDistance + rotateDistance * 0.2 < moveAdornerDistance) {
+            // Corresponding rotate key:
+            toReturn = AdornerTypeUtils.toRotateAdornerType(key);
+            minDistance = rotateDistance;
+          } else {
+            toReturn = key;
+            minDistance = moveAdornerDistance;
+          }
+        }
+      }
+    });
+
+    return toReturn;
   }
 }

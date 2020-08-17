@@ -1,6 +1,6 @@
 import { Utils } from "../../utils/utils";
 import { IBBox } from "../../../models/interfaces/bbox";
-import { AdornerType, AdornerTypeUtils } from "./adorner-type";
+import { AdornerType } from "./adorner-type";
 
 export class AdornerData implements IBBox {
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
@@ -42,49 +42,6 @@ export class AdornerData implements IBBox {
   allowToRotateAdorners(key: AdornerType): boolean {
     return key !== AdornerType.Center && key !== AdornerType.CenterTransform;
   }
-  intersectAdorner(
-    adorner: AdornerData,
-    point: DOMPoint,
-    accuracy = 6
-  ): AdornerType {
-    let toReturn = AdornerType.None;
-    let minDistance = accuracy;
-    const rotateArea = 1.5;
-    // Find nearest point:
-    adorner.points.forEach((adornerPoint, key) => {
-      if (point) {
-        const v = Utils.getVector(adornerPoint, adorner.center, true);
-        const rotateAccuracy = accuracy * rotateArea;
-        const moveAdornerDistance = Utils.getLength(
-          Utils.alongVector(adornerPoint, v, accuracy),
-          point
-        );
-        let rotateDistance = Number.MAX_VALUE;
-        if (this.allowToRotateAdorners(key)) {
-          rotateDistance = Utils.getLength(
-            Utils.alongVector(adornerPoint, v, accuracy * rotateArea),
-            point
-          );
-        }
-        if (
-          rotateDistance <= minDistance * rotateArea ||
-          moveAdornerDistance <= minDistance
-        ) {
-          // Move has a priority:
-          if (rotateDistance + rotateDistance * 0.2 < moveAdornerDistance) {
-            // Corresponding rotate key:
-            toReturn = AdornerTypeUtils.toRotateAdornerType(key);
-            minDistance = rotateDistance;
-          } else {
-            toReturn = key;
-            minDistance = moveAdornerDistance;
-          }
-        }
-      }
-    });
-
-    return toReturn;
-  }
 
   invalidate() {
     this.invalid = true;
@@ -105,6 +62,10 @@ export class AdornerData implements IBBox {
     );
     return this;
   }
+  /**
+   * Initialize adorner from rect
+   * @param bounds rectangle to decompose.
+   */
   decomposeRect(bounds: DOMRect) {
     this.points.set(AdornerType.TopLeft, new DOMPoint(bounds.x, bounds.y));
     this.points.set(
@@ -154,14 +115,7 @@ export class AdornerData implements IBBox {
     );
   }
 
-  /**
-   * Get adorner handle
-   */
-  getAdornerHandle(type: AdornerType): DOMRect {
-    return new DOMRect(0, 0, 100, 100);
-  }
-
-  getTransformed(m: DOMMatrix): AdornerData {
+  matrixTransform(m: DOMMatrix): AdornerData {
     const cloned = new AdornerData();
     cloned.element = this.element;
     this.points.forEach((adornerPoint, key) => {

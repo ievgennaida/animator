@@ -156,18 +156,21 @@ export class TreeNode implements ICTMProvider, IBBox {
    */
   getScreenAdorners(screenCTM: DOMMatrix): AdornerData {
     if (this.cacheScreenAdorers) {
+      // TODO: use cached
       // return this.cacheScreenAdorers;
     }
-    let elementAdorner = this.getElementAdorner();
-    if (!elementAdorner) {
-      return;
-    }
-    const ctm = screenCTM.multiply(this.getScreenCTM());
-    elementAdorner = elementAdorner.getTransformed(ctm);
-    this.cacheScreenAdorers = elementAdorner;
+
+    this.cacheScreenAdorers = this.adornerToScreen(this.getElementAdorner(), screenCTM);
     return this.cacheScreenAdorers;
   }
 
+  adornerToScreen(adorner: AdornerData, screenCTM: DOMMatrix): AdornerData {
+    if (!adorner) {
+      return null;
+    }
+    const ctm = screenCTM.multiply(this.getScreenCTM());
+    return adorner.matrixTransform(ctm);
+  }
   /**
    * Get cached elements coordinates adorners.
    */

@@ -30,7 +30,7 @@ export class WireService {
     transformsService: TransformsService,
     gridLinesRenderer: GridLinesRenderer,
     adornersRenderer: AdornersRenderer,
-    selectionService: SelectionService,
+    private selectionService: SelectionService,
     viewService: ViewService,
     toolsService: ToolsService,
     documentService: DocumentService,
@@ -41,6 +41,10 @@ export class WireService {
       boundsRenderer.drawNodeHandles = isSelectionToolActive;
       boundsRenderer.suppressMainSelection = !isSelectionToolActive;
       pathRenderer.invalidate();
+    });
+    selectionService.pathDataSubject.subscribe(() => {
+      boundsRenderer.invalidate();
+      selectionService.pathDataSubject.calculateHandlesBounds();
     });
     selectionService.selected.subscribe((state) => {
       boundsRenderer.invalidate();
@@ -96,6 +100,7 @@ export class WireService {
     });
   }
   cleanCache() {
+    this.selectionService.pathDataSubject.calculateHandlesBounds();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }
   init() {}

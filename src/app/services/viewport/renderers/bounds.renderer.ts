@@ -314,5 +314,27 @@ export class BoundsRenderer extends BaseRenderer {
       // this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, adornerData);
       // this.adornersDataService.getElementAdornerData(null,totalBounds);
     }
+    if (renderable && renderable.length >= 1) {
+      // Path data, selected items bounds
+      let selectedPointsBounds = this.selectionService.pathDataSubject.bounds;
+      if (selectedPointsBounds) {
+        // TODO: each point should be transformed according to the node transformation.
+        selectedPointsBounds = renderable[0].adornerToScreen(
+          selectedPointsBounds,
+          this.screenCTM
+        );
+
+        this.drawAdornerRect(
+          ctx,
+          elementsThickness,
+          elementsColor,
+          selectedPointsBounds
+        );
+        if (this.drawNodeHandles) {
+          this.drawAdornersHandles(ctx, selectedPointsBounds);
+          this.drawCross(ctx, selectedPointsBounds.centerTransform);
+        }
+      }
+    }
   }
 }
