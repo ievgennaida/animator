@@ -178,12 +178,15 @@ export class PathDataCommand implements SVGPathSegmentEx {
     const code = type.charCodeAt(0);
     return code >= 65 && code <= 90;
   }
+  /**
+   * get relative command from current absolute.
+   */
   public getRelative(): PathDataCommand {
     if (this.isAbsolute()) {
       const relative = new PathDataCommand((this.type || "").toLowerCase(), [
         ...this.values,
       ]);
-
+      relative.prev = this.prev;
       const calcRelative = this.calculateRelPoint();
       relative.p = calcRelative;
       if (relative.type !== PathType.arc) {
@@ -204,13 +207,13 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
   public get a(): DOMPoint | null {
     // Calculate virtual
-    const prevAbs = this.prev;
+    const prev = this.prev;
     if (
       // S command
-      // this.type === PathType.shorthandSmooth ||
+      this.type === PathType.shorthandSmooth ||
       this.type === PathType.shorthandSmoothAbs
     ) {
-      if (!prevAbs) {
+      if (!prev) {
         return null;
       }
       /**
@@ -219,18 +222,18 @@ export class PathDataCommand implements SVGPathSegmentEx {
        * is the same as the curve starting point (current point).
        */
       if (
-        prevAbs.type === PathType.shorthandSmoothAbs ||
-        prevAbs.type === PathType.cubicBezierAbs
+        prev.type === PathType.shorthandSmoothAbs ||
+        prev.type === PathType.cubicBezierAbs
       ) {
-        const b = prevAbs.b;
+        const b = prev.b;
         // For this mode handle point is calculated.
         const virtualHandle = new DOMPoint(
-          2 * prevAbs.x - b.x,
-          2 * prevAbs.y - b.y
+          2 * prev.x - b.x,
+          2 * prev.y - b.y
         );
         return virtualHandle;
       } else {
-        return new DOMPoint(prevAbs.x, prevAbs.y);
+        return new DOMPoint(prev.x, prev.y);
       }
     } else if (
       // T command
@@ -238,14 +241,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
       this.type === PathType.smoothQuadraticBezierAbs
     ) {
       if (
-        (prevAbs && prevAbs.type === PathType.smoothQuadraticBezierAbs) ||
-        prevAbs.type === PathType.quadraticBezierAbs
+        (prev && prev.type === PathType.smoothQuadraticBezierAbs) ||
+        prev.type === PathType.quadraticBezierAbs
       ) {
         // The control point is a reflection of the control point of the previous curve command.
-        const a = prevAbs.a;
+        const a = prev.a;
         const virtualHandle = new DOMPoint(
-          2 * prevAbs.x - a.x,
-          2 * prevAbs.y - a.y
+          2 * prev.x - a.x,
+          2 * prev.y - a.y
         );
         return virtualHandle;
       } else {
@@ -267,42 +270,52 @@ export class PathDataCommand implements SVGPathSegmentEx {
     return this._a;
   }
 
+  /**
+   * Control point 'a' for the bezier.
+   */
   public set a(point: DOMPoint) {
     // Clean cached point.
     this._a = null;
-    const prevAbs = this.prev;
+    const prev = this.prev;
 
     if (
       // S command
-      // this.type === PathType.shorthandSmooth ||
       this.type === PathType.shorthandSmoothAbs
     ) {
-      if (!prevAbs) {
+      if (!prev) {
         return;
       }
 
-      const virtualHandle = new DOMPoint(
-        2 * prevAbs.x - point.x,
-        2 * prevAbs.y - point.y
-      );
+      if (
+        prev.type === PathType.shorthandSmoothAbs ||
+        prev.type === PathType.cubicBezierAbs
+      ) {
+        const virtualHandle = new DOMPoint(
+          2 * prev.x - point.x,
+          2 * prev.y - point.y
+        );
 
-      prevAbs.b = virtualHandle;
+        prev.b = virtualHandle;
+      }
       // Virtual point
       return;
     } else if (
       // T command
-      // this.type === PathType.smoothQuadraticBezier ||
       this.type === PathType.smoothQuadraticBezierAbs
     ) {
-      if (!prevAbs) {
+      if (!prev) {
         return;
       }
-
-      const virtualHandle = new DOMPoint(
-        2 * prevAbs.x - point.x,
-        2 * prevAbs.y - point.y
-      );
-      prevAbs.a = virtualHandle;
+      if (
+        (prev.type === PathType.smoothQuadraticBezierAbs) ||
+        prev.type === PathType.quadraticBezierAbs
+      ) {
+        const virtualHandle = new DOMPoint(
+          2 * prev.x - point.x,
+          2 * prev.y - point.y
+        );
+        prev.a = virtualHandle;
+      }
       // Virtual point
       return;
     }
@@ -314,6 +327,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
     }
   }
 
+  /**
+   * Control point 'b' for the bezier.
+   */
   public get b(): DOMPoint | null {
     if (
       this.type === PathType.arc ||
@@ -363,37 +379,11 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.cleanCache();
   }
 
-  public offsetHandles(x: number, y: number) {
-    if (this.type === PathType.arc || this.type === PathType.arcAbs) {
-      return;
-    }
-    const a = this.a;
-    if (a) {
-      a.x += x;
-      a.y += y;
-      this.a = a;
-    }
-    const b = this.b;
-    if (b) {
-      b.x += x;
-      b.y += y;
-      this.b = b;
-    }
-  }
-
-  public get absPrevPoint(): DOMPoint {
-    let absX = 0;
-    let absY = 0;
-    // can be first segment
-    if (this.prev) {
-      const prevAbs = this.prev;
-      if (prevAbs) {
-        absX = prevAbs.x;
-        absY = prevAbs.y;
-      }
-    }
-
-    return { x: absX, y: absY } as DOMPoint;
+  public get prevPoint(): DOMPoint {
+    return new DOMPoint(
+      this.prev ? this.prev.x : 0,
+      this.prev ? this.prev.y : 0
+    );
   }
   /**
    * Arc center
@@ -410,10 +400,10 @@ export class PathDataCommand implements SVGPathSegmentEx {
     if (this.ellipseCache) {
       return this.ellipseCache;
     }
-    const prevAbs = this.absPrevPoint;
+    const prev = this.prevPoint;
     this.ellipseCache = Utils.ellipseCenter(
-      prevAbs.x,
-      prevAbs.y,
+      prev.x,
+      prev.y,
       this.rx,
       this.ry,
       this.rotation,
@@ -437,7 +427,8 @@ export class PathDataCommand implements SVGPathSegmentEx {
     return this._length;
   }
   /**
-   * Whether control point is a calculated and really belongs to another prev command.
+   * Whether control point is a calculated and just a reflection of one of the prev command.
+   * This can happens for smooth bezier commands.
    */
   public isCalculatedA(): boolean {
     this._a = null;
@@ -480,9 +471,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return null;
     }
     if (this.prev) {
-      const prevAbs = this.prev;
-      if (prevAbs) {
-        const point = prevAbs.p;
+      const prev = this.prev;
+      if (prev) {
+        const point = prev.p;
         if (point) {
           x = x - point.x;
           y = y - point.y;
@@ -626,7 +617,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     if (this.type === PathType.moveAbs) {
       return null;
     }
-    const prev = this.absPrevPoint;
+    const prev = this.prevPoint;
     const p = this.p;
     const a = this.a;
     const b = this.b;

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import {
   PathDataHandle,
-  PathDataHandleType,
+  PathDataHandleType
 } from "src/app/models/path-data-handle";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { ContextMenuService } from "../context-menu.service";
@@ -19,11 +19,8 @@ import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { PathRenderer } from "./renderers/path.renderer";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { SelectionTool } from "./selection.tool";
-import { TransformsService } from "./transformations/transforms.service";
-import { TransformationMode } from "./transformations/matrix-transform";
-import { AdornerTypeUtils } from "./adorners/adorner-type";
 import { PathTransform } from "./transformations/path-transform";
-import { nullLayer } from "src/app/models/Lottie/layers/nullLayer";
+import { TransformsService } from "./transformations/transforms.service";
 
 @Injectable({
   providedIn: "root",

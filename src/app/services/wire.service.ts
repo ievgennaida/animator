@@ -1,18 +1,18 @@
 import { Injectable } from "@angular/core";
-import { OutlineService } from "./outline.service";
-import { MouseOverRenderer } from "./viewport/renderers/mouse-over.renderer";
 import { TreeNode } from "../models/tree-node";
-import { BoundsRenderer } from "./viewport/renderers/bounds.renderer";
-import { GridLinesRenderer } from "./viewport/renderers/grid-lines.renderer";
-import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
-import { TransformsService } from "./viewport/transformations/transforms.service";
-import { ViewService } from "./view.service";
-import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
-import { SelectionService } from "./selection.service";
-import { PathRenderer } from "./viewport/renderers/path.renderer";
-import { ToolsService } from "./viewport/tools.service";
 import { DocumentService } from "./document.service";
 import { MouseOverService } from "./mouse-over.service";
+import { OutlineService } from "./outline.service";
+import { SelectionService } from "./selection.service";
+import { ViewService } from "./view.service";
+import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
+import { BoundsRenderer } from "./viewport/renderers/bounds.renderer";
+import { GridLinesRenderer } from "./viewport/renderers/grid-lines.renderer";
+import { MouseOverRenderer } from "./viewport/renderers/mouse-over.renderer";
+import { PathRenderer } from "./viewport/renderers/path.renderer";
+import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
+import { ToolsService } from "./viewport/tools.service";
+import { TransformsService } from "./viewport/transformations/transforms.service";
 
 /**
  * Wire services together

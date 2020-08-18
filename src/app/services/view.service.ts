@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { Subject, BehaviorSubject, Observable } from "rxjs";
-import { consts } from "src/environments/consts";
-import { Utils } from "./utils/utils";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { ViewMode } from "src/app/models/view-mode";
+import { consts } from "src/environments/consts";
 import { ICTMProvider } from "../models/interfaces/ctm-provider";
+import { Utils } from "./utils/utils";
 export class ClientSize {
   prevClientWidth = 0;
   prevClientHeight = 0;

@@ -215,7 +215,7 @@ export class PathTransform extends MatrixTransform {
   }
   isAllowMoveHandleA(
     commandIndex: number,
-    abs: PathDataCommand,
+    command: PathDataCommand,
     filters: PathDataHandle[]
   ): boolean {
     // Allow to manipulate when no filters are specified.
@@ -224,7 +224,7 @@ export class PathTransform extends MatrixTransform {
     }
 
     // Manipulate prev point with a handle.
-    if (this.allowToManipulatePoint(commandIndex - 1, abs, filters)) {
+    if (this.allowToManipulatePoint(commandIndex - 1, command, filters)) {
       return true;
     }
     return !!filters.find(
@@ -236,7 +236,7 @@ export class PathTransform extends MatrixTransform {
   }
   isAllowMoveHandleB(
     commandIndex: number,
-    abs: PathDataCommand,
+    command: PathDataCommand,
     filters: PathDataHandle[]
   ): boolean {
     // Allow to manipulate when no filters are specified.

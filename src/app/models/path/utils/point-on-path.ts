@@ -7,14 +7,14 @@ import { PathType } from "../../path/path-type";
 import {
   approximateArcLengthOfCurve,
   pointOnEllipticalArc,
-  PointOnEllipticalArcResults
+  PointOnEllipticalArcResults,
 } from "./arc-functions";
 import {
-  cubicPoint, getCubicArcLength,
-
+  cubicPoint,
+  getCubicArcLength,
   getQuadraticArcLength,
   quadraticPoint,
-  t2length
+  t2length,
 } from "./bezier-functions";
 
 const getCubicPoint = (
@@ -43,25 +43,23 @@ const getQuadraticPoint = (
 };
 export class PointOnPathUtils {
   static getSegmentLength(command: PathDataCommand): number {
-    const abs = command;
-
-    const currentPoint = abs.p;
-    const prevAbs = abs.prev;
-    const a = abs.a;
-    const b = abs.b;
-    const prevPoint = abs.absPrevPoint;
+    const currentPoint = command.p;
+    const prev = command.prev;
+    const a = command.a;
+    const b = command.b;
+    const prevPoint = command.prevPoint;
     // A arc
-    if (abs.type === PathType.arcAbs) {
+    if (command.type === PathType.arcAbs) {
       const lengthProperties = approximateArcLengthOfCurve(
         300,
         (t: number): PointOnEllipticalArcResults => {
           return pointOnEllipticalArc(
-            prevPoint,
-            abs.rx,
-            abs.ry,
-            abs.rotation,
-            abs.large,
-            abs.sweep,
+            command.prevPoint,
+            command.rx,
+            command.ry,
+            command.rotation,
+            command.large,
+            command.sweep,
             currentPoint,
             t
           );
@@ -70,7 +68,7 @@ export class PointOnPathUtils {
 
       return lengthProperties ? lengthProperties.arcLength : 0;
       // C
-    } else if (abs.type === PathType.cubicBezierAbs) {
+    } else if (command.type === PathType.cubicBezierAbs) {
       const length = getCubicArcLength(
         [prevPoint.x, a.x, b.x, currentPoint.x],
         [prevPoint.y, a.y, b.y, currentPoint.y],
@@ -79,18 +77,18 @@ export class PointOnPathUtils {
 
       return length;
       // S
-    } else if (abs.type === PathType.shorthandSmoothAbs) {
-      if (!prevAbs) {
+    } else if (command.type === PathType.shorthandSmoothAbs) {
+      if (!prev) {
         return 0;
       }
       // C, S
       if (
-        prevAbs.type === PathType.cubicBezierAbs ||
-        prevAbs.type === PathType.shorthandSmoothAbs
+        prev.type === PathType.cubicBezierAbs ||
+        prev.type === PathType.shorthandSmoothAbs
       ) {
         const length = getCubicArcLength(
-          [prevPoint.x, prevAbs.b.x, a.x, currentPoint.x],
-          [prevPoint.y, prevAbs.b.y, a.y, currentPoint.y],
+          [prevPoint.x, prev.b.x, a.x, currentPoint.x],
+          [prevPoint.y, prev.b.y, a.y, currentPoint.y],
           1
         );
         return length;
@@ -99,17 +97,17 @@ export class PointOnPathUtils {
       }
       // Q Quadratic Bezier curves (x,y ax ay)
     } else if (
-      abs.type === PathType.quadraticBezierAbs ||
-      abs.type === PathType.smoothQuadraticBezierAbs
+      command.type === PathType.quadraticBezierAbs ||
+      command.type === PathType.smoothQuadraticBezierAbs
     ) {
-      const isSmooth = abs.type === PathType.smoothQuadraticBezierAbs;
+      const isSmooth = command.type === PathType.smoothQuadraticBezierAbs;
       if (
         (!isSmooth && a.x !== currentPoint.x && a.y !== currentPoint.y) ||
         // Q, T
         (isSmooth &&
-          prevAbs &&
-          (prevAbs.type === PathType.quadraticBezierAbs ||
-            prevAbs.type === PathType.smoothQuadraticBezierAbs))
+          prev &&
+          (prev.type === PathType.quadraticBezierAbs ||
+            prev.type === PathType.smoothQuadraticBezierAbs))
       ) {
         const length = getQuadraticArcLength(
           [prevPoint.x, a.x, currentPoint.x],
@@ -121,8 +119,11 @@ export class PointOnPathUtils {
         return Utils.getLength(prevPoint, currentPoint);
       }
       // T Shorthand/smooth quadratic Bezier curveto x,y
-    } else if (abs.type === PathType.closeAbs || abs.type === PathType.close) {
-      const moveCommand = this.getPrevMoveCommand(abs);
+    } else if (
+      command.type === PathType.closeAbs ||
+      command.type === PathType.close
+    ) {
+      const moveCommand = this.getPrevMoveCommand(command);
       if (!moveCommand) {
         return null;
       }
@@ -130,10 +131,10 @@ export class PointOnPathUtils {
       if (!moveAbs) {
         return null;
       }
-      return Utils.getLength(moveAbs.p, abs.absPrevPoint);
+      return Utils.getLength(moveAbs.p, prevPoint);
     } else {
       // L,H,V
-      return Utils.getLength(prevPoint, abs.p);
+      return Utils.getLength(prevPoint, command.p);
     }
   }
 
@@ -168,13 +169,11 @@ export class PointOnPathUtils {
     const currentPoint = command.p;
     const a = command.a;
     const b = command.b;
-    const prevPoint = command.absPrevPoint;
-    const prevAbs = command.prev;
+    const prevPoint = command.prevPoint;
+    const prev = command.prev;
     if (command.type === PathType.arcAbs) {
-      const prev = command.absPrevPoint;
-
       return pointOnEllipticalArc(
-        prev,
+        prevPoint,
         command.rx,
         command.ry,
         command.rotation,
@@ -205,9 +204,9 @@ export class PointOnPathUtils {
         (!isSmooth && a.x !== currentPoint.x && a.y !== currentPoint.y) ||
         // Q, T
         (isSmooth &&
-          prevAbs &&
-          (prevAbs.type === PathType.quadraticBezierAbs ||
-            prevAbs.type === PathType.smoothQuadraticBezierAbs))
+          prev &&
+          (prev.type === PathType.quadraticBezierAbs ||
+            prev.type === PathType.smoothQuadraticBezierAbs))
       ) {
         const xs = [prevPoint.x, a.x, currentPoint.x];
         const ys = [prevPoint.y, a.y, currentPoint.y];
@@ -223,17 +222,13 @@ export class PointOnPathUtils {
 
       return Utils.getPointAtLength(
         moveCommand.p,
-        command.absPrevPoint,
+        command.prevPoint,
         fractionLength
       );
     }
 
     // L,H,V or failed Q, T
-    return Utils.getPointAtLength(
-      command.absPrevPoint,
-      command.p,
-      fractionLength
-    );
+    return Utils.getPointAtLength(command.prevPoint, command.p, fractionLength);
   }
 
   /**
