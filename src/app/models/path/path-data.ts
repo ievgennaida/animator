@@ -10,11 +10,7 @@ export class PathData {
     if (element.setPathData && data && data.commands) {
       // Try to preserve original data
       const valuesToSet = data.commands.map((command) => {
-        if (
-          command.activeType &&
-          command.isRelative(command.activeType) &&
-          command.activeType !== command.type
-        ) {
+        if (command.saveAsRelative && !command.isRelative()) {
           return command.getRelative();
         }
 
@@ -55,7 +51,6 @@ export class PathData {
       command.values[1] = y;
     }
     command.type = destinationType;
-    command.activeType = destinationType;
   }
 
   public static isSameCommandType(typeA: string, typeB: string): boolean {
@@ -93,7 +88,6 @@ export class PathData {
                 const command = new PathDataCommand(p.type, p.values);
                 // Work only with absolute values, but store the original value
                 // so wen can preserve the original state (original state rel/abs command is important for the animations)
-                command.activeType = p.type;
                 command.prev = prev;
                 prev = command;
 
@@ -188,11 +182,6 @@ export class PathData {
         return;
       }
       if (
-        command.type === PathType.horizontal ||
-        command.type === PathType.vertical
-      ) {
-        PathData.convertCommand(command, PathType.line);
-      } else if (
         command.type === PathType.horizontalAbs ||
         command.type === PathType.verticalAbs
       ) {

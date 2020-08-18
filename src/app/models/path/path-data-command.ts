@@ -18,11 +18,11 @@ export interface SVGPathSegmentEx {
  * Path data command (represents segment of a path data).
  * Editor is always working with the absolute values.
  * But nevertheless editor is trying to preserve the original
- * relative or absolute values when 'activeType' is set.
+ * relative or absolute by setting saveAsRelative.
  */
 export class PathDataCommand implements SVGPathSegmentEx {
   constructor(public type: PathType | string, public values: number[] = []) {
-    this.activeType = type;
+    this.saveAsRelative = this.isRelative(type);
   }
   public _a: DOMPoint;
   public _b: DOMPoint;
@@ -44,7 +44,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * Editor is working with absolute values.
    * This is a type of the initial command to preserve original rel or abs when saved.
    */
-  activeType: PathType | string = null;
+  saveAsRelative = false;
   prev: PathDataCommand | null = null;
   /**
    * Cleanup cached calculations.
@@ -56,7 +56,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
   public clone(): PathDataCommand {
     const cloned = new PathDataCommand(this.type, [...this.values]);
-    cloned.activeType = this.activeType;
+    cloned.saveAsRelative = this.saveAsRelative;
     return cloned;
   }
   public offset(x: number, y: number) {
