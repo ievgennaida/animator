@@ -7,14 +7,14 @@ import { PathType } from "../../path/path-type";
 import {
   approximateArcLengthOfCurve,
   pointOnEllipticalArc,
-  PointOnEllipticalArcResults,
+  PointOnEllipticalArcResults
 } from "./arc-functions";
 import {
-  getCubicArcLength,
-  cubicPoint,
+  cubicPoint, getCubicArcLength,
+
   getQuadraticArcLength,
   quadraticPoint,
-  t2length,
+  t2length
 } from "./bezier-functions";
 
 const getCubicPoint = (
@@ -43,25 +43,22 @@ const getQuadraticPoint = (
 };
 export class PointOnPathUtils {
   static getSegmentLength(command: PathDataCommand): number {
-    const abs = command.getAbsolute();
+    const abs = command;
 
     const currentPoint = abs.p;
-    let prevAbs = abs.prev;
-    if (prevAbs) {
-      prevAbs = abs.getAbsolute();
-    }
+    const prevAbs = abs.prev;
     const a = abs.a;
     const b = abs.b;
     const prevPoint = abs.absPrevPoint;
     // A arc
     if (abs.type === PathType.arcAbs) {
-      const r = abs.r;
       const lengthProperties = approximateArcLengthOfCurve(
         300,
         (t: number): PointOnEllipticalArcResults => {
           return pointOnEllipticalArc(
             prevPoint,
-            r,
+            abs.rx,
+            abs.ry,
             abs.rotation,
             abs.large,
             abs.sweep,
@@ -129,7 +126,7 @@ export class PointOnPathUtils {
       if (!moveCommand) {
         return null;
       }
-      const moveAbs = moveCommand.getAbsolute();
+      const moveAbs = moveCommand;
       if (!moveAbs) {
         return null;
       }
@@ -148,48 +145,48 @@ export class PointOnPathUtils {
     if (!command) {
       return null;
     }
+    if (!command.isAbsolute()) {
+      throw new Error(
+        "get point on path is only for absolute commands. Pass absolute and convert to rel if required."
+      );
+    }
+
     if (fractionLength < 0) {
       fractionLength = 0;
     }
-
-    const abs = command.getAbsolute();
-    if (!abs || abs.type === PathType.moveAbs) {
+    if (command.type === PathType.moveAbs) {
       return null;
     }
     const maxLength =
       maxLengthCache === null
-        ? PointOnPathUtils.getSegmentLength(abs)
+        ? PointOnPathUtils.getSegmentLength(command)
         : maxLengthCache;
     if (fractionLength > maxLength) {
       fractionLength = maxLength;
     }
 
-    const currentPoint = abs.p;
-    const a = abs.a;
-    const b = abs.b;
-    const prevPoint = abs.absPrevPoint;
-    let prevAbs = abs.prev;
-    if (prevAbs) {
-      prevAbs = prevAbs.getAbsolute();
-    }
+    const currentPoint = command.p;
+    const a = command.a;
+    const b = command.b;
+    const prevPoint = command.absPrevPoint;
+    const prevAbs = command.prev;
+    if (command.type === PathType.arcAbs) {
+      const prev = command.absPrevPoint;
 
-    if (abs.type === PathType.arcAbs) {
-      const prev = abs.absPrevPoint;
-
-      const r = abs.r;
       return pointOnEllipticalArc(
         prev,
-        r,
-        abs.rotation,
-        abs.large,
-        abs.sweep,
+        command.rx,
+        command.ry,
+        command.rotation,
+        command.large,
+        command.sweep,
         currentPoint,
         fractionLength / maxLength
       );
       // C
     } else if (
-      abs.type === PathType.shorthandSmoothAbs ||
-      abs.type === PathType.cubicBezierAbs
+      command.type === PathType.shorthandSmoothAbs ||
+      command.type === PathType.cubicBezierAbs
     ) {
       // C, S
       if (prevPoint && a && b) {
@@ -200,10 +197,10 @@ export class PointOnPathUtils {
       }
       // Q Quadratic Bezier curves (x,y ax ay)
     } else if (
-      abs.type === PathType.quadraticBezierAbs ||
-      abs.type === PathType.smoothQuadraticBezierAbs
+      command.type === PathType.quadraticBezierAbs ||
+      command.type === PathType.smoothQuadraticBezierAbs
     ) {
-      const isSmooth = abs.type === PathType.smoothQuadraticBezierAbs;
+      const isSmooth = command.type === PathType.smoothQuadraticBezierAbs;
       if (
         (!isSmooth && a.x !== currentPoint.x && a.y !== currentPoint.y) ||
         // Q, T
@@ -218,24 +215,25 @@ export class PointOnPathUtils {
         return length;
       }
       // T Shorthand/smooth quadratic Bezier curveto x,y
-    } else if (abs.type === PathType.closeAbs) {
-      const moveCommand = this.getPrevMoveCommand(abs);
+    } else if (command.type === PathType.closeAbs) {
+      const moveCommand = this.getPrevMoveCommand(command);
       if (!moveCommand) {
         return null;
       }
-      const moveAbs = moveCommand.getAbsolute();
-      if (!moveAbs) {
-        return null;
-      }
+
       return Utils.getPointAtLength(
-        moveAbs.p,
-        abs.absPrevPoint,
+        moveCommand.p,
+        command.absPrevPoint,
         fractionLength
       );
     }
 
     // L,H,V or failed Q, T
-    return Utils.getPointAtLength(abs.absPrevPoint, abs.p, fractionLength);
+    return Utils.getPointAtLength(
+      command.absPrevPoint,
+      command.p,
+      fractionLength
+    );
   }
 
   /**

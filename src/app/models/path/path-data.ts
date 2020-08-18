@@ -1,4 +1,3 @@
-import { Utils } from "../../services/utils/utils";
 import { PathDataCommand } from "./path-data-command";
 import { PathType } from "./path-type";
 
@@ -8,8 +7,20 @@ export class PathData {
     data: PathData,
     element: any | SVGGraphicsElement
   ): void {
-    if (element.setPathData) {
-      element.setPathData(data.commands);
+    if (element.setPathData && data && data.commands) {
+      // Try to preserve original data
+      const valuesToSet = data.commands.map((command) => {
+        if (
+          command.activeType &&
+          command.isRelative(command.activeType) &&
+          command.activeType !== command.type
+        ) {
+          return command.getRelative();
+        }
+
+        return command;
+      });
+      element.setPathData(valuesToSet);
     }
   }
   public static getPathData(element: any | SVGGraphicsElement): PathData {
@@ -44,8 +55,20 @@ export class PathData {
       command.values[1] = y;
     }
     command.type = destinationType;
+    command.activeType = destinationType;
   }
 
+  public static isSameCommandType(typeA: string, typeB: string): boolean {
+    if (
+      typeA &&
+      typeB &&
+      typeA === typeB &&
+      typeA.toUpperCase() === typeB.toUpperCase()
+    ) {
+      return true;
+    }
+    return false;
+  }
   /**
    * Get path data and set absolute version for each point.
    * @param pathData arguments.
@@ -56,94 +79,93 @@ export class PathData {
     }
 
     let prev: PathDataCommand = null;
+    let curX = 0;
+    let curY = 0;
+
+    let subPath = new DOMPoint();
     const data =
       pathData instanceof PathData
         ? (pathData as PathData)
         : new PathData(
             pathData
-              .filter((p) => !!p)
+              .filter((p) => !!p && !!p.type)
               .map((p) => {
                 const command = new PathDataCommand(p.type, p.values);
+                // Work only with absolute values, but store the original value
+                // so wen can preserve the original state (original state rel/abs command is important for the animations)
+                command.activeType = p.type;
                 command.prev = prev;
+                prev = command;
+
+                const type = p.type as PathType;
+                const isMove =
+                  type === PathType.move || type === PathType.moveAbs;
+                if (type === PathType.arc || type === PathType.arcAbs) {
+                  const absolute = type === PathType.arcAbs;
+                  let x = command.x;
+                  let y = command.y;
+                  if (!absolute) {
+                    x += curX;
+                    y += curY;
+                    const absoluteValues = [
+                      command.values[0],
+                      command.values[1],
+                      command.values[2],
+                      command.values[3],
+                      command.values[4],
+                      x,
+                      y,
+                    ];
+                    command.values = absoluteValues;
+                    command.type = PathType.arcAbs;
+                  }
+
+                  curX = x;
+                  curY = y;
+                } else if (type === PathType.horizontalAbs) {
+                  curX = command.x;
+                } else if (type === PathType.verticalAbs) {
+                  curY = command.y;
+                } else if (type === PathType.horizontal) {
+                  const x = curX + command.x;
+                  // Convert to absolute
+                  command.values = [x];
+                  curX = x;
+                } else if (type === PathType.vertical) {
+                  const y = curY + command.y;
+                  // Convert to absolute
+                  command.values = [y];
+                  curY = y;
+                } else if (
+                  type === PathType.close ||
+                  type === PathType.closeAbs
+                ) {
+                  curY = subPath.y;
+                  curX = subPath.x;
+                } else {
+                  const absolute = command.isAbsolute();
+                  if (!absolute) {
+                    const absoluteValues = command.values.map(
+                      (commandValues, index) =>
+                        !(index % 2)
+                          ? curX + commandValues
+                          : curY + commandValues
+                    );
+                    command.values = absoluteValues;
+                  }
+                  const point = command.p;
+                  curX = point.x;
+                  curY = point.y;
+                  if (isMove) {
+                    subPath = point;
+                  }
+                }
+
+                command.type = p.type.toUpperCase();
                 prev = command;
                 return command;
               })
           );
-
-    if (!data || !data.commands) {
-      if (!data.commands) {
-        data.commands = [];
-      }
-      return data as PathData;
-    }
-
-    let curX = 0;
-    let curY = 0;
-
-    let subPath = new DOMPoint();
-    prev = null;
-    data.commands.forEach((seg, segIndex) => {
-      const type = seg.type;
-      const isMove = type === PathType.move || type === PathType.moveAbs;
-      if (type === PathType.arc || type === PathType.arcAbs) {
-        const absolute = type === PathType.arcAbs;
-        let x = seg.x;
-        let y = seg.y;
-        if (!absolute) {
-          x += curX;
-          y += curY;
-        }
-
-        if (!absolute) {
-          const cloned = [
-            seg.values[0],
-            seg.values[1],
-            seg.values[2],
-            seg.values[3],
-            seg.values[4],
-            x,
-            y,
-          ];
-          seg.absolute = new PathDataCommand(PathType.arcAbs, cloned);
-        }
-
-        curX = x;
-        curY = y;
-      } else if (type === PathType.horizontalAbs) {
-        curX = seg.x;
-      } else if (type === PathType.verticalAbs) {
-        curY = seg.y;
-      } else if (type === PathType.horizontal) {
-        const x = curX + seg.x;
-        seg.absolute = new PathDataCommand(type.toUpperCase(), [x]);
-        curX = x;
-      } else if (type === PathType.vertical) {
-        const y = curY + seg.y;
-        seg.absolute = new PathDataCommand(type.toUpperCase(), [y]);
-        curY = y;
-      } else if (type === PathType.close || type === PathType.closeAbs) {
-        curY = subPath.y;
-        curX = subPath.x;
-      } else {
-        const absolute = seg.isAbsolute();
-        if (!absolute) {
-          const clonedArray = seg.values.map((p, index) =>
-            !(index % 2) ? curX + p : curY + p
-          );
-          seg.absolute = new PathDataCommand(type.toUpperCase(), clonedArray);
-        }
-        const point = absolute ? seg.p : seg.absolute.p;
-        curX = point.x;
-        curY = point.y;
-        if (isMove) {
-          subPath = point;
-        }
-      }
-      if (seg.absolute) {
-        seg.absolute.prev = seg.prev;
-      }
-      prev = seg;
-    });
 
     return data;
   }
@@ -158,10 +180,10 @@ export class PathData {
   }
   public normalize(normalizeTypes: string[] = null): PathData {
     const data = this;
-    if (!data || !data.commands) {
+    if (!data) {
       return data;
     }
-    data.commands.forEach((command) => {
+    data.forEach((command) => {
       if (normalizeTypes && !normalizeTypes.includes(command.type)) {
         return;
       }
@@ -170,9 +192,6 @@ export class PathData {
         command.type === PathType.vertical
       ) {
         PathData.convertCommand(command, PathType.line);
-        if (command.absolute) {
-          PathData.convertCommand(command.absolute, PathType.lineAbs);
-        }
       } else if (
         command.type === PathType.horizontalAbs ||
         command.type === PathType.verticalAbs
@@ -183,61 +202,36 @@ export class PathData {
 
     return data;
   }
+
   public clone(): PathData {
     const cloned = new PathData();
-    if (this.commands) {
-      this.commands.forEach((command, index) => {
-        const clonedCommand = command.clone();
-        if (index > 0) {
-          const prev = cloned.commands[index - 1];
-          clonedCommand.prev = prev;
-          if (clonedCommand.absolute) {
-            clonedCommand.absolute.prev = prev;
-          }
-        }
-        cloned.commands.push(clonedCommand);
-      });
-    }
+    this.forEach((command, index) => {
+      const clonedCommand = command.clone();
+      if (index > 0) {
+        const prev = cloned.commands[index - 1];
+        clonedCommand.prev = prev;
+      }
+      cloned.commands.push(clonedCommand);
+    });
     return cloned;
   }
   /**
    * Iterate all absolute commands.
    */
-  forEach(
-    iterator: (
-      command: PathDataCommand,
-      absCommand: PathDataCommand,
-      index: number
-    ) => void
-  ) {
+  forEach(iterator: (command: PathDataCommand, index: number) => void) {
     if (!iterator || !this.commands) {
       return;
     }
     this.commands.forEach((command, index) => {
       if (command) {
-        const abs = command.getAbsolute();
+        const abs = command;
         if (abs) {
-          iterator(command, abs, index);
+          iterator(command, index);
         }
       }
     });
   }
-  /**
-   * Iterate all absolute commands.
-   */
-  forEachAbs(iterator: (absCommand: PathDataCommand, index: number) => void) {
-    if (!iterator || !this.commands) {
-      return;
-    }
-    this.commands.forEach((command, index) => {
-      if (command) {
-        const abs = command.getAbsolute();
-        if (abs) {
-          iterator(abs, index);
-        }
-      }
-    });
-  }
+
   /**
    * recalculate self.
    */

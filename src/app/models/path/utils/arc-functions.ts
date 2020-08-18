@@ -9,7 +9,8 @@ export interface PointOnEllipticalArcResults extends DOMPoint {
 
 export const pointOnEllipticalArc = (
   p0: DOMPoint,
-  r: DOMPoint,
+  rx: number,
+  ry: number,
   xAxisRotation: number,
   largeArcFlag: boolean,
   sweepFlag: boolean,
@@ -17,8 +18,8 @@ export const pointOnEllipticalArc = (
   t: number
 ): PointOnEllipticalArcResults => {
   // In accordance to: http://www.w3.org/TR/SVG/implnote.html#ArcOutOfRangeParameters
-  let rx = Math.abs(r.x);
-  let ry = Math.abs(r.y);
+  rx = Math.abs(rx);
+  ry = Math.abs(ry);
   xAxisRotation = Utils.mod(xAxisRotation, 360);
   const xAxisRotationRadians = Utils.rad(xAxisRotation);
   const toReturn = new DOMPoint(0, 0) as PointOnEllipticalArcResults;

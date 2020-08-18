@@ -4,11 +4,10 @@ import {
   PathDataHandleType,
 } from "src/app/models/path-data-handle";
 import { PathData } from "src/app/models/path/path-data";
+import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
 import { Utils } from "../../utils/utils";
 import { MatrixTransform, TransformationMode } from "./matrix-transform";
-import { PathDataCommand } from "src/app/models/path/path-data-command";
-import { filter } from "rxjs/operators";
 
 export class PathTransform extends MatrixTransform {
   prevAngle = 0;
@@ -99,64 +98,72 @@ export class PathTransform extends MatrixTransform {
     filters: PathDataHandle[] | null = null
   ): boolean {
     let changed = false;
-    if (pathData && pathData.commands) {
-      pathData.commands.forEach((command, commandIndex) => {
-        const abs = command.getAbsolute();
-        if (abs) {
-          const p = abs.p;
+    if (pathData) {
+      pathData.forEach((command, commandIndex) => {
+        if (command) {
+          const p = command.p;
           // Command point:
           const manipulateP = this.allowToManipulatePoint(
             commandIndex,
-            abs,
+            command,
             filters
           );
           if (p && manipulateP) {
             changed = true;
-            abs.p = p.matrixTransform(matrix);
+            command.p = p.matrixTransform(matrix);
           }
           // Command handles:
-          const a = abs.a;
+          const a = command.a;
           const allowedChangeControlPointA =
-            a && this.isAllowMoveHandleA(commandIndex, abs, filters);
+            a &&
+            !command.isCalculatedA() &&
+            this.isAllowMoveHandleA(commandIndex, command, filters);
           if (allowedChangeControlPointA) {
-            abs.a = a.matrixTransform(matrix);
+            command.a = a.matrixTransform(matrix);
             changed = true;
           }
-          const b = abs.b;
+          const b = command.b;
           const allowedChangeControlPointB =
             b &&
             (manipulateP ||
-              this.isAllowMoveHandleB(commandIndex, abs, filters));
+              this.isAllowMoveHandleB(commandIndex, command, filters));
           if (allowedChangeControlPointB) {
-            abs.b = b.matrixTransform(matrix);
+            command.b = b.matrixTransform(matrix);
             changed = true;
           }
 
-          if (abs.type === PathType.arc || abs.type === PathType.arcAbs) {
-            const r = abs.r;
-            if (r) {
-              const center = abs.center;
-              const rx = new DOMPoint(center.x + r.x, center.y).matrixTransform(
-                matrix
-                  .translate(center.x, center.y)
-                  .rotate(abs.rotation)
-                  .translate(-center.x, -center.y)
-              );
+          if (command.type === PathType.arcAbs) {
+            const center = command.center;
+            const rx = new DOMPoint(
+              center.x + command.rx,
+              center.y
+            ).matrixTransform(
+              matrix
+                .translate(center.x, center.y)
+                .rotate(command.rotation)
+                .translate(-center.x, -center.y)
+            );
 
-              const ry = new DOMPoint(center.x, center.y + r.y).matrixTransform(
-                matrix
-                  .translate(center.x, center.y)
-                  .rotate(abs.rotation)
-                  .translate(-center.x, -center.y)
-              );
+            const ry = new DOMPoint(
+              center.x,
+              center.y + command.ry
+            ).matrixTransform(
+              matrix
+                .translate(center.x, center.y)
+                .rotate(command.rotation)
+                .translate(-center.x, -center.y)
+            );
 
-              const newCenter = center.matrixTransform(matrix);
-              const ryLen = Utils.getLength(ry, newCenter);
-              const rxLen = Utils.getLength(rx, newCenter);
-              abs.r = new DOMPoint(rxLen, ryLen);
+            const newCenter = center.matrixTransform(matrix);
+            const ryLen = Utils.getLength(ry, newCenter);
+            const rxLen = Utils.getLength(rx, newCenter);
+            command.rx = rxLen;
+            command.ry = ryLen;
+            if (command.rx !== rxLen || command.ry !== ryLen) {
               changed = true;
             }
-            const rotatedMatrix = matrix.rotate(abs.rotation);
+
+            const rotatedMatrix = matrix.rotate(command.rotation);
             const decomposedRotation = this.decomposeMatrix(rotatedMatrix);
             if (decomposedRotation) {
               if (
@@ -167,29 +174,12 @@ export class PathTransform extends MatrixTransform {
                     decomposedRotation.scaleY < 0
                   ))
               ) {
-                abs.sweep = !abs.sweep;
+                command.sweep = !command.sweep;
                 changed = true;
               }
-              if (abs.rotation !== decomposedRotation.rotateZ) {
-                abs.rotation = decomposedRotation.rotateZ;
+              if (command.rotation !== decomposedRotation.rotateZ) {
+                command.rotation = decomposedRotation.rotateZ;
                 changed = true;
-              }
-            }
-          }
-          // We should set this even when points are not changed.
-          // This is important to in order to recalculate relative points by the prev given absolute.
-          if (!command.isAbsolute()) {
-            command.values = [...abs.values];
-            const calcRelative = abs.calculateRelPoint();
-            command.p = calcRelative;
-            if (command.type !== PathType.arc) {
-              const relA = abs.calculateRelA();
-              if (relA) {
-                command.a = relA;
-              }
-              const relB = abs.calculateRelB();
-              if (relB) {
-                command.b = relB;
               }
             }
           }

@@ -20,8 +20,7 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
       let maxY = Number.MIN_VALUE;
 
       points.forEach((handle, index) => {
-        const p = handle?.node?.getPathData()?.commands[index]?.getAbsolute()
-          ?.p;
+        const p = handle?.node?.getPathData()?.commands[index]?.p;
         if (!p) {
           return;
         }

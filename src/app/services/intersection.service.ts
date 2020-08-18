@@ -4,18 +4,18 @@ import { environment } from "src/environments/environment";
 import { HandleData } from "../models/handle-data";
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { PathDataCommand } from "../models/path/path-data-command";
+import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
 import { LoggerService } from "./logger.service";
 import { OutlineService } from "./outline.service";
+import { SelectionService } from "./selection.service";
 import { Utils } from "./utils/utils";
 import { ViewService } from "./view.service";
+import { AdornerData } from "./viewport/adorners/adorner-data";
 import {
   AdornerType,
-  AdornerTypeUtils,
+  AdornerTypeUtils
 } from "./viewport/adorners/adorner-type";
-import { SelectionService } from "./selection.service";
-import { PathType } from "../models/path/path-type";
-import { AdornerData } from "./viewport/adorners/adorner-data";
 
 export interface NearestCommandPoint {
   point: DOMPoint;
@@ -150,8 +150,8 @@ export class IntersectionService {
           node
         );
         if (data && data.commands) {
-          data.commands.forEach((command, commandIndex) => {
-            const abs = command.getAbsolute();
+          data.forEach((command, commandIndex) => {
+            const abs = command;
             if (abs.type === PathType.closeAbs) {
               return;
             }
@@ -310,8 +310,8 @@ export class IntersectionService {
     let usedStep = 0;
     let bestPositionOnFragment = 0;
     // Linear search, find nearest command first.
-    pathData.forEach((command, abs, index) => {
-      const totalLength = abs.length;
+    pathData.forEach((command, index) => {
+      const totalLength = command.length;
       if (totalLength > accuracy) {
         let step = Math.floor(totalLength / expectedLen);
         if (step < 1) {
@@ -328,12 +328,12 @@ export class IntersectionService {
           }
         }
         step = totalLength / step;
-        const isFirst = !abs.prev;
+        const isFirst = !command.prev;
         // small offset is used to choose the best command
         // when prev and next points are overlapped.
         const startWith = isFirst ? 0 : 0.01;
         for (let i = startWith; i <= totalLength; i += step) {
-          const pLen = abs.getPointOnPath(i);
+          const pLen = command.getPointOnPath(i);
           if (pLen) {
             const length = Utils.getLength(elementPoint, pLen);
             if (!lengthLimit || lengthLimit >= length) {
@@ -372,7 +372,7 @@ export class IntersectionService {
     // Increase accuracy for the found command.
     if (nearest) {
       usedStep = usedStep / 2;
-      const abs = nearest.command.getAbsolute();
+      const abs = nearest.command;
       const totalLength = abs.length;
       const setNearestWhenBetter = (
         i: number,

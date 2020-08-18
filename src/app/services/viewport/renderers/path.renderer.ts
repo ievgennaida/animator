@@ -97,9 +97,9 @@ export class PathRenderer extends BaseRenderer {
         }
         const ctm = this.screenCTM.multiply(nodeMatrix);
         let prevPoint: DOMPoint = null;
-        data.commands.forEach((command, commandIndex) => {
+        data.forEach((command, commandIndex) => {
           // const prev = index > 0 ? data.commands[index - 1] : null;
-          const abs = command.getAbsolute();
+          const abs = command;
           if (!abs) {
             return;
           }
@@ -193,7 +193,7 @@ export class PathRenderer extends BaseRenderer {
     prevPoint: DOMPoint
   ) {
     const data = node.getPathData();
-    const abs = data.commands[commandIndex].getAbsolute();
+    const abs = data.commands[commandIndex];
 
     const isCurveSelected = !!this.mouseOverService.pathDataSubject.getHandle(
       node,
