@@ -29,6 +29,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
   public _x = 0;
   public _y = 0;
 
+  /**
+   * Indication whether control point A is changed.
+   * Used for changes tracking.
+   */
+  private _changedA = false;
+  private _changedB = false;
+  private _changedP = false;
+
   private pointsCache = new Map<number, DOMPoint>();
   /**
    * Cached segment length.
@@ -109,6 +117,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       }
       if (this.values.length >= 2) {
         this.values[this.values.length - 2] = val;
+        this._changedP = true;
       }
     }
   }
@@ -151,6 +160,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     }
     if (this.values && this.values.length >= 2) {
       this.values[this.values.length - 1] = val;
+      this._changedP = true;
     }
   }
   public set p(point: DOMPoint) {
@@ -227,10 +237,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       ) {
         const b = prev.b;
         // For this mode handle point is calculated.
-        const virtualHandle = new DOMPoint(
-          2 * prev.x - b.x,
-          2 * prev.y - b.y
-        );
+        const virtualHandle = new DOMPoint(2 * prev.x - b.x, 2 * prev.y - b.y);
         return virtualHandle;
       } else {
         return new DOMPoint(prev.x, prev.y);
@@ -246,10 +253,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       ) {
         // The control point is a reflection of the control point of the previous curve command.
         const a = prev.a;
-        const virtualHandle = new DOMPoint(
-          2 * prev.x - a.x,
-          2 * prev.y - a.y
-        );
+        const virtualHandle = new DOMPoint(2 * prev.x - a.x, 2 * prev.y - a.y);
         return virtualHandle;
       } else {
         return new DOMPoint(this.x, this.y);
@@ -271,7 +275,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
 
   /**
-   * Control point 'a' for the bezier.
+   * get bezier control point 'a'.
    */
   public set a(point: DOMPoint) {
     // Clean cached point.
@@ -294,7 +298,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
           2 * prev.x - point.x,
           2 * prev.y - point.y
         );
-
+        this._changedA = true;
         prev.b = virtualHandle;
       }
       // Virtual point
@@ -307,13 +311,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
         return;
       }
       if (
-        (prev.type === PathType.smoothQuadraticBezierAbs) ||
+        prev.type === PathType.smoothQuadraticBezierAbs ||
         prev.type === PathType.quadraticBezierAbs
       ) {
         const virtualHandle = new DOMPoint(
           2 * prev.x - point.x,
           2 * prev.y - point.y
         );
+        this._changedA = true;
         prev.a = virtualHandle;
       }
       // Virtual point
@@ -323,10 +328,51 @@ export class PathDataCommand implements SVGPathSegmentEx {
     if (this.values && this.values.length >= 3) {
       this.values[0] = point.x;
       this.values[1] = point.y;
+      this._changedA = true;
       this.cleanCache();
     }
   }
+  public get changedA(): boolean {
+    // Calculate virtual
+    const prev = this.prev;
+    if (
+      // S command
+      this.type === PathType.shorthandSmooth ||
+      this.type === PathType.shorthandSmoothAbs
+    ) {
+      /**
+       * The start control point is a reflection of the end control point of the previous curve command.
+       * If the previous command wasn't a cubic Bézier curve, the start control point
+       * is the same as the curve starting point (current point).
+       */
+      if (
+        (prev && prev.type === PathType.shorthandSmoothAbs) ||
+        prev.type === PathType.cubicBezierAbs
+      ) {
+        const b = prev.b;
+        return prev.changedB;
+      }
+    } else if (
+      // T command
+      this.type === PathType.smoothQuadraticBezier ||
+      this.type === PathType.smoothQuadraticBezierAbs
+    ) {
+      if (
+        (prev && prev.type === PathType.smoothQuadraticBezierAbs) ||
+        prev.type === PathType.quadraticBezierAbs
+      ) {
+        return prev.changedA;
+      }
+    }
 
+    return this._changedA;
+  }
+  public get changedB(): boolean {
+    return this._changedB;
+  }
+  public get changedP(): boolean {
+    return this._changedP;
+  }
   /**
    * Control point 'b' for the bezier.
    */
@@ -370,9 +416,11 @@ export class PathDataCommand implements SVGPathSegmentEx {
       ) {
         this.values[0] = point.x;
         this.values[1] = point.y;
+        this._changedB = true;
       } else {
         this.values[2] = point.x;
         this.values[3] = point.y;
+        this._changedB = true;
       }
     }
 
@@ -610,6 +658,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
     return this.type;
   }
 
+  /**
+   * Reset changed flags.
+   */
+  public markAsUnchanged() {
+    this._changedA = false;
+    this._changedB = false;
+    this._changedP = false;
+  }
   /**
    * Get path data command bounds.
    */

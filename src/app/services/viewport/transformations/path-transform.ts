@@ -99,15 +99,16 @@ export class PathTransform extends MatrixTransform {
   ): boolean {
     let changed = false;
     if (pathData) {
+      // Virtual control point can affect previous related commands.
+      // We need to avoid double
+      pathData.forEach((command) => command.markAsUnchanged());
       pathData.forEach((command, commandIndex) => {
         if (command) {
           const p = command.p;
           // Command point:
-          const manipulateP = this.allowToManipulatePoint(
-            commandIndex,
-            command,
-            filters
-          );
+          const manipulateP =
+            !command.changedP &&
+            this.allowToManipulatePoint(commandIndex, command, filters);
           if (p && manipulateP) {
             changed = true;
             command.p = p.matrixTransform(matrix);
@@ -116,7 +117,8 @@ export class PathTransform extends MatrixTransform {
           const a = command.a;
           const allowedChangeControlPointA =
             a &&
-            !command.isCalculatedA() &&
+            // Check that it was not transformed in current cycle.
+            !command.changedA &&
             this.isAllowMoveHandleA(commandIndex, command, filters);
           if (allowedChangeControlPointA) {
             command.a = a.matrixTransform(matrix);
@@ -125,8 +127,10 @@ export class PathTransform extends MatrixTransform {
           const b = command.b;
           const allowedChangeControlPointB =
             b &&
+            !command.changedB &&
             (manipulateP ||
               this.isAllowMoveHandleB(commandIndex, command, filters));
+
           if (allowedChangeControlPointB) {
             command.b = b.matrixTransform(matrix);
             changed = true;
