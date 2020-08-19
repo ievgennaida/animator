@@ -1,10 +1,13 @@
-import { Utils } from "../../utils/utils";
+import { TreeNode } from "src/app/models/tree-node";
 import { IBBox } from "../../../models/interfaces/bbox";
+import { Utils } from "../../utils/utils";
 import { AdornerType } from "./adorner-type";
 
 export class AdornerData implements IBBox {
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
-  invalid = true;
+  isScreen = false;
+  node: TreeNode = null;
+  public allowResize = true;
   get topCenter(): DOMPoint {
     return this.get(AdornerType.TopCenter);
   }
@@ -43,9 +46,6 @@ export class AdornerData implements IBBox {
     return key !== AdornerType.Center && key !== AdornerType.CenterTransform;
   }
 
-  invalidate() {
-    this.invalid = true;
-  }
   update(renderable: SVGGraphicsElement, bounds: DOMRect = null): AdornerData {
     if (!bounds) {
       if (!renderable || !renderable.getBBox) {
@@ -117,6 +117,7 @@ export class AdornerData implements IBBox {
 
   matrixTransform(m: DOMMatrix): AdornerData {
     const cloned = new AdornerData();
+    cloned.node = this.node;
     this.points.forEach((adornerPoint, key) => {
       if (adornerPoint) {
         cloned.points.set(key, adornerPoint.matrixTransform(m));

@@ -53,7 +53,7 @@ export class MouseOverService {
     }
 
     return (
-      currentHandle.node === data.node &&
+      currentHandle.adornerData.node === data.adornerData.node &&
       Utils.bitwiseEquals(currentHandle.handles, data.handles)
     );
   }

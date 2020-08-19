@@ -14,7 +14,7 @@ import { ViewService } from "./view.service";
 import { AdornerData } from "./viewport/adorners/adorner-data";
 import {
   AdornerType,
-  AdornerTypeUtils,
+  AdornerTypeUtils
 } from "./viewport/adorners/adorner-type";
 
 export interface NearestCommandPoint {
@@ -90,33 +90,19 @@ export class IntersectionService {
 
   getAdornerHandleIntersection(
     screenPoint: DOMPoint,
-    nodes: TreeNode[]
+    adorners: AdornerData[]
   ): HandleData | null {
-    if (!nodes) {
-      return;
+    if (!adorners) {
+      return null;
     }
     let results: HandleData = null;
-    const toReturn = nodes.find((node) => {
-      if (!node.allowResize) {
-        return false;
-      }
-      const adorner = node.getElementAdorner();
-      const elPoint = Utils.toElementPoint(node, screenPoint);
-      if (!elPoint) {
+    const toReturn = adorners.find((adorner) => {
+      if (!adorner || !adorner.allowResize) {
         return false;
       }
 
-      // Get 1px length in element coordinates.
-      const screenPointSize = Utils.getLength(
-        Utils.toElementPoint(
-          node,
-          new DOMPoint(screenPoint.x + 1, screenPoint.y + 1)
-        ),
-        elPoint
-      );
-
-      const accuracy = screenPointSize * consts.handleSize;
-      const intersects = this.intersectAdorner(adorner, elPoint, accuracy);
+      const accuracy = consts.handleSize;
+      const intersects = this.intersectAdorner(adorner, screenPoint, accuracy);
       if (intersects !== AdornerType.None) {
         if (!results) {
           results = new HandleData();
@@ -129,8 +115,7 @@ export class IntersectionService {
     if (!toReturn) {
       return null;
     }
-    results.node = toReturn;
-    results.adornerData = toReturn.getElementAdorner();
+    results.adornerData = toReturn;
     return results;
   }
   intersectPathDataHandles(

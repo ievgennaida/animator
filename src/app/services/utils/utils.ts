@@ -288,6 +288,9 @@ export class Utils {
     let maxY;
 
     for (const element of elements) {
+      if (!element) {
+        continue;
+      }
       const size = element[methodName]();
 
       minX = minX === undefined ? size.x : Math.min(minX, size.x);

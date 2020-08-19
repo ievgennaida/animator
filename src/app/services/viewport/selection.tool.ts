@@ -20,7 +20,7 @@ import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import {
   MatrixTransform,
-  TransformationMode,
+  TransformationMode
 } from "./transformations/matrix-transform";
 import { TransformsService } from "./transformations/transforms.service";
 
@@ -74,7 +74,7 @@ export class SelectionTool extends BaseSelectionTool {
     const handle = this.mouseOverService.mouseOverHandle;
     if (startedNode || handle) {
       this.startedHandle = handle;
-      this.startedNode = handle ? handle.node : startedNode;
+      this.startedNode = handle ? handle.adornerData.node : startedNode;
       if (!this.startedNode || !this.startedNode.selected) {
         return;
       }
@@ -160,7 +160,10 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const selectedNodes = this.selectionService.getSelected();
+        const selectedNodes = this.selectionService
+          .getSelected()
+          .map((p) => p.getAdorners());
+
         const showHandles = this.boundsRenderer.isShowHandles();
         // TODO: general selection adorner.
         const handle = showHandles

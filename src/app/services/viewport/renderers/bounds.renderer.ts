@@ -282,8 +282,9 @@ export class BoundsRenderer extends BaseRenderer {
     const drawSmallBounds = renderable.length <= consts.maxBoundsToRender;
     renderable.forEach((node: TreeNode) => {
       if (node.selected) {
-        const adornerData = node.getScreenAdorners(this.screenCTM);
+        let adornerData = node.getAdorners();
         if (adornerData) {
+          adornerData = adornerData.matrixTransform(this.screenCTM);
           if (drawSmallBounds) {
             this.drawAdornerRect(
               ctx,
@@ -308,9 +309,13 @@ export class BoundsRenderer extends BaseRenderer {
     // Draw global bounds:
     if (renderable && renderable.length > 1 && !this.suppressMainSelection) {
       // TODO: cached, reuse
-      const adorners = renderable.map((p) =>
-        p.getScreenAdorners(this.screenCTM)
-      );
+      const adorners = renderable.map((p) => {
+        const adorner = p.getAdorners();
+        if (adorner) {
+          return null;
+        }
+        return adorner.matrixTransform(this.screenCTM);
+      });
 
       const bounds = Utils.getBBoxBounds(...adorners);
       this.drawRect(
@@ -326,8 +331,8 @@ export class BoundsRenderer extends BaseRenderer {
     }
     if (renderable && renderable.length >= 1) {
       // Path data, selected items bounds
-      let selectedPointsBounds = this.selectionService.pathDataSubject.bounds;
-      if (selectedPointsBounds) {
+      // let selectedPointsBounds = this.selectionService.pathDataSubject.bounds;
+      /* if (selectedPointsBounds) {
         // TODO: each point should be transformed according to the node transformation.
         selectedPointsBounds = renderable[0].adornerToScreen(
           selectedPointsBounds,
@@ -344,7 +349,7 @@ export class BoundsRenderer extends BaseRenderer {
           this.drawAdornersHandles(ctx, selectedPointsBounds);
           this.drawCross(ctx, selectedPointsBounds.centerTransform);
         }
-      }
+      }*/
     }
   }
 }

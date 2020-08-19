@@ -45,8 +45,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   preselected = false;
   selected = false;
   private cacheClientRect: DOMRect;
-  private cacheScreenAdorers: AdornerData = new AdornerData();
-  private cacheElementAdorers: AdornerData = new AdornerData();
+  private cacheAdorners: AdornerData | null = null;
   private ctmCache: DOMMatrix;
   private screenCTMCache: DOMMatrix;
   private _name = "";
@@ -78,22 +77,12 @@ export class TreeNode implements ICTMProvider, IBBox {
   }
 
   cleanCache() {
-    this.cleanElementCache();
-    this.cleanScreenCache();
-  }
-
-  cleanElementCache() {
     this.screenCTMCache = null;
     this.ctmCache = null;
     this.cacheBBox = null;
     this.cacheClientRect = null;
-    this.cacheElementAdorers.invalidate();
+    this.cacheAdorners = null;
     this.pathDataCache = null;
-  }
-
-  cleanScreenCache() {
-    this.cacheClientRect = null;
-    this.cacheScreenAdorers.invalidate();
   }
 
   public getPathData(cache = true): PathData {
@@ -152,36 +141,21 @@ export class TreeNode implements ICTMProvider, IBBox {
     return this.ctmCache;
   }
   /**
-   * Get adorner on a screen coordinates
+   * Get adorner manipulation points points in screen coordinates.
    */
-  getScreenAdorners(screenCTM: DOMMatrix): AdornerData {
-    if (this.cacheScreenAdorers) {
-      // TODO: use cached
-      // return this.cacheScreenAdorers;
+  getAdorners(): AdornerData {
+    if (this.cacheAdorners) {
+      return this.cacheAdorners;
     }
 
-    this.cacheScreenAdorers = this.adornerToScreen(this.getElementAdorner(), screenCTM);
-    return this.cacheScreenAdorers;
+    this.cacheAdorners = new AdornerData();
+    this.cacheAdorners.node = this;
+    this.cacheAdorners.update(this.getElement(), this.getBBox());
+    this.cacheAdorners = this.cacheAdorners.matrixTransform(
+      this.getScreenCTM()
+    );
+    return this.cacheAdorners;
   }
-
-  adornerToScreen(adorner: AdornerData, screenCTM: DOMMatrix): AdornerData {
-    if (!adorner) {
-      return null;
-    }
-    const ctm = screenCTM.multiply(this.getScreenCTM());
-    return adorner.matrixTransform(ctm);
-  }
-  /**
-   * Get cached elements coordinates adorners.
-   */
-  getElementAdorner(): AdornerData {
-    if (this.cacheElementAdorers.invalid) {
-      this.cacheElementAdorers.update(this.getElement(), this.getBBox());
-    }
-
-    return this.cacheElementAdorers;
-  }
-
   /**
    * get cached bbox.
    */

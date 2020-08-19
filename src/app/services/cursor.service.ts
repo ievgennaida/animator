@@ -1,13 +1,9 @@
-import { Observable, BehaviorSubject } from "rxjs";
 import { Injectable } from "@angular/core";
-import { Utils } from "./utils/utils";
-import { AdornerData } from "./viewport/adorners/adorner-data";
-import {
-  AdornerType,
-  AdornerTypeUtils,
-} from "./viewport/adorners/adorner-type";
+import { BehaviorSubject, Observable } from "rxjs";
 import { CursorType } from "../models/cursor-type";
 import { HandleData } from '../models/handle-data';
+import { Utils } from "./utils/utils";
+import { AdornerType } from "./viewport/adorners/adorner-type";
 
 @Injectable({
   providedIn: "root",
@@ -75,7 +71,7 @@ export class CursorService {
     const deg =
       Utils.angle(
         screenPoint,
-        Utils.toScreenPoint(handle.node, handle.adornerData.center)
+        handle.adornerData.center
       ) + 180;
     return deg;
   }
