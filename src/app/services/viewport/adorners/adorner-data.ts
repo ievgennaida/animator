@@ -4,7 +4,6 @@ import { AdornerType } from "./adorner-type";
 
 export class AdornerData implements IBBox {
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
-  element: SVGGraphicsElement = null;
   invalid = true;
   get topCenter(): DOMPoint {
     return this.get(AdornerType.TopCenter);
@@ -118,7 +117,6 @@ export class AdornerData implements IBBox {
 
   matrixTransform(m: DOMMatrix): AdornerData {
     const cloned = new AdornerData();
-    cloned.element = this.element;
     this.points.forEach((adornerPoint, key) => {
       if (adornerPoint) {
         cloned.points.set(key, adornerPoint.matrixTransform(m));

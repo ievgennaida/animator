@@ -14,7 +14,7 @@ import { ViewService } from "./view.service";
 import { AdornerData } from "./viewport/adorners/adorner-data";
 import {
   AdornerType,
-  AdornerTypeUtils
+  AdornerTypeUtils,
 } from "./viewport/adorners/adorner-type";
 
 export interface NearestCommandPoint {
@@ -444,37 +444,42 @@ export class IntersectionService {
     accuracy = 6
   ): AdornerType {
     let toReturn = AdornerType.None;
+    if (!point || !adorner) {
+      return toReturn;
+    }
     let minDistance = accuracy;
     const rotateArea = 1.5;
+
     // Find nearest point:
     adorner.points.forEach((adornerPoint, key) => {
-      if (point) {
-        const v = Utils.getVector(adornerPoint, adorner.center, true);
-        const rotateAccuracy = accuracy * rotateArea;
-        const moveAdornerDistance = Utils.getLength(
-          Utils.alongVector(adornerPoint, v, accuracy),
+      if (!adornerPoint) {
+        return;
+      }
+      const v = Utils.getVector(adornerPoint, adorner.center, true);
+      const rotateAccuracy = accuracy * rotateArea;
+      const moveAdornerDistance = Utils.getLength(
+        Utils.alongVector(adornerPoint, v, accuracy),
+        point
+      );
+      let rotateDistance = Number.MAX_VALUE;
+      if (adorner.allowToRotateAdorners(key)) {
+        rotateDistance = Utils.getLength(
+          Utils.alongVector(adornerPoint, v, rotateAccuracy),
           point
         );
-        let rotateDistance = Number.MAX_VALUE;
-        if (adorner.allowToRotateAdorners(key)) {
-          rotateDistance = Utils.getLength(
-            Utils.alongVector(adornerPoint, v, accuracy * rotateArea),
-            point
-          );
-        }
-        if (
-          rotateDistance <= minDistance * rotateArea ||
-          moveAdornerDistance <= minDistance
-        ) {
-          // Move has a priority:
-          if (rotateDistance + rotateDistance * 0.2 < moveAdornerDistance) {
-            // Corresponding rotate key:
-            toReturn = AdornerTypeUtils.toRotateAdornerType(key);
-            minDistance = rotateDistance;
-          } else {
-            toReturn = key;
-            minDistance = moveAdornerDistance;
-          }
+      }
+      if (
+        rotateDistance <= minDistance * rotateArea ||
+        moveAdornerDistance <= minDistance
+      ) {
+        // Move has a priority:
+        if (rotateDistance + rotateDistance * 0.2 < moveAdornerDistance) {
+          // Corresponding rotate key:
+          toReturn = AdornerTypeUtils.toRotateAdornerType(key);
+          minDistance = rotateDistance;
+        } else {
+          toReturn = key;
+          minDistance = moveAdornerDistance;
         }
       }
     });
