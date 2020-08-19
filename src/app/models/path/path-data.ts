@@ -1,6 +1,7 @@
+import { Utils } from "src/app/services/utils/utils";
+import { consts } from "src/environments/consts";
 import { PathDataCommand } from "./path-data-command";
 import { PathType } from "./path-type";
-
 export class PathData {
   constructor(public commands: PathDataCommand[] = []) {}
   public static setPathData(
@@ -10,10 +11,18 @@ export class PathData {
     if (element.setPathData && data && data.commands) {
       // Try to preserve original data
       const valuesToSet = data.commands.map((command) => {
+        // Round values
+        if (consts.pathDataAccuracy || consts.pathDataAccuracy === 0) {
+          for (let i = 0; i < command.values.length; i++) {
+            const val = command.values[i];
+            if (typeof val === "number" && !Number.isNaN(val)) {
+              command.values[i] = Utils.round(val, consts.pathDataAccuracy);
+            }
+          }
+        }
         if (command.saveAsRelative && !command.isRelative()) {
           return command.getRelative();
         }
-
         return command;
       });
       element.setPathData(valuesToSet);

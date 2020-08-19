@@ -2,6 +2,10 @@ import { ViewMode } from "../app/models/view-mode";
 
 export const consts = {
   recentItemsCount: 7,
+  /**
+   * Digits after coma for a path data.
+   */
+  pathDataAccuracy: 2,
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
   pathPointSize: 5,
