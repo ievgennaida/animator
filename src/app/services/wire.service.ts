@@ -40,18 +40,28 @@ export class WireService {
       const isSelectionToolActive = activeTool === toolsService.selectionTool;
       boundsRenderer.drawNodeHandles = isSelectionToolActive;
       boundsRenderer.suppressMainSelection = !isSelectionToolActive;
+      pathRenderer.suspend();
+      if (activeTool !== toolsService.pathTool) {
+        mouseOverService.pathDataSubject.setNone();
+        selectionService.pathDataSubject.setNone();
+      }
       pathRenderer.invalidate();
+      pathRenderer.resume();
     });
     selectionService.pathDataSubject.subscribe(() => {
       boundsRenderer.invalidate();
       selectionService.pathDataSubject.calculateHandlesBounds();
     });
     selectionService.selected.subscribe((state) => {
+      pathRenderer.suspend();
+      boundsRenderer.suspend();
+      mouseOverService.pathDataSubject.leaveNodes(state.removed);
       // Deselect any path data were selected.
       selectionService.pathDataSubject.leaveNodes(state.removed);
       boundsRenderer.invalidate();
       pathRenderer.invalidate();
-
+      pathRenderer.resume();
+      boundsRenderer.resume();
       // state.removed.forEach((p) => mouseOverService.leavePathDataNode(p));
     });
 
