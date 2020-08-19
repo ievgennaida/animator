@@ -14,10 +14,10 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     if (points.length <= 1) {
       this.bounds = null;
     } else {
-      let minX = Number.MAX_VALUE;
-      let maxX = Number.MIN_VALUE;
-      let minY = Number.MAX_VALUE;
-      let maxY = Number.MIN_VALUE;
+      let minX = Number.MAX_SAFE_INTEGER;
+      let maxX = Number.MIN_SAFE_INTEGER;
+      let minY = Number.MAX_SAFE_INTEGER;
+      let maxY = Number.MIN_SAFE_INTEGER;
 
       points.forEach((handle) => {
         const p = handle?.node?.getPathData()?.commands[handle.commandIndex]?.p;
