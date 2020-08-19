@@ -13,6 +13,7 @@ import { PathRenderer } from "./viewport/renderers/path.renderer";
 import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
 import { ToolsService } from "./viewport/tools.service";
 import { TransformsService } from "./viewport/transformations/transforms.service";
+import { BaseRenderer } from "./viewport/renderers/base.renderer";
 
 /**
  * Wire services together
@@ -37,32 +38,30 @@ export class WireService {
     pathRenderer: PathRenderer
   ) {
     toolsService.activeToolChanged().subscribe((activeTool) => {
-      const isSelectionToolActive = activeTool === toolsService.selectionTool;
-      boundsRenderer.drawNodeHandles = isSelectionToolActive;
-      boundsRenderer.suppressMainSelection = !isSelectionToolActive;
-      pathRenderer.suspend();
-      if (activeTool !== toolsService.pathTool) {
-        mouseOverService.pathDataSubject.setNone();
-        selectionService.pathDataSubject.setNone();
-      }
-      pathRenderer.invalidate();
-      pathRenderer.resume();
+      this.suspendedInvalidate(() => {
+        const isSelectionToolActive = activeTool === toolsService.selectionTool;
+        boundsRenderer.drawNodeHandles = isSelectionToolActive;
+        boundsRenderer.suppressMainSelection = !isSelectionToolActive;
+        if (activeTool !== toolsService.pathTool) {
+          mouseOverService.pathDataSubject.setNone();
+          selectionService.pathDataSubject.setNone();
+        }
+      }, pathRenderer);
     });
     selectionService.pathDataSubject.subscribe(() => {
       boundsRenderer.invalidate();
       selectionService.pathDataSubject.calculateHandlesBounds();
     });
     selectionService.selected.subscribe((state) => {
-      pathRenderer.suspend();
-      boundsRenderer.suspend();
-      mouseOverService.pathDataSubject.leaveNodes(state.removed);
-      // Deselect any path data were selected.
-      selectionService.pathDataSubject.leaveNodes(state.removed);
-      boundsRenderer.invalidate();
-      pathRenderer.invalidate();
-      pathRenderer.resume();
-      boundsRenderer.resume();
-      // state.removed.forEach((p) => mouseOverService.leavePathDataNode(p));
+      this.suspendedInvalidate(
+        () => {
+          mouseOverService.pathDataSubject.leaveNodes(state.removed);
+          // Deselect any path data were selected.
+          selectionService.pathDataSubject.leaveNodes(state.removed);
+        },
+        pathRenderer,
+        boundsRenderer
+      );
     });
 
     documentService.documentSubject.asObservable().subscribe(() => {
@@ -110,6 +109,25 @@ export class WireService {
     mouseOverService.mouseOverHandleSubject.subscribe((selectedHandle) => {
       mouseOverRenderer.invalidate();
       boundsRenderer.invalidate();
+    });
+  }
+  suspendedInvalidate(callback: () => void, ...params: BaseRenderer[]) {
+    const suspendedStates = params.map((p) => {
+      const wasSuspended = p.suspended;
+      p.suspend();
+      return wasSuspended;
+    });
+    // Callback might call invalidate again.
+    // We can suspend services before and resume after the call.
+    if (callback) {
+      callback();
+    }
+    params.forEach((p, index) => {
+      p.invalidate();
+      // Check whether was initially suspended
+      if (!suspendedStates[index]) {
+        p.resume();
+      }
     });
   }
   cleanCache() {
