@@ -4,6 +4,8 @@ import { AdornerType } from "./adorner-type";
 
 export class AdornerData implements IBBox {
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
+  element: SVGGraphicsElement = null;
+  invalid = true;
   get topCenter(): DOMPoint {
     return this.get(AdornerType.TopCenter);
   }
@@ -34,8 +36,7 @@ export class AdornerData implements IBBox {
   get center(): DOMPoint {
     return this.get(AdornerType.Center);
   }
-  element: SVGGraphicsElement = null;
-  invalid = true;
+
   get(p: AdornerType): DOMPoint {
     return this.points.get(p);
   }

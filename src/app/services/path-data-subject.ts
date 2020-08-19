@@ -19,8 +19,8 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
       let minY = Number.MAX_VALUE;
       let maxY = Number.MIN_VALUE;
 
-      points.forEach((handle, index) => {
-        const p = handle?.node?.getPathData()?.commands[index]?.p;
+      points.forEach((handle) => {
+        const p = handle?.node?.getPathData()?.commands[handle.commandIndex]?.p;
         if (!p) {
           return;
         }
@@ -82,7 +82,7 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
    * Deselect tree nodes
    */
   leaveNodes(nodes: TreeNode[]): boolean {
-    if (!nodes) {
+    if (!nodes || nodes.length === 0) {
       return false;
     }
     const toLeave = this.getValues().find((p) =>

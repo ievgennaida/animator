@@ -1,3 +1,4 @@
+// tslint:disable: variable-name
 import { Injectable } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
@@ -41,9 +42,18 @@ export class BoundsRenderer extends BaseRenderer {
     }
   }
 
-  // tslint:disable-next-line: variable-name
+  private _drawPathDataPointsHandle = false;
+  get drawPathDataPointsHandle(): boolean {
+    return this._drawPathDataPointsHandle;
+  }
+  set drawPathDataPointsHandle(value: boolean) {
+    if (this._drawPathDataPointsHandle !== value) {
+      this._drawPathDataPointsHandle = value;
+      this.invalidate();
+    }
+  }
   private _drawNodeHandles = true;
-  get drawNodeHandles() {
+  get drawNodeHandles(): boolean {
     return this._drawNodeHandles;
   }
   set drawNodeHandles(value: boolean) {
@@ -330,7 +340,7 @@ export class BoundsRenderer extends BaseRenderer {
           elementsColor,
           selectedPointsBounds
         );
-        if (this.drawNodeHandles) {
+        if (this.drawPathDataPointsHandle) {
           this.drawAdornersHandles(ctx, selectedPointsBounds);
           this.drawCross(ctx, selectedPointsBounds.centerTransform);
         }

@@ -47,8 +47,11 @@ export class WireService {
       selectionService.pathDataSubject.calculateHandlesBounds();
     });
     selectionService.selected.subscribe((state) => {
+      // Deselect any path data were selected.
+      selectionService.pathDataSubject.leaveNodes(state.removed);
       boundsRenderer.invalidate();
       pathRenderer.invalidate();
+
       // state.removed.forEach((p) => mouseOverService.leavePathDataNode(p));
     });
 
