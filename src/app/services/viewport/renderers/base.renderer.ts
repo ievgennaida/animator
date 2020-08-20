@@ -4,6 +4,9 @@ import { TreeNode } from "src/app/models/tree-node";
 
 export class BaseRenderer {
   canvasCTM: DOMMatrix = new DOMMatrix();
+  /**
+   * Renderer canvas viewport CTM.
+   */
   screenCTM: DOMMatrix = new DOMMatrix();
   ctx: CanvasRenderingContext2D = null;
   devicePixelRatio = window.devicePixelRatio;

@@ -59,6 +59,7 @@ export class AdornersRenderer extends BaseRenderer {
     }
 
     const parent = this.viewService.svgRoot();
+    // Get renderers viewport screen CTM:
     this.screenCTM = this.canvasCTM.multiply(parent.getScreenCTM().inverse());
     this.renderers.forEach((renderer) => {
       renderer.screenCTM = this.screenCTM;

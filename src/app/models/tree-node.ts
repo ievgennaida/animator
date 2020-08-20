@@ -38,9 +38,6 @@ export class TreeNode implements ICTMProvider, IBBox {
   allowTranslate = true;
   allowRotate = true;
   allowResize = true;
-  // TODO: create cache controller for this.
-  cache: any;
-  cacheIndex: number;
   mouseOver = false;
   preselected = false;
   selected = false;
@@ -48,6 +45,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   private cacheAdorners: AdornerData | null = null;
   private ctmCache: DOMMatrix;
   private screenCTMCache: DOMMatrix;
+  // tslint:disable-next-line: variable-name
   private _name = "";
   private pathDataCache: PathData;
   get name(): string {

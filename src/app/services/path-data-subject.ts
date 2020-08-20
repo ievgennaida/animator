@@ -2,11 +2,15 @@ import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { ChangeStateMode, StateSubject } from "./state-subject";
 import { AdornerData } from "./viewport/adorners/adorner-data";
+import { Utils } from './utils/utils';
 /**
  * Subject to track selected/mouse over path data handles.
  */
 export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
   bounds: AdornerData | null;
+  /**
+   * Calculate multiple selected items adorner
+   */
   calculateHandlesBounds() {
     const points = (this.getValues() || []).filter(
       (p) => p.commandType === PathDataHandleType.Point
@@ -20,10 +24,15 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
       let maxY = Number.MIN_SAFE_INTEGER;
 
       points.forEach((handle) => {
-        const p = handle?.node?.getPathData()?.commands[handle.commandIndex]?.p;
+        const node = handle?.node;
+        if (!node) {
+          return;
+        }
+        let p = node.getPathData()?.commands[handle.commandIndex]?.p;
         if (!p) {
           return;
         }
+        p = Utils.toScreenPoint(node, p);
         minX = Math.min(p.x, minX);
         maxX = Math.max(p.x, maxX);
 

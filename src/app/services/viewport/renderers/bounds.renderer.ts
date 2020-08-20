@@ -307,35 +307,31 @@ export class BoundsRenderer extends BaseRenderer {
     });
 
     // Draw global bounds:
-    if (renderable && renderable.length > 1 && !this.suppressMainSelection) {
-      // TODO: cached, reuse
-      const adorners = renderable.map((p) => {
-        const adorner = p.getAdorners();
-        if (adorner) {
-          return null;
-        }
-        return adorner.matrixTransform(this.screenCTM);
-      });
+    if (
+      renderable &&
+      renderable.length > 1 &&
+      !this.suppressMainSelection &&
+      this.selectionService.selectionAdorner
+    ) {
+      let mainSelectionAdorner = this.selectionService.selectionAdorner;
+      mainSelectionAdorner = mainSelectionAdorner.matrixTransform(this.screenCTM);
 
-      const bounds = Utils.getBBoxBounds(...adorners);
-      this.drawRect(
+      this.drawAdornerRect(
         ctx,
         consts.mainSelectionThickness,
         consts.mainSelectionStroke,
-        null,
-        bounds
+        mainSelectionAdorner
       );
       // let totalBounds = Utils.getBBoxBounds(...renderable);
-      // this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, adornerData);
+      this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, mainSelectionAdorner);
       // this.adornersDataService.getElementAdornerData(null,totalBounds);
     }
     if (renderable && renderable.length >= 1) {
       // Path data, selected items bounds
-      // let selectedPointsBounds = this.selectionService.pathDataSubject.bounds;
-      /* if (selectedPointsBounds) {
+      let selectedPointsBounds = this.selectionService.pathDataSubject.bounds;
+      if (selectedPointsBounds) {
         // TODO: each point should be transformed according to the node transformation.
-        selectedPointsBounds = renderable[0].adornerToScreen(
-          selectedPointsBounds,
+        selectedPointsBounds = selectedPointsBounds.matrixTransform(
           this.screenCTM
         );
 
@@ -349,7 +345,7 @@ export class BoundsRenderer extends BaseRenderer {
           this.drawAdornersHandles(ctx, selectedPointsBounds);
           this.drawCross(ctx, selectedPointsBounds.centerTransform);
         }
-      }*/
+      } /* */
     }
   }
 }

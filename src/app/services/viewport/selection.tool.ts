@@ -160,16 +160,12 @@ export class SelectionTool extends BaseSelectionTool {
       if (this.startedNode) {
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const selectedNodes = this.selectionService
-          .getSelected()
-          .map((p) => p.getAdorners());
-
+        const adorners = this.selectionService.getActiveAdorners();
         const showHandles = this.boundsRenderer.isShowHandles();
-        // TODO: general selection adorner.
         const handle = showHandles
           ? this.intersectionService.getAdornerHandleIntersection(
               event.screenPoint,
-              selectedNodes
+              adorners
             )
           : null;
         if (!handle) {

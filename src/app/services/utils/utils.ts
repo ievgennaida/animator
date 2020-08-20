@@ -275,11 +275,8 @@ export class Utils {
     return array;
   }
 
-  private static getBounds(
-    methodName,
-    ...elements: SVGGraphicsElement[] | IBBox[]
-  ): DOMRect {
-    if (!elements) {
+  public static mergeRects(...rects: DOMRect[]): DOMRect | null {
+    if (!rects) {
       return null;
     }
     let minX;
@@ -287,11 +284,11 @@ export class Utils {
     let minY;
     let maxY;
 
-    for (const element of elements) {
-      if (!element) {
+    for (const rect of rects) {
+      if (!rect) {
         continue;
       }
-      const size = element[methodName]();
+      const size = rect;
 
       minX = minX === undefined ? size.x : Math.min(minX, size.x);
       maxX =
@@ -304,23 +301,33 @@ export class Utils {
           ? size.y + size.height
           : Math.max(maxY, size.y + size.height);
     }
-    if (minX === undefined) {
+    if (
+      minX === undefined ||
+      maxX === undefined ||
+      minY === undefined ||
+      maxY === undefined
+    ) {
       return;
     }
 
     return new DOMRect(minX, minY, maxX - minX, maxY - minY);
   }
-  public static getBoundingClientRect(
-    ...elements: SVGGraphicsElement[] | IBBox[]
-  ): DOMRect {
-    return Utils.getBounds("getBoundingClientRect", ...elements);
-  }
-  public static getBBoxBounds(
-    ...elements: SVGGraphicsElement[] | IBBox[]
-  ): DOMRect {
-    return Utils.getBounds("getBBox", ...elements);
-  }
 
+  public static getBoundingClientRect(
+    ...elements: SVGGraphicsElement[]
+  ): DOMRect | null {
+    if (!elements) {
+      return null;
+    }
+    const rects = elements.map((p) => {
+      if (p) {
+        return p.getBoundingClientRect() as DOMRect;
+      } else {
+        return null;
+      }
+    });
+    return Utils.mergeRects(...rects);
+  }
   static reverseVector(a: DOMPoint): DOMPoint {
     const vector = new DOMPoint(-a.x, -a.y);
     return vector;

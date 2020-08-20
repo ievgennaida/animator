@@ -7,6 +7,7 @@ import { PathDataSelectionSubject } from "./path-data-subject";
 import { ChangeStateMode, State, StateSubject } from "./state-subject";
 import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
+import { AdornerData } from "./viewport/adorners/adorner-data";
 @Injectable({
   providedIn: "root",
 })
@@ -25,6 +26,51 @@ export class SelectionService {
   );
   pathDataSubject = new PathDataSelectionSubject();
   selectedAdorner: AdornerType = AdornerType.None;
+  /**
+   * Adorner that represents multiple items selected.
+   */
+  selectionAdorner: AdornerData | null = null;
+  /**
+   * Calculate multiple selected items bounds adorner
+   */
+  calculateSelectionsAdorner(): AdornerData {
+    const nodes = this.getSelected();
+    if (nodes.length <= 1) {
+      this.selectionAdorner = null;
+    } else {
+      let globalBBox: DOMRect = null;
+      nodes.forEach((node) => {
+        if (!node) {
+          return;
+        }
+        let nodeBBox = node.getBBox();
+        if (!nodeBBox) {
+          return;
+        }
+        nodeBBox = Utils.matrixRectTransform(nodeBBox, node.getScreenCTM());
+        if (!globalBBox) {
+          globalBBox = nodeBBox;
+        } else {
+          globalBBox = Utils.mergeRects(globalBBox, nodeBBox);
+        }
+      });
+      this.selectionAdorner = new AdornerData();
+      this.selectionAdorner.decomposeRect(globalBBox);
+    }
+
+    return this.selectionAdorner;
+  }
+  getActiveAdorners(): AdornerData[] {
+    const adorners = this.getSelected().map((p) => p.getAdorners());
+    if (this.selectionAdorner) {
+      adorners.push(this.selectionAdorner);
+    }
+    if (this.pathDataSubject.bounds) {
+      adorners.push(this.pathDataSubject.bounds);
+    }
+
+    return adorners;
+  }
   deselectAdorner() {
     this.setSelectedAdorner(AdornerType.None);
   }
@@ -34,7 +80,6 @@ export class SelectionService {
   isAdornerHandleSelected(value: AdornerType) {
     return Utils.bitwiseEquals(this.selectedAdorner, value);
   }
-
   /**
    * Get top most selected node from current.
    * @param node Node to start top-search from.

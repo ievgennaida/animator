@@ -55,6 +55,7 @@ export class WireService {
     selectionService.selected.subscribe((state) => {
       this.suspendedInvalidate(
         () => {
+          selectionService.calculateSelectionsAdorner();
           mouseOverService.pathDataSubject.leaveNodes(state.removed);
           // Deselect any path data were selected.
           selectionService.pathDataSubject.leaveNodes(state.removed);
@@ -131,6 +132,7 @@ export class WireService {
     });
   }
   cleanCache() {
+    this.selectionService.calculateSelectionsAdorner();
     this.selectionService.pathDataSubject.calculateHandlesBounds();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }
