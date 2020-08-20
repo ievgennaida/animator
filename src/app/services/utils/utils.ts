@@ -378,7 +378,7 @@ export class Utils {
     }
   }
   static getRectCenter(rect: DOMRect): DOMPoint | null {
-    if (rect) {
+    if (!rect) {
       return null;
     }
     return new DOMPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
@@ -406,8 +406,8 @@ export class Utils {
       : null;
     const rectCenter = Utils.getRectCenter(bboxCache);
     const transformPoint = new DOMPoint(
-      Number.isNaN(x) ? rectCenter.x : x,
-      Number.isNaN(y) ? rectCenter.y : y
+      Number.isNaN(x) ? (rectCenter ? rectCenter.x : 0) : x,
+      Number.isNaN(y) ? (rectCenter ? rectCenter.y : 0) : y
     );
     return transformPoint;
   }
