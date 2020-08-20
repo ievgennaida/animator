@@ -20,7 +20,7 @@ import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import {
   MatrixTransform,
-  TransformationMode
+  TransformationMode,
 } from "./transformations/matrix-transform";
 import { TransformsService } from "./transformations/transforms.service";
 
@@ -151,6 +151,7 @@ export class SelectionTool extends BaseSelectionTool {
   }
 
   onWindowMouseMove(event: MouseEventArgs) {
+    this.trackMousePos(event);
     if (this.startedNode && this.startedNode.selected && this.containerRect) {
       this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
       // Don't draw mouse over when transformation is started:
@@ -246,10 +247,13 @@ export class SelectionTool extends BaseSelectionTool {
    * Override
    */
   selectionEnded(event: MouseEventArgs) {
-    if (this.transformations !== null && this.transformations.length > 0) {
-      this.stopAutoPan();
+    this.stopAutoPan();
+    const transformApplied =
+      this.transformations !== null && this.transformations.length > 0;
+    if (transformApplied && !this.click) {
       return;
     }
+
     let mode = ChangeStateMode.Normal;
     if (event.ctrlKey) {
       mode = ChangeStateMode.Revert;
