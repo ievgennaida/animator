@@ -377,10 +377,16 @@ export class Utils {
       return Math.abs(x1 - y1);
     }
   }
+  static getRectCenter(rect: DOMRect): DOMPoint | null {
+    if (rect) {
+      return null;
+    }
+    return new DOMPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+  }
   static getCenterTransform(
     element: SVGGraphicsElement,
     bboxCache: DOMRect = null
-  ): DOMPoint {
+  ): DOMPoint | null {
     if (!element && !bboxCache) {
       return null;
     }
@@ -394,20 +400,15 @@ export class Utils {
     }
     const x = element
       ? parseInt(element.getAttribute("transform-center-x"), 2)
-      : 0;
+      : null;
     const y = element
       ? parseInt(element.getAttribute("transform-center-y"), 2)
-      : 0;
-    let transformPoint = new DOMPoint();
-    if (Number.isNaN(x) || Number.isNaN(y)) {
-      transformPoint = new DOMPoint(
-        Number.isNaN(x) ? bboxCache.x + bboxCache.width / 2 : x,
-        Number.isNaN(y) ? bboxCache.y + bboxCache.height / 2 : y
-      );
-    } else {
-      transformPoint = new DOMPoint(x, y);
-    }
-
+      : null;
+    const rectCenter = Utils.getRectCenter(bboxCache);
+    const transformPoint = new DOMPoint(
+      Number.isNaN(x) ? rectCenter.x : x,
+      Number.isNaN(y) ? rectCenter.y : y
+    );
     return transformPoint;
   }
 }
