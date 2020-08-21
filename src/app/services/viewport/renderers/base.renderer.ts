@@ -1,4 +1,4 @@
-import { AdornerData } from "../adorners/adorner-data";
+import { Adorner } from "../adorners/adorner";
 import { consts } from "src/environments/consts";
 import { TreeNode } from "src/app/models/tree-node";
 
@@ -63,6 +63,28 @@ export class BaseRenderer {
     return this.invalidated && !this.suspended;
   }
 
+  /**
+   * Run operation in suspended mode and than resume original state.
+   * Operation can be used to run multiple update renderer operation and update once.
+   * @param callback action to execute.
+   * @param invalidate whether invalidation is required.
+   */
+  runSuspended(callback: () => void, invalidate = true) {
+    const wasSuspended = this.suspended;
+    this.suspend();
+    // Callback might call invalidate again.
+    // We can suspend services before and resume after the call.
+    if (callback) {
+      callback();
+    }
+    if (invalidate) {
+      this.invalidate();
+    }
+    // Check whether was initially suspended
+    if (!wasSuspended) {
+      this.resume();
+    }
+  }
   rescaleCanvas(ctx: CanvasRenderingContext2D): boolean {
     let changed = false;
     if (!ctx || !ctx.canvas) {
@@ -244,7 +266,7 @@ export class BaseRenderer {
     ctx: CanvasRenderingContext2D,
     thickness: number,
     stroke: string,
-    adornerData: AdornerData
+    adorner: Adorner
   ) {
     this.drawPath(
       ctx,
@@ -252,10 +274,10 @@ export class BaseRenderer {
       stroke,
       null,
       true,
-      adornerData.topLeft,
-      adornerData.topRight,
-      adornerData.bottomRight,
-      adornerData.bottomLeft
+      adorner.topLeft,
+      adorner.topRight,
+      adorner.bottomRight,
+      adorner.bottomLeft
     );
   }
 }
