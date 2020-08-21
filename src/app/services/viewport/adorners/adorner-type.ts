@@ -11,7 +11,13 @@ export enum AdornerType {
   BottomRight = 1 << 5,
   LeftCenter = 1 << 6,
   RightCenter = 1 << 7,
+  /**
+   * Center of the transformation to be applied.
+   */
   CenterTransform = 1 << 8,
+  /**
+   * Center of the adorner.
+   */
   Center = 1 << 9,
   RotateTopLeft = 1 << 10,
   RotateTopCenter = 1 << 11,

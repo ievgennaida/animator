@@ -20,6 +20,7 @@
         "jasminewd",
         "leng",
         "lpath",
+        "mark",
         "mpath",
         "mult",
         "noselect",
@@ -38,6 +39,7 @@
         "workarea",
         "xbase",
         "ybase",
-        "zier"
+        "zier",
+        "ɵmark"
     ]
 }
