@@ -1,4 +1,3 @@
-import { IBBox } from "../../models/interfaces/bbox";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { AdornerType } from "../viewport/adorners/adorner-type";
 
@@ -224,19 +223,81 @@ export class Utils {
     }
   }
 
-  static matrixRectTransform(rect: DOMRect, matrix: DOMMatrix): DOMRect | null {
+  /**
+   * Transform rectangle by a matrix.
+   * @param rect rectangle to transform.
+   * @param matrix matrix to transform rectangle.
+   * @param recalculateBounds Use when rectangle can be rotated.
+   * In this case rotated bounds will be returned.
+   */
+  static matrixRectTransform(
+    rect: DOMRect,
+    matrix: DOMMatrix,
+    recalculateBounds = false
+  ): DOMRect | null {
     if (!rect || !matrix) {
       return null;
     }
-    const start = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
-    const end = new DOMPoint(
+    const topLeft = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
+    const bottomRight = new DOMPoint(
       rect.x + rect.width,
       rect.y + rect.height
     ).matrixTransform(matrix);
-
-    return new DOMRect(start.x, start.y, end.x - start.x, end.y - start.y);
+    if (recalculateBounds) {
+      // We should recalculate bounds for a case when rect was rotated or skewed.
+      const topRight = new DOMPoint(
+        rect.x + rect.width,
+        rect.y
+      ).matrixTransform(matrix);
+      const bottomLeft = new DOMPoint(
+        rect.x,
+        rect.y + rect.height
+      ).matrixTransform(matrix);
+      return Utils.pointsBounds(topLeft, bottomRight, topRight, bottomLeft);
+    } else {
+      return new DOMRect(
+        topLeft.x,
+        topLeft.y,
+        bottomRight.x - topLeft.x,
+        bottomRight.y - topLeft.y
+      );
+    }
   }
 
+  public static pointsBounds(...points: DOMPoint[]): DOMRect | null {
+    if (!points || points.length === 0) {
+      return null;
+    }
+    let minX: number | null = null;
+    let maxX: number | null = null;
+    let minY: number | null = null;
+    let maxY: number | null = null;
+    points.forEach((p) => {
+      minX = minX === null ? p.x : Math.min(p.x, minX);
+      maxX = maxX === null ? p.x : Math.max(p.x, maxX);
+
+      minY = minY === null ? p.y : Math.min(p.y, minY);
+      maxY = maxY === null ? p.y : Math.max(p.y, maxY);
+    });
+    if (
+      minX === null ||
+      maxX === null ||
+      minY === null ||
+      maxY === null ||
+      isNaN(minX) ||
+      isNaN(maxX) ||
+      isNaN(minY) ||
+      isNaN(maxY)
+    ) {
+      return;
+    }
+    return new DOMRect(
+      minX,
+      minY,
+      Math.max(maxX - minX),
+      Math.max(maxY - minY)
+    );
+  }
   public static getDOMPoint(x: number, y: number): DOMPoint {
     return new DOMPoint(x, y);
   }
@@ -279,10 +340,10 @@ export class Utils {
     if (!rects) {
       return null;
     }
-    let minX;
-    let maxX;
-    let minY;
-    let maxY;
+    let minX: number | null = null;
+    let maxX: number | null = null;
+    let minY: number | null = null;
+    let maxY: number | null = null;
 
     for (const rect of rects) {
       if (!rect) {
@@ -290,22 +351,26 @@ export class Utils {
       }
       const size = rect;
 
-      minX = minX === undefined ? size.x : Math.min(minX, size.x);
+      minX = minX === null ? size.x : Math.min(minX, size.x);
       maxX =
-        maxX === undefined
+        maxX === null
           ? size.x + size.width
           : Math.max(maxX, size.x + size.width);
-      minY = minY === undefined ? size.y : Math.min(minY, size.y);
+      minY = minY === null ? size.y : Math.min(minY, size.y);
       maxY =
-        maxY === undefined
+        maxY === null
           ? size.y + size.height
           : Math.max(maxY, size.y + size.height);
     }
     if (
-      minX === undefined ||
-      maxX === undefined ||
-      minY === undefined ||
-      maxY === undefined
+      minX === null ||
+      maxX === null ||
+      minY === null ||
+      maxY === null ||
+      isNaN(minX) ||
+      isNaN(maxX) ||
+      isNaN(minY) ||
+      isNaN(maxY)
     ) {
       return;
     }
@@ -406,8 +471,8 @@ export class Utils {
       : null;
     const rectCenter = Utils.getRectCenter(bboxCache);
     const transformPoint = new DOMPoint(
-      Number.isNaN(x) ? (rectCenter ? rectCenter.x : 0) : x,
-      Number.isNaN(y) ? (rectCenter ? rectCenter.y : 0) : y
+      isNaN(x) ? (rectCenter ? rectCenter.x : 0) : x,
+      isNaN(y) ? (rectCenter ? rectCenter.y : 0) : y
     );
     return transformPoint;
   }
