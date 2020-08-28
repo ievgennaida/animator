@@ -14,6 +14,31 @@ export class BaseRenderer {
   onePixel = this.devicePixelRatio;
   suspended = false;
   invalidated = false;
+  public static runSuspendedRenderers(
+    callback: () => void,
+    ...params: BaseRenderer[]
+  ) {
+    const suspendedStates = params.map((p) => {
+      const wasSuspended = p.suspended;
+      p.suspend();
+      return wasSuspended;
+    });
+    try {
+      // Callback might call invalidate again.
+      // We can suspend services before and resume after the call.
+      if (callback) {
+        callback();
+      }
+    } finally {
+      params.forEach((p, index) => {
+        p.invalidate();
+        // Check whether was initially suspended
+        if (!suspendedStates[index]) {
+          p.resume();
+        }
+      });
+    }
+  }
   public setCanvas(canvas: HTMLCanvasElement) {
     this.ctx = this.initContext(canvas);
     this.invalidateSizeChanged();
@@ -72,17 +97,20 @@ export class BaseRenderer {
   runSuspended(callback: () => void, invalidate = true) {
     const wasSuspended = this.suspended;
     this.suspend();
-    // Callback might call invalidate again.
-    // We can suspend services before and resume after the call.
-    if (callback) {
-      callback();
-    }
-    if (invalidate) {
-      this.invalidate();
-    }
-    // Check whether was initially suspended
-    if (!wasSuspended) {
-      this.resume();
+    try {
+      // Callback might call invalidate again.
+      // We can suspend services before and resume after the call.
+      if (callback) {
+        callback();
+      }
+    } finally {
+      if (invalidate) {
+        this.invalidate();
+      }
+      // Check whether was initially suspended
+      if (!wasSuspended) {
+        this.resume();
+      }
     }
   }
   rescaleCanvas(ctx: CanvasRenderingContext2D): boolean {
@@ -179,10 +207,10 @@ export class BaseRenderer {
 
   drawRect(
     ctx: CanvasRenderingContext2D,
-    thickness: number,
-    stroke: string,
-    fillStyle: string,
-    rect: DOMRect
+    rect: DOMRect,
+    thickness: number = 1,
+    stroke: string = 'black',
+    fillStyle: string = null
   ) {
     if (!rect) {
       return;
