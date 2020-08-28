@@ -12,7 +12,10 @@ export class Utils {
     a: DOMPoint,
     b: DOMPoint = null,
     normalized = false
-  ): DOMPoint {
+  ): DOMPoint | null {
+    if (!a || !b) {
+      return null;
+    }
     const vector = new DOMPoint(a.x - b.x, a.y - b.y);
     if (normalized) {
       Utils.normalizeSelf(vector);
