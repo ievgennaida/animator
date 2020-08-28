@@ -1,13 +1,13 @@
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { ChangeStateMode, StateSubject } from "./state-subject";
-import { AdornerData } from "./viewport/adorners/adorner-data";
-import { Utils } from './utils/utils';
+import { Utils } from "./utils/utils";
+import { Adorner } from "./viewport/adorners/adorner";
 /**
  * Subject to track selected/mouse over path data handles.
  */
 export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
-  bounds: AdornerData | null;
+  bounds: Adorner | null;
   /**
    * Calculate multiple selected items adorner
    */
@@ -18,12 +18,7 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     if (points.length <= 1) {
       this.bounds = null;
     } else {
-      let minX = Number.MAX_SAFE_INTEGER;
-      let maxX = Number.MIN_SAFE_INTEGER;
-      let minY = Number.MAX_SAFE_INTEGER;
-      let maxY = Number.MIN_SAFE_INTEGER;
-
-      points.forEach((handle) => {
+      const screenPoints = points.map((handle) => {
         const node = handle?.node;
         if (!node) {
           return;
@@ -33,21 +28,12 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
           return;
         }
         p = Utils.toScreenPoint(node, p);
-        minX = Math.min(p.x, minX);
-        maxX = Math.max(p.x, maxX);
-
-        minY = Math.min(p.y, minY);
-        maxY = Math.max(p.y, maxY);
+        return p;
       });
-      this.bounds = new AdornerData();
-      this.bounds.decomposeRect(
-        new DOMRect(
-          minX,
-          minY,
-          Math.max(maxX - minX, 1),
-          Math.max(maxY - minY, 1)
-        )
-      );
+      const bounds = Utils.pointsBounds(...screenPoints);
+      this.bounds = new Adorner();
+      // Utils.shrinkRect(, 1, 1)
+      this.bounds.fromRect(bounds);
     }
   }
   /**

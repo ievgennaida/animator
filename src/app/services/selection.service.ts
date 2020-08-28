@@ -6,8 +6,8 @@ import { OutlineService } from "./outline.service";
 import { PathDataSelectionSubject } from "./path-data-subject";
 import { ChangeStateMode, State, StateSubject } from "./state-subject";
 import { Utils } from "./utils/utils";
+import { Adorner } from "./viewport/adorners/adorner";
 import { AdornerType } from "./viewport/adorners/adorner-type";
-import { AdornerData } from "./viewport/adorners/adorner-data";
 @Injectable({
   providedIn: "root",
 })
@@ -29,13 +29,12 @@ export class SelectionService {
   /**
    * Adorner that represents multiple items selected.
    */
-  selectionAdorner: AdornerData | null = null;
+  selectionAdorner: Adorner | null = null;
   /**
    * Calculate multiple selected items bounds adorner
    */
-  calculateSelectionsAdorner(): AdornerData {
-    const nodes = this.getSelected();
-    if (nodes.length <= 1) {
+  calculateSelectionsAdorner(nodes: TreeNode[]): Adorner {
+    if (!nodes && nodes.length <= 1) {
       this.selectionAdorner = null;
     } else {
       let globalBBox: DOMRect = null;
@@ -47,26 +46,35 @@ export class SelectionService {
         if (!nodeBBox) {
           return;
         }
-        nodeBBox = Utils.matrixRectTransform(nodeBBox, node.getScreenCTM());
+        nodeBBox = Utils.matrixRectTransform(
+          nodeBBox,
+          node.getScreenCTM(),
+          true
+        );
         if (!globalBBox) {
           globalBBox = nodeBBox;
         } else {
           globalBBox = Utils.mergeRects(globalBBox, nodeBBox);
         }
       });
-      this.selectionAdorner = new AdornerData();
-      this.selectionAdorner.decomposeRect(globalBBox);
+      if (globalBBox) {
+        const toSet = new Adorner();
+        toSet.fromRect(globalBBox);
+        this.selectionAdorner = toSet;
+      } else {
+        this.selectionAdorner = null;
+      }
     }
 
     return this.selectionAdorner;
   }
-  getActiveAdorners(): AdornerData[] {
+  getActiveAdorners(): Adorner[] {
     const adorners = this.getSelected().map((p) => p.getAdorners());
     if (this.selectionAdorner) {
       adorners.push(this.selectionAdorner);
     }
     if (this.pathDataSubject.bounds) {
-      adorners.push(this.pathDataSubject.bounds);
+      // adorners.push(this.pathDataSubject.bounds);
     }
 
     return adorners;

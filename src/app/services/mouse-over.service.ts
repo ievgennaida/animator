@@ -7,6 +7,7 @@ import { PathDataSelectionSubject } from "./path-data-subject";
 import { ChangeStateMode } from "./state-subject";
 import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
+import { Adorner } from './viewport/adorners/adorner';
 
 @Injectable({
   providedIn: "root",
@@ -53,11 +54,14 @@ export class MouseOverService {
     }
 
     return (
-      currentHandle.adornerData.node === data.adornerData.node &&
+      currentHandle.adorner.node === data.adorner.node &&
       Utils.bitwiseEquals(currentHandle.handles, data.handles)
     );
   }
-  isMouseOverAdornerHandle(data: AdornerType | null = null): boolean {
+  isMouseOverAdornerHandle(
+    adorner: Adorner = null,
+    data: AdornerType | null = null
+  ): boolean {
     const currentHandle = this.mouseOverHandleSubject.getValue();
     if (!data) {
       return !!currentHandle;
@@ -65,7 +69,9 @@ export class MouseOverService {
     if (!currentHandle) {
       return false;
     }
-
+    if (adorner && currentHandle.adorner !== adorner) {
+      return false;
+    }
     return Utils.bitwiseEquals(currentHandle.handles, data);
   }
 

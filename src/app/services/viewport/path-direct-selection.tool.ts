@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import {
   PathDataHandle,
-  PathDataHandleType
+  PathDataHandleType,
 } from "src/app/models/path-data-handle";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { ContextMenuService } from "../context-menu.service";
@@ -21,6 +21,7 @@ import { SelectorRenderer } from "./renderers/selector.renderer";
 import { SelectionTool } from "./selection.tool";
 import { PathTransform } from "./transformations/path-transform";
 import { TransformsService } from "./transformations/transforms.service";
+import { MatrixTransform } from "./transformations/matrix-transform";
 
 @Injectable({
   providedIn: "root",
@@ -42,7 +43,6 @@ export class PathDirectSelectionTool extends SelectionTool {
     intersectionService: IntersectionService,
     selectionService: SelectionService,
     boundsRenderer: BoundsRenderer,
-    transformFactory: TransformsService,
     outlineService: OutlineService,
     mouseOverService: MouseOverService,
     mouseOverRenderer: MouseOverRenderer,
@@ -58,7 +58,6 @@ export class PathDirectSelectionTool extends SelectionTool {
       intersectionService,
       selectionService,
       boundsRenderer,
-      transformFactory,
       outlineService,
       mouseOverService,
       mouseOverRenderer,
@@ -127,13 +126,16 @@ export class PathDirectSelectionTool extends SelectionTool {
             nodesToSelect.push(element.node);
           }
         });
-        const transforms = super
-          .startTransformations(nodesToSelect, event.getDOMPoint(), null)
+        // Filter transform actions only by the path data transform
+        const transforms = this.transformsService
+          .prepareTransactions(nodesToSelect, event.getDOMPoint(), null)
           .filter((p) => p instanceof PathTransform) as PathTransform[];
         transforms.forEach((p) => {
           p.pathHandles = handles.filter((handle) => handle.node === p.node);
         });
-        this.transformations = transforms;
+        this.transformsService.start(
+          transforms as MatrixTransform[]
+        );
       }
     }
   }
@@ -175,10 +177,7 @@ export class PathDirectSelectionTool extends SelectionTool {
    */
   cleanUp() {
     this.mouseOverRenderer.resume();
-    // this.lastDeg = null;
-    // this.startedNode = null;
     super.cleanUp();
-    // this.cursor.setCursor(CursorType.Default);
   }
 
   /**
@@ -190,8 +189,8 @@ export class PathDirectSelectionTool extends SelectionTool {
     }
 
     super.onWindowMouseMove(event);
-    // Transformation transaction is started.
-    if (this.transformations) {
+    // Cancel when transformation transaction is started.
+    if (this.transformsService.isActive()) {
       return;
     }
 
@@ -241,7 +240,8 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   selectionEnded(event: MouseEventArgs) {
-    if (this.transformations) {
+    if (this.transformsService.isActive()) {
+      this.transformsService.commit();
       return;
     }
     const screenPos = event.getDOMPoint();

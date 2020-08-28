@@ -7,9 +7,10 @@ import { MouseOverService } from "../../mouse-over.service";
 import { OutlineService } from "../../outline.service";
 import { SelectionService } from "../../selection.service";
 import { Utils } from "../../utils/utils";
-import { AdornerData } from "../adorners/adorner-data";
+import { Adorner } from "../adorners/adorner";
 import { AdornerType } from "../adorners/adorner-type";
 import { BaseRenderer } from "./base.renderer";
+import { TransformsService } from "../transformations/transforms.service";
 
 /**
  * Elements bounds renderer
@@ -22,7 +23,8 @@ export class BoundsRenderer extends BaseRenderer {
     protected outlineService: OutlineService,
     protected logger: LoggerService,
     private selectionService: SelectionService,
-    private mouseOverService: MouseOverService
+    private mouseOverService: MouseOverService,
+    private transform: TransformsService
   ) {
     super();
   }
@@ -62,29 +64,21 @@ export class BoundsRenderer extends BaseRenderer {
       this.invalidate();
     }
   }
-  getAdornerStroke(adornerType: AdornerType): string {
-    if (
-      this.selectionService.isAdornerHandleSelected(adornerType) ||
-      // TODO: check adorner type.
-      this.mouseOverService.isMouseOverAdornerHandle(adornerType)
-    ) {
+  getAdornerStroke(adorner: Adorner, adornerType: AdornerType): string {
+    const isSelected = this.mouseOverService.isMouseOverAdornerHandle(
+      adorner,
+      adornerType
+    );
+    if (isSelected) {
       return consts.handleSelectedFillColor;
     }
 
     return consts.handleFillColor;
   }
 
-  drawAdornersHandles(ctx: CanvasRenderingContext2D, adornerData: AdornerData) {
-    const alongH = Utils.getVector(
-      adornerData.topLeft,
-      adornerData.topRight,
-      true
-    );
-    const alongW = Utils.getVector(
-      adornerData.topLeft,
-      adornerData.bottomLeft,
-      true
-    );
+  drawAdornersHandles(ctx: CanvasRenderingContext2D, adorner: Adorner) {
+    const alongH = Utils.getVector(adorner.topLeft, adorner.topRight, true);
+    const alongW = Utils.getVector(adorner.topLeft, adorner.bottomLeft, true);
     const alongHR = Utils.reverseVector(alongH);
     const alongWR = Utils.reverseVector(alongW);
     const handleStroke = consts.handleStrokeColor;
@@ -92,83 +86,83 @@ export class BoundsRenderer extends BaseRenderer {
     // top left
     this.drawAdornerHandle(
       ctx,
-      adornerData.topLeft,
+      adorner.topLeft,
       alongW,
       alongH,
       false,
       handleStroke,
-      this.getAdornerStroke(AdornerType.TopLeft)
+      this.getAdornerStroke(adorner, AdornerType.TopLeft)
     );
     // top right
     this.drawAdornerHandle(
       ctx,
-      adornerData.topRight,
+      adorner.topRight,
       alongHR,
       alongW,
       false,
       handleStroke,
-      this.getAdornerStroke(AdornerType.TopRight)
+      this.getAdornerStroke(adorner, AdornerType.TopRight)
     );
     // bottom left
     this.drawAdornerHandle(
       ctx,
-      adornerData.bottomLeft,
+      adorner.bottomLeft,
       alongWR,
       alongH,
       false,
       handleStroke,
-      this.getAdornerStroke(AdornerType.BottomLeft)
+      this.getAdornerStroke(adorner, AdornerType.BottomLeft)
     );
     // bottom right
     this.drawAdornerHandle(
       ctx,
-      adornerData.bottomRight,
+      adorner.bottomRight,
       alongWR,
       alongHR,
       false,
       handleStroke,
-      this.getAdornerStroke(AdornerType.BottomRight)
+      this.getAdornerStroke(adorner, AdornerType.BottomRight)
     );
 
     // top center
     this.drawAdornerHandle(
       ctx,
-      adornerData.topCenter,
+      adorner.topCenter,
       alongW,
       alongH,
       true,
       handleStroke,
-      this.getAdornerStroke(AdornerType.TopCenter)
+      this.getAdornerStroke(adorner, AdornerType.TopCenter)
     );
     // bottom center
     this.drawAdornerHandle(
       ctx,
-      adornerData.bottomCenter,
+      adorner.bottomCenter,
       alongWR,
       alongH,
       true,
       handleStroke,
-      this.getAdornerStroke(AdornerType.BottomCenter)
+      this.getAdornerStroke(adorner, AdornerType.BottomCenter)
     );
     // left center
     this.drawAdornerHandle(
       ctx,
-      adornerData.leftCenter,
+      adorner.leftCenter,
       alongH,
       alongW,
       true,
       handleStroke,
-      this.getAdornerStroke(AdornerType.LeftCenter)
+      this.getAdornerStroke(adorner, AdornerType.LeftCenter)
     );
     // right center
     this.drawAdornerHandle(
       ctx,
-      adornerData.rightCenter,
+      adorner.rightCenter,
       alongHR,
       alongW,
       true,
       handleStroke,
-      this.getAdornerStroke(AdornerType.RightCenter)
+      this.getAdornerStroke(adorner, AdornerType.RightCenter)
     );
   }
 
@@ -246,9 +240,11 @@ export class BoundsRenderer extends BaseRenderer {
     if (!this.drawNodeHandles) {
       return false;
     }
-    const renderable = aboutToBeRendered || this.getRenderable();
-    const multiple = !!renderable && renderable.length > 1;
-    return !multiple;
+    // TODO:
+    return true;
+    // const renderable = aboutToBeRendered || this.getRenderable();
+    // const multiple = !!renderable && renderable.length > 1;
+    // return !multiple;
   }
 
   getRenderable(): TreeNode[] {
@@ -267,9 +263,8 @@ export class BoundsRenderer extends BaseRenderer {
     const ctx = this.ctx;
     this.invalidated = false;
     this.clear();
-    const renderable = this.getRenderable();
-
-    const multiple = renderable.length > 1;
+    // TODO:
+    const multiple = false;
 
     const elementsColor =
       multiple || this.suppressMainSelection
@@ -279,73 +274,78 @@ export class BoundsRenderer extends BaseRenderer {
       multiple || this.suppressMainSelection
         ? consts.altSelectionThickness
         : consts.mainSelectionThickness;
-    const drawSmallBounds = renderable.length <= consts.maxBoundsToRender;
-    renderable.forEach((node: TreeNode) => {
-      if (node.selected) {
-        let adornerData = node.getAdorners();
-        if (adornerData) {
-          adornerData = adornerData.matrixTransform(this.screenCTM);
-          if (drawSmallBounds) {
-            this.drawAdornerRect(
-              ctx,
-              elementsThickness,
-              elementsColor,
-              adornerData
-            );
-          }
-          if (!multiple && drawSmallBounds) {
-            // draw when resized.
-            // this.drawTextOnLine(ctx, "200px", adornerData.topLeft, adornerData.topRight, adornerData.bottomLeft);
-            // this.drawTextOnLine(ctx, "100px", adornerData.topRight, adornerData.bottomRight, adornerData.topLeft);
-            if (node.allowResize && this.drawNodeHandles) {
-              this.drawAdornersHandles(ctx, adornerData);
-              this.drawCross(ctx, adornerData.centerTransform);
-            }
-          }
+    const drawSmallBounds = true;
+    const adorners = this.selectionService.getActiveAdorners();
+
+    adorners.forEach((adorner) => {
+      if (adorner) {
+        adorner = adorner.matrixTransform(this.screenCTM);
+        if (drawSmallBounds) {
+          this.drawAdornerRect(ctx, elementsThickness, elementsColor, adorner);
         }
+        // if (adorner.node) {
+        // if (!multiple && drawSmallBounds) {
+        // draw when resized.
+        // this.drawTextOnLine(ctx, "200px", Adorner.topLeft, Adorner.topRight, Adorner.bottomLeft);
+        // this.drawTextOnLine(ctx, "100px", Adorner.topRight, Adorner.bottomRight, Adorner.topLeft);
+        // if (node.allowResize && this.drawNodeHandles) {
+        if (adorner.node) {
+          this.drawAdornersHandles(ctx, adorner);
+        }
+        // this.drawCross(ctx, adorner.centerTransform);
+        // }
+        // }
+        // }
       }
     });
 
-    // Draw global bounds:
-    if (
-      renderable &&
-      renderable.length > 1 &&
-      !this.suppressMainSelection &&
-      this.selectionService.selectionAdorner
-    ) {
-      let mainSelectionAdorner = this.selectionService.selectionAdorner;
-      mainSelectionAdorner = mainSelectionAdorner.matrixTransform(this.screenCTM);
-
-      this.drawAdornerRect(
-        ctx,
-        consts.mainSelectionThickness,
-        consts.mainSelectionStroke,
-        mainSelectionAdorner
-      );
-      // let totalBounds = Utils.getBBoxBounds(...renderable);
-      this.drawAdornerRect(ctx, consts.mainSelectionThickness, consts.mainSelectionStroke, mainSelectionAdorner);
-      // this.adornersDataService.getElementAdornerData(null,totalBounds);
-    }
-    if (renderable && renderable.length >= 1) {
-      // Path data, selected items bounds
-      let selectedPointsBounds = this.selectionService.pathDataSubject.bounds;
-      if (selectedPointsBounds) {
-        // TODO: each point should be transformed according to the node transformation.
-        selectedPointsBounds = selectedPointsBounds.matrixTransform(
+    // Debug transform transactions.
+    // TODO: this should become proper way to display transform origin during the running transaction.
+    /*
+    const trans = this.transform.transactions || [];
+    trans.forEach((p) => {
+      if (p.transformOrigin && p.initMatrix) {
+        let local = Utils.matrixRectTransform(
+          p.node.getBBox(),
+          p.node.getScreenCTM(),
+          true
+        );
+        local = Utils.matrixRectTransform(
+          p.node.getBBox(),
+          p.node.getScreenCTM().inverse(),
+          true
+        );
+        local = Utils.matrixRectTransform(
+          p.node.getBBox(),
+          p.node.getScreenCTM(),
+          true
+        );
+        local = Utils.matrixRectTransform(local, this.screenCTM);
+        this.drawRect(this.ctx, local);
+        const rect = Utils.matrixRectTransform(
+          p.initBBox,
+          // Utils.matrixRectTransform(p.initBBox, p.initMatrix.inverse(), true),
           this.screenCTM
         );
-
-        this.drawAdornerRect(
-          ctx,
-          elementsThickness,
-          elementsColor,
-          selectedPointsBounds
-        );
-        if (this.drawPathDataPointsHandle) {
-          this.drawAdornersHandles(ctx, selectedPointsBounds);
-          this.drawCross(ctx, selectedPointsBounds.centerTransform);
+        this.drawRect(this.ctx, rect);
+        // const scr = Utils.toScreenPoint(
+        //   p.node,
+        //   p.transformOrigin
+        // ).matrixTransform(this.screenCTM);
+        if (p && p.screenTransform) {
+          const scr = p.screenTransform.matrixTransform(this.screenCTM);
+          this.drawCross(ctx, scr);
         }
-      } /* */
-    }
+
+        if (p.debugPoints) {
+          p.debugPoints.forEach((point) => {
+            const test = Utils.toScreenPoint(p.node, point).matrixTransform(
+              this.screenCTM
+            );
+            this.drawCross(ctx, test);
+          });
+        }
+      }
+    });  */
   }
 }

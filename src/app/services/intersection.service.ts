@@ -11,7 +11,7 @@ import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
 import { Utils } from "./utils/utils";
 import { ViewService } from "./view.service";
-import { AdornerData } from "./viewport/adorners/adorner-data";
+import { Adorner } from "./viewport/adorners/adorner";
 import {
   AdornerType,
   AdornerTypeUtils
@@ -90,7 +90,7 @@ export class IntersectionService {
 
   getAdornerHandleIntersection(
     screenPoint: DOMPoint,
-    adorners: AdornerData[]
+    adorners: Adorner[]
   ): HandleData | null {
     if (!adorners) {
       return null;
@@ -115,7 +115,7 @@ export class IntersectionService {
     if (!toReturn) {
       return null;
     }
-    results.adornerData = toReturn;
+    results.adorner = toReturn;
     return results;
   }
   intersectPathDataHandles(
@@ -424,7 +424,7 @@ export class IntersectionService {
   }
 
   intersectAdorner(
-    adorner: AdornerData,
+    adorner: Adorner,
     point: DOMPoint,
     accuracy = 6
   ): AdornerType {

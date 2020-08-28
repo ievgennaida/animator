@@ -18,14 +18,13 @@ import { CursorType } from 'src/app/models/cursor-type';
 export class ZoomTool extends BaseSelectionTool {
   iconName = "search";
   constructor(
-    transformService: TransformsService,
     viewService: ViewService,
     logger: LoggerService,
     panTool: PanTool,
     selectorRenderer: SelectorRenderer,
     private cursor: CursorService
   ) {
-    super(selectorRenderer, transformService, viewService, logger, panTool);
+    super(selectorRenderer, viewService, logger, panTool);
   }
 
   onActivate() {

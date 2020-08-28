@@ -1,39 +1,36 @@
 import { MatrixTransform, TransformationMode } from "./matrix-transform";
-import { TransformsService } from "./transforms.service";
 import { Utils } from "../../utils/utils";
-import { AdornerType } from "../adorners/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
-import { TreeNode } from 'src/app/models/tree-node';
+import { TreeNode } from "src/app/models/tree-node";
 
 export class RectTransform extends MatrixTransform {
   transformPropertyX = "x";
   transformPropertyY = "y";
   sizePropertyX = "width";
   sizePropertyY = "height";
-  constructor(
-    node: TreeNode,
-    transformsService: TransformsService
-  ) {
-    super(node, transformsService);
+  consolidated = false;
+  startRect: DOMRect = null;
+  constructor(node: TreeNode) {
+    super(node);
   }
-  beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
-    const element = this.getElement();
-    this.start = Utils.toElementPoint(element, screenPos);
-    this.handle = handle;
-    this.initBBox = new DOMRect(
+  beginHandleTransformation(screenPos: DOMPoint, handle: HandleData) {
+    this.startRect = new DOMRect(
       this.getX(),
       this.getY(),
       this.getSizeX(),
       this.getSizeY()
     );
-    this.mode = TransformationMode.Handle;
-  }
-  beginMouseTransaction(mousePos: DOMPoint) {
-    const element = this.getElement();
-    this.consolidate(element);
-    super.beginMouseTransaction(mousePos);
-    this.start.x -= this.getX();
-    this.start.y -= this.getY();
+
+    super.beginHandleTransformation(screenPos, handle);
+    // this.mainSelectionRect = this.getElement().getBBox();
+    // this.initBBox = this.startRect;
+    /* const element = this.getElement();
+    this.start = Utils.toElementPoint(element, screenPos);
+    this.handle = handle;
+
+
+    this.initBBox = handle.adorner.getBBox();
+    this.mode = TransformationMode.Handle;*/
   }
 
   /**
@@ -98,9 +95,7 @@ export class RectTransform extends MatrixTransform {
       changed = true;
     }
 
-    if (changed) {
-      this.transformsService.emitTransformed(element);
-    }
+    return changed;
   }
   /**
    * Should be consolidated first to get proper value.
@@ -134,94 +129,51 @@ export class RectTransform extends MatrixTransform {
     }
   }
 
-  transformHandle(screenPos: DOMPoint) {
+  scaleOffset(
+    offsetX: number | null,
+    offsetY: number | null,
+    transformPoint: DOMPoint
+  ): boolean {
     const element = this.getElement();
-    const offset = Utils.toElementPoint(element, screenPos);
-    if (this.start) {
-      offset.x -= this.start.x;
-      offset.y -= this.start.y;
+    offsetY = this.normalizeScale(offsetY);
+    offsetX = this.normalizeScale(offsetX);
+
+    const transform =
+      element.transform.baseVal.consolidate() ||
+      element.ownerSVGElement.createSVGTransform();
+
+    const matrix = super.generateScaleMatrix(offsetX, offsetY, transformPoint);
+
+    const out = Utils.matrixRectTransform(this.startRect, matrix);
+    if (!out) {
+      return false;
     }
 
-    const handle = this.handle.handles;
-    let w = null;
-    let h = null;
-    let x = null;
-    let y = null;
+    this.onReverseScale(out, this.startRect);
 
-    if (Utils.bitwiseEquals(handle, AdornerType.LeftCenter)) {
-      w = this.initBBox.width - offset.x;
-      if (w < 0) {
-        offset.x += w;
-        w = 0;
-      }
-      x = this.initBBox.x + offset.x;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.TopLeft)) {
-      w = this.initBBox.width - offset.x;
-      if (w < 0) {
-        offset.x += w;
-        w = 0;
-      }
-      h = this.initBBox.height - offset.y;
-      if (h < 0) {
-        offset.y += h;
-        h = 0;
-      }
-      x = this.initBBox.x + offset.x;
-      y = this.initBBox.y + offset.y;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.TopCenter)) {
-      h = this.initBBox.height - offset.y;
-      if (h < 0) {
-        offset.y += h;
-        h = 0;
-      }
-      y = this.initBBox.y + offset.y;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.TopRight)) {
-      h = this.initBBox.height - offset.y;
-      if (h < 0) {
-        offset.y += h;
-        h = 0;
-      }
-      y = this.initBBox.y + offset.y;
-      w = this.initBBox.width + offset.x;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.RightCenter)) {
-      w = this.initBBox.width + offset.x;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomRight)) {
-      w = this.initBBox.width + offset.x;
-      h = this.initBBox.height + offset.y;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomCenter)) {
-      h = this.initBBox.height + offset.y;
-    } else if (Utils.bitwiseEquals(handle, AdornerType.BottomLeft)) {
-      w = this.initBBox.width - offset.x;
-      if (w < 0) {
-        offset.x += w;
-        w = 0;
-      }
-      h = this.initBBox.height + offset.y;
-      x = this.initBBox.x + offset.x;
-    }
-    if (w !== null && w < 0) {
-      w = 0;
-    }
-    if (h !== null && h < 0) {
-      h = 0;
-    }
-    if (x !== null && Number.isFinite(x) && !Number.isNaN(x)) {
-      this.setX(x);
-    }
-    if (y !== null && Number.isFinite(y) && !Number.isNaN(y)) {
-      this.setY(y);
-    }
-    // TODO: revert scale
-    if (w !== null && Number.isFinite(w) && !Number.isNaN(w)) {
-      this.setSizeX(w);
-    }
-
-    if (h !== null && Number.isFinite(h) && !Number.isNaN(h)) {
-      this.setSizeY(h);
-    }
-    this.transformsService.emitTransformed(element);
+    this.setX(out.x);
+    this.setY(out.y);
+    this.setSizeX(out.width);
+    this.setSizeY(out.height);
+    return true;
   }
 
+  protected onReverseScale(rect: DOMRect, startRect: DOMRect): DOMRect {
+    // Reverse scaling
+    if (rect.width < 0 || rect.height < 0) {
+      if (rect.width < 0) {
+        rect.x += rect.width;
+        rect.width = -rect.width;
+      }
+
+      if (rect.height < 0) {
+        rect.y += rect.height;
+        rect.height = -rect.height;
+      }
+    }
+
+    return rect;
+  }
   setSizeX(val: number) {
     val = Utils.round(val);
     if (val >= 0) {
@@ -250,11 +202,20 @@ export class RectTransform extends MatrixTransform {
     const element = this.getElement();
     element.setAttribute(prop, val.toString());
   }
-
-  translate(point: DOMPoint) {
+  moveByMouse(screenPos: DOMPoint): boolean {
     const element = this.getElement();
+    if (!this.consolidated) {
+      // Used to convert matrix transform back to x,y attributes.
+      this.consolidate(element);
+      this.start.x -= this.getX();
+      this.start.y -= this.getY();
+      this.consolidated = true;
+    }
+    return super.moveByMouse(screenPos);
+  }
+  translate(point: DOMPoint): boolean {
     this.setX(point.x);
     this.setY(point.y);
-    this.transformsService.emitTransformed(element);
+    return true;
   }
 }

@@ -4,7 +4,6 @@ import { ViewService } from "../view.service";
 import { LoggerService } from "../logger.service";
 import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
-import { TransformsService } from "./transformations/transforms.service";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { Utils } from "../utils/utils";
 
@@ -13,7 +12,6 @@ export class BaseSelectionTool extends BaseTool {
 
   constructor(
     protected selectorRenderer: SelectorRenderer,
-    protected transformsService: TransformsService,
     protected viewService: ViewService,
     protected logger: LoggerService,
     protected panTool: PanTool
@@ -78,16 +76,13 @@ export class BaseSelectionTool extends BaseTool {
       return;
     }
     event.preventDefault();
-    try {
-      this.selectorRenderer.suspend();
+    this.selectorRenderer.runSuspended(() => {
       this.selectorRenderer.setRect(this.selectionRect);
       this.currentArgs = event;
       this.trackMousePos(event);
       this.startAutoPan();
       this.selectionUpdate(event, this.selectionRect);
-    } finally {
-      this.selectorRenderer.resume();
-    }
+    }, false);
   }
 
   cleanUp() {

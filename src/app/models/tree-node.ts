@@ -1,5 +1,6 @@
 import { TimelineRow } from "animation-timeline-js";
-import { AdornerData } from "../services/viewport/adorners/adorner-data";
+import { Utils } from '../services/utils/utils';
+import { Adorner } from "../services/viewport/adorners/adorner";
 import { IBBox } from "./interfaces/bbox";
 import { ICTMProvider } from "./interfaces/ctm-provider";
 import { baseLayer } from "./Lottie/layers/baseLayer";
@@ -42,7 +43,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   preselected = false;
   selected = false;
   private cacheClientRect: DOMRect;
-  private cacheAdorners: AdornerData | null = null;
+  private cacheAdorners: Adorner | null = null;
   private ctmCache: DOMMatrix;
   private screenCTMCache: DOMMatrix;
   // tslint:disable-next-line: variable-name
@@ -141,14 +142,16 @@ export class TreeNode implements ICTMProvider, IBBox {
   /**
    * Get adorner manipulation points points in screen coordinates.
    */
-  getAdorners(): AdornerData {
+  getAdorners(): Adorner {
     if (this.cacheAdorners) {
       return this.cacheAdorners;
     }
 
-    this.cacheAdorners = new AdornerData();
+    this.cacheAdorners = new Adorner();
     this.cacheAdorners.node = this;
-    this.cacheAdorners.update(this.getElement(), this.getBBox());
+    const bounds = this.getBBox();
+    this.cacheAdorners.fromRect(bounds);
+    this.cacheAdorners.setCenterTransform(Utils.getCenterTransform(this.getElement(), bounds));
     this.cacheAdorners = this.cacheAdorners.matrixTransform(
       this.getScreenCTM()
     );

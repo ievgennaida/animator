@@ -1,15 +1,15 @@
-import { RectTransform } from "./rect-transform";
 import { HandleData } from "src/app/models/handle-data";
+import { RectTransform } from "./rect-transform";
 
 export class TextTransform extends RectTransform {
-  beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
-    super.beginHandleTransformation(handle, screenPos);
+  beginHandleTransformation(screenPos: DOMPoint, handle: HandleData) {
+    super.beginHandleTransformation(screenPos, handle);
     const element = this.getElement();
     this.initBBox = element.getBBox();
   }
   /**
    * get parent text element.
-   * @override
+   * override
    */
   getElement(): SVGGraphicsElement {
     const currentElement = super.getElement();
@@ -24,9 +24,9 @@ export class TextTransform extends RectTransform {
   }
   /**
    * get parent text element.
-   * @override
+   * override
    */
-  transformHandle(screenPos: DOMPoint) {
-    this.scaleByMouse(screenPos);
+  transformHandle(screenPos: DOMPoint): boolean {
+    return this.scaleByMouse(screenPos);
   }
 }

@@ -71,7 +71,7 @@ export class CursorService {
     const deg =
       Utils.angle(
         screenPoint,
-        handle.adornerData.center
+        handle.adorner.center
       ) + 180;
     return deg;
   }

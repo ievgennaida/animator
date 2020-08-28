@@ -36,9 +36,8 @@ export class SelectionTool extends BaseSelectionTool {
   startedNode: TreeNode | null = null;
   startedHandle: HandleData | null = null;
   lastDeg: number = null;
-  transformations: Array<MatrixTransform> = null;
   constructor(
-    transformsService: TransformsService,
+    protected transformsService: TransformsService,
     viewService: ViewService,
     logger: LoggerService,
     panTool: PanTool,
@@ -46,14 +45,13 @@ export class SelectionTool extends BaseSelectionTool {
     protected intersectionService: IntersectionService,
     protected selectionService: SelectionService,
     protected boundsRenderer: BoundsRenderer,
-    protected transformFactory: TransformsService,
     protected outlineService: OutlineService,
     protected mouseOverService: MouseOverService,
     protected mouseOverRenderer: MouseOverRenderer,
     protected cursor: CursorService,
     protected contextMenu: ContextMenuService
   ) {
-    super(selectorRenderer, transformsService, viewService, logger, panTool);
+    super(selectorRenderer, viewService, logger, panTool);
   }
   onViewportContextMenu(event: MouseEventArgs) {
     const startedNode = this.mouseOverService.mouseOverSubject.getValue();
@@ -74,8 +72,8 @@ export class SelectionTool extends BaseSelectionTool {
     const handle = this.mouseOverService.mouseOverHandle;
     if (startedNode || handle) {
       this.startedHandle = handle;
-      this.startedNode = handle ? handle.adornerData.node : startedNode;
-      if (!this.startedNode || !this.startedNode.selected) {
+      this.startedNode = handle ? handle.adorner.node : startedNode;
+      if (this.startedNode && !this.startedNode.selected) {
         return;
       }
 
@@ -84,51 +82,21 @@ export class SelectionTool extends BaseSelectionTool {
         .map((item) => this.selectionService.getTopSelectedNode(item))
         .filter((value, index, self) => value && self.indexOf(value) === index);
       const screenPoint = event.getDOMPoint();
-      this.transformations = this.startTransformations(
+      const transactions = this.transformsService.prepareTransactions(
         nodesToSelect,
         screenPoint,
         handle
       );
+      this.transformsService.start(transactions);
     }
     // Use when accurate selection will be implemented, or to select groups:
     /* if (!this.startedNode) {
       this.startedNode = this.getIntersects(true) as TreeNode;
     } */
   }
-  startTransformations(
-    nodes: TreeNode[],
-    screenPoint: DOMPoint,
-    handle: HandleData
-  ): MatrixTransform[] | null {
-    if (!nodes || nodes.length === 0) {
-      return null;
-    }
-    const transformations = nodes.map((p) => {
-      const transformation = this.transformFactory.getTransformForElement(p);
-      if (handle) {
-        if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
-          if (p.allowRotate) {
-            transformation.beginMouseRotateTransaction(screenPoint);
-          }
-        } else {
-          if (p.allowResize) {
-            transformation.beginHandleTransformation(handle, screenPoint);
-          }
-        }
-      } else {
-        transformation.beginMouseTransaction(screenPoint);
-      }
-      return transformation;
-    });
 
-    transformations.forEach((p) => {
-      if (p.mode === TransformationMode.Translate) {
-        p.moveByMouse(screenPoint);
-      }
-    });
-    return transformations;
-  }
   isOverNode(): boolean {
+    // TODO: bad place
     const startedNode = this.mouseOverService.getValue();
     const handle = this.mouseOverService.mouseOverHandle;
     return !handle && !!startedNode;
@@ -141,7 +109,7 @@ export class SelectionTool extends BaseSelectionTool {
   cleanUp() {
     this.mouseOverRenderer.resume();
     this.lastDeg = null;
-    this.transformations = null;
+    this.transformsService.cancel();
     this.startedNode = null;
     this.startedHandle = null;
     super.cleanUp();
@@ -152,13 +120,15 @@ export class SelectionTool extends BaseSelectionTool {
 
   onWindowMouseMove(event: MouseEventArgs) {
     this.trackMousePos(event);
-    if (this.startedNode && this.startedNode.selected && this.containerRect) {
+    if (this.transformsService.isActive()) {
       this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
       // Don't draw mouse over when transformation is started:
       this.mouseOverRenderer.suspend(true);
       this.moveByMouse(event);
     } else {
       if (this.startedNode) {
+        // Not allowed to click on a new node and drag.
+        // Mouse should be released in order to avoid drag by mistake.
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
         const adorners = this.selectionService.getActiveAdorners();
@@ -189,7 +159,7 @@ export class SelectionTool extends BaseSelectionTool {
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect): boolean {
     // override the auto pan code to run it when translate operation is running.
     const isDone = super.autoPan(mousePosition, containerSize);
-    if (this.transformations) {
+    if (this.transformsService.isActive()) {
       if (this.currentArgs) {
         this.moveByMouse(this.currentArgs, false);
       }
@@ -197,24 +167,17 @@ export class SelectionTool extends BaseSelectionTool {
     return isDone;
   }
   moveByMouse(event: MouseEventArgs, allowPan = true) {
-    if (this.transformations) {
+    if (this.transformsService.isActive()) {
       const screenPos = event.getDOMPoint();
-      try {
-        this.boundsRenderer.suspend();
-        let autoPan = false;
-        this.transformations.forEach((p) => {
-          if (p.mode === TransformationMode.Translate) {
-            autoPan = true;
-          }
-          p.transformByMouse(screenPos);
-        });
-        if (autoPan && allowPan) {
+
+      this.boundsRenderer.runSuspended(() => {
+        const isChanged = this.transformsService.transformByMouse(screenPos);
+
+        if (isChanged && allowPan) {
           this.currentArgs = event;
           this.startAutoPan();
         }
-      } finally {
-        this.boundsRenderer.resume();
-      }
+      });
     }
   }
 
@@ -248,9 +211,12 @@ export class SelectionTool extends BaseSelectionTool {
    */
   selectionEnded(event: MouseEventArgs) {
     this.stopAutoPan();
-    const transformApplied =
-      this.transformations !== null && this.transformations.length > 0;
-    if (transformApplied && !this.click) {
+    // No action if transform transaction was running.
+    if (
+      this.transformsService.isActive() &&
+      this.transformsService.isChanged() &&
+      !this.click
+    ) {
       return;
     }
 

@@ -17,21 +17,20 @@ export class PathTransform extends MatrixTransform {
    * List of a particular path handles to be transformed.
    */
   public pathHandles: PathDataHandle[] | null = null;
-  beginMouseTransaction(mousePos: DOMPoint) {
-    super.beginMouseTransaction(mousePos);
-  }
-  moveByMouse(screenPos: DOMPoint) {
+
+  moveByMouse(screenPos: DOMPoint): boolean {
     const element = this.getElement();
     const elementPoint = Utils.toElementPoint(element, screenPos);
     if (!elementPoint) {
       return;
     }
 
-    this.translate(elementPoint);
+    const isChanged = this.translate(elementPoint);
     this.start = elementPoint;
+    return isChanged;
   }
-  beginHandleTransformation(handle: HandleData, screenPos: DOMPoint) {
-    super.beginHandleTransformation(handle, screenPos);
+  beginHandleTransformation(screenPos: DOMPoint, handle: HandleData) {
+    super.beginHandleTransformation(screenPos, handle);
     this.initPathData = this.node.getPathData(false);
   }
   beginMouseRotateTransaction(pos: DOMPoint) {
@@ -51,7 +50,7 @@ export class PathTransform extends MatrixTransform {
     this.startOffset -= decomposed.rotateZ;
   }
 
-  rotateByMouse(currentViewPoint: DOMPoint) {
+  rotateByMouse(currentViewPoint: DOMPoint): boolean {
     const transformPoint = this.transformOrigin;
     const element = this.getElement();
     const screenTransformOrigin = Utils.toScreenPoint(element, transformPoint);
@@ -60,22 +59,28 @@ export class PathTransform extends MatrixTransform {
     angle -= this.startOffset;
     const angleBefore = angle;
     angle -= this.prevAngle;
-    this.rotateOffset(angle, transformPoint);
+    const changed = this.rotateOffset(angle, transformPoint);
     this.prevAngle = angleBefore;
+    return changed;
   }
 
-  scaleOffset(offsetX: number, offsetY: number, transformPoint: DOMPoint) {
+  scaleOffset(
+    offsetX: number,
+    offsetY: number,
+    transformPoint: DOMPoint
+  ): boolean {
     offsetY = this.normalizeScale(offsetY);
     offsetX = this.normalizeScale(offsetX);
-    const element = this.getElement();
-    const svgTransform = element.ownerSVGElement.createSVGTransform();
-    svgTransform.setScale(offsetX, offsetY);
-    const matrix = element.ownerSVGElement
-      .createSVGMatrix()
-      .translate(transformPoint.x, transformPoint.y)
-      .multiply(svgTransform.matrix)
-      .translate(-transformPoint.x, -transformPoint.y);
+    const transform = this.getElement().transform.baseVal.consolidate();
+    let matrix = this.generateScaleMatrix(
+      offsetX,
+      offsetY,
+      transformPoint,
+      // transform?.matrix
+    );
+
     const pathData = this.initPathData.clone();
+    // matrix = matrix.multiply(transform?.matrix);
     const changed = this.transformPathByMatrix(
       matrix,
       pathData,
@@ -83,8 +88,9 @@ export class PathTransform extends MatrixTransform {
     );
     if (changed) {
       this.node.setPathData(pathData);
-      this.transformsService.emitTransformed(this.getElement());
     }
+
+    return changed;
   }
   /**
    * transform path data by a matrix.
@@ -278,15 +284,15 @@ export class PathTransform extends MatrixTransform {
     );
     if (changed) {
       this.node.setPathData(pathData);
-      this.transformsService.emitTransformed(this.getElement());
     }
+    return changed;
   }
-  translate(elementPoint: DOMPoint) {
+  translate(elementPoint: DOMPoint): boolean {
     // Translate by offset
     const offsetX = elementPoint.x - this.start.x;
     const offsetY = elementPoint.y - this.start.y;
     if (!offsetX && !offsetY) {
-      return;
+      return false;
     }
     const element = this.getElement();
     const matrix = element.ownerSVGElement
@@ -300,7 +306,7 @@ export class PathTransform extends MatrixTransform {
     );
     if (changed) {
       this.node.setPathData(pathData);
-      this.transformsService.emitTransformed(this.getElement());
     }
+    return changed;
   }
 }

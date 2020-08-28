@@ -38,7 +38,7 @@ export class WireService {
     pathRenderer: PathRenderer
   ) {
     toolsService.activeToolChanged().subscribe((activeTool) => {
-      this.suspendedInvalidate(() => {
+      BaseRenderer.runSuspendedRenderers(() => {
         const isSelectionToolActive = activeTool === toolsService.selectionTool;
         boundsRenderer.drawNodeHandles = isSelectionToolActive;
         boundsRenderer.suppressMainSelection = !isSelectionToolActive;
@@ -53,9 +53,9 @@ export class WireService {
       selectionService.pathDataSubject.calculateHandlesBounds();
     });
     selectionService.selected.subscribe((state) => {
-      this.suspendedInvalidate(
+      BaseRenderer.runSuspendedRenderers(
         () => {
-          selectionService.calculateSelectionsAdorner();
+          selectionService.calculateSelectionsAdorner(selectionService.getSelected());
           mouseOverService.pathDataSubject.leaveNodes(state.removed);
           // Deselect any path data were selected.
           selectionService.pathDataSubject.leaveNodes(state.removed);
@@ -70,7 +70,7 @@ export class WireService {
     });
 
     // Individual element is transformed.
-    transformsService.transformed.subscribe((element) => {
+    transformsService.transformed.subscribe(() => {
       // TODO: invalidate from current to all children
       this.cleanCache();
       boundsRenderer.invalidate();
@@ -112,27 +112,9 @@ export class WireService {
       boundsRenderer.invalidate();
     });
   }
-  suspendedInvalidate(callback: () => void, ...params: BaseRenderer[]) {
-    const suspendedStates = params.map((p) => {
-      const wasSuspended = p.suspended;
-      p.suspend();
-      return wasSuspended;
-    });
-    // Callback might call invalidate again.
-    // We can suspend services before and resume after the call.
-    if (callback) {
-      callback();
-    }
-    params.forEach((p, index) => {
-      p.invalidate();
-      // Check whether was initially suspended
-      if (!suspendedStates[index]) {
-        p.resume();
-      }
-    });
-  }
+
   cleanCache() {
-    this.selectionService.calculateSelectionsAdorner();
+    this.selectionService.calculateSelectionsAdorner(this.selectionService.getSelected());
     this.selectionService.pathDataSubject.calculateHandlesBounds();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }
