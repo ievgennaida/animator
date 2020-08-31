@@ -11,8 +11,8 @@ import {
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { takeUntil } from "rxjs/operators";
 import { Utils } from "src/app/services/utils/utils";
-import { BaseComponent } from '../../base-component';
-import { MouseEventArgs } from 'src/app/models/mouse-event-args';
+import { BaseComponent } from "../../base-component";
+import { MouseEventArgs } from "src/app/models/mouse-event-args";
 
 @Component({
   selector: "app-mouse-tracker",
@@ -20,8 +20,8 @@ import { MouseEventArgs } from 'src/app/models/mouse-event-args';
   styleUrls: ["./mouse-tracker.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MouseTrackerComponent extends BaseComponent implements OnInit, OnDestroy {
-
+export class MouseTrackerComponent extends BaseComponent
+  implements OnInit, OnDestroy {
   @ViewChild("outputX", { read: ElementRef })
   outputX: ElementRef<HTMLElement>;
   @ViewChild("outputY", { read: ElementRef })
@@ -42,12 +42,9 @@ export class MouseTrackerComponent extends BaseComponent implements OnInit, OnDe
             this.outputY &&
             this.outputY.nativeElement
           ) {
-            this.outputX.nativeElement.innerText = `x: ${Utils.round(
-              event.viewportPoint.x
-            )}`;
-            this.outputY.nativeElement.innerText = `y: ${Utils.round(
-              event.viewportPoint.x
-            )}`;
+            const p = event.viewportPoint;
+            this.outputX.nativeElement.innerText = `x: ${Utils.round(p.x)}`;
+            this.outputY.nativeElement.innerText = `y: ${Utils.round(p.y)}`;
           }
         });
     });
