@@ -97,7 +97,7 @@ export class BaseSelectionTool extends BaseTool {
 
   autoPan(mousePosition: DOMPoint, containerSize: DOMRect): boolean {
     // Pan by scroll
-    if (!mousePosition || !this.autoPanSpeed) {
+    if (!mousePosition || !this.autoPanSpeed || !containerSize) {
       return false;
     }
 
