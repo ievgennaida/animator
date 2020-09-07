@@ -387,16 +387,16 @@ export class MatrixTransform {
       offset.x -= this.start.x;
       offset.y -= this.start.y;
     }
-    return this.translate(offset);
+    return this.translate(offset.x, offset.y);
   }
 
-  translate(pos: DOMPoint): boolean {
+  translate(x: number, y: number): boolean {
     const element = this.getElement();
     // console.log("move:" + point.x + "x" + point.y);
     const transformList = element.transform;
     if (transformList.baseVal.numberOfItems === 0) {
       const svgTransform = element.ownerSVGElement.createSVGTransform();
-      svgTransform.setTranslate(pos.x, pos.y);
+      svgTransform.setTranslate(x, y);
       transformList.baseVal.appendItem(svgTransform);
       return true;
     } else if (transformList.baseVal.numberOfItems === 1) {
@@ -407,11 +407,11 @@ export class MatrixTransform {
         );
         if (decompose && decompose.translateX && decompose.translateY) {
           svgTransform.setTranslate(
-            decompose.translateX + pos.x,
-            decompose.translateY + pos.y
+            decompose.translateX + x,
+            decompose.translateY + y
           );
         } else {
-          svgTransform.setTranslate(pos.x, pos.y);
+          svgTransform.setTranslate(x, y);
         }
 
         return true;
@@ -422,7 +422,7 @@ export class MatrixTransform {
       element.transform.baseVal.consolidate() ||
       element.ownerSVGElement.createSVGTransform();
 
-    const matrix = transform.matrix.translate(pos.x, pos.y);
+    const matrix = transform.matrix.translate(x, y);
     transform.setMatrix(matrix);
 
     element.transform.baseVal.initialize(transform);

@@ -213,9 +213,9 @@ export class RectTransform extends MatrixTransform {
     }
     return super.moveByMouse(screenPos);
   }
-  translate(point: DOMPoint): boolean {
-    this.setX(point.x);
-    this.setY(point.y);
+  translate(x: number, y: number): boolean {
+    this.setX(x);
+    this.setY(y);
     return true;
   }
 }

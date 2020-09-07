@@ -25,7 +25,7 @@ export class PathTransform extends MatrixTransform {
       return;
     }
 
-    const isChanged = this.translate(elementPoint);
+    const isChanged = this.translate(elementPoint.x, elementPoint.y);
     this.start = elementPoint;
     return isChanged;
   }
@@ -287,10 +287,10 @@ export class PathTransform extends MatrixTransform {
     }
     return changed;
   }
-  translate(elementPoint: DOMPoint): boolean {
+  translate(x: number, y: number): boolean {
     // Translate by offset
-    const offsetX = elementPoint.x - this.start.x;
-    const offsetY = elementPoint.y - this.start.y;
+    const offsetX = x - this.start.x;
+    const offsetY = y - this.start.y;
     if (!offsetX && !offsetY) {
       return false;
     }
