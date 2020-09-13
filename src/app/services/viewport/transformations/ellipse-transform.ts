@@ -1,5 +1,4 @@
 import { RectTransform } from "./rect-transform";
-import { baseEffect } from "src/app/models/Lottie/effects/baseEffect";
 
 export class EllipseTransform extends RectTransform {
   // override
