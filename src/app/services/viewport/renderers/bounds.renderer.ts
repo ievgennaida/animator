@@ -279,7 +279,7 @@ export class BoundsRenderer extends BaseRenderer {
 
     adorners.forEach((adorner) => {
       if (adorner) {
-        adorner = adorner.matrixTransform(this.screenCTM);
+        adorner = adorner.toScreen().matrixTransform(this.screenCTM);
         if (drawSmallBounds) {
           this.drawAdornerRect(ctx, elementsThickness, elementsColor, adorner);
         }
@@ -304,7 +304,7 @@ export class BoundsRenderer extends BaseRenderer {
     /*
     const trans = this.transform.transactions || [];
     trans.forEach((p) => {
-      if (p.transformOrigin && p.initMatrix) {
+      if (p.transformOrigin && p.handle.adorner) {
         let local = Utils.matrixRectTransform(
           p.node.getBBox(),
           p.node.getScreenCTM(),
@@ -312,37 +312,48 @@ export class BoundsRenderer extends BaseRenderer {
         );
         local = Utils.matrixRectTransform(
           p.node.getBBox(),
-          p.node.getScreenCTM().inverse(),
-          true
-        );
-        local = Utils.matrixRectTransform(
-          p.node.getBBox(),
           p.node.getScreenCTM(),
           true
         );
-        local = Utils.matrixRectTransform(local, this.screenCTM);
-        this.drawRect(this.ctx, local);
-        const rect = Utils.matrixRectTransform(
+
+        local = Utils.matrixRectTransform(
           p.initBBox,
-          // Utils.matrixRectTransform(p.initBBox, p.initMatrix.inverse(), true),
-          this.screenCTM
+          p.node.getScreenCTM(),
+          false
         );
-        this.drawRect(this.ctx, rect);
+
+        local = Utils.matrixRectTransform(local, this.screenCTM);
+        //this.drawRect(this.ctx, local);
+        this.drawAdornerRect(this.ctx, 1, "black", p.startAdorner);
+        this.drawAdornerRect(this.ctx, 1, "blue", p.testAdorner);
+        this.drawAdornerRect(this.ctx, 2, "green", p.testAdorner2);
+        //this.drawAdornerRect(this.ctx, 1, 'red', p.testAdorner);
+        //const rect = Utils.matrixRectTransform(
+        //  p.initBBox,
+        //  // Utils.matrixRectTransform(p.initBBox, p.initMatrix.inverse(), true),
+        //  this.screenCTM
+        //);
+        //this.drawRect(this.ctx, rect);
         // const scr = Utils.toScreenPoint(
         //   p.node,
         //   p.transformOrigin
         // ).matrixTransform(this.screenCTM);
-        if (p && p.screenTransform) {
-          const scr = p.screenTransform.matrixTransform(this.screenCTM);
+        if (p && p.transformOrigin) {
+          const scr = Utils.toScreenPoint(
+            p.node,
+            p.transformOrigin
+          ).matrixTransform(this.screenCTM);
           this.drawCross(ctx, scr);
         }
 
         if (p.debugPoints) {
           p.debugPoints.forEach((point) => {
-            const test = Utils.toScreenPoint(p.node, point).matrixTransform(
-              this.screenCTM
-            );
-            this.drawCross(ctx, test);
+            if (point) {
+              const test = Utils.toScreenPoint(p.node, point).matrixTransform(
+                this.screenCTM
+              );
+              //this.drawCross(ctx, test);
+            }
           });
         }
       }

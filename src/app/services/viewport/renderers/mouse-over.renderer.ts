@@ -49,15 +49,15 @@ export class MouseOverRenderer extends BaseRenderer {
         outlineRendered = false;
       }
       if (!outlineRendered) {
-        let adorner = this.node.getAdorners();
+        const adorner = this.node.getAdorners()?.toScreen();
         if (adorner) {
-          adorner = adorner.matrixTransform(this.screenCTM);
+          const screenAdorner = adorner.matrixTransform(this.screenCTM);
           const thickness = consts.mouseOverBorderThickness * this.onePixel;
           this.drawAdornerRect(
             this.ctx,
             thickness,
             consts.mouseOverBoundsColor,
-            adorner
+            screenAdorner
           );
         }
       }
