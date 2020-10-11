@@ -209,7 +209,7 @@ export class BaseRenderer {
     ctx: CanvasRenderingContext2D,
     rect: DOMRect,
     thickness: number = 1,
-    stroke: string = 'black',
+    stroke: string = "black",
     fillStyle: string = null
   ) {
     if (!rect) {
@@ -296,6 +296,10 @@ export class BaseRenderer {
     stroke: string,
     adorner: Adorner
   ) {
+    if (!adorner) {
+      return;
+    }
+
     this.drawPath(
       ctx,
       thickness,
