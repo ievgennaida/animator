@@ -1,5 +1,5 @@
 import { TimelineRow } from "animation-timeline-js";
-import { Utils } from '../services/utils/utils';
+import { Utils } from "../services/utils/utils";
 import { Adorner } from "../services/viewport/adorners/adorner";
 import { IBBox } from "./interfaces/bbox";
 import { ICTMProvider } from "./interfaces/ctm-provider";
@@ -31,6 +31,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   shape: any;
   type: any;
   data: any;
+  // TODO: make generic, attach as metadata.
   model: LottieModel = null;
   lane: TimelineRow;
   layer?: baseLayer;
@@ -61,7 +62,11 @@ export class TreeNode implements ICTMProvider, IBBox {
     return !!this.children && this.children.length > 0;
   }
 
-  getElement(): SVGGraphicsElement {
+  get ownerSVGElement(): SVGSVGElement | null {
+    return this.getElement()?.ownerSVGElement;
+  }
+
+  getElement(): SVGGraphicsElement | null {
     if (!this.tag) {
       return null;
     }
@@ -151,7 +156,9 @@ export class TreeNode implements ICTMProvider, IBBox {
     this.cacheAdorners.node = this;
     const bounds = this.getBBox();
     this.cacheAdorners.fromRect(bounds);
-    this.cacheAdorners.setCenterTransform(Utils.getCenterTransform(this.getElement(), bounds));
+    this.cacheAdorners.setCenterTransform(
+      Utils.getCenterTransform(this.getElement(), bounds)
+    );
     this.cacheAdorners = this.cacheAdorners.matrixTransform(
       this.getScreenCTM()
     );
