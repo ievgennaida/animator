@@ -9,7 +9,7 @@ import { AdornerType } from "./adorner-type";
 export class Adorner implements IBBox {
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
   selected: Map<AdornerType, boolean> = new Map<AdornerType, boolean>();
-  isScreen = false;
+  isScreen = true;
   node: TreeNode = null;
   public allowResize = true;
   get topCenter(): DOMPoint {
@@ -32,6 +32,12 @@ export class Adorner implements IBBox {
   }
   get topLeft(): DOMPoint {
     return this.get(AdornerType.TopLeft);
+  }
+  get width(): number {
+    return Utils.getLength(this.topLeft, this.topRight);
+  }
+  get height(): number {
+    return Utils.getLength(this.topLeft, this.bottomLeft);
   }
   get topRight(): DOMPoint {
     return this.get(AdornerType.TopRight);
@@ -57,6 +63,18 @@ export class Adorner implements IBBox {
     return key !== AdornerType.Center && key !== AdornerType.CenterTransform;
   }
 
+  toElements(): Adorner {
+    if (!this.isScreen) {
+      return this;
+    }
+    return this.matrixTransform(this.node.getScreenCTM().inverse());
+  }
+  toScreen(): Adorner {
+    if (this.isScreen) {
+      return this;
+    }
+    return this.matrixTransform(this.node.getScreenCTM());
+  }
   /**
    * Initialize adorner from rect
    * @param bounds rectangle to decompose.
@@ -121,7 +139,11 @@ export class Adorner implements IBBox {
     cloned.node = this.node;
     this.points.forEach((adornerPoint, key) => {
       if (adornerPoint) {
-        cloned.points.set(key, adornerPoint.matrixTransform(m));
+        if (m) {
+          cloned.points.set(key, adornerPoint.matrixTransform(m));
+        } else {
+          cloned.points.set(key, adornerPoint);
+        }
       }
     });
     return cloned;
