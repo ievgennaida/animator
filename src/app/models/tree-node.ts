@@ -79,7 +79,26 @@ export class TreeNode implements ICTMProvider, IBBox {
 
     return null;
   }
-
+  /**
+   * Get tree node untransformed bbox in element coordinates.
+   * @param node node to get untransformed bbox for.
+   */
+  untransformedBBox(bbox: DOMRect | null = null): Adorner | null {
+    if (!bbox) {
+      bbox = this.getBBox();
+    }
+    const screenRect = Utils.matrixRectTransform(
+      bbox,
+      this.getScreenCTM(),
+      true
+    );
+    let adorner = new Adorner();
+    adorner.fromRect(screenRect);
+    adorner = adorner.matrixTransform(this.getScreenCTM().inverse());
+    adorner.node = this;
+    adorner.isScreen = false;
+    return adorner;
+  }
   cleanCache() {
     this.screenCTMCache = null;
     this.ctmCache = null;
