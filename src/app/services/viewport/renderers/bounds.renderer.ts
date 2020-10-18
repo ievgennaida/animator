@@ -300,63 +300,20 @@ export class BoundsRenderer extends BaseRenderer {
     });
 
     // Debug transform transactions.
-    // TODO: this should become proper way to display transform origin during the running transaction.
-    /*
+    this.showDebugPoints();
+  }
+  showDebugPoints() {
+    const ctx = this.ctx;
     const trans = this.transform.transactions || [];
     trans.forEach((p) => {
-      if (p.transformOrigin && p.handle.adorner) {
-        let local = Utils.matrixRectTransform(
-          p.node.getBBox(),
-          p.node.getScreenCTM(),
-          true
-        );
-        local = Utils.matrixRectTransform(
-          p.node.getBBox(),
-          p.node.getScreenCTM(),
-          true
-        );
-
-        local = Utils.matrixRectTransform(
-          p.initBBox,
-          p.node.getScreenCTM(),
-          false
-        );
-
-        local = Utils.matrixRectTransform(local, this.screenCTM);
-        //this.drawRect(this.ctx, local);
-        this.drawAdornerRect(this.ctx, 1, "black", p.startAdorner);
-        this.drawAdornerRect(this.ctx, 1, "blue", p.testAdorner);
-        this.drawAdornerRect(this.ctx, 2, "green", p.testAdorner2);
-        //this.drawAdornerRect(this.ctx, 1, 'red', p.testAdorner);
-        //const rect = Utils.matrixRectTransform(
-        //  p.initBBox,
-        //  // Utils.matrixRectTransform(p.initBBox, p.initMatrix.inverse(), true),
-        //  this.screenCTM
-        //);
-        //this.drawRect(this.ctx, rect);
-        // const scr = Utils.toScreenPoint(
-        //   p.node,
-        //   p.transformOrigin
-        // ).matrixTransform(this.screenCTM);
-        if (p && p.transformOrigin) {
-          const scr = Utils.toScreenPoint(
-            p.node,
-            p.transformOrigin
-          ).matrixTransform(this.screenCTM);
-          this.drawCross(ctx, scr);
-        }
-
-        if (p.debugPoints) {
-          p.debugPoints.forEach((point) => {
-            if (point) {
-              const test = Utils.toScreenPoint(p.node, point).matrixTransform(
-                this.screenCTM
-              );
-              //this.drawCross(ctx, test);
-            }
-          });
-        }
+      if (p.debugPoints) {
+        p.debugPoints.forEach((point) => {
+          if (point) {
+            const test = point.matrixTransform(this.screenCTM);
+            this.drawCross(ctx, test);
+          }
+        });
       }
-    });  */
+    });
   }
 }

@@ -134,13 +134,8 @@ export class RectTransform extends MatrixTransform {
     offsetY: number | null,
     transformPoint: DOMPoint
   ): boolean {
-    const element = this.getElement();
     offsetY = this.normalizeScale(offsetY);
     offsetX = this.normalizeScale(offsetX);
-
-    const transform =
-      element.transform.baseVal.consolidate() ||
-      element.ownerSVGElement.createSVGTransform();
 
     const matrix = super.generateScaleMatrix(offsetX, offsetY, transformPoint);
 
