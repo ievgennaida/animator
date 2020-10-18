@@ -1,24 +1,20 @@
 import { InputDocument, InputDocumentType } from "../models/input-document";
-import { LottieTreeParser } from "./lottie/lottie-tree.parser";
 import { SvgTreeParser } from "./svg/svg-tree.parser";
 import { IParser } from "../models/interfaces/parser";
-import { LottieInitializer } from "./lottie/lottie-initializer";
 import { SvgInitializer } from "./svg/svg-initializer";
 import { Injectable } from "@angular/core";
-import { IInitializer } from '../models/interfaces/initializer';
+import { IInitializer } from "../models/interfaces/initializer";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class AppFactory {
   // TODO: inject on demand.
-  constructor(
-    private lottieTreeParser: LottieTreeParser
-  ) {}
+  constructor() {}
 
   getParser(document: InputDocument): IParser {
     if (document.type === InputDocumentType.JSON) {
-      return this.lottieTreeParser;
+      return null;
     } else {
       return new SvgTreeParser();
     }
@@ -29,7 +25,7 @@ export class AppFactory {
    */
   getViewportInitializer(document: InputDocument): IInitializer {
     if (document.type === InputDocumentType.JSON) {
-      return new LottieInitializer();
+      return null;
     } else {
       return new SvgInitializer();
     }

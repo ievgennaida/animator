@@ -3,10 +3,6 @@ import { Utils } from "../services/utils/utils";
 import { Adorner, AdornerMode } from "../services/viewport/adorners/adorner";
 import { IBBox } from "./interfaces/bbox";
 import { ICTMProvider } from "./interfaces/ctm-provider";
-import { baseLayer } from "./Lottie/layers/baseLayer";
-import { LottieModel } from "./Lottie/LottieModel";
-import { NodeType } from "./Lottie/NodeType";
-import { shapeType } from "./Lottie/shapes/shapeType";
 import { PathData } from "./path/path-data";
 import { Properties } from "./Properties/Properties";
 import { Property } from "./Properties/Property";
@@ -31,10 +27,8 @@ export class TreeNode implements ICTMProvider, IBBox {
   shape: any;
   type: any;
   data: any;
-  // TODO: make generic, attach as metadata.
-  model: LottieModel = null;
+
   lane: TimelineRow;
-  layer?: baseLayer;
   level: number;
   transformable = true;
   allowTranslate = true;
@@ -50,6 +44,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   // tslint:disable-next-line: variable-name
   private _name = "";
   private pathDataCache: PathData;
+  typeTitle = "";
   get name(): string {
     return this._name || this.typeTitle;
   }
@@ -197,19 +192,6 @@ export class TreeNode implements ICTMProvider, IBBox {
       return this.cacheBBox;
     }
     return null;
-  }
-
-  get typeTitle() {
-    let typeTitle = NodeType[this.type];
-    if (this.type === NodeType.Shape && this.data) {
-      const typeSubtitle = Object.keys(shapeType).find(
-        (value) => shapeType[value] === this.data.ty
-      );
-      if (typeSubtitle) {
-        typeTitle += ` (${typeSubtitle})`;
-      }
-    }
-    return typeTitle;
   }
 
   strokeWidth(): number {

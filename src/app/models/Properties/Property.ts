@@ -1,7 +1,7 @@
-import { PropertyType } from "./PropertyType";
-import { PropertyDataType } from "./PropertyDataType";
-import { Keyframe } from "../keyframes/Keyframe";
 import { TreeNode } from "src/app/models/tree-node";
+import { Keyframe } from "../keyframes/Keyframe";
+import { PropertyDataType } from "./PropertyDataType";
+import { PropertyType } from "./PropertyType";
 
 // Property view model.
 export class Property {
@@ -33,55 +33,24 @@ export class Property {
   public renderAsOutline = false;
   public type: PropertyType = PropertyType.text;
   public keyframes: Keyframe[] = [];
-
-  getKeyframes(): Keyframe[] {
-    let keyframes: Keyframe[] = [];
-
-    if (this.data && this.key) {
-      let data = this.data[this.key];
-      if (
-        data &&
-        (this.dataType === PropertyDataType.value ||
-          this.dataType === PropertyDataType.multi)
-      ) {
-        if (data.k !== undefined) {
-          if (data.k.length >= 0) {
-            for (let i = 0; i < data.k.length; i++) {
-              let frame = data.k[i];
-              if (frame.t != undefined) {
-                let keyframe = new Keyframe();
-                keyframe.property = this;
-                keyframe.key = "t";
-                keyframe.container = frame;
-                if (this.node) {
-                  keyframe.model = this.node.model;
-                }
-                keyframes.push(keyframe);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return keyframes;
-  }
-
   /**
    * Displayed value.
    */
   public value: any;
+  getKeyframes(): Keyframe[] {
+    return [];
+  }
 
   /**
    * Get interpolated value at the specific time.
-   * @param frame 
+   * @param frame
    */
   getValueAtTime(frame: number) {
     if (this.dynamicProperty && this.dynamicProperty.getValueAtTime) {
       if (this.key) {
-        let subproperty = this.dynamicProperty[this.key];
-        if (subproperty) {
-          return subproperty.getValueAtTime(frame);
+        const subProperty = this.dynamicProperty[this.key];
+        if (subProperty) {
+          return subProperty.getValueAtTime(frame);
         }
       } else {
         return this.dynamicProperty.getValueAtTime(frame);

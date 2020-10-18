@@ -1,6 +1,5 @@
 import { Property } from "./Property";
 import { NumberProperty } from "./NumberProperty";
-import { LottieModel } from '../Lottie/LottieModel';
 import { PropertyType } from './PropertyType';
 import { PropertyDataType } from './PropertyDataType';
 import { TreeNode } from "src/app/models/tree-node";

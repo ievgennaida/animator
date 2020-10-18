@@ -1,10 +1,8 @@
-import { Property } from "./Property";
-import { PropertyType } from "./PropertyType";
-import { PropertyDataType } from "./PropertyDataType";
-import { Keyframe } from "../keyframes/Keyframe";
-import { LottieModel } from "../Lottie/LottieModel";
 import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from 'src/app/services/utils/utils';
+import { Property } from "./Property";
+import { PropertyDataType } from "./PropertyDataType";
+import { PropertyType } from "./PropertyType";
 
 export class NumberProperty extends Property {
   constructor(node: TreeNode, key, name, data, description) {

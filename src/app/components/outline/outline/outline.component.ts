@@ -9,7 +9,6 @@ import {
 
 import { consts } from "src/environments/consts";
 import { TimelineScrollEvent } from "animation-timeline-js";
-import { shapeType } from "src/app/models/Lottie/shapes/shapeType";
 import { OutlineService } from "src/app/services/outline.service";
 import { BaseComponent } from '../../base-component';
 
@@ -32,8 +31,6 @@ export class OutlineComponent extends BaseComponent implements OnInit {
   height: any = "";
   dataSource = this.outlineService.flatDataSource;
   treeControl = this.outlineService.treeControl;
-  // Allow to use enums in the template:
-  shapeType = shapeType;
   ngOnInit(): void {
     this.cdRef.detectChanges();
   }
