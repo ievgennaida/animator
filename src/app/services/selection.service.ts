@@ -58,8 +58,8 @@ export class SelectionService {
         }
       });
       if (globalBBox) {
-        const toSet = new Adorner();
-        toSet.fromRect(globalBBox);
+        const toSet = Adorner.fromDOMRect(globalBBox);
+        toSet.elementAdorner = false;
         this.selectionAdorner = toSet;
       } else {
         this.selectionAdorner = null;

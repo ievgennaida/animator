@@ -7,11 +7,6 @@ import { AdornerType } from "./adorner-type";
  * Adorner is a control points container.
  */
 export class Adorner implements IBBox {
-  points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
-  selected: Map<AdornerType, boolean> = new Map<AdornerType, boolean>();
-  isScreen = true;
-  node: TreeNode = null;
-  public allowResize = true;
   get topCenter(): DOMPoint {
     return this.get(AdornerType.TopCenter);
   }
@@ -48,6 +43,21 @@ export class Adorner implements IBBox {
   get center(): DOMPoint {
     return this.get(AdornerType.Center);
   }
+  points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
+  selected: Map<AdornerType, boolean> = new Map<AdornerType, boolean>();
+  isScreen = true;
+  elementAdorner = true;
+  node: TreeNode = null;
+  public allowResize = true;
+  /**
+   * Initialize adorner from rect
+   * @param bounds rectangle to decompose.
+   */
+  static fromDOMRect(rect: DOMRect): Adorner {
+    const adorner = new Adorner();
+    adorner.setRect(rect);
+    return adorner;
+  }
 
   setSelected(adornerType: AdornerType, selectedState = true) {
     this.selected.set(adornerType, selectedState);
@@ -75,13 +85,14 @@ export class Adorner implements IBBox {
     }
     return this.matrixTransform(this.node.getScreenCTM());
   }
+
   /**
-   * Initialize adorner from rect
-   * @param bounds rectangle to decompose.
+   * Set new bounds to the rect.
+   * @param bounds new rect bounds.
    */
-  fromRect(bounds: DOMRect) {
+  setRect(bounds: DOMRect): Adorner {
     if (!bounds) {
-      return;
+      return this;
     }
     this.points.set(AdornerType.TopLeft, new DOMPoint(bounds.x, bounds.y));
     this.points.set(
@@ -117,6 +128,7 @@ export class Adorner implements IBBox {
     this.points.set(AdornerType.Center, center);
     // Transform around this point.
     this.setCenterTransform(center);
+    return this;
   }
 
   setCenterTransform(center: DOMPoint) {
@@ -136,6 +148,7 @@ export class Adorner implements IBBox {
 
   matrixTransform(m: DOMMatrix): Adorner {
     const cloned = new Adorner();
+    cloned.elementAdorner = this.elementAdorner;
     cloned.node = this.node;
     this.points.forEach((adornerPoint, key) => {
       if (adornerPoint) {

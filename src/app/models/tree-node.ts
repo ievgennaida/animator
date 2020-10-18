@@ -92,11 +92,12 @@ export class TreeNode implements ICTMProvider, IBBox {
       this.getScreenCTM(),
       true
     );
-    let adorner = new Adorner();
-    adorner.fromRect(screenRect);
-    adorner = adorner.matrixTransform(this.getScreenCTM().inverse());
+    const adorner = Adorner.fromDOMRect(screenRect).matrixTransform(
+      this.getScreenCTM().inverse()
+    );
     adorner.node = this;
     adorner.isScreen = false;
+    adorner.elementAdorner = true;
     return adorner;
   }
   cleanCache() {
@@ -174,7 +175,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     this.cacheAdorners = new Adorner();
     this.cacheAdorners.node = this;
     const bounds = this.getBBox();
-    this.cacheAdorners.fromRect(bounds);
+    this.cacheAdorners.setRect(bounds);
     this.cacheAdorners.setCenterTransform(
       Utils.getCenterTransform(this.getElement(), bounds)
     );

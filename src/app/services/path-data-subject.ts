@@ -32,8 +32,9 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
       });
       const bounds = Utils.pointsBounds(...screenPoints);
       this.bounds = new Adorner();
+      this.bounds.elementAdorner = false;
       // Utils.shrinkRect(, 1, 1)
-      this.bounds.fromRect(bounds);
+      this.bounds.setRect(bounds);
     }
   }
   /**
