@@ -6,7 +6,6 @@ import { OutlineService } from "./outline.service";
 import { PathDataSelectionSubject } from "./path-data-subject";
 import { ChangeStateMode, State, StateSubject } from "./state-subject";
 import { Utils } from "./utils/utils";
-import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 @Injectable({
   providedIn: "root",
