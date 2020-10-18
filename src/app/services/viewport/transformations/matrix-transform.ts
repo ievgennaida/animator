@@ -4,6 +4,7 @@ import { AdornerType, AdornerTypeUtils } from "../adorners/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { DecomposeTransform } from "./decompose-transform";
 import { TreeNode } from "src/app/models/tree-node";
+import { AdornerMode } from '../adorners/adorner';
 export enum TransformationMode {
   None,
   Skew,
@@ -48,7 +49,7 @@ export class MatrixTransform {
     this.mode = TransformationMode.Handle;
     this.start = screenPos;
     const element = this.getElement();
-    this.transformElementCoordinates = this.handle.adorner.elementAdorner;
+    this.transformElementCoordinates = this.handle.adorner.mode === AdornerMode.TransformedElement;
 
     if (this.transformElementCoordinates) {
       this.anchor = element;

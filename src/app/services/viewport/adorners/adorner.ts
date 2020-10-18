@@ -6,7 +6,7 @@ import { AdornerType } from "./adorner-type";
 /**
  * Adorner is a control points container.
  */
-export class Adorner implements IBBox {
+export class TransformedRect implements IBBox {
   get topCenter(): DOMPoint {
     return this.get(AdornerType.TopCenter);
   }
@@ -44,11 +44,7 @@ export class Adorner implements IBBox {
     return this.get(AdornerType.Center);
   }
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
-  selected: Map<AdornerType, boolean> = new Map<AdornerType, boolean>();
-  isScreen = true;
-  elementAdorner = true;
-  node: TreeNode = null;
-  public allowResize = true;
+
   /**
    * Initialize adorner from rect
    * @param bounds rectangle to decompose.
@@ -58,39 +54,24 @@ export class Adorner implements IBBox {
     adorner.setRect(rect);
     return adorner;
   }
-
-  setSelected(adornerType: AdornerType, selectedState = true) {
-    this.selected.set(adornerType, selectedState);
-  }
-  isSelected(adornerType: AdornerType): boolean {
-    const value = this.selected.get(adornerType);
-    return !!value;
-  }
-  get(p: AdornerType): DOMPoint {
-    return this.points.get(p);
-  }
-  allowToRotateAdorners(key: AdornerType): boolean {
-    return key !== AdornerType.Center && key !== AdornerType.CenterTransform;
+  set(key: AdornerType, point: DOMPoint): void {
+    this.points.set(key, point);
   }
 
-  toElements(): Adorner {
-    if (!this.isScreen) {
-      return this;
-    }
-    return this.matrixTransform(this.node.getScreenCTM().inverse());
-  }
-  toScreen(): Adorner {
-    if (this.isScreen) {
-      return this;
-    }
-    return this.matrixTransform(this.node.getScreenCTM());
+  get(key: AdornerType): DOMPoint {
+    return this.points.get(key);
   }
 
+  untransformSelf(): TransformedRect {
+    const bounds = Utils.getPointsBounds(...this.points.values());
+    this.setRect(bounds);
+    return this;
+  }
   /**
    * Set new bounds to the rect.
    * @param bounds new rect bounds.
    */
-  setRect(bounds: DOMRect): Adorner {
+  setRect(bounds: DOMRect) {
     if (!bounds) {
       return this;
     }
@@ -128,7 +109,6 @@ export class Adorner implements IBBox {
     this.points.set(AdornerType.Center, center);
     // Transform around this point.
     this.setCenterTransform(center);
-    return this;
   }
 
   setCenterTransform(center: DOMPoint) {
@@ -145,20 +125,68 @@ export class Adorner implements IBBox {
       this.bottomRight.y - this.topLeft.y
     );
   }
-
-  matrixTransform(m: DOMMatrix): Adorner {
-    const cloned = new Adorner();
-    cloned.elementAdorner = this.elementAdorner;
-    cloned.node = this.node;
+  matrixTransformSelf(m: DOMMatrix): TransformedRect {
     this.points.forEach((adornerPoint, key) => {
       if (adornerPoint) {
         if (m) {
-          cloned.points.set(key, adornerPoint.matrixTransform(m));
+          this.points.set(key, adornerPoint.matrixTransform(m));
         } else {
-          cloned.points.set(key, adornerPoint);
+          this.points.set(key, adornerPoint);
         }
       }
     });
+    return this;
+  }
+}
+export enum AdornerMode {
+  TransformedElement,
+  ElementsBounds,
+  Selection,
+  PathDataSelection
+}
+export class Adorner extends TransformedRect {
+  selected: Map<AdornerType, boolean> = new Map<AdornerType, boolean>();
+  /**
+   * Screen or element coordinates.
+   */
+  isScreen = true;
+
+  mode = AdornerMode.TransformedElement;
+  node: TreeNode = null;
+  public allowResize = true;
+
+  setSelected(adornerType: AdornerType, selectedState = true) {
+    this.selected.set(adornerType, selectedState);
+  }
+  isSelected(adornerType: AdornerType): boolean {
+    const value = this.selected.get(adornerType);
+    return !!value;
+  }
+  allowToRotateAdorners(key: AdornerType): boolean {
+    return key !== AdornerType.Center && key !== AdornerType.CenterTransform;
+  }
+
+  toElements(): Adorner {
+    if (!this.isScreen) {
+      return this;
+    }
+    return this.matrixTransform(this.node.getScreenCTM().inverse());
+  }
+  toScreen(): Adorner {
+    if (this.isScreen) {
+      return this;
+    }
+    return this.matrixTransform(this.node.getScreenCTM());
+  }
+
+  matrixTransform(m: DOMMatrix): Adorner {
+    const cloned = new Adorner();
+    cloned.mode = this.mode;
+    cloned.node = this.node;
+    this.points.forEach((adornerPoint, key) => {
+      cloned.set(key, new DOMPoint(adornerPoint.x, adornerPoint.y));
+    });
+    cloned.matrixTransformSelf(m);
     return cloned;
   }
 }

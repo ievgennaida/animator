@@ -6,7 +6,7 @@ import { OutlineService } from "./outline.service";
 import { PathDataSelectionSubject } from "./path-data-subject";
 import { ChangeStateMode, State, StateSubject } from "./state-subject";
 import { Utils } from "./utils/utils";
-import { Adorner } from "./viewport/adorners/adorner";
+import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 @Injectable({
   providedIn: "root",
@@ -14,6 +14,7 @@ import { AdornerType } from "./viewport/adorners/adorner-type";
 export class SelectionService {
   constructor(private outlineService: OutlineService) {}
   selectedSubject = new StateSubject<TreeNode>(
+    // On selected changed:
     (node: TreeNode, value: boolean) => {
       // Change the selected property on changed callback.
       if (node && node.selected !== value) {
@@ -26,59 +27,7 @@ export class SelectionService {
   );
   pathDataSubject = new PathDataSelectionSubject();
   selectedAdorner: AdornerType = AdornerType.None;
-  /**
-   * Adorner that represents multiple items selected.
-   */
-  selectionAdorner: Adorner | null = null;
-  /**
-   * Calculate multiple selected items bounds adorner
-   */
-  calculateSelectionsAdorner(nodes: TreeNode[]): Adorner {
-    if (!nodes && nodes.length <= 1) {
-      this.selectionAdorner = null;
-    } else {
-      let globalBBox: DOMRect = null;
-      nodes.forEach((node) => {
-        if (!node) {
-          return;
-        }
-        let nodeBBox = node.getBBox();
-        if (!nodeBBox) {
-          return;
-        }
-        nodeBBox = Utils.matrixRectTransform(
-          nodeBBox,
-          node.getScreenCTM(),
-          true
-        );
-        if (!globalBBox) {
-          globalBBox = nodeBBox;
-        } else {
-          globalBBox = Utils.mergeRects(globalBBox, nodeBBox);
-        }
-      });
-      if (globalBBox) {
-        const toSet = Adorner.fromDOMRect(globalBBox);
-        toSet.elementAdorner = false;
-        this.selectionAdorner = toSet;
-      } else {
-        this.selectionAdorner = null;
-      }
-    }
 
-    return this.selectionAdorner;
-  }
-  getActiveAdorners(): Adorner[] {
-    const adorners = this.getSelected().map((p) => p.getAdorners());
-    if (this.selectionAdorner) {
-      adorners.push(this.selectionAdorner);
-    }
-    if (this.pathDataSubject.bounds) {
-      // adorners.push(this.pathDataSubject.bounds);
-    }
-
-    return adorners;
-  }
   deselectAdorner() {
     this.setSelectedAdorner(AdornerType.None);
   }

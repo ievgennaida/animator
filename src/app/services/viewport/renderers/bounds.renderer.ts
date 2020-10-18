@@ -7,10 +7,11 @@ import { MouseOverService } from "../../mouse-over.service";
 import { OutlineService } from "../../outline.service";
 import { SelectionService } from "../../selection.service";
 import { Utils } from "../../utils/utils";
-import { Adorner } from "../adorners/adorner";
+import { Adorner, AdornerMode } from "../adorners/adorner";
 import { AdornerType } from "../adorners/adorner-type";
 import { BaseRenderer } from "./base.renderer";
 import { TransformsService } from "../transformations/transforms.service";
+import { AdornersService } from "../../adorners-service";
 
 /**
  * Elements bounds renderer
@@ -22,7 +23,7 @@ export class BoundsRenderer extends BaseRenderer {
   constructor(
     protected outlineService: OutlineService,
     protected logger: LoggerService,
-    private selectionService: SelectionService,
+    private adornersService: AdornersService,
     private mouseOverService: MouseOverService,
     private transform: TransformsService
   ) {
@@ -54,16 +55,7 @@ export class BoundsRenderer extends BaseRenderer {
       this.invalidate();
     }
   }
-  private _drawNodeHandles = true;
-  get drawNodeHandles(): boolean {
-    return this._drawNodeHandles;
-  }
-  set drawNodeHandles(value: boolean) {
-    if (this._drawNodeHandles !== value) {
-      this._drawNodeHandles = value;
-      this.invalidate();
-    }
-  }
+
   getAdornerStroke(adorner: Adorner, adornerType: AdornerType): string {
     const isSelected = this.mouseOverService.isMouseOverAdornerHandle(
       adorner,
@@ -236,26 +228,7 @@ export class BoundsRenderer extends BaseRenderer {
     ctx.fillText(text, center.x - measured.width / 2, center.y + hOffset);
     ctx.restore();
   }
-  isShowHandles(aboutToBeRendered: TreeNode[] = null) {
-    if (!this.drawNodeHandles) {
-      return false;
-    }
-    // TODO:
-    return true;
-    // const renderable = aboutToBeRendered || this.getRenderable();
-    // const multiple = !!renderable && renderable.length > 1;
-    // return !multiple;
-  }
 
-  getRenderable(): TreeNode[] {
-    const nodes = this.selectionService.getSelected();
-    if (nodes && nodes.length > 0) {
-      const renderable = nodes.filter((node) => !!node.getElement());
-      return renderable;
-    }
-
-    return [];
-  }
   redraw() {
     if (!this.ctx) {
       return;
@@ -263,39 +236,36 @@ export class BoundsRenderer extends BaseRenderer {
     const ctx = this.ctx;
     this.invalidated = false;
     this.clear();
-    // TODO:
-    const multiple = false;
 
-    const elementsColor =
-      multiple || this.suppressMainSelection
-        ? consts.altSelectionStroke
-        : consts.mainSelectionStroke;
-    const elementsThickness =
-      multiple || this.suppressMainSelection
-        ? consts.altSelectionThickness
-        : consts.mainSelectionThickness;
-    const drawSmallBounds = true;
-    const adorners = this.selectionService.getActiveAdorners();
-
+    const adorners = this.adornersService.getActiveAdorners();
+    const multiple = !!adorners.find((p) => p.mode === AdornerMode.Selection);
+    const activeTransactions = this.transform.transactions || [];
     adorners.forEach((adorner) => {
       if (adorner) {
+        const main = adorner.mode === AdornerMode.Selection;
+        const isAlt = (multiple || this.suppressMainSelection) && !main;
+        const elementsColor = isAlt
+          ? consts.altSelectionStroke
+          : consts.mainSelectionStroke;
+        const elementsThickness = isAlt
+          ? consts.altSelectionThickness
+          : consts.mainSelectionThickness;
+
         adorner = adorner.toScreen().matrixTransform(this.screenCTM);
-        if (drawSmallBounds) {
-          this.drawAdornerRect(ctx, elementsThickness, elementsColor, adorner);
+        this.drawAdornerRect(ctx, elementsThickness, elementsColor, adorner);
+
+        if (this.adornersService.isAdornerHandlesActive(adorner)) {
+          this.drawAdornersHandles(ctx, adorner);
         }
-        // if (adorner.node) {
-        // if (!multiple && drawSmallBounds) {
+        if (main) {
+          // Don't show center during the transaction:
+          if (!activeTransactions || activeTransactions.length === 0) {
+            this.drawCross(ctx, adorner.centerTransform);
+          }
+        }
         // draw when resized.
         // this.drawTextOnLine(ctx, "200px", Adorner.topLeft, Adorner.topRight, Adorner.bottomLeft);
         // this.drawTextOnLine(ctx, "100px", Adorner.topRight, Adorner.bottomRight, Adorner.topLeft);
-        // if (node.allowResize && this.drawNodeHandles) {
-        if (adorner.node) {
-          this.drawAdornersHandles(ctx, adorner);
-        }
-        // this.drawCross(ctx, adorner.centerTransform);
-        // }
-        // }
-        // }
       }
     });
 

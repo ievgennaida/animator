@@ -4,6 +4,7 @@ import {
   PathDataHandleType,
 } from "src/app/models/path-data-handle";
 import { MouseEventArgs } from "../../models/mouse-event-args";
+import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
 import { IntersectionService } from "../intersection.service";
@@ -19,9 +20,9 @@ import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { PathRenderer } from "./renderers/path.renderer";
 import { SelectorRenderer } from "./renderers/selector.renderer";
 import { SelectionTool } from "./selection.tool";
+import { MatrixTransform } from "./transformations/matrix-transform";
 import { PathTransform } from "./transformations/path-transform";
 import { TransformsService } from "./transformations/transforms.service";
-import { MatrixTransform } from "./transformations/matrix-transform";
 
 @Injectable({
   providedIn: "root",
@@ -34,6 +35,7 @@ export class PathDirectSelectionTool extends SelectionTool {
   mouseDownPos: DOMPoint = null;
   iconName = "navigation_outline";
   constructor(
+    // TODO: decouple, use selection as reference
     private pathRenderer: PathRenderer,
     transformsService: TransformsService,
     viewService: ViewService,
@@ -47,7 +49,8 @@ export class PathDirectSelectionTool extends SelectionTool {
     mouseOverService: MouseOverService,
     mouseOverRenderer: MouseOverRenderer,
     cursor: CursorService,
-    contextMenu: ContextMenuService
+    contextMenu: ContextMenuService,
+    adornersService: AdornersService
   ) {
     super(
       transformsService,
@@ -62,7 +65,8 @@ export class PathDirectSelectionTool extends SelectionTool {
       mouseOverService,
       mouseOverRenderer,
       cursor,
-      contextMenu
+      contextMenu,
+      adornersService
     );
   }
 
@@ -133,9 +137,7 @@ export class PathDirectSelectionTool extends SelectionTool {
         transforms.forEach((p) => {
           p.pathHandles = handles.filter((handle) => handle.node === p.node);
         });
-        this.transformsService.start(
-          transforms as MatrixTransform[]
-        );
+        this.transformsService.start(transforms as MatrixTransform[]);
       }
     }
   }

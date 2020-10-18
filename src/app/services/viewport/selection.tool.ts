@@ -3,6 +3,7 @@ import { CursorType } from "src/app/models/cursor-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { MouseEventArgs } from "../../models/mouse-event-args";
+import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
 import { IntersectionService } from "../intersection.service";
@@ -49,7 +50,8 @@ export class SelectionTool extends BaseSelectionTool {
     protected mouseOverService: MouseOverService,
     protected mouseOverRenderer: MouseOverRenderer,
     protected cursor: CursorService,
-    protected contextMenu: ContextMenuService
+    protected contextMenu: ContextMenuService,
+    protected adornersService: AdornersService
   ) {
     super(selectorRenderer, viewService, logger, panTool);
   }
@@ -131,14 +133,14 @@ export class SelectionTool extends BaseSelectionTool {
         // Mouse should be released in order to avoid drag by mistake.
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const adorners = this.selectionService.getActiveAdorners();
-        const showHandles = this.boundsRenderer.isShowHandles();
-        const handle = showHandles
-          ? this.intersectionService.getAdornerHandleIntersection(
-              event.screenPoint,
-              adorners
-            )
-          : null;
+        const adorners = this.adornersService.getActiveAdorners();
+        const adornersWithActiveHandles = adorners.filter((p) =>
+          this.adornersService.isAdornerHandlesActive(p)
+        );
+        const handle = this.intersectionService.getAdornerHandleIntersection(
+          event.screenPoint,
+          adornersWithActiveHandles
+        );
         if (!handle) {
           this.mouseOverService.leaveHandle();
         } else if (!this.mouseOverService.isMouseOverHandle(handle)) {

@@ -1,6 +1,6 @@
 import { TimelineRow } from "animation-timeline-js";
 import { Utils } from "../services/utils/utils";
-import { Adorner } from "../services/viewport/adorners/adorner";
+import { Adorner, AdornerMode } from "../services/viewport/adorners/adorner";
 import { IBBox } from "./interfaces/bbox";
 import { ICTMProvider } from "./interfaces/ctm-provider";
 import { baseLayer } from "./Lottie/layers/baseLayer";
@@ -97,7 +97,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     );
     adorner.node = this;
     adorner.isScreen = false;
-    adorner.elementAdorner = true;
+    adorner.mode = AdornerMode.ElementsBounds;
     return adorner;
   }
   cleanCache() {

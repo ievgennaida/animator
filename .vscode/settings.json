@@ -37,6 +37,7 @@
         "tpath",
         "tslib",
         "unrotated",
+        "untransform",
         "visibilitychange",
         "vpath",
         "workarea",

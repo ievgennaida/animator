@@ -14,6 +14,7 @@ import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
 import { ToolsService } from "./viewport/tools.service";
 import { TransformsService } from "./viewport/transformations/transforms.service";
 import { BaseRenderer } from "./viewport/renderers/base.renderer";
+import { AdornersService } from "./adorners-service";
 
 /**
  * Wire services together
@@ -31,6 +32,7 @@ export class WireService {
     transformsService: TransformsService,
     gridLinesRenderer: GridLinesRenderer,
     adornersRenderer: AdornersRenderer,
+    private adornersService: AdornersService,
     private selectionService: SelectionService,
     viewService: ViewService,
     toolsService: ToolsService,
@@ -40,22 +42,24 @@ export class WireService {
     toolsService.activeToolChanged().subscribe((activeTool) => {
       BaseRenderer.runSuspendedRenderers(() => {
         const isSelectionToolActive = activeTool === toolsService.selectionTool;
-        boundsRenderer.drawNodeHandles = isSelectionToolActive;
+        adornersService.adornerHandlesActive = isSelectionToolActive;
         boundsRenderer.suppressMainSelection = !isSelectionToolActive;
         if (activeTool !== toolsService.pathTool) {
           mouseOverService.pathDataSubject.setNone();
           selectionService.pathDataSubject.setNone();
         }
+        boundsRenderer.invalidate();
       }, pathRenderer);
     });
     selectionService.pathDataSubject.subscribe(() => {
       boundsRenderer.invalidate();
+      // Recalculate path data adorners on selection change
       selectionService.pathDataSubject.calculateHandlesBounds();
     });
     selectionService.selected.subscribe((state) => {
       BaseRenderer.runSuspendedRenderers(
         () => {
-          selectionService.calculateSelectionsAdorner(selectionService.getSelected());
+          adornersService.buildSelectionAdorner(selectionService.getSelected());
           mouseOverService.pathDataSubject.leaveNodes(state.removed);
           // Deselect any path data were selected.
           selectionService.pathDataSubject.leaveNodes(state.removed);
@@ -114,7 +118,9 @@ export class WireService {
   }
 
   cleanCache() {
-    this.selectionService.calculateSelectionsAdorner(this.selectionService.getSelected());
+    this.adornersService.buildSelectionAdorner(
+      this.selectionService.getSelected()
+    );
     this.selectionService.pathDataSubject.calculateHandlesBounds();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }

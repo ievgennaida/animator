@@ -256,7 +256,7 @@ export class Utils {
         rect.x,
         rect.y + rect.height
       ).matrixTransform(matrix);
-      return Utils.pointsBounds(topLeft, bottomRight, topRight, bottomLeft);
+      return Utils.getPointsBounds(topLeft, bottomRight, topRight, bottomLeft);
     } else {
       return new DOMRect(
         topLeft.x,
@@ -271,7 +271,7 @@ export class Utils {
    * Get Rect bounds from a list of points.
    * @param points List of points to analyze.
    */
-  public static pointsBounds(...points: DOMPoint[]): DOMRect | null {
+  public static getPointsBounds(...points: DOMPoint[]): DOMRect | null {
     if (!points || points.length === 0) {
       return null;
     }

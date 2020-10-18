@@ -2,14 +2,14 @@ import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { ChangeStateMode, StateSubject } from "./state-subject";
 import { Utils } from "./utils/utils";
-import { Adorner } from "./viewport/adorners/adorner";
+import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
 /**
  * Subject to track selected/mouse over path data handles.
  */
 export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
   bounds: Adorner | null;
   /**
-   * Calculate multiple selected items adorner
+   * Calculate multiple selected path data adorners
    */
   calculateHandlesBounds() {
     const points = (this.getValues() || []).filter(
@@ -30,9 +30,9 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
         p = Utils.toScreenPoint(node, p);
         return p;
       });
-      const bounds = Utils.pointsBounds(...screenPoints);
+      const bounds = Utils.getPointsBounds(...screenPoints);
       this.bounds = new Adorner();
-      this.bounds.elementAdorner = false;
+      this.bounds.mode = AdornerMode.ElementsBounds;
       // Utils.shrinkRect(, 1, 1)
       this.bounds.setRect(bounds);
     }
