@@ -1,15 +1,12 @@
 import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ChangeDetectorRef,
-  ChangeDetectionStrategy,
+    ChangeDetectionStrategy, ChangeDetectorRef, Component,
+    OnInit
 } from "@angular/core";
-import { ToolsService } from "src/app/services/viewport/tools.service";
-import { BaseTool } from "src/app/services/viewport/base.tool";
-
 import { takeUntil } from "rxjs/operators";
-import { BaseComponent } from "../base-component";
+import { BaseTool } from "src/app/services/viewport/base.tool";
+import { ToolsService } from "src/app/services/viewport/tools.service";
+import { BaseComponent } from "../../base-component";
+
 
 @Component({
   selector: "app-toolbox",
