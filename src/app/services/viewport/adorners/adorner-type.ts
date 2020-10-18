@@ -98,7 +98,7 @@ export class AdornerTypeUtils {
    * @param bounds rect bounds.
    * @param handle adorner type.
    */
-  static getRectPoint(bounds: DOMRect, handle: AdornerType): DOMPoint {
+  static getAdornerPosition(bounds: DOMRect, handle: AdornerType): DOMPoint {
     const transformPoint = new DOMPoint(bounds.x, bounds.y);
 
     if (
