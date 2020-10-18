@@ -4,9 +4,8 @@
     <app-toolbox></app-toolbox>
     <div class="drawer">
       <div class="central-container">
-        <div>
-          <app-breadcrumb *ngIf="breadcrumbsVisible"></app-breadcrumb>
-        </div>
+        <app-tool-commands></app-tool-commands>
+        <app-breadcrumb *ngIf="breadcrumbsVisible"></app-breadcrumb>
         <app-player #player></app-player>
         <div class="player-overlay" *ngIf="codeVisible">
           <app-output></app-output>

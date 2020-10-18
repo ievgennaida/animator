@@ -1,0 +1,5 @@
+<button mat-button *ngFor="let command of commands || []" [attr.title]="command.tooltip"
+    [class.active]="command?.active || false" (click)="onActionClicked(command)">
+    <mat-icon [svgIcon]="command.icon">
+    </mat-icon>
+</button>

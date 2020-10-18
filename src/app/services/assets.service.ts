@@ -15,6 +15,8 @@ export class AssetsService {
     const icons = [
       "crop_square",
       "ink_pen",
+      "crop_16_9-black-18dp-transformed",
+      "crop_16_9-black-18dp",
       "navigation_outline",
       "navigation",
       "pan_tool",

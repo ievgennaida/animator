@@ -6,6 +6,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatListModule } from "@angular/material/list";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from "@angular/material/tree";
 import { BrowserModule } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -34,9 +35,8 @@ import { PropertiesComponent } from "./components/properties/properties.componen
 import { TextComponent } from "./components/properties/text/text.component";
 import { TimelineComponent } from "./components/timeline/timeline.component";
 import { MainToolbarComponent } from "./components/toolbars/main-toolbar/main-toolbar.component";
-import { ToolSettingsComponent } from "./components/toolbars/tool-settings/tool-settings.component";
+import { ToolCommandsComponent } from './components/toolbars/tool-commands/tool-commands.component';
 import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.component";
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -64,7 +64,7 @@ import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.componen
     MenuComponent,
     MouseTrackerComponent,
     BreadcrumbItemComponent,
-    ToolSettingsComponent,
+    ToolCommandsComponent,
   ],
   imports: [
     ResizableModule,
@@ -74,6 +74,7 @@ import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.componen
     HttpClientModule,
     MatListModule,
     MatMenuModule,
+    MatTooltipModule,
     MatButtonToggleModule,
     NoopAnimationsModule,
     MatButtonModule,

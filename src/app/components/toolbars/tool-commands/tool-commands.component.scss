@@ -1,0 +1,43 @@
+:host {
+  background-color: #383838;
+  height: 30px;
+  padding: 0 10px !important;
+  display: flex;
+  overflow: hidden;
+  gap: 5px;
+}
+button[mat-button] {
+  height: 100%;
+  min-width: 34px;
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+  line-height: 100%;
+  position: relative;
+  border: none !important;
+  &:hover {
+    color: white;
+  }
+  button {
+    div {
+      padding: 0 10px !important;
+    }
+  }
+  mat-icon {
+    color: #adadad;
+    height: 100%;
+    padding: 3px;
+  }
+}
+.active {
+  background-color: #323232;
+  width: 2px;
+  height: 100%;
+  left: 0;
+  top: 0;
+  position: absolute;
+  mat-icon {
+    color: white;
+    fill: white;
+  }
+}

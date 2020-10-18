@@ -1,8 +1,6 @@
 import { MouseEventArgs } from "../../models/mouse-event-args";
-
 export class BaseTool {
   icon = "";
-
   onActivate() {}
   onDeactivate() {}
   onAnimationFrame() {}

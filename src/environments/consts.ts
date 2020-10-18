@@ -105,4 +105,5 @@ export const consts = {
   showRuler: true,
   gridLineMainColor: "rgba(160, 160, 160, 0.4)",
   gridLineAltColor: "rgba(160, 160, 160, 0.2)",
+  showTransformedBBoxes: true,
 };
