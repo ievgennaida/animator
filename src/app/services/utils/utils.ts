@@ -267,6 +267,10 @@ export class Utils {
     }
   }
 
+  /**
+   * Get Rect bounds from a list of points.
+   * @param points List of points to analyze.
+   */
   public static pointsBounds(...points: DOMPoint[]): DOMRect | null {
     if (!points || points.length === 0) {
       return null;
