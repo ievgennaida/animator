@@ -7,7 +7,7 @@ import { PathDataSelectionSubject } from "./path-data-subject";
 import { ChangeStateMode } from "./state-subject";
 import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
-import { Adorner } from './viewport/adorners/adorner';
+import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
 
 @Injectable({
   providedIn: "root",
@@ -69,10 +69,16 @@ export class MouseOverService {
     if (!currentHandle) {
       return false;
     }
-    if (adorner && currentHandle.adorner !== adorner) {
-      return false;
+    if (
+      (adorner &&
+        currentHandle.adorner &&
+        currentHandle.adorner.node === adorner.node) ||
+      (currentHandle.adorner.mode === AdornerMode.Selection &&
+        currentHandle.adorner.mode === adorner.mode)
+    ) {
+      return Utils.bitwiseEquals(currentHandle.handles, data);
     }
-    return Utils.bitwiseEquals(currentHandle.handles, data);
+    return true;
   }
 
   getValue(): TreeNode {

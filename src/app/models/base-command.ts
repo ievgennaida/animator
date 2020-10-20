@@ -4,6 +4,7 @@
 export interface BaseCommand {
   tooltip?: string;
   title?: string;
+  align?: string;
   icon: string;
   active: boolean;
   group?: string;

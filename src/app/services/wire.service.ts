@@ -122,6 +122,7 @@ export class WireService {
       this.selectionService.getSelected()
     );
     this.selectionService.pathDataSubject.calculateHandlesBounds();
+    this.adornersService.cleanCache();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }
   init() {}

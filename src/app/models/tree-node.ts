@@ -159,26 +159,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     this.ctmCache = element.getScreenCTM();
     return this.ctmCache;
   }
-  /**
-   * Get adorner manipulation points points in screen coordinates.
-   */
-  getAdorners(): Adorner {
-    if (this.cacheAdorners) {
-      return this.cacheAdorners;
-    }
 
-    this.cacheAdorners = new Adorner();
-    this.cacheAdorners.node = this;
-    const bounds = this.getBBox();
-    this.cacheAdorners.setRect(bounds);
-    this.cacheAdorners.setCenterTransform(
-      Utils.getCenterTransform(this.getElement(), bounds)
-    );
-    this.cacheAdorners = this.cacheAdorners.matrixTransform(
-      this.getScreenCTM()
-    );
-    return this.cacheAdorners;
-  }
   /**
    * get cached bbox.
    */

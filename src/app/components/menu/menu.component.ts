@@ -1,19 +1,18 @@
 import {
-  Component,
-  OnInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  Component,
   ElementRef,
-  ViewChild,
   OnDestroy,
+  OnInit,
+  ViewChild
 } from "@angular/core";
-import { ViewService } from "src/app/services/view.service";
-import { ViewMode } from "src/app/models/view-mode";
-import { consts } from "src/environments/consts";
-import { Utils } from "src/app/services/utils/utils";
-import { StorageService } from "src/app/services/storage.service";
 import { takeUntil } from "rxjs/operators";
-
+import { ViewMode } from "src/app/models/view-mode";
+import { ConfigService } from "src/app/services/config-service";
+import { Utils } from "src/app/services/utils/utils";
+import { ViewService } from "src/app/services/view.service";
+import { consts } from "src/environments/consts";
 import { BaseComponent } from "../base-component";
 
 @Component({
@@ -27,7 +26,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     private viewService: ViewService,
     private cdRef: ChangeDetectorRef,
     private hostElementRef: ElementRef,
-    private storage: StorageService
+    private config: ConfigService
   ) {
     super();
     this.cdRef.detach();
@@ -38,8 +37,8 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   resizeMenuPanel = false;
   resizeCursorPrecision = 6;
   // accordion:
-  propExpanded = this.storage.propExpanded;
-  outlineExpanded = this.storage.outlineExpanded;
+  propExpanded = this.config.propExpanded;
+  outlineExpanded = this.config.outlineExpanded;
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
 
@@ -65,10 +64,10 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const defaultSize =
-      this.storage.menuPanelSize || consts.appearance.menuPanelSize;
-    this.storage.menuPanelSize = this.setPanelSize(defaultSize);
-    this.propExpanded = this.storage.propExpanded;
-    this.outlineExpanded = this.storage.outlineExpanded;
+      this.config.menuPanelSize || this.config.get().appearance.menuPanelSize;
+    this.config.menuPanelSize = this.setPanelSize(defaultSize);
+    this.propExpanded = this.config.propExpanded;
+    this.outlineExpanded = this.config.outlineExpanded;
     this.viewService.emitViewportResized();
     this.viewService.viewModeSubject
       .asObservable()
@@ -78,14 +77,14 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
           this.mode = mode;
           this.stateChanged();
           if (this.mode === ViewMode.Animator) {
-            this.storage.propExpanded = this.propExpanded = true;
+            this.config.propExpanded = this.propExpanded = true;
           }
           this.cdRef.detectChanges();
         }
       });
 
     this.viewService.resized.pipe(takeUntil(this.destroyed$)).subscribe(() => {
-      this.storage.menuPanelSize = this.setPanelSize();
+      this.config.menuPanelSize = this.setPanelSize();
       this.cdRef.detectChanges();
     });
     this.cdRef.detectChanges();
@@ -105,12 +104,12 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   }
 
   stateChanged() {
-    this.storage.outlineExpanded = this.outlineExpanded;
-    this.storage.propExpanded = this.propExpanded;
+    this.config.outlineExpanded = this.outlineExpanded;
+    this.config.propExpanded = this.propExpanded;
     const outlineVisible =
       this.outlineExpanded && this.mode !== ViewMode.Animator;
     if (this.propExpanded && outlineVisible) {
-      this.onRescale(this.storage.resizedOutline);
+      this.onRescale(this.config.resizedOutline);
       return;
     }
 
@@ -150,7 +149,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
       if (this.resizeMenuPanel) {
         const size =
           this.initialDragSize + this.dragStartedArgs.clientX - event.clientX;
-        this.storage.menuPanelSize = this.setPanelSize(size);
+        this.config.menuPanelSize = this.setPanelSize(size);
         this.viewService.emitViewportResized();
       } else {
         this.onRescale(
@@ -222,6 +221,6 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     const height = this.resize(percents, 100);
     el1.style.height = height + "%";
     el2.style.height = 100 - height + "%";
-    this.storage.resizedOutline = el1.clientHeight;
+    this.config.resizedOutline = el1.clientHeight;
   }
 }

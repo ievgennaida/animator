@@ -13,16 +13,12 @@ import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
 import { ViewService } from "../view.service";
-import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
+import { AdornerType } from "./adorners/adorner-type";
 import { BaseSelectionTool } from "./base-selection.tool";
 import { PanTool } from "./pan.tool";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectorRenderer } from "./renderers/selector.renderer";
-import {
-  MatrixTransform,
-  TransformationMode,
-} from "./transformations/matrix-transform";
 import { TransformsService } from "./transformations/transforms.service";
 
 /**

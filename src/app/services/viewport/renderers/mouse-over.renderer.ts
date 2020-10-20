@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
+import { AdornersService } from "../../adorners-service";
 import { MouseOverService } from "../../mouse-over.service";
 import { BaseRenderer } from "./base.renderer";
 
@@ -11,7 +12,10 @@ import { BaseRenderer } from "./base.renderer";
   providedIn: "root",
 })
 export class MouseOverRenderer extends BaseRenderer {
-  constructor(private mouseOverService: MouseOverService) {
+  constructor(
+    private mouseOverService: MouseOverService,
+    private adornersService: AdornersService
+  ) {
     super();
   }
   /**
@@ -49,7 +53,7 @@ export class MouseOverRenderer extends BaseRenderer {
         outlineRendered = false;
       }
       if (!outlineRendered) {
-        const adorner = this.node.getAdorners()?.toScreen();
+        const adorner = this.adornersService.getAdorner(this.node)?.toScreen();
         if (adorner) {
           const screenAdorner = adorner.matrixTransform(this.screenCTM);
           const thickness = consts.mouseOverBorderThickness * this.onePixel;

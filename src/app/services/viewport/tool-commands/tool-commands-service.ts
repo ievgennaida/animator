@@ -2,8 +2,7 @@ import { Injectable } from "@angular/core";
 import { BaseCommand } from "src/app/models/base-command";
 import { BaseTool } from "../base.tool";
 import { SelectionTool } from "../selection.tool";
-import { BBoxCommand } from "./bbox-command";
-import { BBoxShowTransformedCommand } from './bbox-show-transformed-command';
+import { BBoxModeCommand } from "./bbox-mode-command";
 
 /**
  * Handle current active tool and services.
@@ -13,8 +12,7 @@ import { BBoxShowTransformedCommand } from './bbox-show-transformed-command';
 })
 export class ToolCommandsService {
   constructor(
-    private bboxRectOnlyCommand: BBoxCommand,
-    private bboxTransformed: BBoxShowTransformedCommand
+    private bboxRectOnlyCommand: BBoxModeCommand
   ) {}
 
   getCommands(tool: BaseTool): BaseCommand[] {
@@ -22,7 +20,7 @@ export class ToolCommandsService {
       return [];
     }
     if (tool instanceof SelectionTool) {
-      return [this.bboxRectOnlyCommand, this.bboxTransformed];
+      return [this.bboxRectOnlyCommand];
     }
     return [];
   }
