@@ -40,14 +40,6 @@ export class PathTransform extends MatrixTransform {
     const transformOrigin = this.transformOrigin;
     const transformedCenter = Utils.toScreenPoint(element, transformOrigin);
     this.startOffset = -Utils.angle(transformedCenter, pos);
-
-    const matrix = this.transformToElement(
-      element,
-      element.parentNode as SVGGraphicsElement
-    );
-
-    const decomposed = this.decomposeMatrix(matrix);
-    this.startOffset -= decomposed.rotateZ;
   }
 
   rotateByMouse(currentViewPoint: DOMPoint): boolean {

@@ -114,6 +114,7 @@ export class MatrixTransform {
     );
     this.startOffset = -Utils.angle(transformedCenter, pos);
 
+    // Get current transform matrix
     const matrix = this.transformToElement(
       element,
       element.parentNode as SVGGraphicsElement
