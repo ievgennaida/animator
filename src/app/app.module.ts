@@ -6,7 +6,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatListModule } from "@angular/material/list";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTreeModule } from "@angular/material/tree";
 import { BrowserModule } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -15,6 +15,7 @@ import { AppComponent } from "./app.component";
 import { ContextMenuComponent } from "./components/context-menu/context-menu.component";
 import { FooterToolbarComponent } from "./components/footer-toolbar/footer-toolbar.component";
 import { MouseTrackerComponent } from "./components/footer-toolbar/mouse-tracker/mouse-tracker.component";
+import { HistoryComponent } from "./components/menu/history/history.component";
 import { MenuComponent } from "./components/menu/menu.component";
 import { OutlineNodeComponent } from "./components/outline/outline-node/outline-node.component";
 import { OutlineComponent } from "./components/outline/outline/outline.component";
@@ -35,7 +36,7 @@ import { PropertiesComponent } from "./components/properties/properties.componen
 import { TextComponent } from "./components/properties/text/text.component";
 import { TimelineComponent } from "./components/timeline/timeline.component";
 import { MainToolbarComponent } from "./components/toolbars/main-toolbar/main-toolbar.component";
-import { ToolCommandsComponent } from './components/toolbars/tool-commands/tool-commands.component';
+import { ToolCommandsComponent } from "./components/toolbars/tool-commands/tool-commands.component";
 import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.component";
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.componen
     MouseTrackerComponent,
     BreadcrumbItemComponent,
     ToolCommandsComponent,
+    HistoryComponent,
   ],
   imports: [
     ResizableModule,

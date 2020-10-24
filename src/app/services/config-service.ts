@@ -8,9 +8,6 @@ import { consts } from "src/environments/consts";
 })
 export class ConfigService {
   menuPanelSize = consts.appearance.menuPanelSize;
-  resizedOutline = 0;
-  propExpanded = true;
-  outlineExpanded = true;
   /**
    * Get config saved for a user.
    */

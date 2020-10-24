@@ -1,22 +1,19 @@
 <div class="accordion" (window:mousemove)="dragMove($event)" (window:mouseup)="dragFinished($event)">
-    <div #propertiesPanel class="panel" [class.expanded]="propExpanded">
-        <div class="header" (click)="toggleProp()">
-            <mat-icon>{{propExpanded?'expand_less':'expand_more'}}</mat-icon>
-            <div class="header-text">Properties</div>
+    <div #panelElement id="{{'currentPanel'+i}}" *ngFor="let panel of panels; let i = index"
+        [class]="panel.expanded?'panel panel-expanded':'panel'"
+        [style.flexBasis]="panel.expanded ? panel.height+'%' : 'auto'" [class.expanded]="panel.expanded">
+        <div class="header noselect nodrag" (click)="toggleMenu(panel)">
+            <mat-icon>{{panel.expanded?'expand_less':'expand_more'}}</mat-icon>
+            <div class="header-text">{{panel.title}}</div>
         </div>
-        <app-properties *ngIf="propExpanded"></app-properties>
-    </div>
-    <div #outlinePanel class="panel" [class.expanded]="outlineExpanded" *ngIf="mode !== ViewMode.Animator">
-        <div *ngIf="propExpanded && outlineExpanded" class="resize"
-            [style.height.px]="resizeCursorPrecision" (mousedown)="dragStarted($event)">
-        </div>
-        <div class="header" (click)="toggleOutline()">
-            <mat-icon>{{outlineExpanded?'expand_less':'expand_more'}}</mat-icon>
-            <div class="header-text">Outline</div>
-        </div>
-        <app-outline *ngIf="outlineExpanded" allowScroll="true">
+        <app-outline class="panel-content" *ngIf="panel.expanded && panel.id == 'outline'" allowScroll="true">
         </app-outline>
+        <app-properties class="panel-content" *ngIf="panel.expanded && panel.id == 'properties'"></app-properties>
+        <app-history class="panel-content" *ngIf="panel.expanded && panel.id == 'history'"></app-history>
+        <div *ngIf="panel.expanded && i !== panels.length-1 && lastExpandedIndex !== i" class="resize"
+            [style.height.px]="resizeCursorPrecision" (mousedown)="dragStartedNode($event, i)">
+        </div>
     </div>
 </div>
-<div class="resize-menu nodrag" [style.width.px]="resizeCursorPrecision" (mousedown)="dragStarted($event, true)">
+<div class="resize-menu nodrag" [style.width.px]="resizeCursorPrecision" (mousedown)="dragStartedPanel($event)">
 </div>

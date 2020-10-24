@@ -3,6 +3,7 @@
   height: 100%;
   width: 100%;
 }
+$headerheight: 30px;
 .accordion {
   overflow: hidden;
   position: absolute;
@@ -11,41 +12,35 @@
   width: 100%;
   align-items: stretch;
   flex-direction: column;
-  border-radius: 0px !important;
-  box-shadow: none !important;
+  .panel-expanded {
+    flex-grow: 1;
+    min-height: 150px;
+  }
   .panel {
     overflow: hidden;
-    border-radius: 0px !important;
-    box-shadow: none !important;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     align-content: stretch;
     background: none;
     height: auto;
+    min-height: $headerheight;
   }
   .panel:only-child {
     .header {
       display: none;
+      min-height: $headerheight;
     }
   }
   .expanded {
-    height: 50%;
+    height: 100%;
   }
 }
 
-app-outline {
+.panel-content {
   height: 100%;
   overflow: hidden;
 }
-app-properties {
-  height: 100%;
-  overflow: hidden;
-}
-mat-expansion-panel-header {
-  min-height: 30px;
-}
-$headerheight: 30px;
 .resize-menu {
   position: absolute;
   height: 100%;
@@ -62,7 +57,7 @@ $headerheight: 30px;
   cursor: row-resize;
 }
 .header {
-  min-height: 30px;
+  min-height: $headerheight;
   height: $headerheight;
   padding: 0px 10px;
   background-color: #424242;

@@ -1,3 +1,4 @@
+import { MenuPanel } from "src/app/services/menu-service";
 import { ViewMode } from "../app/models/view-mode";
 
 export const consts = {
@@ -107,3 +108,27 @@ export const consts = {
   gridLineAltColor: "rgba(160, 160, 160, 0.2)",
   showTransformedBBoxes: true,
 };
+
+export const defaultMenu = [
+  {
+    id: "history",
+    expanded: true,
+    visible: false,
+    title: "History",
+    height: 100,
+  },
+  {
+    id: "properties",
+    expanded: true,
+    visible: true,
+    title: "Properties",
+    height: 100,
+  },
+  {
+    id: "outline",
+    expanded: true,
+    visible: true,
+    title: "Outline",
+    height: 100,
+  },
+] as MenuPanel[];
