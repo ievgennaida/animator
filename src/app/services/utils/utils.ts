@@ -225,7 +225,55 @@ export class Utils {
       return null;
     }
   }
+  /**
+   * Get element current transformation matrix.
+   * @param element element to get matrix for.
+   */
+  public static getMatrix(element: SVGGraphicsElement): DOMMatrix | null {
+    if (!element) {
+      return null;
+    }
+    return Utils.transformToElement(
+      element,
+      element.parentNode as SVGGraphicsElement
+    );
+  }
+  public static transformToElement(
+    fromElement: SVGGraphicsElement,
+    toElement: SVGGraphicsElement
+  ): DOMMatrix | null {
+    if (!fromElement || !fromElement.getScreenCTM) {
+      return null;
+    }
+    if (!toElement) {
+      return fromElement.getScreenCTM();
+    }
 
+    const toMatrix = toElement.getScreenCTM();
+    const fromMatrix = fromElement.getScreenCTM();
+    if (!toMatrix || !fromMatrix) {
+      return null;
+    }
+    return toMatrix.inverse().multiply(fromMatrix);
+  }
+  /**
+   * Set matrix as transform attribute for the element.
+   */
+  public static setMatrix(element: SVGGraphicsElement, matrix: DOMMatrix) {
+    const transform = Utils.getElementTransform(element);
+    transform.setMatrix(matrix);
+    element.transform.baseVal.initialize(transform);
+    return true;
+  }
+  /**
+   * Get Current transforms
+   */
+  public static getElementTransform(element: SVGGraphicsElement): SVGTransform {
+    const transform =
+      element.transform.baseVal.consolidate() ||
+      element.ownerSVGElement.createSVGTransform();
+    return transform;
+  }
   /**
    * Transform rectangle by a matrix.
    * @param rect rectangle to transform.
@@ -233,7 +281,7 @@ export class Utils {
    * @param recalculateBounds Use when rectangle can be rotated.
    * In this case rotated bounds will be returned.
    */
-  static matrixRectTransform(
+  public static matrixRectTransform(
     rect: DOMRect,
     matrix: DOMMatrix,
     recalculateBounds = false
@@ -401,6 +449,9 @@ export class Utils {
     return Utils.mergeRects(...rects);
   }
   static reverseVector(a: DOMPoint): DOMPoint {
+    if (!a) {
+      return null;
+    }
     const vector = new DOMPoint(-a.x, -a.y);
     return vector;
   }
