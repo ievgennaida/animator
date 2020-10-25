@@ -63,14 +63,33 @@ export class PathTransform extends MatrixTransform {
   ): boolean {
     offsetY = this.normalizeScale(offsetY);
     offsetX = this.normalizeScale(offsetX);
-    const transform = this.getElement().transform.baseVal.consolidate();
-    let matrix = this.generateScaleMatrix(
-      offsetX,
-      offsetY,
-      transformPoint,
-      // transform?.matrix
+    const matrix = this.generateScaleMatrix(offsetX, offsetY, transformPoint);
+    const changed = this.transformInitialPathByMatrix(matrix);
+    return changed;
+  }
+
+  scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {
+    const element = this.getElement();
+    const parent = element.parentNode as SVGGraphicsElement;
+    // Get original to screen matrix from which transformation was started:
+    const parentCTM = parent.getScreenCTM();
+    const toScreenMatrix = parentCTM.multiply(this.initTransformMatrix);
+
+    const newTransformationMatrix = this.convertScreenMatrixToElementMatrix(
+      screenScaleMatrix,
+      toScreenMatrix,
+      element.ownerSVGElement.createSVGMatrix()
     );
 
+    // Apply new created transform back to the element:
+    return this.transformInitialPathByMatrix(newTransformationMatrix);
+  }
+
+  /**
+   * Apply matrix to originally stored path data.
+   * @param matrix to be applied.
+   */
+  transformInitialPathByMatrix(matrix: DOMMatrix): boolean {
     const pathData = this.initPathData.clone();
     // matrix = matrix.multiply(transform?.matrix);
     const changed = this.transformPathByMatrix(
@@ -81,7 +100,6 @@ export class PathTransform extends MatrixTransform {
     if (changed) {
       this.node.setPathData(pathData);
     }
-
     return changed;
   }
   /**
