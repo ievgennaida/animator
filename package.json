@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "update-packages": "npm install -g @angular/cli && ng update --all=true --allowDirty=true",
+    "update-packages": "npm install -g @angular/cli && ng update--allowDirty=true",
     "packages-update": "npm run update-packages"
   },
   "private": true,
