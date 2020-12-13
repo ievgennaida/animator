@@ -10,7 +10,7 @@ import { consts } from "src/environments/consts";
 })
 export class SelectorRenderer extends BaseRenderer {
   selectionRectElement: HTMLElement;
-  rect: DOMRect;
+  rect: DOMRect | null = null;
 
   constructor(
     protected viewService: ViewService,
@@ -24,7 +24,10 @@ export class SelectorRenderer extends BaseRenderer {
     this.invalidate();
   }
 
-  setRect(rect: DOMRect) {
+  clear() {
+    this.setRect(null);
+  }
+  setRect(rect: DOMRect | null) {
     this.rect = rect;
     this.invalidate();
   }
