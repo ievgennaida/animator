@@ -1,3 +1,4 @@
+import { TreeNode } from "src/app/models/tree-node";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 import { AdornerType } from "../viewport/adorners/adorner-type";
 
@@ -229,18 +230,20 @@ export class Utils {
    * Get element current transformation matrix.
    * @param element element to get matrix for.
    */
-  public static getMatrix(element: SVGGraphicsElement): DOMMatrix | null {
+  public static getMatrix(
+    element: SVGGraphicsElement | TreeNode
+  ): DOMMatrix | null {
     if (!element) {
       return null;
     }
     return Utils.transformToElement(
       element,
-      element.parentNode as SVGGraphicsElement
+      element.parentNode as SVGGraphicsElement | TreeNode
     );
   }
   public static transformToElement(
-    fromElement: SVGGraphicsElement,
-    toElement: SVGGraphicsElement
+    fromElement: SVGGraphicsElement | TreeNode,
+    toElement: SVGGraphicsElement | TreeNode
   ): DOMMatrix | null {
     if (!fromElement || !fromElement.getScreenCTM) {
       return null;
@@ -261,7 +264,9 @@ export class Utils {
    */
   public static setMatrix(element: SVGGraphicsElement, matrix: DOMMatrix) {
     const transform = Utils.getElementTransform(element);
-    transform.setMatrix(matrix);
+    if (matrix) {
+      transform.setMatrix(matrix);
+    }
     element.transform.baseVal.initialize(transform);
     return true;
   }

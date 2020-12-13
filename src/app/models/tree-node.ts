@@ -57,6 +57,9 @@ export class TreeNode implements ICTMProvider, IBBox {
     return !!this.children && this.children.length > 0;
   }
 
+  get parentNode(): TreeNode {
+    return this.parent;
+  }
   get ownerSVGElement(): SVGSVGElement | null {
     return this.getElement()?.ownerSVGElement;
   }
