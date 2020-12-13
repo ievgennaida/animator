@@ -29,10 +29,25 @@ export class PathTransform extends MatrixTransform {
     this.start = elementPoint;
     return isChanged;
   }
+
   beginHandleTransformation(screenPos: DOMPoint, handle: HandleData) {
     super.beginHandleTransformation(screenPos, handle);
-    this.initPathData = this.node.getPathData(false);
+    // this.untransform();
   }
+
+  /**
+   * Remove transformations, keep current path data points at the same places.
+   */
+  untransform() {
+    const element = this.getElement();
+    const currentTransform = Utils.getMatrix(this.node);
+    // Remove current transformation
+    Utils.setMatrix(element, element.ownerSVGElement.createSVGMatrix());
+    this.transformInitialPathByMatrix(currentTransform);
+    this.node.cleanCache();
+    this.initPathData = null;
+  }
+
   beginMouseRotateTransaction(pos: DOMPoint) {
     const element = this.getElement();
     this.mode = TransformationMode.Rotate;
@@ -71,13 +86,15 @@ export class PathTransform extends MatrixTransform {
   scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {
     const element = this.getElement();
     const parent = element.parentNode as SVGGraphicsElement;
-    // Get original to screen matrix from which transformation was started:
-    const parentCTM = parent.getScreenCTM();
-    const toScreenMatrix = parentCTM.multiply(this.initTransformMatrix);
+    // Get original to screen matrix from which transformation was started (anchor for when screen coords are changed on pan)
+    const toScreenMatrix = parent
+      .getScreenCTM()
+      .multiply(this.initTransformMatrix);
 
     const newTransformationMatrix = this.convertScreenMatrixToElementMatrix(
       screenScaleMatrix,
       toScreenMatrix,
+      // Only when transformed element is used
       element.ownerSVGElement.createSVGMatrix()
     );
 
@@ -90,6 +107,9 @@ export class PathTransform extends MatrixTransform {
    * @param matrix to be applied.
    */
   transformInitialPathByMatrix(matrix: DOMMatrix): boolean {
+    if (!this.initPathData) {
+      this.initPathData = this.node.getPathData(false);
+    }
     const pathData = this.initPathData.clone();
     // matrix = matrix.multiply(transform?.matrix);
     const changed = this.transformPathByMatrix(
