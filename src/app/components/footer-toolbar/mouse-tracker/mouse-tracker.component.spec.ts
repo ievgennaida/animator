@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { MouseTrackerComponent } from './mouse-tracker.component';
 
@@ -6,7 +6,7 @@ describe('MouseTrackerComponent', () => {
   let component: MouseTrackerComponent;
   let fixture: ComponentFixture<MouseTrackerComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ MouseTrackerComponent ]
     })

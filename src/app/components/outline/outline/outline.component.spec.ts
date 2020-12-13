@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { OutlineComponent } from './outline.component';
 
@@ -6,7 +6,7 @@ describe('OutlineComponent', () => {
   let component: OutlineComponent;
   let fixture: ComponentFixture<OutlineComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ OutlineComponent ]
     })
