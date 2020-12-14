@@ -7,18 +7,16 @@ import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
 import { IntersectionService } from "../intersection.service";
-import { LoggerService } from "../logger.service";
 import { MouseOverService } from "../mouse-over.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
-import { ViewService } from "../view.service";
 import { AdornerType } from "./adorners/adorner-type";
-import { BaseSelectionTool } from "./base-selection.tool";
-import { PanTool } from "./pan.tool";
+import { AutoPanService } from "./auto-pan-service";
+import { BaseTool } from "./base.tool";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
-import { SelectorRenderer } from "./renderers/selector.renderer";
+import { SelectionRectTracker } from "./selection-rect-tracker";
 import { TransformsService } from "./transformations/transforms.service";
 
 /**
@@ -27,18 +25,15 @@ import { TransformsService } from "./transformations/transforms.service";
 @Injectable({
   providedIn: "root",
 })
-export class SelectionTool extends BaseSelectionTool {
+export class SelectionTool extends BaseTool {
   iconName = "navigation";
-  cachedMouse: TreeNode | null = null;
+
   startedNode: TreeNode | null = null;
   startedHandle: HandleData | null = null;
   lastDeg: number = null;
+  lastUsedArgs: MouseEventArgs | null = null;
   constructor(
     protected transformsService: TransformsService,
-    viewService: ViewService,
-    logger: LoggerService,
-    panTool: PanTool,
-    selectorRenderer: SelectorRenderer,
     protected intersectionService: IntersectionService,
     protected selectionService: SelectionService,
     protected boundsRenderer: BoundsRenderer,
@@ -47,9 +42,11 @@ export class SelectionTool extends BaseSelectionTool {
     protected mouseOverRenderer: MouseOverRenderer,
     protected cursor: CursorService,
     protected contextMenu: ContextMenuService,
-    protected adornersService: AdornersService
+    protected adornersService: AdornersService,
+    protected autoPanService: AutoPanService,
+    protected selectionTracker: SelectionRectTracker
   ) {
-    super(selectorRenderer, viewService, logger, panTool);
+    super();
   }
   onViewportContextMenu(event: MouseEventArgs) {
     const startedNode = this.mouseOverService.mouseOverSubject.getValue();
@@ -58,14 +55,15 @@ export class SelectionTool extends BaseSelectionTool {
     }
     super.onViewportContextMenu(event);
   }
-  selectionStarted(event: MouseEventArgs) {
+
+  onViewportMouseDown(event: MouseEventArgs) {
     this.lastDeg = null;
-    super.selectionStarted(event);
     // don't allow to transform on right click:
     if (event.rightClicked()) {
       this.cleanUp();
       return;
     }
+    this.selectionTracker.start(event);
     const startedNode = this.mouseOverService.getValue();
     const handle = this.mouseOverService.mouseOverHandle;
     if (startedNode || handle) {
@@ -105,28 +103,32 @@ export class SelectionTool extends BaseSelectionTool {
     this.cleanUp();
   }
   cleanUp() {
-    this.mouseOverRenderer.resume();
+    this.lastUsedArgs = null;
     this.lastDeg = null;
-    this.transformsService.cancel();
     this.startedNode = null;
     this.startedHandle = null;
-    super.cleanUp();
+    this.mouseOverRenderer.resume();
+    this.transformsService.cancel();
+    this.selectionTracker.stop();
+    this.autoPanService.stop();
     this.cursor.setCursor(CursorType.Default);
     this.mouseOverService.leaveHandle();
     this.selectionService.deselectAdorner();
   }
 
   onWindowMouseMove(event: MouseEventArgs) {
-    this.trackMousePos(event);
+    this.lastUsedArgs = event;
     if (this.transformsService.isActive()) {
+      // Start transformation of the element by mouse
       this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
       // Don't draw mouse over when transformation is started:
       this.mouseOverRenderer.suspend(true);
-      this.moveByMouse(event);
+      this.applyTransformationByMouseMove(event);
     } else {
+      // Start element or adorner selection.
       if (this.startedNode) {
         // Not allowed to click on a new node and drag.
-        // Mouse should be released in order to avoid drag by mistake.
+        // Mouse should be released in order to avoid drag by mistake, than happens often.
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
         const adorners = this.adornersService.getActiveAdorners();
@@ -145,76 +147,73 @@ export class SelectionTool extends BaseSelectionTool {
 
         this.cursor.setHandleCursor(handle, event.screenPoint);
         if (!handle) {
-          super.onWindowMouseMove(event);
+          this.selectionTracker.update(event);
+          event.preventDefault();
         }
       }
     }
+    const selectionRectVisible =
+      this.selectionTracker.isActive() && !this.selectionTracker.click;
+    if (selectionRectVisible || this.transformsService.isActive()) {
+      this.autoPanService.update(event.clientX, event.clientY);
+    }
   }
 
+  applyTransformationByMouseMove(event: MouseEventArgs): boolean {
+    if (!this.transformsService.isActive()) {
+      return false;
+    }
+    const screenPos = event.getDOMPoint();
+    let isChanged = false;
+    this.boundsRenderer.runSuspended(() => {
+      isChanged = this.transformsService.transformByMouse(screenPos);
+    });
+    return isChanged;
+  }
+
+  onWindowBlur(e) {
+    this.cleanUp();
+  }
+  onWindowMouseUp(e: MouseEventArgs) {
+    this.startSelectionEnd(e);
+  }
+
+  startSelectionEnd(e: MouseEventArgs) {
+    try {
+      this.selectionEnded(e);
+    } finally {
+      this.cleanUp();
+    }
+  }
+  onScroll() {
+    // Transform element when auto pan is running.
+    if (
+      this.lastUsedArgs &&
+      this.selectionTracker.isActive() &&
+      this.autoPanService.isActive() &&
+      this.transformsService.isActive()
+    ) {
+      this.applyTransformationByMouseMove(this.lastUsedArgs);
+    }
+  }
   /**
-   * Override
-   */
-  autoPan(mousePosition: DOMPoint, containerSize: DOMRect): boolean {
-    // override the auto pan code to run it when translate operation is running.
-    const isDone = super.autoPan(mousePosition, containerSize);
-    if (this.transformsService.isActive()) {
-      if (this.currentArgs) {
-        this.moveByMouse(this.currentArgs, false);
-      }
-    }
-    return isDone;
-  }
-  moveByMouse(event: MouseEventArgs, allowPan = true) {
-    if (this.transformsService.isActive()) {
-      const screenPos = event.getDOMPoint();
-
-      this.boundsRenderer.runSuspended(() => {
-        const isChanged = this.transformsService.transformByMouse(screenPos);
-
-        if (isChanged && allowPan) {
-          this.currentArgs = event;
-          this.startAutoPan();
-        }
-      });
-    }
-  }
-
-  onPlayerMouseOut(event: MouseEventArgs) {
-    // TODO: wrong place for this global event. Should be extracted.
-    if (this.cachedMouse && this.cachedMouse.tag !== event.args.target) {
-      const node = this.outlineService
-        .getAllNodes()
-        .find((p) => p.tag === event.args.target);
-      this.mouseOverService.setMouseLeave(node);
-    } else {
-      this.mouseOverService.setMouseLeave(this.cachedMouse);
-      this.cachedMouse = null;
-    }
-  }
-
-  onPlayerMouseOver(event: MouseEventArgs) {
-    const node = this.outlineService
-      .getAllNodes()
-      .find((p) => p.tag === event.args.target);
-    if (!node) {
-      return;
-    }
-
-    this.cachedMouse = node;
-    this.mouseOverService.setMouseOver(node);
-  }
-
-  /**
-   * Override
+   * On selection ended.
    */
   selectionEnded(event: MouseEventArgs) {
-    this.stopAutoPan();
+    this.autoPanService.stop();
+    if (!this.selectionTracker.isActive()) {
+      return;
+    }
+    // Update rect with current pos
+    this.selectionTracker.update(event);
     // No action if transform transaction was running.
+    // Transformation was applied, no need to do selection
     if (
       this.transformsService.isActive() &&
       this.transformsService.isChanged() &&
-      !this.click
+      !this.selectionTracker.click
     ) {
+      this.transformsService.commit();
       return;
     }
 
@@ -230,12 +229,12 @@ export class SelectionTool extends BaseSelectionTool {
       return;
     }
 
-    if (this.click) {
+    if (this.selectionTracker.click) {
       const mouseOverTransform = this.mouseOverService.getValue();
       this.selectionService.setSelected(mouseOverTransform, mode);
     } else if (!this.startedNode) {
       const selected = this.intersectionService.getIntersects(
-        this.selectionRect
+        this.selectionTracker.rect
       ) as TreeNode[];
       this.selectionService.setSelected(selected, mode);
     }

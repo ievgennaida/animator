@@ -1,7 +1,7 @@
 <div class="main">
     <div class="scroll-and-controls-container">
         <app-player-toolbar [style.height.px]="scrollbarsSize"></app-player-toolbar>
-        <div (scroll)="onScroll()" #scrollContainer class="scroll-container">
+        <div (scroll)="onScroll($event)" #scrollContainer class="scroll-container">
             <div #scrollContent class="scroll-content"></div>
         </div>
     </div>

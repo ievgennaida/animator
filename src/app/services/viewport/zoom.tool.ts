@@ -1,30 +1,28 @@
-import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Injectable } from "@angular/core";
-import { LoggerService } from "../logger.service";
-import { ViewService } from "../view.service";
-import { BaseSelectionTool } from "./base-selection.tool";
-import { PanTool } from "./pan.tool";
+import { CursorType } from "src/app/models/cursor-type";
 import { consts } from "src/environments/consts";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 import { CursorService } from "../cursor.service";
-import { TransformsService } from "./transformations/transforms.service";
-import { SelectorRenderer } from "./renderers/selector.renderer";
 import { Utils } from "../utils/utils";
-import { CursorType } from 'src/app/models/cursor-type';
+import { ViewService } from "../view.service";
+import { AutoPanService } from "./auto-pan-service";
+import { BaseTool } from "./base.tool";
+import { PanTool } from "./pan.tool";
+import { SelectionRectTracker } from "./selection-rect-tracker";
 
 @Injectable({
   providedIn: "root",
 })
-export class ZoomTool extends BaseSelectionTool {
+export class ZoomTool extends BaseTool {
   iconName = "search";
   constructor(
-    viewService: ViewService,
-    logger: LoggerService,
-    panTool: PanTool,
-    selectorRenderer: SelectorRenderer,
-    private cursor: CursorService
+    private panTool: PanTool,
+    private cursor: CursorService,
+    private viewService: ViewService,
+    private autoPanService: AutoPanService,
+    private selectionTracker: SelectionRectTracker
   ) {
-    super(selectorRenderer, viewService, logger, panTool);
+    super();
   }
 
   onActivate() {
@@ -33,6 +31,7 @@ export class ZoomTool extends BaseSelectionTool {
 
   onDeactivate() {
     this.cursor.setCursor(CursorType.Default);
+    this.cleanUp();
   }
 
   onWindowKeyDown(event: KeyboardEvent) {
@@ -54,20 +53,51 @@ export class ZoomTool extends BaseSelectionTool {
     const direction = event.deltaY;
     this.zoom(direction, consts.zoom.sensitivityWheel, event);
   }
-
-  cleanUp() {
-    super.cleanUp();
+  onViewportMouseDown(event: MouseEventArgs) {
+    if (event.rightClicked()) {
+      this.cursor.setCursor(CursorType.ZoomOut);
+    } else {
+      this.selectionTracker.start(event);
+    }
   }
+  onWindowMouseMove(event: MouseEventArgs) {
+    if (!this.selectionTracker.isActive()) {
+      return;
+    }
+    this.selectionTracker.update(event);
+    event.preventDefault();
 
+    if (event) {
+      this.autoPanService.update(event.clientX, event.clientY);
+    }
+  }
+  onWindowBlur(e) {
+    this.cleanUp();
+  }
+  onWindowMouseUp(e: MouseEventArgs) {
+    this.startSelectionEnd(e);
+  }
+  startSelectionEnd(e) {
+    try {
+      this.selectionEnded(e, this.selectionTracker.rect);
+    } finally {
+      this.cleanUp();
+    }
+  }
+  cleanUp() {
+    this.selectionTracker.stop();
+    this.autoPanService.stop();
+    this.cursor.setCursor(CursorType.ZoomIn);
+  }
   /**
    * Override base method.
    */
   selectionEnded(event: MouseEventArgs, selectedArea: DOMRect) {
-    if (
+    const isSelection =
       selectedArea &&
       selectedArea.width > consts.clickThreshold &&
-      selectedArea.height > consts.clickThreshold
-    ) {
+      selectedArea.height > consts.clickThreshold;
+    if (isSelection) {
       // Zoom to area when selection is made:
       this.fit(selectedArea);
       this.panTool.fit(selectedArea);

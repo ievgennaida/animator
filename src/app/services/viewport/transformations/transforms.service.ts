@@ -1,14 +1,14 @@
 import { Injectable } from "@angular/core";
-import { RectTransform } from "./rect-transform";
-import { CircleTransform } from "./circle-transform";
-import { MatrixTransform, TransformationMode } from "./matrix-transform";
 import { Subject } from "rxjs";
-import { EllipseTransform } from "./ellipse-transform";
-import { TextTransform } from "./text-transform";
-import { PathTransform } from "./path-transform";
-import { TreeNode } from "src/app/models/tree-node";
 import { HandleData } from "src/app/models/handle-data";
+import { TreeNode } from "src/app/models/tree-node";
 import { AdornerTypeUtils } from "../adorners/adorner-type";
+import { CircleTransform } from "./circle-transform";
+import { EllipseTransform } from "./ellipse-transform";
+import { MatrixTransform, TransformationMode } from "./matrix-transform";
+import { PathTransform } from "./path-transform";
+import { RectTransform } from "./rect-transform";
+import { TextTransform } from "./text-transform";
 
 /**
  * Hold transformation transactions.
@@ -64,6 +64,7 @@ export class TransformsService {
   }
   commit() {
     this.changed = false;
+    this.transactions = null;
   }
   cancel() {
     this.changed = false;

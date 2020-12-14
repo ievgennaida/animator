@@ -8,17 +8,15 @@ import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
 import { IntersectionService } from "../intersection.service";
-import { LoggerService } from "../logger.service";
 import { MouseOverService } from "../mouse-over.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
-import { ViewService } from "../view.service";
-import { PanTool } from "./pan.tool";
+import { AutoPanService } from "./auto-pan-service";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { PathRenderer } from "./renderers/path.renderer";
-import { SelectorRenderer } from "./renderers/selector.renderer";
+import { SelectionRectTracker } from "./selection-rect-tracker";
 import { SelectionTool } from "./selection.tool";
 import { MatrixTransform } from "./transformations/matrix-transform";
 import { PathTransform } from "./transformations/path-transform";
@@ -28,20 +26,14 @@ import { TransformsService } from "./transformations/transforms.service";
   providedIn: "root",
 })
 /**
- * Path direct selection
+ * Path direct path data selection
  */
 export class PathDirectSelectionTool extends SelectionTool {
-  svgMatrix: DOMMatrix = null;
-  mouseDownPos: DOMPoint = null;
   iconName = "navigation_outline";
   constructor(
     // TODO: decouple, use selection as reference
     private pathRenderer: PathRenderer,
     transformsService: TransformsService,
-    viewService: ViewService,
-    logger: LoggerService,
-    panTool: PanTool,
-    selectorRenderer: SelectorRenderer,
     intersectionService: IntersectionService,
     selectionService: SelectionService,
     boundsRenderer: BoundsRenderer,
@@ -50,14 +42,12 @@ export class PathDirectSelectionTool extends SelectionTool {
     mouseOverRenderer: MouseOverRenderer,
     cursor: CursorService,
     contextMenu: ContextMenuService,
-    adornersService: AdornersService
+    adornersService: AdornersService,
+    autoPanService: AutoPanService,
+    selectionTracker: SelectionRectTracker
   ) {
     super(
       transformsService,
-      viewService,
-      logger,
-      panTool,
-      selectorRenderer,
       intersectionService,
       selectionService,
       boundsRenderer,
@@ -66,7 +56,9 @@ export class PathDirectSelectionTool extends SelectionTool {
       mouseOverRenderer,
       cursor,
       contextMenu,
-      adornersService
+      adornersService,
+      autoPanService,
+      selectionTracker
     );
   }
 
@@ -78,6 +70,7 @@ export class PathDirectSelectionTool extends SelectionTool {
     this.pathRenderer.suspend();
     this.pathRenderer.clear();
     super.onDeactivate();
+    this.cleanUp();
   }
   /**
    * Override
@@ -98,17 +91,18 @@ export class PathDirectSelectionTool extends SelectionTool {
     }*/
     super.onViewportContextMenu(event);
   }
+
   /**
    * Override
    */
-  selectionStarted(event: MouseEventArgs) {
+  onViewportMouseDown(event: MouseEventArgs) {
     // don't allow to transform on right click:
     if (event.rightClicked()) {
       // TODO: context menu for a specific point or selected points
       this.cleanUp();
       return;
     }
-
+    this.selectionTracker.start(event);
     const isAltMode = event.ctrlKey || event.shiftKey;
 
     if (isAltMode) {
@@ -171,14 +165,11 @@ export class PathDirectSelectionTool extends SelectionTool {
       this.selectionService.pathDataSubject.change(mouseOverPoints);
       return mouseOverPoints;
     }
-
-    return null;
   }
   /**
    * Override
    */
   cleanUp() {
-    this.mouseOverRenderer.resume();
     super.cleanUp();
   }
 
@@ -186,7 +177,7 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   onWindowMouseMove(event: MouseEventArgs) {
-    if (this.selectionRect && !this.click) {
+    if (this.selectionTracker.rect && !this.selectionTracker.click) {
       this.mouseOverRenderer.suspend(true);
     }
 
@@ -201,12 +192,12 @@ export class PathDirectSelectionTool extends SelectionTool {
     const overPoints =
       this.intersectionService.intersectPathDataHandles(
         nodes,
-        this.selectionRect,
+        this.selectionTracker.rect,
         screenPos
       ) || [];
 
     // No handles selected, select curve if not a rectangular selection:
-    if (overPoints.length === 0 && !this.selectionRect) {
+    if (overPoints.length === 0 && !this.selectionTracker.rect) {
       const nearest = this.intersectionService.getMouseOverPathCurve(
         nodes,
         screenPos
@@ -229,18 +220,6 @@ export class PathDirectSelectionTool extends SelectionTool {
   /**
    * Override
    */
-  selectionUpdate(event: MouseEventArgs) {
-    if (!this.selectionRect) {
-      return;
-    }
-
-    // const selected = this.getIntersects() as TreeNode[];
-    // this.outlineService.setSelected(selected);
-  }
-
-  /**
-   * Override
-   */
   selectionEnded(event: MouseEventArgs) {
     if (this.transformsService.isActive()) {
       this.transformsService.commit();
@@ -248,14 +227,24 @@ export class PathDirectSelectionTool extends SelectionTool {
     }
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
+
+    // When no node are selected to select path data
+    // allow to select nodes by rect selector:
+    if (
+      !nodes ||
+      (nodes.length === 0 && this.selectionTracker.selectionRectStarted())
+    ) {
+      super.selectionEnded(event);
+      return;
+    }
     const overPoints = this.intersectionService.intersectPathDataHandles(
       nodes,
-      this.click ? null : this.selectionRect,
+      this.selectionTracker.click ? null : this.selectionTracker.rect,
       screenPos
     );
 
     let changeStateMode = ChangeStateMode.Normal;
-    if (this.click) {
+    if (this.selectionTracker.click) {
       if (!overPoints || overPoints.length === 0) {
         super.selectionEnded(event);
       }
@@ -270,6 +259,6 @@ export class PathDirectSelectionTool extends SelectionTool {
     this.selectionService.pathDataSubject.change(overPoints, changeStateMode);
 
     this.pathRenderer.resume();
-    this.selectionRect = null;
+    this.cleanUp();
   }
 }

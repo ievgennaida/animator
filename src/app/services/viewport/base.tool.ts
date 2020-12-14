@@ -4,6 +4,7 @@ export class BaseTool {
   onActivate() {}
   onDeactivate() {}
   onAnimationFrame() {}
+  onScroll() {}
   onViewportMouseLeave(event: MouseEventArgs) {}
   onViewportMouseDown(event: MouseEventArgs) {}
   onViewportMouseMove(event: MouseEventArgs) {}

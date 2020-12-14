@@ -1,18 +1,18 @@
 import { Injectable } from "@angular/core";
-import { PanTool } from "./pan.tool";
-import { MouseEventArgs } from "../../models/mouse-event-args";
-import { BaseTool } from "./base.tool";
-import { ZoomTool } from "./zoom.tool";
 import { BehaviorSubject, Subject } from "rxjs";
-import { SelectionTool } from "./selection.tool";
-import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
+import { consts } from "src/environments/consts";
+import { MouseEventArgs } from "../../models/mouse-event-args";
+import { SelectionService } from "../selection.service";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
-import { consts } from "src/environments/consts";
-import { SelectionService } from "../selection.service";
-import { PathTool } from "./path.tool";
+import { BaseTool } from "./base.tool";
+import { PanTool } from "./pan.tool";
 import { PathDirectSelectionTool } from "./path-direct-selection.tool";
+import { PathTool } from "./path.tool";
+import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
+import { SelectionTool } from "./selection.tool";
 import { ShapeTool } from "./shape.tool";
+import { ZoomTool } from "./zoom.tool";
 
 /**
  * Handle current active tool and services.
@@ -74,6 +74,11 @@ export class ToolsService {
   onViewportTouchEnd(event: TouchEvent) {
     this.activeTool.onViewportMouseUp(new MouseEventArgs(event));
   }
+
+  onScroll() {
+    this.activeTool.onScroll();
+  }
+
   onViewportMouseMove(event: TouchEvent | MouseEvent) {
     const args = new MouseEventArgs(event);
     if (args.screenPoint) {

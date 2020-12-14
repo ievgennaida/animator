@@ -1,31 +1,35 @@
 import {
-  Component,
-  OnInit,
-  Input,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
   NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
 } from "@angular/core";
-
-import { ToolsService } from "src/app/services/viewport/tools.service";
-import { ViewService } from "src/app/services/view.service";
-import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
-import { CursorService } from "src/app/services/cursor.service";
 import { takeUntil } from "rxjs/operators";
-import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
-import { BaseComponent } from "../base-component";
 import { CursorType } from "src/app/models/cursor-type";
+import { TreeNode } from "src/app/models/tree-node";
+import { CursorService } from "src/app/services/cursor.service";
+import { MouseOverService } from "src/app/services/mouse-over.service";
+import { OutlineService } from "src/app/services/outline.service";
+import { ViewService } from "src/app/services/view.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
+import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
+import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
+import { ToolsService } from "src/app/services/viewport/tools.service";
+import { BaseComponent } from "../base-component";
+
 @Component({
   selector: "app-player",
   templateUrl: "./player.component.html",
   styleUrls: ["./player.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerComponent extends BaseComponent
+export class PlayerComponent
+  extends BaseComponent
   implements OnInit, OnDestroy {
   @Input("isPlaying")
   get isPaused() {
@@ -70,6 +74,7 @@ export class PlayerComponent extends BaseComponent
       this.updateRulers();
     }
   }
+  private cachedMouseOver: TreeNode | null = null;
   private readonly defaultBrowserScrollSize = 17;
   constructor(
     private viewService: ViewService,
@@ -79,6 +84,8 @@ export class PlayerComponent extends BaseComponent
     private ngZone: NgZone,
     private scrollbarsPanTool: ScrollbarsPanTool,
     private gridLinesRenderer: GridLinesRenderer,
+    private outlineService: OutlineService,
+    private mouseOverService: MouseOverService,
     private cursor: CursorService
   ) {
     super();
@@ -155,16 +162,43 @@ export class PlayerComponent extends BaseComponent
     });
   }
 
+  /**
+   * Track over node event by mouse move args.
+   */
   onPlayerMouseOut(event: MouseEvent) {
+    if (this.cachedMouseOver && this.cachedMouseOver.tag !== event.target) {
+      const node = this.outlineService
+        .getAllNodes()
+        .find((p) => p.tag === event.target);
+      this.mouseOverService.setMouseLeave(node);
+    } else {
+      this.mouseOverService.setMouseLeave(this.cachedMouseOver);
+      this.cachedMouseOver = null;
+    }
+
     this.out(() => {
       this.toolsService.onPlayerMouseOut(event);
     });
   }
 
   onPlayerMouseOver(event: MouseEvent) {
-    this.out(() => {
-      this.toolsService.onPlayerMouseOver(event);
-    });
+    try {
+      // Mouse over the node
+      // Only selectable nodes
+      const node = this.outlineService
+        .getAllNodes()
+        .find((p) => p.tag === event.target);
+      if (!node) {
+        return;
+      }
+
+      this.cachedMouseOver = node;
+      this.mouseOverService.setMouseOver(node);
+    } finally {
+      this.out(() => {
+        this.toolsService.onPlayerMouseOver(event);
+      });
+    }
   }
 
   out(callback) {
@@ -250,8 +284,9 @@ export class PlayerComponent extends BaseComponent
     );
   }
 
-  onScroll() {
+  onScroll(event: MouseEvent) {
     this.scrollbarsPanTool.onScroll();
+    this.out(() => this.toolsService.onScroll());
   }
 
   fitViewport() {
