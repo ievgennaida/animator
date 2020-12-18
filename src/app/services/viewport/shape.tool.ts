@@ -14,7 +14,7 @@ export class ShapeTool extends BaseTool {
   spawn: SvgShapes;
   constructor(
     private viewService: ViewService,
-    private documentService: DocumentService
+    private documentService: DocumentService,
   ) {
     super();
     this.spawn = new SvgShapes();

@@ -1,10 +1,11 @@
-import { BaseTool } from "./base.tool";
-import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Injectable } from "@angular/core";
+import { CursorType } from "src/app/models/cursor-type";
+import { MouseEventArgs } from "../../models/mouse-event-args";
+import { CursorService } from "../cursor.service";
 import { LoggerService } from "../logger.service";
 import { ViewService } from "../view.service";
-import { CursorService } from "../cursor.service";
-import { CursorType } from "src/app/models/cursor-type";
+import { BaseTool } from "./base.tool";
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 
 @Injectable({
   providedIn: "root",
@@ -17,14 +18,17 @@ export class PanTool extends BaseTool {
   constructor(
     private viewService: ViewService,
     private logger: LoggerService,
-    private cursor: CursorService
+    private cursor: CursorService,
+    private mouseOverRenderer: MouseOverRenderer
   ) {
     super();
   }
   onActivate() {
+    this.mouseOverRenderer.suspend(true);
     this.cursor.setCursor(CursorType.Grab);
   }
   onDeactivate() {
+    this.mouseOverRenderer.resume();
     this.cursor.setCursor(CursorType.Default);
   }
 

@@ -8,6 +8,7 @@ import { ViewService } from "../view.service";
 import { AutoPanService } from "./auto-pan-service";
 import { BaseTool } from "./base.tool";
 import { PanTool } from "./pan.tool";
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectionRectTracker } from "./selection-rect-tracker";
 
 @Injectable({
@@ -20,18 +21,23 @@ export class ZoomTool extends BaseTool {
     private cursor: CursorService,
     private viewService: ViewService,
     private autoPanService: AutoPanService,
-    private selectionTracker: SelectionRectTracker
+    private selectionTracker: SelectionRectTracker,
+    private mouseOverRenderer: MouseOverRenderer
   ) {
     super();
   }
 
   onActivate() {
+    this.mouseOverRenderer.suspend(true);
     this.cursor.setCursor(CursorType.ZoomIn);
+    super.onActivate();
   }
 
   onDeactivate() {
+    this.mouseOverRenderer.resume();
     this.cursor.setCursor(CursorType.Default);
     this.cleanUp();
+    super.onDeactivate();
   }
 
   onWindowKeyDown(event: KeyboardEvent) {

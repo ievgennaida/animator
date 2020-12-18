@@ -97,7 +97,9 @@ export class SelectionTool extends BaseTool {
     const handle = this.mouseOverService.mouseOverHandle;
     return !handle && !!startedNode;
   }
-
+  onActivate() {
+    this.mouseOverRenderer.resume();
+  }
   onDeactivate() {
     super.onDeactivate();
     this.cleanUp();
