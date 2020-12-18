@@ -1,35 +1,33 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  OnDestroy,
-  Output,
   EventEmitter,
   NgZone,
-  ChangeDetectorRef,
-  ChangeDetectionStrategy,
+  OnDestroy,
+  OnInit,
+  Output,
 } from "@angular/core";
-
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { PlayerService } from "src/app/services/player.service";
-import { consts } from "src/environments/consts";
-import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
-import { ActionService } from "src/app/services/actions/action.service";
-import { Keyframe } from "src/app/models/keyframes/Keyframe";
-import { ViewService } from "src/app/services/view.service";
-import { OutlineService } from "src/app/services/outline.service";
-import { BaseComponent } from "../base-component";
 import {
   Timeline,
-  TimelineOptions,
-  TimelineRow,
-  TimelineModel,
-  TimelineRowStyle,
   TimelineElement,
   TimelineElementType,
   TimelineEventSource,
+  TimelineModel,
+  TimelineOptions,
+  TimelineRow,
+  TimelineRowStyle,
 } from "animation-timeline-js";
+import { takeUntil } from "rxjs/operators";
+import { Keyframe } from "src/app/models/keyframes/Keyframe";
+import { TreeNode } from "src/app/models/tree-node";
+import { ActionService } from "src/app/services/commands/action.service";
+import { OutlineService } from "src/app/services/outline.service";
+import { PlayerService } from "src/app/services/player.service";
+import { PropertiesService } from "src/app/services/properties.service";
+import { ViewService } from "src/app/services/view.service";
+import { consts } from "src/environments/consts";
+import { BaseComponent } from "../base-component";
 
 @Component({
   selector: "app-timeline",
@@ -37,7 +35,8 @@ import {
   styleUrls: ["./timeline.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimelineComponent extends BaseComponent
+export class TimelineComponent
+  extends BaseComponent
   implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
