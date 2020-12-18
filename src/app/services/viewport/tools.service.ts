@@ -162,12 +162,15 @@ export class ToolsService {
     const mouseEventsArgs = new MouseEventArgs(event);
     if (
       this.prevMouseUpArgs &&
+      // Execution time of prev click
       mouseEventsArgs.executedMs - this.prevMouseUpArgs.executedMs <=
         consts.doubleClickToleranceMs &&
+      // Click was close to the destination
       Utils.getLength(
         mouseEventsArgs.getDOMPoint(),
         this.prevMouseUpArgs.getDOMPoint()
-      ) <= consts.clickThreshold
+      ) <= consts.clickThreshold &&
+      !mouseEventsArgs.rightClicked()
     ) {
       // TODO: make generic event
       if (this.activeTool === this.selectionTool) {
