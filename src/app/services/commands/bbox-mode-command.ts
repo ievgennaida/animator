@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { BaseCommand } from "src/app/models/base-command";
-import { consts } from "src/environments/consts";
-import { AdornersService } from "../../adorners-service";
-import { ConfigService } from "../../config-service";
-import { AdornersRenderer } from "../renderers/adorners.renderer";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { AdornersService } from "../adorners-service";
+import { ConfigService } from "../config-service";
+import { AdornersRenderer } from "../viewport/renderers/adorners.renderer";
+
 /**
  * Command that will allow viewport to manipulate visual elements in elements coordinates.
  */

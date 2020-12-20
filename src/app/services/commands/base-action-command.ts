@@ -1,4 +1,4 @@
-export abstract class BaseAction {
+export abstract class BaseActionCommand {
   abstract do();
   abstract undo();
   canUndo(): boolean {

@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
-import { BaseCommand } from "src/app/models/base-command";
-import { BaseTool } from "../base.tool";
-import { SelectionTool } from "../selection.tool";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { BaseTool } from "../viewport/base.tool";
+import { SelectionTool } from "../viewport/selection.tool";
 import { BBoxModeCommand } from "./bbox-mode-command";
+import { UntransformCommand } from "./untransform-command";
 
 /**
  * Handle current active tool and services.
@@ -12,9 +13,13 @@ import { BBoxModeCommand } from "./bbox-mode-command";
 })
 export class ToolCommandsService {
   constructor(
-    private bboxRectOnlyCommand: BBoxModeCommand
+    private bboxRectOnlyCommand: BBoxModeCommand,
+    private untransformCommand: UntransformCommand
   ) {}
 
+  getContextCommands(): BaseCommand[] {
+    return [this.untransformCommand];
+  }
   getCommands(tool: BaseTool): BaseCommand[] {
     if (!tool) {
       return [];

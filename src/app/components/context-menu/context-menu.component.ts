@@ -1,15 +1,17 @@
 import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
 } from "@angular/core";
-import { ContextMenuService } from "src/app/services/context-menu.service";
 import { MatMenuTrigger } from "@angular/material/menu";
+import { takeUntil } from "rxjs/operators";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { ToolCommandsService } from "src/app/services/commands/tool-commands-service";
+import { ContextMenuService } from "src/app/services/context-menu.service";
 import { BaseComponent } from "../base-component";
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: "app-context-menu",
@@ -20,11 +22,12 @@ import { takeUntil } from 'rxjs/operators';
 export class ContextMenuComponent extends BaseComponent implements OnInit {
   constructor(
     private contextMenu: ContextMenuService,
+    private toolCommands: ToolCommandsService,
     private cdRef: ChangeDetectorRef
   ) {
     super();
   }
-
+  commands: Array<BaseCommand> = [];
   trigger: MatMenuTrigger;
   @ViewChild("trigger")
   set setTrigger(value: MatMenuTrigger) {
@@ -47,6 +50,7 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
     this.element = value;
   }
   ngOnInit(): void {
+    this.commands = this.toolCommands.getContextCommands();
     this.contextMenu.setTrigger(this.trigger);
     this.contextMenu.openSubject
       .pipe(takeUntil(this.destroyed$))
@@ -83,8 +87,17 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
   copy() {}
   paste() {}
   delete() {}
+  untransform() {}
   selectSameType() {}
   globalMouseDown(event: MouseEvent) {
     event.preventDefault();
+  }
+  onActionClicked(tool: BaseCommand) {
+    if (tool) {
+      console.log(`command clicked: ${tool.title}`);
+      this.toolCommands.executeCommand(tool, this.commands);
+    }
+    // TODO: make a subscription when active commands changed
+    this.cdRef.markForCheck();
   }
 }

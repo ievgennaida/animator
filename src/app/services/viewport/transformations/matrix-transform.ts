@@ -84,7 +84,7 @@ export class MatrixTransform {
       AdornerTypeUtils.getOpposite(this.handle.handles)
     );
   }
-
+  untransform() {}
   beginMouseTransaction(screenPos: DOMPoint) {
     const element = this.getElement();
     const startPoint = Utils.toElementPoint(element, screenPos);
@@ -242,7 +242,7 @@ export class MatrixTransform {
       screenTransformOrigin
     );
 
-    // this.debugPoints[0] = screenTransformOrigin;
+    this.debugPoints[0] = screenTransformOrigin;
     return this.scaleByScreenMatrix(screenScaleMatrix);
   }
   /**

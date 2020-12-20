@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
-import { BaseCommand } from "src/app/models/base-command";
-import { ToolCommandsService } from "src/app/services/viewport/tool-commands/tool-commands-service";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { ToolCommandsService } from "src/app/services/commands/tool-commands-service";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { BaseComponent } from "../../base-component";
 

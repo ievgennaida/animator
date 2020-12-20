@@ -11,7 +11,7 @@ import {
   InputDocumentType,
 } from "src/app/models/input-document";
 import { ViewMode } from "src/app/models/view-mode";
-import { UndoService } from "src/app/services/actions/undo.service";
+import { UndoService } from "src/app/services/commands/undo.service";
 import { DocumentService } from "src/app/services/document.service";
 import { LoggerService } from "src/app/services/logger.service";
 import { PasteService } from "src/app/services/paste.service";

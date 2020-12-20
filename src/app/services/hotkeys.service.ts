@@ -1,15 +1,15 @@
-import { Injectable, Inject } from "@angular/core";
-import { EventManager } from "@angular/platform-browser";
 import { DOCUMENT } from "@angular/common";
+import { Inject, Injectable } from "@angular/core";
+import { EventManager } from "@angular/platform-browser";
+import { UndoService } from "./commands/undo.service";
 import { OutlineService } from "./outline.service";
-import { SelectionService } from "./selection.service";
-import { ToolsService } from "./viewport/tools.service";
-import { PanTool } from "./viewport/pan.tool";
-import { SelectionTool } from "./viewport/selection.tool";
-import { ZoomTool } from "./viewport/zoom.tool";
 import { PasteService } from "./paste.service";
-import { UndoService } from "./actions/undo.service";
-import { PathDirectSelectionTool } from './viewport/path-direct-selection.tool';
+import { SelectionService } from "./selection.service";
+import { PanTool } from "./viewport/pan.tool";
+import { PathDirectSelectionTool } from "./viewport/path-direct-selection.tool";
+import { SelectionTool } from "./viewport/selection.tool";
+import { ToolsService } from "./viewport/tools.service";
+import { ZoomTool } from "./viewport/zoom.tool";
 
 @Injectable({
   providedIn: "root",

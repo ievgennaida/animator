@@ -2,16 +2,22 @@
     [matMenuTriggerFor]="contextMenu">
 </span>
 <mat-menu #contextMenu [hasBackdrop]="false">
-    <!--div><button mat-menu-item (click)="cut()">
-        <mat-icon></mat-icon><span>Cut</span><span class="hotkey">Ctrl+X</span>
-    </button>
-    <button mat-menu-item (click)="copy()">
-        <mat-icon>file_copy</mat-icon><span>Copy</span><span class="hotkey">Ctrl+C</span>
-    </button>
-    <button mat-menu-item (click)="paste()">
-        <mat-icon></mat-icon><span>Paste</span><span class="hotkey">Ctrl+V</span>
-    </button>
-    <button mat-menu-item (click)="delete()">
-        <mat-icon>clear</mat-icon><span>Delete</span><span class="hotkey">Del</span>
-    </button></div!-->
+    <div><button disabled mat-menu-item (click)="cut()">
+            <mat-icon></mat-icon><span>Cut</span><span class="hotkey">Ctrl+X</span>
+        </button>
+        <button disabled mat-menu-item (click)="copy()">
+            <mat-icon>file_copy</mat-icon><span>Copy</span><span class="hotkey">Ctrl+C</span>
+        </button>
+        <button disabled mat-menu-item (click)="paste()">
+            <mat-icon></mat-icon><span>Paste</span><span class="hotkey">Ctrl+V</span>
+        </button>
+        <button disabled mat-menu-item (click)="delete()">
+            <mat-icon>clear</mat-icon><span>Delete</span><span class="hotkey">Del</span>
+        </button>
+        <button mat-menu-item *ngFor="let command of commands || []" [attr.title]="command.tooltip"
+            [class.active]="command?.active || false" (click)="onActionClicked(command)">
+            <mat-icon [svgIcon]="command.icon">
+            </mat-icon><span *ngIf="command.title">{{command.title}}</span><span class="hotkey"></span>
+        </button>
+    </div>
 </mat-menu>

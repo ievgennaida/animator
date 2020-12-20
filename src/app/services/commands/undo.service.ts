@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BaseAction } from "./BaseAction";
+import { BaseActionCommand } from "./base-action-command";
 
 @Injectable({
   providedIn: "root"
@@ -7,10 +7,10 @@ import { BaseAction } from "./BaseAction";
 export class UndoService {
   constructor() {}
 
-  actions: BaseAction[] = [];
+  actions: BaseActionCommand[] = [];
   activeIndex = 0;
 
-  addAction(action: BaseAction) {
+  addAction(action: BaseActionCommand) {
     this.actions.push(action);
     this.activeIndex = this.actions.length - 1;
   }

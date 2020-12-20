@@ -31,12 +31,13 @@ export class PathTransform extends MatrixTransform {
   }
 
   beginHandleTransformation(screenPos: DOMPoint, handle: HandleData) {
+    this.untransform();
     super.beginHandleTransformation(screenPos, handle);
     // this.untransform();
   }
 
   /**
-   * Remove transformations, keep current path data points at the same places.
+   * Override. Remove transformations, keep current path data points at the same places.
    */
   untransform() {
     const element = this.getElement();
