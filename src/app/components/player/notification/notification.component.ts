@@ -29,7 +29,6 @@ export class NotificationComponent extends BaseComponent implements OnInit {
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((message) => {
-        this.message = message;
         if (this.message !== message) {
           this.message = message;
           this.cdRef.detectChanges();
