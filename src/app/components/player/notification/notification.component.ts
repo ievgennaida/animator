@@ -1,18 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { BaseComponent } from '../../base-component';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+} from "@angular/core";
+import { takeUntil } from "rxjs/operators";
+import { NotificationService } from "src/app/services/notification.service";
+import { BaseComponent } from "../../base-component";
 
 @Component({
-  selector: 'app-notification',
-  templateUrl: './notification.component.html',
-  styleUrls: ['./notification.component.scss']
+  selector: "app-notification",
+  templateUrl: "./notification.component.html",
+  styleUrls: ["./notification.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationComponent extends BaseComponent implements OnInit {
-
-  constructor() {
+  constructor(
+    private notificationService: NotificationService,
+    private cdRef: ChangeDetectorRef
+  ) {
     super();
-   }
-
-  ngOnInit(): void {
+    this.cdRef.detach();
   }
 
+  message: string | null = null;
+  ngOnInit(): void {
+    this.notificationService.notificationSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((message) => {
+        this.message = message;
+        if (this.message !== message) {
+          this.message = message;
+          this.cdRef.detectChanges();
+        }
+      });
+  }
 }

@@ -90,7 +90,14 @@ app-player-adorners {
   height: 100%;
   width: 100%;
 }
-
+app-notification {
+  position: absolute;
+  max-width: 95%;
+  bottom: 0;
+  margin: 5px 5px 5px 5px;
+  grid-column: 2;
+  grid-row: 2;
+}
 .shadow-workarea {
   fill: white;
   stroke-width: 1;

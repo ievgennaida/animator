@@ -36,6 +36,7 @@
         <canvas #rulerH class="canvas-ruler-h" *ngIf="rulerVisible"></canvas>
         <canvas #rulerV class="canvas-ruler-v" *ngIf="rulerVisible"></canvas>
         <app-player-adorners></app-player-adorners>
+        <app-notification></app-notification>
     </div>
     <button [style.height.px]="scrollbarsSize" [style.width.px]="scrollbarsSize" mat-button #resetButton
         class="reset-button" (click)="fitViewport()">
