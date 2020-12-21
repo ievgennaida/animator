@@ -43,7 +43,7 @@ export class OutputComponent extends BaseComponent implements OnInit, OnDestroy 
             document.parsedData &&
             document.parsedData.outerHTML
           ) {
-            // hilight element
+            // highlight element
             if (this.codeRef && this.codeRef.nativeElement) {
               this.codeRef.nativeElement.innerText =
                 document.parsedData.outerHTML;
