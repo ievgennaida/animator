@@ -44,6 +44,16 @@ export class SvgInitializer implements IInitializer {
       h.unitType === h.SVG_LENGTHTYPE_PERCENTAGE
     ) {
       results.size = svgContent.getBBox();
+      if (results.size.width === 0 && results.size.height === 0) {
+        const viewBox = svgContent.viewBox.baseVal;
+        // Read view box if set in percents and 0
+        results.size = new DOMRect(
+          viewBox.x,
+          viewBox.y,
+          viewBox.width,
+          viewBox.height
+        );
+      }
     } else {
       results.size = new DOMRect(
         svgContent.x.baseVal.value,

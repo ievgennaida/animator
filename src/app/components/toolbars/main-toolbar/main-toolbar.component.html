@@ -1,6 +1,9 @@
 <mat-toolbar>
     <button mat-button [matMenuTriggerFor]="menu">File</button>
     <mat-menu #menu>
+        <button mat-menu-item (click)="newFile()">
+            <mat-icon>note_add</mat-icon><span>New File</span>
+        </button>
         <button mat-menu-item (click)="file.click()">
             <mat-icon>open_in_browser</mat-icon><span>Open File...</span>
         </button>

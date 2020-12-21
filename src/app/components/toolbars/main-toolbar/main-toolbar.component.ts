@@ -1,3 +1,4 @@
+import { HttpClient } from "@angular/common/http";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -23,7 +24,6 @@ import { ToolsService } from "src/app/services/viewport/tools.service";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
 import { consts } from "src/environments/consts";
 import { BaseComponent } from "../../base-component";
-
 @Component({
   selector: "app-main-toolbar",
   templateUrl: "./main-toolbar.component.html",
@@ -56,7 +56,8 @@ export class MainToolbarComponent
     private selectionService: SelectionService,
     private gridLinesRenderer: GridLinesRenderer,
     private toolsService: ToolsService,
-    private pasteService: PasteService
+    private pasteService: PasteService,
+    private http: HttpClient
   ) {
     super();
   }
@@ -137,6 +138,19 @@ export class MainToolbarComponent
   }
   setMode(mode: ViewMode) {
     this.viewService.setMode(mode);
+  }
+  newFile() {
+    const fileName = `default.svg`;
+    const folder = `assets/documents/${fileName}`;
+    this.http.get(folder, { responseType: "text" }).subscribe(
+      (data) => {
+        this.loadData(data, fileName);
+      },
+      (error) => {
+        alert(`File ${fileName} cannot be parsed!`);
+        console.log(error);
+      }
+    );
   }
   fileSelected(event) {
     const files = event.target.files;
