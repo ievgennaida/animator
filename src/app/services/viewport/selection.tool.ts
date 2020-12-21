@@ -118,6 +118,9 @@ export class SelectionTool extends BaseTool {
     this.selectionService.deselectAdorner();
   }
 
+  /**
+   * Override.
+   */
   onWindowMouseMove(event: MouseEventArgs) {
     this.lastUsedArgs = event;
     if (this.transformsService.isActive()) {
@@ -172,10 +175,16 @@ export class SelectionTool extends BaseTool {
     });
     return isChanged;
   }
-
+  /**
+   * Override.
+   */
   onWindowBlur(e) {
     this.cleanUp();
   }
+
+  /**
+   * Override.
+   */
   onWindowMouseUp(e: MouseEventArgs) {
     this.startSelectionEnd(e);
   }
