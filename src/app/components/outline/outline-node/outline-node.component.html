@@ -1,4 +1,4 @@
-<div (contextmenu)="onRightClick($event)" matTreeNodePadding [matTreeNodePaddingIndent]="node.expandable? 5: 10"
+<div (contextmenu)="onRightClick($event)" matTreeNodePadding [matTreeNodePaddingIndent]="5"
     class="container" (mouseenter)="mouseEnter(node)" (mouseleave)="mouseLeave(node)"
     (click)="setSelected($event, node)"
     [ngClass]="{ 'selected': node.selected, 'hover': node.mouseOver, 'noselect': true}">
