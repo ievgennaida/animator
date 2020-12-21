@@ -1,16 +1,14 @@
 import {
-  Component,
-  OnInit,
-  OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  Component,
   Input,
+  OnInit,
 } from "@angular/core";
-
-import { consts } from "src/environments/consts";
 import { TimelineScrollEvent } from "animation-timeline-js";
 import { OutlineService } from "src/app/services/outline.service";
-import { BaseComponent } from '../../base-component';
+import { consts } from "src/environments/consts";
+import { BaseComponent } from "../../base-component";
 
 @Component({
   selector: "app-outline",

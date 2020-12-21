@@ -1,30 +1,29 @@
 import {
-  Component,
-  OnInit,
-  Input,
   ChangeDetectionStrategy,
-  OnDestroy,
   ChangeDetectorRef,
+  Component,
+  Input,
   NgZone,
+  OnDestroy,
+  OnInit,
 } from "@angular/core";
-import { TreeNode } from "src/app/models/tree-node";
-
-import { OutlineService } from "src/app/services/outline.service";
 import { takeUntil } from "rxjs/operators";
-import {
-  SelectionService
-} from "src/app/services/selection.service";
+import { TreeNode } from "src/app/models/tree-node";
 import { ContextMenuService } from "src/app/services/context-menu.service";
-import { BaseComponent } from "../../base-component";
 import { MouseOverService } from "src/app/services/mouse-over.service";
+import { OutlineService } from "src/app/services/outline.service";
+import { SelectionService } from "src/app/services/selection.service";
 import { ChangeStateMode } from "src/app/services/state-subject";
+import { BaseComponent } from "../../base-component";
+
 @Component({
   selector: "app-outline-node",
   templateUrl: "./outline-node.component.html",
   styleUrls: ["./outline-node.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OutlineNodeComponent extends BaseComponent
+export class OutlineNodeComponent
+  extends BaseComponent
   implements OnInit, OnDestroy {
   private static lastSelected: TreeNode = null;
   node: TreeNode;
@@ -63,6 +62,11 @@ export class OutlineNodeComponent extends BaseComponent
           this.cdRef.detectChanges();
         }
       });
+  }
+  ngOnInit(): void {}
+  toggle(node: TreeNode) {
+    this.treeControl.toggle(node);
+    node.expanded = this.treeControl.isExpanded(node);
   }
 
   setSelected(event: MouseEvent, node: TreeNode) {
@@ -119,7 +123,6 @@ export class OutlineNodeComponent extends BaseComponent
     );
   }
 
-  ngOnInit(): void {}
   onRightClick(event: MouseEvent) {
     this.setSelected(event, this.node);
     this.contextMenu.open(event, this.node);
