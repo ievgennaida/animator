@@ -18,6 +18,10 @@ export class TreeNode implements ICTMProvider, IBBox {
   private cacheBBox: DOMRect = null;
 
   icon = "folder";
+  /**
+   * Root document element node.
+   */
+  isRoot = false;
   nameProperty: Property;
   properties: Properties;
   children: TreeNode[];
@@ -52,7 +56,8 @@ export class TreeNode implements ICTMProvider, IBBox {
   set name(value: string) {
     this._name = value;
   }
-
+  // Note: flag is not cause screen refresh. Should be handled by the tree view control.
+  expanded = false;
   get expandable(): boolean {
     return !!this.children && this.children.length > 0;
   }
