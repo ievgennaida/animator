@@ -13,7 +13,10 @@ import { takeUntil } from "rxjs/operators";
 import { CursorType } from "src/app/models/cursor-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { CursorService } from "src/app/services/cursor.service";
-import { MouseOverService } from "src/app/services/mouse-over.service";
+import {
+  MouseOverMode,
+  MouseOverService,
+} from "src/app/services/mouse-over.service";
 import { OutlineService } from "src/app/services/outline.service";
 import { ViewService } from "src/app/services/view.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
@@ -245,6 +248,23 @@ export class PlayerComponent
 
       // this.adjustPan();
     });
+
+    // Mouse over mode.
+    this.mouseOverService.mouseOverModeSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((mode) => {
+        if (this.playerRef && this.playerRef.nativeElement) {
+          const classList = this.playerRef.nativeElement.classList;
+          const onlyContainersMode = ".mouse-over-only-containers";
+          if (mode === MouseOverMode.Containers) {
+            classList.remove(onlyContainersMode);
+          } else {
+            classList.add(onlyContainersMode);
+          }
+        }
+      });
+
     this.gridLinesRenderer.rulerVisibleSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))

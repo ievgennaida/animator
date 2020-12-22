@@ -9,11 +9,25 @@ import { Utils } from "./utils/utils";
 import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 
+export enum MouseOverMode {
+  Elements,
+  Containers,
+}
+export class MouseOverContainer {
+  node: TreeNode | null = null;
+}
 @Injectable({
   providedIn: "root",
 })
 export class MouseOverService {
   constructor() {}
+  /**
+   * Mouse over mode.
+   */
+  mouseOverModeSubject = new BehaviorSubject<MouseOverMode>(
+    MouseOverMode.Elements
+  );
+
   /**
    * Mouse over node.
    */
@@ -83,6 +97,16 @@ export class MouseOverService {
 
   getValue(): TreeNode {
     return this.mouseOverSubject.getValue();
+  }
+
+  /**
+   * Selection mode list.
+   * @param mode mouse over mode.
+   */
+  setMode(mode: MouseOverMode): void {
+    if (mode !== this.mouseOverModeSubject.getValue()) {
+      this.mouseOverModeSubject.next(mode);
+    }
   }
   setMouseOver(node: TreeNode): void {
     if (node && !node.mouseOver) {
