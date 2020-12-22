@@ -1,6 +1,7 @@
 import { Adorner } from "../adorners/adorner";
 import { consts } from "src/environments/consts";
 import { TreeNode } from "src/app/models/tree-node";
+import { BehaviorSubject } from "rxjs";
 
 export class BaseRenderer {
   canvasCTM: DOMMatrix = new DOMMatrix();
@@ -12,7 +13,19 @@ export class BaseRenderer {
   devicePixelRatio = window.devicePixelRatio;
   // TODO: use one pixel for different devices to draw lines sharp
   onePixel = this.devicePixelRatio;
-  suspended = false;
+  suspendedSubject = new BehaviorSubject<boolean>(false);
+  get suspended() {
+    return this.suspendedSubject.getValue();
+  }
+
+  /**
+   * Set suspended and rise event.
+   */
+  set suspended(value: boolean) {
+    if (this.suspended !== value) {
+      this.suspendedSubject.next(value);
+    }
+  }
   invalidated = false;
   public static runSuspendedRenderers(
     callback: () => void,

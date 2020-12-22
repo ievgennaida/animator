@@ -171,6 +171,7 @@ export class ShapeTool extends BaseTool {
     }
     this.transformsService.start(transactions);
     this.outlineService.setNodes([document.rootNode]);
+    this.selectionService.setSelected(newTreeNode);
   }
   /**
    * Override.

@@ -21,12 +21,25 @@ export enum ChangeStateMode {
    */
   Remove = 4,
 }
+
+export enum StateChangedSource {
+  /**
+   * Source of the event not set.
+   */
+  NotSet = "NotSet",
+  /**
+   * Selection by the outline.
+   */
+  Outline = "Outline",
+}
+
 type StateChangeCallback<T> = (node: T, value: boolean) => boolean;
 export class State<T> {
   public values: Array<T> = [];
   public changed: Array<T> = [];
   public added: Array<T> = [];
   public removed: Array<T> = [];
+  public source: StateChangedSource | string;
   public any() {
     return this.values && this.values.length > 0;
   }
@@ -65,7 +78,8 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
   }
   public change(
     values: T[] | T,
-    mode: ChangeStateMode = ChangeStateMode.Normal
+    mode: ChangeStateMode = ChangeStateMode.Normal,
+    source: StateChangedSource | string = StateChangedSource.NotSet
   ): boolean {
     if (!values) {
       values = [];
@@ -136,6 +150,7 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     }
 
     if (state.changed.length > 0) {
+      state.source = source;
       this.next(state);
       return true;
     }

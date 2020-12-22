@@ -49,7 +49,37 @@ export class OutlineService {
   get flatList() {
     return this.flatDataSource._flattenedData.asObservable();
   }
+  /**
+   * Expand all items from current node to top
+   * @param node Node to start top-search from.
+   */
+  expandToTop(node: TreeNode, includeSelf = false): boolean {
+    if (!node) {
+      return false;
+    }
+    if (includeSelf) {
+      if (this.treeControl.isExpandable(node)) {
+        this.treeControl.expand(node);
+        node.expanded = true;
+      } else {
+        return false;
+      }
+    }
 
+    while (node != null) {
+      node = node.parent;
+      if (node) {
+        if (this.treeControl.isExpandable(node)) {
+          this.treeControl.expand(node);
+          node.expanded = true;
+        } else {
+          return false;
+        }
+      }
+    }
+
+    return false;
+  }
   getAllNodes(): TreeNode[] {
     if (this.flatDataSource && this.flatDataSource._flattenedData) {
       return this.flatDataSource._flattenedData.getValue();

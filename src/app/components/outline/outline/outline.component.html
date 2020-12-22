@@ -1,7 +1,7 @@
 <div class="header noselect"></div>
-<div class="tree noselect" [scrollTop]="scrollTop"
+<div #treeScroll  class="tree noselect" [scrollTop]="scrollTop"
     [ngClass]="{'scroll-container':allowScroll, 'no-scroll-container':!allowScroll}">
-    <mat-tree *ngIf="dataSource" [style.height.px]="height" [dataSource]="dataSource" [treeControl]="treeControl">
+    <mat-tree [style.height.px]="height" [dataSource]="dataSource" [treeControl]="treeControl">
         <!-- This is the tree node template for expandable nodes -->
         <mat-tree-node *matTreeNodeDef="let node">
             <app-outline-node [node]="node"></app-outline-node>

@@ -13,7 +13,11 @@ import { ContextMenuService } from "src/app/services/context-menu.service";
 import { MouseOverService } from "src/app/services/mouse-over.service";
 import { OutlineService } from "src/app/services/outline.service";
 import { SelectionService } from "src/app/services/selection.service";
-import { ChangeStateMode } from "src/app/services/state-subject";
+import {
+  ChangeStateMode,
+  StateChangedSource,
+} from "src/app/services/state-subject";
+import { MouseOverRenderer } from "src/app/services/viewport/renderers/mouse-over.renderer";
 import { BaseComponent } from "../../base-component";
 
 @Component({
@@ -38,6 +42,7 @@ export class OutlineNodeComponent
   constructor(
     private outlineService: OutlineService,
     private mouseOverService: MouseOverService,
+    private mouseOverRenderer: MouseOverRenderer,
     private cdRef: ChangeDetectorRef,
     private selectionService: SelectionService,
     private ngZone: NgZone,
@@ -45,6 +50,11 @@ export class OutlineNodeComponent
   ) {
     super();
     this.cdRef.detach();
+    this.outlineService.nodesSubject
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.cdRef.detectChanges();
+      });
     selectionService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
@@ -107,7 +117,11 @@ export class OutlineNodeComponent
     }
 
     this.ngZone.runOutsideAngular(() => {
-      this.selectionService.setSelected(nodes, mode);
+      this.selectionService.setSelected(
+        nodes,
+        mode,
+        StateChangedSource.Outline
+      );
     });
   }
 

@@ -4,7 +4,12 @@ import { environment } from "src/environments/environment";
 import { TreeNode } from "../models/tree-node";
 import { OutlineService } from "./outline.service";
 import { PathDataSelectionSubject } from "./path-data-subject";
-import { ChangeStateMode, State, StateSubject } from "./state-subject";
+import {
+  ChangeStateMode,
+  State,
+  StateChangedSource,
+  StateSubject,
+} from "./state-subject";
 import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 @Injectable({
@@ -117,8 +122,9 @@ export class SelectionService {
 
   setSelected(
     nodes: TreeNode[] | TreeNode,
-    mode: ChangeStateMode = ChangeStateMode.Normal
+    mode: ChangeStateMode = ChangeStateMode.Normal,
+    source: StateChangedSource = StateChangedSource.NotSet
   ) {
-    this.selectedSubject.change(nodes, mode);
+    this.selectedSubject.change(nodes, mode, source);
   }
 }
