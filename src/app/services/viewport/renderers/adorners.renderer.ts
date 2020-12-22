@@ -1,12 +1,12 @@
 import { Injectable, NgZone } from "@angular/core";
 import { LoggerService } from "../../logger.service";
-import { BoundsRenderer } from "./bounds.renderer";
-import { BaseRenderer } from "./base.renderer";
 import { ViewService } from "../../view.service";
+import { BaseRenderer } from "./base.renderer";
+import { BoundsRenderer } from "./bounds.renderer";
 import { GridLinesRenderer } from "./grid-lines.renderer";
-import { SelectorRenderer } from "./selector.renderer";
 import { MouseOverRenderer } from "./mouse-over.renderer";
 import { PathRenderer } from "./path.renderer";
+import { SelectorRenderer } from "./selector.renderer";
 
 @Injectable({
   providedIn: "root",

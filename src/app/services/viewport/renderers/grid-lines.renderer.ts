@@ -1,11 +1,11 @@
-import { Injectable, NgZone } from "@angular/core";
-import { ViewService } from "../../view.service";
-import { LoggerService } from "../../logger.service";
-import { consts } from "src/environments/consts";
-import { BaseRenderer } from "./base.renderer";
-import { BehaviorSubject } from "rxjs";
+import { Injectable } from "@angular/core";
 import { TimelineUtils } from "animation-timeline-js";
+import { BehaviorSubject } from "rxjs";
+import { consts } from "src/environments/consts";
+import { LoggerService } from "../../logger.service";
 import { Utils } from "../../utils/utils";
+import { ViewService } from "../../view.service";
+import { BaseRenderer } from "./base.renderer";
 
 @Injectable({
   providedIn: "root",

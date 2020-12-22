@@ -1,9 +1,9 @@
-import { Subject, Observable } from "rxjs";
 import { Injectable } from "@angular/core";
+import { Observable, Subject } from "rxjs";
 import { Property } from "../models/Properties/Property";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class PropertiesService {
   changedSubject = new Subject<Property>();

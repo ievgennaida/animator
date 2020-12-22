@@ -1,7 +1,6 @@
-import { Adorner } from "../adorners/adorner";
-import { consts } from "src/environments/consts";
-import { TreeNode } from "src/app/models/tree-node";
 import { BehaviorSubject } from "rxjs";
+import { TreeNode } from "src/app/models/tree-node";
+import { Adorner } from "../adorners/adorner";
 
 export class BaseRenderer {
   canvasCTM: DOMMatrix = new DOMMatrix();

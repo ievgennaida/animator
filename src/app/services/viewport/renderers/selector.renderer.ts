@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
+import { consts } from "src/environments/consts";
 import { LoggerService } from "../../logger.service";
 import { Utils } from "../../utils/utils";
 import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
-import { consts } from "src/environments/consts";
 
 @Injectable({
   providedIn: "root",

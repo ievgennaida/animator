@@ -1,17 +1,15 @@
 // tslint:disable: variable-name
 import { Injectable } from "@angular/core";
-import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
+import { AdornersService } from "../../adorners-service";
 import { LoggerService } from "../../logger.service";
 import { MouseOverService } from "../../mouse-over.service";
 import { OutlineService } from "../../outline.service";
-import { SelectionService } from "../../selection.service";
 import { Utils } from "../../utils/utils";
 import { Adorner, AdornerMode } from "../adorners/adorner";
 import { AdornerType } from "../adorners/adorner-type";
-import { BaseRenderer } from "./base.renderer";
 import { TransformsService } from "../transformations/transforms.service";
-import { AdornersService } from "../../adorners-service";
+import { BaseRenderer } from "./base.renderer";
 
 /**
  * Elements bounds renderer

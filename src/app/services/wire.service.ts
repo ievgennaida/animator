@@ -1,11 +1,13 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
+import { AdornersService } from "./adorners-service";
 import { DocumentService } from "./document.service";
 import { MouseOverService } from "./mouse-over.service";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
 import { ViewService } from "./view.service";
 import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
+import { BaseRenderer } from "./viewport/renderers/base.renderer";
 import { BoundsRenderer } from "./viewport/renderers/bounds.renderer";
 import { GridLinesRenderer } from "./viewport/renderers/grid-lines.renderer";
 import { MouseOverRenderer } from "./viewport/renderers/mouse-over.renderer";
@@ -13,8 +15,6 @@ import { PathRenderer } from "./viewport/renderers/path.renderer";
 import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
 import { ToolsService } from "./viewport/tools.service";
 import { TransformsService } from "./viewport/transformations/transforms.service";
-import { BaseRenderer } from "./viewport/renderers/base.renderer";
-import { AdornersService } from "./adorners-service";
 
 /**
  * Wire services together
