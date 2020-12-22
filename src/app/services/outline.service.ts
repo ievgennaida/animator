@@ -21,11 +21,7 @@ export enum InteractionSource {
   providedIn: "root",
 })
 export class OutlineService {
-  constructor(
-    private appFactory: AppFactory,
-    private logger: LoggerService
-  ) {
-  }
+  constructor(private appFactory: AppFactory, private logger: LoggerService) {}
 
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
 
@@ -70,20 +66,32 @@ export class OutlineService {
     return this.nodesSubject.asObservable();
   }
 
-  public parseDocumentOutline(document: InputDocument) {
-    const parser = this.appFactory.getParser(document);
+  public parseDocumentOutline(document: InputDocument): TreeNode[] | null {
+    const parser = this.appFactory.getParser(document.type);
     if (!parser) {
-      this.logger.log(
+      throw new Error(
         `Cannot open document ${document.title}. Cannot find a parser for file.`
       );
-      return;
     }
 
+    document.parser = parser;
     // Parse application:
     let nodes = this.nodesSubject.value;
     nodes.length = 0;
     nodes = parser.parse(document) || [];
+    return nodes;
+  }
+
+  setNodes(nodes: TreeNode[]) {
     this.flatDataSource.data = nodes;
+    nodes.forEach((p) => {
+      if (p.expandable && p.expanded) {
+        this.treeControl.expand(p);
+      } else {
+        this.treeControl.collapse(p);
+      }
+      p.expanded = this.treeControl.isExpanded(p);
+    });
     this.nodesSubject.next(nodes);
   }
 

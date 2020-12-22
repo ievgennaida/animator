@@ -32,7 +32,6 @@ export class SvgInitializer implements IInitializer {
     host.innerHTML = "";
     host.append(svgContent);
     document.parsedData = svgContent;
-    document.rootNode = svgContent;
     const results = new InitResults();
     results.player = new SvgPlayer(svgContent);
     const w = svgContent.width.baseVal;

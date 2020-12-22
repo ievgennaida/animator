@@ -49,7 +49,7 @@ export class DocumentService {
       return;
     }
 
-    const initializer = this.appFactory.getViewportInitializer(document);
+    const initializer = this.appFactory.getViewportInitializer(document.type);
     if (!initializer) {
       this.logger.log(
         `Cannot open document ${document.title}. Cannot find a parser for file.`
@@ -67,12 +67,17 @@ export class DocumentService {
 
     this.dispose(refresh);
     try {
-      const data = initializer.initialize(document, this.viewService.playerHost);
+      const data = initializer.initialize(
+        document,
+        this.viewService.playerHost
+      );
 
       this.viewService.setViewportSize(data.size);
       this.playerService.setPlayer(data.player);
       if (!refresh) {
-        this.outlineService.parseDocumentOutline(document);
+        const rootNodes = this.outlineService.parseDocumentOutline(document);
+        document.rootNode = rootNodes.find((p) => p.isRoot);
+        this.outlineService.setNodes(rootNodes);
       }
 
       this.documentSubject.next(document);

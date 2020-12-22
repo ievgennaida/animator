@@ -168,18 +168,19 @@ export class AppComponent extends BaseComponent implements OnInit {
       this.monitorElementSize(this.player.nativeElement, () => {
         this.viewService.emitViewportResized();
       });
-      document.addEventListener(
+      window.addEventListener(
         "keydown",
         (event: KeyboardEvent) => {
           this.toolsService.onWindowKeyDown(event);
         },
         false
       );
-      document.addEventListener(
+      window.addEventListener(
         "keyup",
         (event: KeyboardEvent) => {
+          console.log(`Key up: ${event.key}`);
           this.toolsService.onWindowKeyUp(event);
-        },
+        }, 
         false
       );
 

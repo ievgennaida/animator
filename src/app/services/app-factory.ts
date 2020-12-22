@@ -1,9 +1,9 @@
-import { InputDocument, InputDocumentType } from "../models/input-document";
-import { SvgTreeParser } from "./svg/svg-tree.parser";
+import { Injectable } from "@angular/core";
+import { InputDocumentType } from "../models/input-document";
+import { IInitializer } from "../models/interfaces/initializer";
 import { IParser } from "../models/interfaces/parser";
 import { SvgInitializer } from "./svg/svg-initializer";
-import { Injectable } from "@angular/core";
-import { IInitializer } from "../models/interfaces/initializer";
+import { SvgTreeParser } from "./svg/svg-tree.parser";
 
 @Injectable({
   providedIn: "root",
@@ -12,8 +12,8 @@ export class AppFactory {
   // TODO: inject on demand.
   constructor() {}
 
-  getParser(document: InputDocument): IParser {
-    if (document.type === InputDocumentType.JSON) {
+  getParser(type: InputDocumentType): IParser {
+    if (type === InputDocumentType.JSON) {
       return null;
     } else {
       return new SvgTreeParser();
@@ -23,8 +23,8 @@ export class AppFactory {
   /**
    * Viewport initializer.
    */
-  getViewportInitializer(document: InputDocument): IInitializer {
-    if (document.type === InputDocumentType.JSON) {
+  getViewportInitializer(type: InputDocumentType): IInitializer {
+    if (type === InputDocumentType.JSON) {
       return null;
     } else {
       return new SvgInitializer();

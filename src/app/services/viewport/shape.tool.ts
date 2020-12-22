@@ -1,10 +1,27 @@
 import { Injectable } from "@angular/core";
-import { BaseTool } from "./base.tool";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { CursorType } from "src/app/models/cursor-type";
+import { HandleData } from "src/app/models/handle-data";
+import { TreeNode } from "src/app/models/tree-node";
+import { consts } from "src/environments/consts";
 import { MouseEventArgs } from "../../models/mouse-event-args";
-import { ViewService } from "../view.service";
-import { SvgShapes } from "../svg/svg-shapes";
+import { AdornersService } from "../adorners-service";
+import { CursorService } from "../cursor.service";
 import { DocumentService } from "../document.service";
+import { MouseOverMode, MouseOverService } from "../mouse-over.service";
+import { NotificationService } from "../notification.service";
+import { OutlineService } from "../outline.service";
+import { SelectionService } from "../selection.service";
+import { SvgShapes } from "../svg/svg-shapes";
 import { Utils } from "../utils/utils";
+import { ViewService } from "../view.service";
+import { AdornerType } from "./adorners/adorner-type";
+import { AutoPanService } from "./auto-pan-service";
+import { BaseTool } from "./base.tool";
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { SelectionTool } from "./selection.tool";
+import { TransformsService } from "./transformations/transforms.service";
 
 @Injectable({
   providedIn: "root",
@@ -12,12 +29,95 @@ import { Utils } from "../utils/utils";
 export class ShapeTool extends BaseTool {
   iconName = "crop_square";
   spawn: SvgShapes;
+  container: TreeNode | null = null;
+  protected destroyed$ = new Subject();
+
   constructor(
     private viewService: ViewService,
     private documentService: DocumentService,
+    private selectionService: SelectionService,
+    private outlineService: OutlineService,
+    private mouseOverService: MouseOverService,
+    private adornerService: AdornersService,
+    private autoPanService: AutoPanService,
+    private transformsService: TransformsService,
+    private selectionTool: SelectionTool,
+    private notificationMessage: NotificationService,
+    private cursor: CursorService,
+    private mouseOverRenderer: MouseOverRenderer
   ) {
     super();
     this.spawn = new SvgShapes();
+  }
+  onActivate() {
+    this.mouseOverService.setMode(MouseOverMode.Containers);
+    this.mouseOverRenderer.clear();
+    this.cursor.setCursor(CursorType.Default);
+    super.onActivate();
+
+    this.selectionService.selectedSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.updateCurrentContainer();
+      });
+
+    this.mouseOverService.mouseOverSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.updateCurrentContainer();
+      });
+
+    this.updateCurrentContainer();
+  }
+  onDeactivate() {
+    this.mouseOverService.setMode(MouseOverMode.Elements);
+    this.destroyed$.next();
+    super.onDeactivate();
+    this.cleanUp();
+    this.notificationMessage.hideMessage();
+  }
+
+  onWindowKeyUp(event: KeyboardEvent) {
+    if (event.key === consts.changeContainerKey) {
+      const mouseOver = this.getMouseOverContainerOrRoot();
+      if (mouseOver && this.container !== mouseOver) {
+        this.selectionService.setSelected(mouseOver);
+      }
+    }
+  }
+  updateCurrentContainer() {
+    this.container = this.getCurrentContainer();
+    this.updateContainerName();
+  }
+  updateContainerName() {
+    const document = this.documentService.getDocument();
+    // Show container name that will be used:
+    if (this.container && document && document.rootNode !== this.container) {
+      this.notificationMessage.showMessage(`Container: ${this.container.name}`);
+    } else {
+      this.notificationMessage.hideMessage();
+    }
+  }
+  getCurrentContainer(): TreeNode | null {
+    const document = this.documentService.getDocument();
+    if (!document || !document.rootElement) {
+      return null;
+    }
+
+    let containerTreeNode = document.rootNode;
+    const nodes = this.selectionService.getSelected();
+    if (nodes.length > 0) {
+      containerTreeNode =
+        nodes.find((node) => document.parser.isContainer(node)) ||
+        document.rootNode;
+    }
+
+    if (!document.parser.isContainer(containerTreeNode)) {
+      return null;
+    }
+    return containerTreeNode;
   }
 
   onViewportMouseDown(event: MouseEventArgs) {
@@ -27,28 +127,106 @@ export class ShapeTool extends BaseTool {
 
     event.preventDefault();
     event.handled = true;
-
+    this.mouseOverRenderer.suspend(true);
     const document = this.documentService.getDocument();
-    if (!document || !document.rootNode) {
+    if (!document || !document.rootElement) {
       return;
     }
 
-    const addTo = document.rootNode;
-    const pos = Utils.toElementPoint(addTo, event.screenPoint);
-
+    const screenPoint = event.screenPoint;
+    const htmlElement = this.container.tag as SVGGraphicsElement;
+    const pos = Utils.toElementPoint(htmlElement, event.screenPoint);
     const element = this.spawn.createRect();
-    element.setAttribute("width", "100");
-    element.setAttribute("height", "100");
+    element.setAttribute("width", "1px");
+    element.setAttribute("height", "1px");
     element.setAttribute("x", Utils.round(pos.x).toString());
     element.setAttribute("y", Utils.round(pos.y).toString());
-    addTo.appendChild(element);
+    htmlElement.appendChild(element);
+    const newTreeNode = document.parser.convertTreeNode(element);
+    this.container.children.push(newTreeNode);
+
+    const adorner = this.adornerService.getAdorner(newTreeNode);
+    const handle = new HandleData();
+    handle.adorner = adorner;
+    handle.handles = AdornerType.BottomRight;
+    const transactions = this.transformsService.prepareTransactions(
+      [newTreeNode],
+      screenPoint,
+      handle
+    );
+    let root = newTreeNode;
+    while (root) {
+      root = root.parentNode;
+      if (root && root.expandable) {
+        root.expanded = true;
+      }
+    }
+    this.transformsService.start(transactions);
+    this.outlineService.setNodes([document.rootNode]);
+  }
+  /**
+   * Override.
+   */
+  onWindowMouseMove(event: MouseEventArgs) {
+    if (this.transformsService.isActive()) {
+      const screenPos = event.getDOMPoint();
+      this.transformsService.transformByMouse(screenPos);
+      this.autoPanService.update(event.clientX, event.clientY);
+    } else {
+      const mouseOver = this.getMouseOverContainerOrRoot();
+      if (this.container !== mouseOver) {
+        let message = `Press '${
+          consts.changeContainerKey
+        }' to switch parent container to '${this.limit(mouseOver.name)}'`;
+        if (this.container) {
+          message = `Container: ${this.limit(this.container.name)}. ` + message;
+        }
+        this.notificationMessage.showMessage(message);
+      }
+    }
+  }
+  limit(text: string, limit = 25): string {
+    if (!text) {
+      return text;
+    }
+
+    return text.substring(0, limit);
+  }
+  getMouseOverContainerOrRoot(): TreeNode | null {
+    const document = this.documentService.getDocument();
+    if (!document) {
+      return null;
+    }
+    const mouseOver = this.mouseOverService.getValue() || document.rootNode;
+    if (document.parser.isContainer(mouseOver)) {
+      return mouseOver;
+    }
+    return null;
+  }
+  cleanUp() {
+    this.mouseOverRenderer.resume();
+    this.transformsService.cancel();
+    this.selectionService.deselectAdorner();
   }
 
-  onDeactivate() {
-    super.onDeactivate();
+  onWindowMouseUp(event: MouseEventArgs) {
+    // No action if transform transaction was running.
+    // Transformation was applied, no need to do selection
+    this.autoPanService.stop();
+    this.mouseOverRenderer.resume();
+    if (
+      this.transformsService.isActive() &&
+      this.transformsService.isChanged()
+    ) {
+      this.transformsService.commit();
+      return;
+    } else {
+      this.transformsService.cancel();
+    }
   }
-
-  onActivate() {
-    super.onActivate();
+  onWindowBlur(event) {
+    this.autoPanService.stop();
+    this.transformsService.cancel();
+    this.cleanUp();
   }
 }
