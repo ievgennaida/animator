@@ -69,6 +69,14 @@ export class ShapeTool extends BaseTool {
         this.updateCurrentContainer();
       });
 
+    // Update container to use on subject change
+    this.documentService.documentSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.updateCurrentContainer();
+      });
+
     this.updateCurrentContainer();
   }
   onDeactivate() {

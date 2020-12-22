@@ -69,8 +69,12 @@ export class WireService {
       );
     });
 
+    // On new document loaded.
     documentService.documentSubject.asObservable().subscribe(() => {
+      this.cleanCache();
+      this.adornersService.cleanCache();
       toolsService.fitViewport();
+      this.selectionService.deselectAll();
     });
 
     // Individual element is transformed.
