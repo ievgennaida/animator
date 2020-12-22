@@ -18,8 +18,33 @@ body {
   overflow: visible !important;
   > svg {
     overflow: visible !important;
+    // By default only painted areas should be selectable
+    *:not(g):not(svg) {
+      pointer-events: initial !important;
+    }
+    // Allow to select bounding box for the group svg elements.
+    g,
+    svg {
+      /*Supported only in chrome, should be fixed.
+  Used to capture mouse over events for the g containers.*/
+      pointer-events: bounding-box !important;
+    }
   }
 }
+// Allow to mouse over only containers
+.mouse-over-only-containers {
+  *:not(g):not(svg) {
+    pointer-events: none !important;
+  }
+  // Allow to select bounding box for the 'group' svg elements.
+  g,
+  svg {
+    /*Supported only in chrome, should be fixed.
+Used to capture mouse over events for the g containers.*/
+    pointer-events: bounding-box !important;
+  }
+}
+
 .mat-menu-panel {
   border-radius: 2px !important;
   .mat-menu-content {

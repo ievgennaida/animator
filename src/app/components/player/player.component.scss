@@ -1,5 +1,5 @@
 @import "../../../variables.scss";
-
+/*Some player styles are global to avoid angular injection of only component styling.*/
 :host {
   display: grid;
   overflow: hidden;
