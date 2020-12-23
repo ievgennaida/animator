@@ -1,17 +1,20 @@
-<div class="header noselect"><button title="Expand All" class="menu-button" mat-button
-        (click)="expandAll()">
+<div class="header noselect">
+    <button title="Expand All" class="menu-button" mat-button (click)="expandAll()">
         <mat-icon>add</mat-icon>
     </button><button title="Collapse all" class="menu-button" mat-button (click)="collapseAll()">
         <mat-icon>remove</mat-icon>
     </button><button title="Scroll To Selected" class="menu-button" mat-button (click)="scrollToSelected()">
         <mat-icon>anchor</mat-icon>
-    </button></div>
-<div #treeScroll class="tree noselect" [scrollTop]="scrollTop"
-    [ngClass]="{'scroll-container':allowScroll, 'no-scroll-container':!allowScroll}">
-    <mat-tree [style.height.px]="height" [dataSource]="dataSource" [treeControl]="treeControl">
-        <!-- This is the tree node template for expandable nodes -->
-        <mat-tree-node *matTreeNodeDef="let node">
-            <app-outline-node [node]="node"></app-outline-node>
-        </mat-tree-node>
-    </mat-tree>
+    </button>
 </div>
+<cdk-virtual-scroll-viewport #treeScroll [scrollTop]="scrollTop" class="tree noselect"
+    [ngClass]="{'scroll-container':allowScroll, 'no-scroll-container':!allowScroll}"
+    (scrolledIndexChange)="scrollChange()" class="mat-tree" itemSize="32" [minBufferPx]="maxAllowedHeight"
+    [maxBufferPx]="maxAllowedHeight">
+
+    <div *cdkVirtualFor="let node of dataSource" class="mat-tree-node">
+        <app-outline-node [node]="node">
+        </app-outline-node>
+        <div style="height:2px"></div>
+    </div>
+</cdk-virtual-scroll-viewport>

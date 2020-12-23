@@ -23,14 +23,15 @@
 .tree {
   height: 100%;
 }
-mat-tree {
+.mat-tree {
   width: fit-content;
   min-width: 100%;
   background: transparent;
-  overflow: hidden;
+  //overflow: hidden;
+  height: 100%;
 }
 
-mat-tree-node {
+.mat-tree-node {
   min-height: 30px;
   max-height: 30px;
   margin-bottom: 2px;

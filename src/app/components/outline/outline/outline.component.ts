@@ -1,3 +1,4 @@
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -8,7 +9,9 @@ import {
   ViewChild,
 } from "@angular/core";
 import { TimelineScrollEvent } from "animation-timeline-js";
+import { Subject } from "rxjs";
 import { debounceTime, takeUntil } from "rxjs/operators";
+import { MouseOverService } from "src/app/services/mouse-over.service";
 import { OutlineService } from "src/app/services/outline.service";
 import { SelectionService } from "src/app/services/selection.service";
 import { StateChangedSource } from "src/app/services/state-subject";
@@ -26,20 +29,24 @@ export class OutlineComponent extends BaseComponent implements OnInit {
     private outlineService: OutlineService,
     private selectionService: SelectionService,
     private cdRef: ChangeDetectorRef,
+    private window: Window,
+    private mouseOverService: MouseOverService,
     private element: ElementRef<HTMLElement>
   ) {
     super();
     this.cdRef.detach();
   }
 
-  @ViewChild("treeScroll", { static: true, read: ElementRef })
-  treeScroll: ElementRef<HTMLElement>;
+  maxAllowedHeight = this.window?.screen?.availHeight - 100 || 1000;
+  @ViewChild("treeScroll", { static: true })
+  treeScroll: CdkVirtualScrollViewport;
   @Input() allowScroll = false;
   scrollTop: any = 0;
   smallDebounce = 10;
   height: any = "";
   dataSource = this.outlineService.flatDataSource;
   treeControl = this.outlineService.treeControl;
+  detectChangesSubject = new Subject();
   ngOnInit(): void {
     this.cdRef.detectChanges();
     this.selectionService.selected
@@ -62,6 +69,23 @@ export class OutlineComponent extends BaseComponent implements OnInit {
           this.scrollToSelected();
         }
       });
+    this.detectChangesSubject
+      .pipe(
+        takeUntil(this.destroyed$),
+        // Debounce a bit to avoid stuck on scroll
+        debounceTime(5)
+      )
+      .subscribe(() => this.cdRef.detectChanges());
+
+    this.mouseOverService.mouseOver
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => this.cdRef.detectChanges());
+    this.treeControl.expansionModel.changed
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => this.cdRef.detectChanges());
+  }
+  scrollChange() {
+    this.detectChangesSubject.next();
   }
   collapseAll() {
     this.changeExpandedState(false);
@@ -98,14 +122,16 @@ export class OutlineComponent extends BaseComponent implements OnInit {
           ".selected"
         ) as HTMLElement;
         if (
-          element &&
-          !this.isVisibleInScroll(element, this.treeScroll.nativeElement)
+          //element &&
+          true
+          // !this.isVisibleInScroll(element, this.treeScroll.nativeElement)
         ) {
-          element.scrollIntoView({
-            behavior: "auto",
-            block: "center",
-            inline: "center",
-          });
+          const node = this.selectionService.getSelected()[0];
+          const nodes = this.dataSource._expandedData.getValue();
+          const index = nodes.indexOf(node);
+          if (index >= 0) {
+            this.treeScroll.scrollToIndex(index);
+          }
         }
       }, this.smallDebounce);
     }

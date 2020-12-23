@@ -38,6 +38,7 @@ import { TimelineComponent } from "./components/timeline/timeline.component";
 import { MainToolbarComponent } from "./components/toolbars/main-toolbar/main-toolbar.component";
 import { ToolCommandsComponent } from "./components/toolbars/tool-commands/tool-commands.component";
 import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.component";
+import { ScrollingModule } from "@angular/cdk/scrolling";
 @NgModule({
   declarations: [
     AppComponent,
@@ -81,8 +82,9 @@ import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.componen
     NoopAnimationsModule,
     MatButtonModule,
     BrowserModule,
+    ScrollingModule,
   ],
-  providers: [],
+  providers: [{ provide: Window, useValue: window }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
