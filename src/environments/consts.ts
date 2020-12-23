@@ -105,9 +105,12 @@ export const consts = {
   showGridLines: true,
   showRuler: true,
   changeContainerKey: "Control",
+
   gridLineMainColor: "rgba(160, 160, 160, 0.4)",
   gridLineAltColor: "rgba(160, 160, 160, 0.2)",
   showTransformedBBoxes: true,
+  // Can be a bit slow until tree is about to be virtualized. 
+  outlineAutoScrollToSelected: true
 };
 
 export const defaultMenu = [

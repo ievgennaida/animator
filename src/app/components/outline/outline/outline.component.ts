@@ -55,7 +55,10 @@ export class OutlineComponent extends BaseComponent implements OnInit {
           });
         }
         this.cdRef.detectChanges();
-        if (data.source !== StateChangedSource.Outline) {
+        if (
+          consts.outlineAutoScrollToSelected &&
+          data.source !== StateChangedSource.Outline
+        ) {
           this.scrollToSelected();
         }
       });
