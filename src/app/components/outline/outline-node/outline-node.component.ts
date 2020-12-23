@@ -77,8 +77,10 @@ export class OutlineNodeComponent
       });
   }
   toggle(node: TreeNode) {
-    this.treeControl.toggle(node);
-    node.expanded = this.treeControl.isExpanded(node);
+    if (this.treeControl.isExpandable(node)) {
+      this.treeControl.toggle(node);
+      node.expanded = this.treeControl.isExpanded(node);
+    }
   }
 
   setSelected(event: MouseEvent, node: TreeNode) {
