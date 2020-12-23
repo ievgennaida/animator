@@ -15,6 +15,7 @@ import { ViewMode } from "src/app/models/view-mode";
 import { UndoService } from "src/app/services/commands/undo.service";
 import { DocumentService } from "src/app/services/document.service";
 import { LoggerService } from "src/app/services/logger.service";
+import { MenuService } from "src/app/services/menu-service";
 import { PasteService } from "src/app/services/paste.service";
 import { SelectionService } from "src/app/services/selection.service";
 import { ViewService } from "src/app/services/view.service";
@@ -22,7 +23,7 @@ import { PanTool } from "src/app/services/viewport/pan.tool";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { ZoomTool } from "src/app/services/viewport/zoom.tool";
-import { consts } from "src/environments/consts";
+import { consts, PanelsIds } from "src/environments/consts";
 import { BaseComponent } from "../../base-component";
 @Component({
   selector: "app-main-toolbar",
@@ -38,7 +39,10 @@ export class MainToolbarComponent
   redoDisabled = false;
   recentItems = [];
   showGridLines = this.gridLinesRenderer.gridLinesVisible();
-  showProperties = this.viewService.menuVisibleSubject.getValue();
+  showMenu = this.viewService.menuVisibleSubject.getValue();
+  showHistory = this.menuService.isPanelVisible(PanelsIds.History);
+  showOutline = this.menuService.isPanelVisible(PanelsIds.Outline);
+  showProperties = this.menuService.isPanelVisible(PanelsIds.Properties);
   codeVisible = this.viewService.codeVisibleSubject.getValue();
   breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
@@ -53,6 +57,7 @@ export class MainToolbarComponent
     private cdRef: ChangeDetectorRef,
     private zoomTool: ZoomTool,
     private panTool: PanTool,
+    private menuService: MenuService,
     private selectionService: SelectionService,
     private gridLinesRenderer: GridLinesRenderer,
     private toolsService: ToolsService,
@@ -67,11 +72,36 @@ export class MainToolbarComponent
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((value) => {
-        if (value !== this.showProperties) {
-          this.showProperties = value;
+        if (value !== this.showMenu) {
+          this.showMenu = value;
           this.cdRef.markForCheck();
         }
       });
+    this.menuService.menuChanged
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        let changed = true;
+        let visible = this.menuService.isPanelVisible(PanelsIds.History);
+        if (this.showHistory !== visible) {
+          this.showHistory = visible;
+          changed = true;
+        }
+        visible = this.menuService.isPanelVisible(PanelsIds.Outline);
+        if (this.showOutline !== visible) {
+          this.showOutline = visible;
+          changed = true;
+        }
+        visible = this.menuService.isPanelVisible(PanelsIds.Properties);
+        if (this.showProperties !== visible) {
+          this.showProperties = visible;
+          changed = true;
+        }
+        if (changed) {
+          this.cdRef.markForCheck();
+        }
+      });
+
     this.gridLinesRenderer.gridLinesVisibleSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
@@ -249,6 +279,23 @@ export class MainToolbarComponent
   }
   toggleMenu() {
     this.viewService.toggleMenu();
+  }
+  toggleHistory() {
+    this.showHistory = this.togglePanel(PanelsIds.History);
+  }
+  toggleProperties() {
+    this.showProperties = this.togglePanel(PanelsIds.Properties);
+  }
+  toggleOutline() {
+    this.showOutline = this.togglePanel(PanelsIds.Outline);
+  }
+  togglePanel(panelId: PanelsIds): boolean {
+    const visible = this.menuService.isPanelVisible(panelId);
+    if (!visible) {
+      this.viewService.openMenu();
+    }
+    this.menuService.setPanelVisibility(panelId, !visible);
+    return !visible;
   }
   undo() {
     this.undoService.undo();

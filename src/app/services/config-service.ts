@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { consts } from "src/environments/consts";
+import { consts, panelsConfig } from "src/environments/consts";
 /**
  * Allow to get and save configuration for the user.
  */
@@ -13,6 +13,9 @@ export class ConfigService {
    */
   get(): typeof consts {
     return consts;
+  }
+  getPanelsConfig(): typeof panelsConfig {
+    return panelsConfig;
   }
   save() {
     // TODO: save configuration:

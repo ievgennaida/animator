@@ -76,8 +76,18 @@
         <button mat-menu-item [matMenuTriggerFor]="appearance">
             <mat-icon></mat-icon>Viewport
         </button>
+        <mat-divider></mat-divider>
         <button mat-menu-item (click)="toggleMenu()">
+            <mat-icon><span *ngIf="showMenu">check</span></mat-icon>Menu
+        </button>
+        <button mat-menu-item (click)="toggleHistory()">
+            <mat-icon><span *ngIf="showHistory">check</span></mat-icon>History
+        </button>
+        <button mat-menu-item (click)="toggleProperties()">
             <mat-icon><span *ngIf="showProperties">check</span></mat-icon>Properties
+        </button>
+        <button mat-menu-item (click)="toggleOutline()">
+            <mat-icon><span *ngIf="showOutline">check</span></mat-icon>Outline
         </button>
         <mat-menu #appearance>
             <button mat-menu-item (click)="toggleGridLines()">
@@ -91,7 +101,7 @@
             </button>
             <button mat-menu-item (click)="toggleCode()">
                 <mat-icon><span *ngIf="codeVisible">check</span></mat-icon>Code
-            </button>            
+            </button>
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="zoomIn()">
                 <mat-icon>zoom_in</mat-icon>Zoom In

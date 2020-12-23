@@ -91,6 +91,9 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
+  closePanel(panel: MenuPanel) {
+    this.menuService.closePanel(panel.id);
+  }
   dragMove(event: MouseEvent) {
     if (!this.dragStartedArgs) {
       return;

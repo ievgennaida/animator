@@ -109,27 +109,33 @@ export const consts = {
   gridLineMainColor: "rgba(160, 160, 160, 0.4)",
   gridLineAltColor: "rgba(160, 160, 160, 0.2)",
   showTransformedBBoxes: true,
-  // Can be a bit slow until tree is about to be virtualized. 
-  outlineAutoScrollToSelected: true
+  // Can be a bit slow until tree is about to be virtualized.
+  outlineAutoScrollToSelected: true,
 };
 
-export const defaultMenu = [
+export const enum PanelsIds {
+  History = "history",
+  Properties = "properties",
+  Outline = "outline",
+}
+export const panelsConfig = [
   {
-    id: "history",
+    id: PanelsIds.History,
     expanded: true,
     visible: false,
     title: "History",
     height: 100,
+    allowClose: true,
   },
   {
-    id: "properties",
+    id: PanelsIds.Properties,
     expanded: true,
     visible: true,
     title: "Properties",
     height: 100,
   },
   {
-    id: "outline",
+    id: PanelsIds.Outline,
     expanded: true,
     visible: true,
     title: "Outline",

@@ -74,8 +74,17 @@ export class ViewService implements ICTMProvider {
     this.codeVisibleSubject.next(!this.codeVisibleSubject.getValue());
   }
 
-  toggleMenu() {
-    this.menuVisibleSubject.next(!this.menuVisibleSubject.getValue());
+  toggleMenu(): boolean {
+    const value = !this.menuVisibleSubject.getValue();
+    this.menuVisibleSubject.next(value);
+    return value;
+  }
+
+  openMenu() {
+    const value = this.menuVisibleSubject.getValue();
+    if (!value) {
+      this.menuVisibleSubject.next(true);
+    }
   }
 
   /**

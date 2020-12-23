@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-import { consts, defaultMenu } from "src/environments/consts";
+import { PanelsIds } from "src/environments/consts";
 import { ViewMode } from "../models/view-mode";
 import { ConfigService } from "./config-service";
 import { ViewService } from "./view.service";
@@ -10,7 +10,8 @@ export interface MenuPanel {
   visible: boolean;
   title: string;
   height: number;
-  id: string;
+  id: string | PanelsIds;
+  allowClose?: boolean;
 }
 
 /**
@@ -24,7 +25,7 @@ export class MenuService {
     this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
       const animator = mode === ViewMode.Animator;
       const menu = this.getMenu();
-      const outline = menu.find((p) => p.id === "outline");
+      const outline = menu.find((p) => p.id === PanelsIds.Outline);
       if (outline) {
         outline.visible = !animator;
         this.menuChanged.next(menu);
@@ -32,7 +33,30 @@ export class MenuService {
     });
   }
 
-  menuChanged = new BehaviorSubject<MenuPanel[]>(defaultMenu);
+  menuChanged = new BehaviorSubject<MenuPanel[]>(this.config.getPanelsConfig());
+
+  getPanel(panelId: string | PanelsIds): MenuPanel | null {
+    return this.getMenu().find((p) => p.id === panelId);
+  }
+  closePanel(panelId: string | PanelsIds) {
+    this.setPanelVisibility(panelId, false);
+  }
+
+  setPanelVisibility(panelId: string | PanelsIds, visibility: boolean) {
+    const panel = this.getPanel(panelId);
+    if (panel) {
+      if (panel.visible !== visibility) {
+        panel.visible = visibility;
+        this.config.save();
+        // Rise event that panels updated:
+        this.menuChanged.next(this.menuChanged.getValue());
+      }
+    }
+  }
+  isPanelVisible(panelId: PanelsIds): boolean {
+    const visible = !!this.getVisibleMenu().find((p) => p.id === panelId);
+    return visible;
+  }
   getMenu(): MenuPanel[] {
     return this.menuChanged.getValue();
   }

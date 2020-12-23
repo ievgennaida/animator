@@ -5,6 +5,10 @@
         <div class="header noselect nodrag" (click)="toggleMenu(panel)">
             <mat-icon>{{panel.expanded?'expand_less':'expand_more'}}</mat-icon>
             <div class="header-text">{{panel.title}}</div>
+            <button *ngIf="panel.allowClose" title="Close Panel" class="header-button" mat-button
+                (click)="closePanel(panel)">
+                <mat-icon>close</mat-icon>
+            </button>
         </div>
         <app-outline class="panel-content" *ngIf="panel.expanded && panel.id == 'outline'" allowScroll="true">
         </app-outline>
