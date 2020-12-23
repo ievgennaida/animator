@@ -183,7 +183,7 @@ export class ShapeTool extends BaseTool {
       this.autoPanService.update(event.clientX, event.clientY);
     } else {
       const mouseOver = this.getMouseOverContainerOrRoot();
-      if (this.container !== mouseOver) {
+      if (mouseOver && this.container !== mouseOver) {
         let message = `Press '${
           consts.changeContainerKey
         }' to switch parent container to '${this.limit(mouseOver.name)}'`;

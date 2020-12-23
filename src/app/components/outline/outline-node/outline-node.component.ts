@@ -50,12 +50,15 @@ export class OutlineNodeComponent
   ) {
     super();
     this.cdRef.detach();
+  }
+  ngOnInit(): void {
     this.outlineService.nodesSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
+        // When nodes list changed.
         this.cdRef.detectChanges();
       });
-    selectionService.selected
+    this.selectionService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         // Track only changed items:
@@ -73,7 +76,6 @@ export class OutlineNodeComponent
         }
       });
   }
-  ngOnInit(): void {}
   toggle(node: TreeNode) {
     this.treeControl.toggle(node);
     node.expanded = this.treeControl.isExpanded(node);
