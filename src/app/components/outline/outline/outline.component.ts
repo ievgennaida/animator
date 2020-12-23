@@ -56,25 +56,56 @@ export class OutlineComponent extends BaseComponent implements OnInit {
         }
         this.cdRef.detectChanges();
         if (data.source !== StateChangedSource.Outline) {
-          if (this.element && this.element.nativeElement) {
-            setTimeout(() => {
-              const element = this.element.nativeElement.querySelector(
-                ".selected"
-              ) as HTMLElement;
-              if (
-                element &&
-                !this.isVisibleInScroll(element, this.treeScroll.nativeElement)
-              ) {
-                element.scrollIntoView({
-                  behavior: "auto",
-                  block: "center",
-                  inline: "center",
-                });
-              }
-            }, this.smallDebounce);
-          }
+          this.scrollToSelected();
         }
       });
+  }
+  collapseAll() {
+    this.changeExpandedState(false);
+  }
+  expandAll() {
+    this.changeExpandedState(true);
+  }
+
+  changeExpandedState(expectedExpanded: boolean): boolean {
+    let changed = false;
+    this.outlineService.getAllNodes().forEach((node) => {
+      if (
+        this.treeControl.isExpandable(node) &&
+        this.treeControl.isExpanded(node) !== expectedExpanded
+      ) {
+        changed = true;
+        if (expectedExpanded) {
+          this.treeControl.expand(node);
+        } else {
+          this.treeControl.collapse(node);
+        }
+      }
+    });
+    if (changed) {
+      this.cdRef.detectChanges();
+    }
+
+    return changed;
+  }
+  scrollToSelected() {
+    if (this.element && this.element.nativeElement) {
+      setTimeout(() => {
+        const element = this.element.nativeElement.querySelector(
+          ".selected"
+        ) as HTMLElement;
+        if (
+          element &&
+          !this.isVisibleInScroll(element, this.treeScroll.nativeElement)
+        ) {
+          element.scrollIntoView({
+            behavior: "auto",
+            block: "center",
+            inline: "center",
+          });
+        }
+      }, this.smallDebounce);
+    }
   }
   /**
    * Check whether scroll into required.
