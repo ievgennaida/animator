@@ -12,6 +12,7 @@ import { debounceTime, takeUntil } from "rxjs/operators";
 import { OutlineService } from "src/app/services/outline.service";
 import { SelectionService } from "src/app/services/selection.service";
 import { StateChangedSource } from "src/app/services/state-subject";
+import { Utils } from "src/app/services/utils/utils";
 import { consts } from "src/environments/consts";
 import { BaseComponent } from "../../base-component";
 
@@ -99,7 +100,7 @@ export class OutlineComponent extends BaseComponent implements OnInit {
         ) as HTMLElement;
         if (
           element &&
-          !this.isVisibleInScroll(element, this.treeScroll.nativeElement)
+          !Utils.isVisibleVertically(element, this.treeScroll.nativeElement)
         ) {
           element.scrollIntoView({
             behavior: "auto",
@@ -109,35 +110,6 @@ export class OutlineComponent extends BaseComponent implements OnInit {
         }
       }, this.smallDebounce);
     }
-  }
-  /**
-   * Check whether scroll into required.
-   */
-  public isVisibleInScroll(el: HTMLElement, container: HTMLElement) {
-    if (
-      !el ||
-      !el.getBoundingClientRect ||
-      !container ||
-      !container.getBoundingClientRect
-    ) {
-      return;
-    }
-    const rect = el.getBoundingClientRect();
-    if (!rect) {
-      return;
-    }
-    const parentRect = container.getBoundingClientRect();
-    if (!parentRect) {
-      return;
-    }
-    // Contains partially:
-    if (
-      (rect.top > parentRect.top && rect.top < parentRect.bottom) ||
-      (rect.bottom > parentRect.top && rect.bottom < parentRect.bottom)
-    ) {
-      return true;
-    }
-    return false;
   }
 
   public setSize(args: TimelineScrollEvent) {

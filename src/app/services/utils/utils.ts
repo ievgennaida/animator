@@ -539,4 +539,33 @@ export class Utils {
     );
     return transformPoint;
   }
+  /**
+   * Check whether element is visible vertically.
+   */
+  public static isVisibleVertically(el: HTMLElement, container: HTMLElement) {
+    if (
+      !el ||
+      !el.getBoundingClientRect ||
+      !container ||
+      !container.getBoundingClientRect
+    ) {
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
+    const parentRect = container.getBoundingClientRect();
+    if (!parentRect) {
+      return;
+    }
+    // Contains fully or partially:
+    if (
+      (rect.top > parentRect.top && rect.top < parentRect.bottom) ||
+      (rect.bottom > parentRect.top && rect.bottom < parentRect.bottom)
+    ) {
+      return true;
+    }
+    return false;
+  }
 }
