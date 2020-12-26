@@ -82,6 +82,7 @@ export class WireService {
         firstUndoItem.tooltip = `Document loaded: ${document.title}`;
         this.undoService.addAction(firstUndoItem);
       }
+      this.outlineService.clear();
       this.cleanCache();
       this.adornersService.cleanCache();
       toolsService.fitViewport();
