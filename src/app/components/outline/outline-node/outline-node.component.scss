@@ -1,9 +1,12 @@
+@import "/src/variables.scss";
+
 :host {
   width: 100%;
   height: 100%;
 }
+// Hover can be also over the design area, that why it's not regular hover css selector.
 .hover {
-  background-color: #094771;
+  background-color: $node-hover;
 }
 .selected {
   background-color: #3399ff !important;

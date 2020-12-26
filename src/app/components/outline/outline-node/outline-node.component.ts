@@ -52,6 +52,17 @@ export class OutlineNodeComponent
     this.cdRef.detach();
   }
   ngOnInit(): void {
+    this.treeControl.expansionModel.changed
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((value) => {
+        if (
+          value.added.indexOf(this.node) >= 0 ||
+          value.removed.indexOf(this.node) >= 0
+        ) {
+          // When nodes list changed.
+          this.cdRef.detectChanges();
+        }
+      });
     this.outlineService.nodesSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {

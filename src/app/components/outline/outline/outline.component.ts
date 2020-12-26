@@ -42,7 +42,13 @@ export class OutlineComponent extends BaseComponent implements OnInit {
   dataSource = this.outlineService.flatDataSource;
   treeControl = this.outlineService.treeControl;
   ngOnInit(): void {
-    this.cdRef.detectChanges();
+    this.outlineService.nodesSubject
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        // When nodes list changed.
+        this.cdRef.detectChanges();
+      });
+
     this.selectionService.selected
       .pipe(
         takeUntil(this.destroyed$),
@@ -63,6 +69,8 @@ export class OutlineComponent extends BaseComponent implements OnInit {
           this.scrollToSelected();
         }
       });
+
+    this.cdRef.detectChanges();
   }
   collapseAll() {
     this.changeExpandedState(false);

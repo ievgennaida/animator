@@ -21,7 +21,29 @@ export enum InteractionSource {
   providedIn: "root",
 })
 export class OutlineService {
-  constructor(private appFactory: AppFactory, private logger: LoggerService) {}
+  constructor(private appFactory: AppFactory, private logger: LoggerService) {
+    this.treeControl.expansionModel.changed.subscribe((state) => {
+      state.added.forEach((p) => {
+        p.expanded = true;
+      });
+      state.removed.forEach((p) => {
+        p.expanded = false;
+      });
+    });
+
+    this.nodesSubject.subscribe((nodes) => {
+      // Sync expanded state with the tree node properties when changed
+      if (nodes) {
+        nodes.forEach((node) => {
+          if (node.expandable && node.expanded) {
+            this.treeControl.expand(node);
+          } else {
+            this.treeControl.collapse(node);
+          }
+        });
+      }
+    });
+  }
 
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
 
@@ -48,6 +70,10 @@ export class OutlineService {
 
   get flatList() {
     return this.flatDataSource._flattenedData.asObservable();
+  }
+  clear() {
+    // Remove outline expanded cache
+    this.treeControl.expansionModel.clear();
   }
   /**
    * Expand all items from current node to top
@@ -112,16 +138,13 @@ export class OutlineService {
     return nodes;
   }
 
+  update() {
+    const items = this.nodesSubject.getValue();
+    // Run new event to completely update the tree.
+    this.setNodes(items);
+  }
   setNodes(nodes: TreeNode[]) {
     this.flatDataSource.data = nodes;
-    nodes.forEach((p) => {
-      if (p.expandable && p.expanded) {
-        this.treeControl.expand(p);
-      } else {
-        this.treeControl.collapse(p);
-      }
-      p.expanded = this.treeControl.isExpanded(p);
-    });
     this.nodesSubject.next(nodes);
   }
 
