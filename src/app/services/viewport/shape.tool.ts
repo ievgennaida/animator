@@ -7,13 +7,15 @@ import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { AdornersService } from "../adorners-service";
+import { AddElementAction } from "../commands/add-element-action";
+import { UndoService } from "../commands/undo.service";
 import { CursorService } from "../cursor.service";
 import { DocumentService } from "../document.service";
 import { MouseOverMode, MouseOverService } from "../mouse-over.service";
 import { NotificationService } from "../notification.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
-import { SvgShapes } from "../svg/svg-shapes";
+import { ShapesRepositoryService } from "../shapes-repository-service";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
 import { AdornerType } from "./adorners/adorner-type";
@@ -28,7 +30,6 @@ import { TransformsService } from "./transformations/transforms.service";
 })
 export class ShapeTool extends BaseTool {
   iconName = "crop_square";
-  spawn: SvgShapes;
   container: TreeNode | null = null;
   protected destroyed$ = new Subject();
 
@@ -44,10 +45,11 @@ export class ShapeTool extends BaseTool {
     private selectionTool: SelectionTool,
     private notificationMessage: NotificationService,
     private cursor: CursorService,
-    private mouseOverRenderer: MouseOverRenderer
+    private mouseOverRenderer: MouseOverRenderer,
+    private shapesRepositoryService: ShapesRepositoryService,
+    private undoService: UndoService
   ) {
     super();
-    this.spawn = new SvgShapes();
   }
   onActivate() {
     this.mouseOverService.setMode(MouseOverMode.Containers);
@@ -55,6 +57,7 @@ export class ShapeTool extends BaseTool {
     this.cursor.setCursor(CursorType.Default);
     super.onActivate();
 
+    // Update current container when new container is selected:
     this.selectionService.selectedSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
@@ -62,6 +65,7 @@ export class ShapeTool extends BaseTool {
         this.updateCurrentContainer();
       });
 
+    // Update message on mouse over
     this.mouseOverService.mouseOverSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
@@ -69,7 +73,7 @@ export class ShapeTool extends BaseTool {
         this.updateCurrentContainer();
       });
 
-    // Update container to use on subject change
+    // Update current container when new document is created
     this.documentService.documentSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
@@ -142,16 +146,22 @@ export class ShapeTool extends BaseTool {
     }
 
     const screenPoint = event.screenPoint;
-    const htmlElement = this.container.tag as SVGGraphicsElement;
-    const pos = Utils.toElementPoint(htmlElement, event.screenPoint);
-    const element = this.spawn.createRect();
+    const pos = Utils.toElementPoint(this.container, event.screenPoint);
+    const element = this.shapesRepositoryService.createRect();
     element.setAttribute("width", "1px");
     element.setAttribute("height", "1px");
     element.setAttribute("x", Utils.round(pos.x).toString());
     element.setAttribute("y", Utils.round(pos.y).toString());
-    htmlElement.appendChild(element);
     const newTreeNode = document.parser.convertTreeNode(element);
-    this.container.children.push(newTreeNode);
+
+    this.outlineService.expandToTop(this.container);
+
+    const action = this.undoService.getAction<AddElementAction>(
+      AddElementAction
+    );
+    action.init(this.container, newTreeNode);
+    this.undoService.startAction(action);
+
 
     const adorner = this.adornerService.getAdorner(newTreeNode);
     const handle = new HandleData();
@@ -162,15 +172,8 @@ export class ShapeTool extends BaseTool {
       screenPoint,
       handle
     );
-    let root = newTreeNode;
-    while (root) {
-      root = root.parentNode;
-      if (root && root.expandable) {
-        root.expanded = true;
-      }
-    }
+
     this.transformsService.start(transactions);
-    this.outlineService.setNodes([document.rootNode]);
     this.selectionService.setSelected(newTreeNode);
   }
   /**

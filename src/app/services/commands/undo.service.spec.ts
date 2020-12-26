@@ -6,7 +6,7 @@ describe('UndoService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: UndoService = TestBed.get(UndoService);
+    const service: UndoService = TestBed.inject(UndoService);
     expect(service).toBeTruthy();
   });
 });

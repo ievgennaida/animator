@@ -1,3 +1,4 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { HttpClientModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -81,6 +82,7 @@ import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.componen
     NoopAnimationsModule,
     MatButtonModule,
     BrowserModule,
+    ScrollingModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

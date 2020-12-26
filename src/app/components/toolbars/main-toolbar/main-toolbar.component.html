@@ -21,19 +21,19 @@
         </button>
         <input #file type='file' accept="" style="display:none;" (change)="fileSelected($event)">
     </mat-menu>
-    <button class="menu-button" mat-button disabled (click)="undo()" [disabled]="undoDisabled">
+    <button class="menu-button" mat-button (click)="undo()" [disabled]="undoDisabled">
         <mat-icon>undo</mat-icon>
     </button>
-    <button class="menu-button" mat-button disabled (click)="redo()" [disabled]="redoDisabled">
+    <button class="menu-button" mat-button (click)="redo()" [disabled]="redoDisabled">
         <mat-icon>redo</mat-icon>
     </button>
     <button mat-button [matMenuTriggerFor]="edit">Edit</button>
     <mat-menu #edit>
-        <button mat-menu-item disabled (click)="undo()" [disabled]="undoDisabled">
+        <button mat-menu-item (click)="undo()" [disabled]="undoDisabled">
             <mat-icon>undo</mat-icon>
             <span>Undo</span><span class="hotkey">Ctrl+Z</span>
         </button>
-        <button mat-menu-item disabled (click)="redo()" [disabled]="redoDisabled">
+        <button mat-menu-item (click)="redo()" [disabled]="redoDisabled">
             <mat-icon>redo</mat-icon>
             <span>Redo</span><span class="hotkey">Ctrl+Y</span>
         </button>

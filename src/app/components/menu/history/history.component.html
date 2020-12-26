@@ -1,1 +1,12 @@
-<p>history works!</p>
+<cdk-virtual-scroll-viewport #virtual scrolled="onScrolled()" class="list" [itemSize]="30">
+    <div *cdkVirtualFor="let item of items" (click)="historyClick(item)" class="container"
+        (mouseenter)="mouseEnter(item)" (mouseleave)="mouseLeave(item)" [title]="item.tooltip || ''"
+        [ngClass]="{'deactivated':!item.active, 'hover':item.hover, 'selected':item.selected}">
+        <mat-icon>
+            {{item.command.icon || 'remove'}}
+        </mat-icon>
+        <div class="content text">
+            {{item.command.title || 'command'}}
+        </div>
+    </div>
+</cdk-virtual-scroll-viewport>

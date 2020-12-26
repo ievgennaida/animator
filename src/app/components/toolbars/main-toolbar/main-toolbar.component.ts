@@ -35,8 +35,8 @@ export class MainToolbarComponent
   extends BaseComponent
   implements OnInit, OnDestroy {
   title = "animation";
-  undoDisabled = false;
-  redoDisabled = false;
+  undoDisabled = !this.undoService.canUndo();
+  redoDisabled = !this.undoService.canRedo();
   recentItems = [];
   showGridLines = this.gridLinesRenderer.gridLinesVisible();
   showMenu = this.viewService.menuVisibleSubject.getValue();
@@ -67,7 +67,26 @@ export class MainToolbarComponent
     super();
   }
 
+  updateUndoState() {
+    this.undoDisabled = !this.undoService.canUndo();
+    this.redoDisabled = !this.undoService.canRedo();
+    this.cdRef.markForCheck();
+  }
   ngOnInit(): void {
+    this.undoService.actionIndexSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.updateUndoState();
+      });
+
+    this.undoService.actionsSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.updateUndoState();
+      });
+
     this.viewService.menuVisibleSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
