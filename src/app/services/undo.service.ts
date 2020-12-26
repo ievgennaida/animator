@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-import { LoggerService } from "../logger.service";
-import { ActionsFactory } from "./actions-factory";
-import { BaseAction } from "./base-action";
+import { LoggerService } from "./logger.service";
+import { ActionsFactory } from "./actions/actions-factory";
+import { BaseAction } from "./actions/base-action";
 
 @Injectable({
   providedIn: "root",
@@ -38,7 +38,7 @@ export class UndoService {
    */
   startAction(action: BaseAction, execute = true): BaseAction {
     if (execute) {
-      action.do();
+      action.execute();
     }
     this.addAction(action);
     return action;
@@ -119,7 +119,7 @@ export class UndoService {
   canRedo(): boolean {
     const nextAction = this.activeIndex + 1;
     if (nextAction >= 0 && nextAction < this.actions.length) {
-      return this.actions[nextAction].canDo();
+      return this.actions[nextAction].canExecute();
     }
 
     return false;
@@ -136,7 +136,7 @@ export class UndoService {
       this.logger.log(`Redo: (${index}) ${nextAction.title}.`);
     }
     try {
-      nextAction.do();
+      nextAction.execute();
 
       this.activeIndex = index;
       return true;

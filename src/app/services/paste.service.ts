@@ -8,5 +8,4 @@ export class PasteService {
   cut() {}
   copy() {}
   paste() {}
-  delete() {}
 }

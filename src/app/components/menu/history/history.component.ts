@@ -8,9 +8,9 @@ import {
   ViewChild,
 } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
-import { BaseAction } from "src/app/services/commands/base-action";
-import { UndoService } from "src/app/services/commands/undo.service";
+import { BaseAction } from "src/app/services/actions/base-action";
 import { LoggerService } from "src/app/services/logger.service";
+import { UndoService } from "src/app/services/undo.service";
 import { Utils } from "src/app/services/utils/utils";
 import { BaseComponent } from "../../base-component";
 

@@ -65,6 +65,24 @@ export class SelectionService {
     return toReturn;
   }
 
+  /**
+   * Get unique list of top selected nodes.
+   * ex: parent node is selected and some of the children.
+   * Only parent will be returned.
+   */
+  getTopSelectedNodes(): TreeNode[] {
+    const topNodes = [];
+    const selected = this.getSelected();
+    selected.forEach((p) => {
+      const top = this.getTopSelectedNode(p);
+      if (topNodes.indexOf(p) < 0) {
+        topNodes.push(top);
+      }
+    });
+
+    return topNodes;
+  }
+
   getSelected(): TreeNode[] {
     return this.selectedSubject.getValues();
   }

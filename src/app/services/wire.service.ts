@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { AdornersService } from "./adorners-service";
-import { DocumentLoadedAction } from "./commands/document-loaded-action";
-import { UndoService } from "./commands/undo.service";
+import { DocumentLoadedAction } from "./actions/document-loaded-action";
+import { UndoService } from "./undo.service";
 import { DocumentService } from "./document.service";
 import { MouseOverService } from "./mouse-over.service";
 import { OutlineService } from "./outline.service";

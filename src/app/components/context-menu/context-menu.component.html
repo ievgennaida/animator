@@ -11,13 +11,13 @@
         <button disabled mat-menu-item (click)="paste()">
             <mat-icon></mat-icon><span>Paste</span><span class="hotkey">Ctrl+V</span>
         </button>
-        <button disabled mat-menu-item (click)="delete()">
-            <mat-icon>clear</mat-icon><span>Delete</span><span class="hotkey">Del</span>
-        </button>
-        <button mat-menu-item *ngFor="let command of commands || []" [attr.title]="command.tooltip"
+        <button mat-menu-item *ngFor="let command of commands || []"
+            [disabled]="command.canExecute?!command.canExecute():false" [attr.title]="command.tooltip"
             [class.active]="command?.active || false" (click)="onActionClicked(command)">
-            <mat-icon [svgIcon]="command.icon">
-            </mat-icon><span *ngIf="command.title">{{command.title}}</span><span class="hotkey"></span>
+            <mat-icon [svgIcon]="command.iconSVG?command.icon:null">{{command.icon?command.icon:''}}
+            </mat-icon>
+            <span *ngIf="command.title">{{command.title}}</span><span class="hotkey">{{command.hotkey ||
+                ''}}</span>
         </button>
     </div>
 </mat-menu>

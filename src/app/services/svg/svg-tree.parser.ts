@@ -35,6 +35,7 @@ export class SvgTreeParser implements IParser {
     // Represent root node:
     const svgRootNode = this.convertTreeNode(element);
     svgRootNode.transformable = false;
+    svgRootNode.allowDelete = false;
     svgRootNode.icon = "assignment";
     svgRootNode.name = document.title;
     svgRootNode.isRoot = true;

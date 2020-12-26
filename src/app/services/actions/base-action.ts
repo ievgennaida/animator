@@ -5,13 +5,12 @@ export abstract class BaseAction {
   title?: string;
   tooltip?: string;
   icon?: string;
-  abstract do();
-  abstract undo();
-  canUndo(): boolean {
+  abstract execute();
+  canExecute(): boolean {
     return true;
   }
-
-  canDo(): boolean {
+  abstract undo();
+  canUndo(): boolean {
     return true;
   }
 }

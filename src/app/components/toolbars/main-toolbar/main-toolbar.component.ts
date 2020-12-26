@@ -12,7 +12,8 @@ import {
   InputDocumentType,
 } from "src/app/models/input-document";
 import { ViewMode } from "src/app/models/view-mode";
-import { UndoService } from "src/app/services/commands/undo.service";
+import { RemoveElementCommand } from "src/app/services/commands/remove-element-command";
+import { UndoService } from "src/app/services/undo.service";
 import { DocumentService } from "src/app/services/document.service";
 import { LoggerService } from "src/app/services/logger.service";
 import { MenuService } from "src/app/services/menu-service";
@@ -62,7 +63,8 @@ export class MainToolbarComponent
     private gridLinesRenderer: GridLinesRenderer,
     private toolsService: ToolsService,
     private pasteService: PasteService,
-    private http: HttpClient
+    private http: HttpClient,
+    public removeElementCommand: RemoveElementCommand
   ) {
     super();
   }
@@ -353,7 +355,7 @@ export class MainToolbarComponent
     this.pasteService.paste();
   }
   delete() {
-    this.pasteService.delete();
+    this.removeElementCommand.execute();
   }
   fitViewportSelected() {
     this.toolsService.fitViewportToSelected();

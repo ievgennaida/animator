@@ -35,6 +35,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   lane: TimelineRow;
   level: number;
   transformable = true;
+  allowDelete = true;
   allowTranslate = true;
   allowRotate = true;
   allowResize = true;

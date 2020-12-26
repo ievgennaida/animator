@@ -5,7 +5,7 @@ import { ConfigService } from "../config-service";
 import { AdornersRenderer } from "../viewport/renderers/adorners.renderer";
 
 /**
- * Command that will allow viewport to manipulate visual elements in elements coordinates.
+ * Command that will allow viewport switch adorners manipulation type: visual elements viewport transform or in elements coordinates.
  */
 @Injectable({
   providedIn: "root",
@@ -23,6 +23,7 @@ export class BBoxModeCommand implements BaseCommand {
   title?: string;
   icon: string;
   align = "right";
+  iconSVG = true;
   execute() {
     const config = this.configService.get();
     config.showTransformedBBoxes = !config.showTransformedBBoxes;

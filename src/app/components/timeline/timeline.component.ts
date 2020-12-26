@@ -21,7 +21,7 @@ import {
 import { takeUntil } from "rxjs/operators";
 import { Keyframe } from "src/app/models/keyframes/Keyframe";
 import { TreeNode } from "src/app/models/tree-node";
-import { ActionService } from "src/app/services/commands/action.service";
+
 import { OutlineService } from "src/app/services/outline.service";
 import { PlayerService } from "src/app/services/player.service";
 import { PropertiesService } from "src/app/services/properties.service";
@@ -43,7 +43,6 @@ export class TimelineComponent
     private outlineService: OutlineService,
     private viewService: ViewService,
     private playerService: PlayerService,
-    private actionService: ActionService,
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone
   ) {
@@ -100,7 +99,6 @@ export class TimelineComponent
         const keyframes = (args.elements as Array<TimelineElement>)
           .filter((p) => p.type === TimelineElementType.Keyframe && p.keyframe)
           .map((p) => p.keyframe as Keyframe);
-        this.actionService.StartTransaction(keyframes);
         this.propertiesService.emitPropertyChanged(null);
       }
     });
@@ -108,7 +106,6 @@ export class TimelineComponent
     this.timeline.onDragFinished((args) => {
       if (args) {
         this.propertiesService.emitPropertyChanged(null);
-        this.actionService.Commit();
       }
     });
 

@@ -20,10 +20,15 @@ export class UntransformCommand implements BaseCommand {
     private adornersService: AdornersService
   ) {}
   active = false;
-  tooltip = "Remove matrix transformation";
+  tooltip = "Untransform matrix and preserve position of all path data points.";
   title = "Untransform";
   icon = "crop_16_9-black-18dp";
   align = "right";
+  iconSVG = true;
+  canExecute() {
+    const nodes = this.selectionService.getSelected();
+    return nodes && nodes.length > 0;
+  }
   execute() {
     const nodes = this.selectionService.getSelected();
     if (nodes && nodes.length > 0) {

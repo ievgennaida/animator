@@ -270,6 +270,59 @@ export class Utils {
     element.transform.baseVal.initialize(transform);
     return true;
   }
+  static addTreeNodeToContainer(
+    node: TreeNode,
+    container: TreeNode,
+    treeIndex: number | null = null,
+    htmlIndex: number | null = null
+  ) {
+    if (!node || !container) {
+      throw Error("Node or container cannot be null");
+    }
+
+    const element = node.getElement();
+    if (!element) {
+      throw Error("Node html element cannot be null");
+    }
+    const parentElement = container.getElement();
+    if (!parentElement) {
+      throw Error("Node parent html element cannot be null");
+    }
+    if (htmlIndex !== null && htmlIndex >= 0) {
+      const insertBefore = parentElement.children[htmlIndex];
+      parentElement.insertBefore(element, insertBefore);
+    } else {
+      parentElement.appendChild(element);
+    }
+
+    if (treeIndex !== null && treeIndex >= 0) {
+      Utils.insertElement(container.children, node, treeIndex);
+    } else {
+      node.parent = container;
+      container.children.push(node);
+    }
+  }
+  static deleteTreeNode(node: TreeNode, container: TreeNode | null = null) {
+    if (!node) {
+      throw Error("Node cannot be null");
+    }
+
+    container = container || node.parentNode;
+    if (!container) {
+      throw Error("Node parent cannot be null");
+    }
+    const htmlElement = container?.getElement();
+    const child = node.getElement();
+    htmlElement.removeChild(child);
+    Utils.deleteElement(container.children, node);
+  }
+  static getElementIndex(htmlElement: Element): number {
+    const index = Array.prototype.indexOf.call(
+      htmlElement.parentElement.children,
+      htmlElement
+    );
+    return index;
+  }
   /**
    * Get Current transforms
    */
@@ -388,7 +441,12 @@ export class Utils {
     }
     return element.getCTM();
   }
-  public static deleteElement<T>(array: Array<T>, element: T) {
+
+  public static insertElement<T>(array: T[], element: T, index: number): T[] {
+    return array.splice(index, 0, element);
+  }
+
+  public static deleteElement<T>(array: T[], element: T): T[] {
     const index: number = array.indexOf(element);
     if (index !== -1) {
       return array.splice(index, 1);

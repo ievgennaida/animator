@@ -1,7 +1,8 @@
 import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable } from "@angular/core";
 import { EventManager } from "@angular/platform-browser";
-import { UndoService } from "./commands/undo.service";
+import { RemoveElementCommand } from "./commands/remove-element-command";
+import { UndoService } from "./undo.service";
 import { OutlineService } from "./outline.service";
 import { PasteService } from "./paste.service";
 import { SelectionService } from "./selection.service";
@@ -26,6 +27,7 @@ export class HotkeysService {
     private pathTool: PathDirectSelectionTool,
     private pasteService: PasteService,
     private undoService: UndoService,
+    private removeElementCommand: RemoveElementCommand,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
@@ -43,7 +45,7 @@ export class HotkeysService {
     this.add(`keydown.control.y`, () => this.undoService.redo());
     this.add(`keydown.control.c`, () => this.pasteService.copy());
     this.add(`keydown.control.p`, () => this.pasteService.paste());
-    this.add(`keydown.del`, () => this.pasteService.delete());
+    this.add(`keydown.delete`, () => this.removeElementCommand.execute());
     this.add(`keydown.v`, () =>
       this.toolsService.setActiveTool(this.selectionTool)
     );

@@ -10,6 +10,11 @@ export class LoggerService {
   isDebug() {
     return !environment.debug;
   }
+  debug(str) {
+    if (this.isDebug()) {
+      this.log(str);
+    }
+  }
   log(str) {
     if (str && !environment.production) {
       console.log(str);

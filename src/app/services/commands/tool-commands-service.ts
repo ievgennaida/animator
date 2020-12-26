@@ -3,6 +3,7 @@ import { BaseCommand } from "src/app/services/commands/base-command";
 import { BaseTool } from "../viewport/base.tool";
 import { SelectionTool } from "../viewport/selection.tool";
 import { BBoxModeCommand } from "./bbox-mode-command";
+import { RemoveElementCommand } from "./remove-element-command";
 import { UntransformCommand } from "./untransform-command";
 
 /**
@@ -14,11 +15,12 @@ import { UntransformCommand } from "./untransform-command";
 export class ToolCommandsService {
   constructor(
     private bboxRectOnlyCommand: BBoxModeCommand,
-    private untransformCommand: UntransformCommand
+    private untransformCommand: UntransformCommand,
+    private removeElementCommand: RemoveElementCommand
   ) {}
 
   getContextCommands(): BaseCommand[] {
-    return [this.untransformCommand];
+    return [this.removeElementCommand, this.untransformCommand];
   }
   getCommands(tool: BaseTool): BaseCommand[] {
     if (!tool) {
