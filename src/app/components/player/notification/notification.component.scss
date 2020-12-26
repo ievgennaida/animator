@@ -1,7 +1,11 @@
 .container {
   background-color: #3399ff;
   padding: 5px 10px;
-  border-radius: 3px;
+  border-radius: 1px;
   color: white;
-  font-size: 1.2em;
+  font-size: 1.1em;
+}
+.dark {
+  background-color: black;
+  opacity: 0.75;
 }
