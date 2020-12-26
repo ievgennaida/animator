@@ -153,7 +153,11 @@ export class OutlineNodeComponent
   }
 
   onRightClick(event: MouseEvent) {
-    this.setSelected(event, this.node);
+    // Select one if not selected
+    if (this.node && !this.node.selected) {
+      this.setSelected(event, this.node);
+    }
+
     this.contextMenu.open(event, this.node);
   }
   ngOnDestroy() {

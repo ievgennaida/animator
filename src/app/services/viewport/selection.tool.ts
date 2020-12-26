@@ -50,7 +50,13 @@ export class SelectionTool extends BaseTool {
   }
   onViewportContextMenu(event: MouseEventArgs) {
     const startedNode = this.mouseOverService.mouseOverSubject.getValue();
-    if (startedNode) {
+    // Select node if clicked is not selected.
+    // in other case run it for selection.
+    if (startedNode && !startedNode.selected) {
+      this.selectionService.setSelected(startedNode);
+    }
+
+    if (this.selectionService.getSelected().length > 0) {
       this.contextMenu.open(event.args as MouseEvent, startedNode);
     }
     super.onViewportContextMenu(event);
