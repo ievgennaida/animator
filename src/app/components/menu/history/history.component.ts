@@ -88,6 +88,10 @@ export class HistoryComponent extends BaseComponent implements OnInit {
   onScrolled() {
     this.cdRef.detectChanges();
   }
+  onRightClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   updateHoverAndSelectedEffects(hoverIndex: number | null = null) {
     const activeIndex = this.undoService.activeIndex;
     this.items.forEach((p, index) => {
