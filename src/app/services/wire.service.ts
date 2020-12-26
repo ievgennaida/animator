@@ -1,6 +1,8 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { AdornersService } from "./adorners-service";
+import { DocumentLoadedAction } from "./commands/document-loaded-action";
+import { UndoService } from "./commands/undo.service";
 import { DocumentService } from "./document.service";
 import { MouseOverService } from "./mouse-over.service";
 import { OutlineService } from "./outline.service";
@@ -34,6 +36,7 @@ export class WireService {
     adornersRenderer: AdornersRenderer,
     private adornersService: AdornersService,
     private selectionService: SelectionService,
+    private undoService: UndoService,
     viewService: ViewService,
     toolsService: ToolsService,
     documentService: DocumentService,
@@ -59,7 +62,8 @@ export class WireService {
     selectionService.selected.subscribe((state) => {
       BaseRenderer.runSuspendedRenderers(
         () => {
-          adornersService.buildSelectionAdorner(selectionService.getSelected());
+          this.buildSelectedAdorner();
+          // Remove mouse over path data states:
           mouseOverService.pathDataSubject.leaveNodes(state.removed);
           // Deselect any path data were selected.
           selectionService.pathDataSubject.leaveNodes(state.removed);
@@ -70,7 +74,14 @@ export class WireService {
     });
 
     // On new document loaded.
-    documentService.documentSubject.asObservable().subscribe(() => {
+    documentService.documentSubject.asObservable().subscribe((document) => {
+      this.undoService.clean();
+      // Add document node when loaded:
+      if (document) {
+        const firstUndoItem = new DocumentLoadedAction();
+        firstUndoItem.tooltip = `Document loaded: ${document.title}`;
+        this.undoService.addAction(firstUndoItem);
+      }
       this.cleanCache();
       this.adornersService.cleanCache();
       toolsService.fitViewport();
@@ -80,15 +91,25 @@ export class WireService {
     // Individual element is transformed.
     transformsService.transformed.subscribe(() => {
       // TODO: invalidate from current to all children
-      this.cleanCache();
-      boundsRenderer.invalidate();
-      pathRenderer.invalidate();
+      BaseRenderer.runSuspendedRenderers(
+        () => {
+          this.cleanCache();
+          this.buildSelectedAdorner();
+        },
+        boundsRenderer,
+        pathRenderer,
+        mouseOverRenderer
+      );
     });
 
     // view is transformed: ex: zoom, size can remain the same.
     viewService.transformed.subscribe(() => {
       // Clean screen cache first when view is transformed
       this.cleanCache();
+      this.adornersService.buildSelectionAdorner(
+        this.selectionService.getSelected()
+      );
+      this.buildSelectedAdorner();
       adornersRenderer.invalidate();
       adornersRenderer.invalidateSizeChanged();
     });
@@ -96,9 +117,13 @@ export class WireService {
     // view resized
     viewService.resized.subscribe(() => {
       this.cleanCache();
+
       adornersRenderer.invalidateSizeChanged();
     });
 
+    // Wire mouse over service with mouse over bounds renderer.
+    // Note: each renderer can be suspended.
+    // Most of the renderers are suspended by tools.
     mouseOverService.mouseOver.subscribe((treeNode: TreeNode) => {
       if (treeNode && treeNode.mouseOver) {
         mouseOverRenderer.node = treeNode;
@@ -107,24 +132,57 @@ export class WireService {
       }
       mouseOverRenderer.invalidate();
     });
-    selectionService.pathDataSubject.subscribe((state) => {
+    // On path data selected
+    selectionService.pathDataSubject.subscribe(() => {
       pathRenderer.invalidate();
       // console.log("handle selection changed");
     });
-    mouseOverService.pathDataSubject.subscribe((state) => {
+    // On path data mouse over
+    mouseOverService.pathDataSubject.subscribe(() => {
       pathRenderer.invalidate();
       // console.log("mouse over handle changed");
     });
-    mouseOverService.mouseOverHandleSubject.subscribe((selectedHandle) => {
+
+    // On adorner mouse over
+    mouseOverService.mouseOverHandleSubject.subscribe(() => {
       mouseOverRenderer.invalidate();
       boundsRenderer.invalidate();
     });
+
+    // Update selection when tree nodes list changed (deleted, grouped, undo and etc):
+    this.outlineService.nodesSubject.subscribe(() => {
+      BaseRenderer.runSuspendedRenderers(
+        () => {
+          this.cleanCache();
+          const nodes = this.outlineService.getAllNodes();
+          const selected = this.selectionService.getSelected();
+          const toDeselect = [];
+          selected.forEach((selectedNode) => {
+            // One of the selected nodes does not exists anymore:
+            if (nodes.indexOf(selectedNode) < 0) {
+              toDeselect.push(selectedNode);
+            }
+          });
+
+          if (toDeselect.length > 0) {
+            this.selectionService.deselect(toDeselect);
+          }
+        },
+        mouseOverRenderer,
+        boundsRenderer
+      );
+    });
+  }
+  /**
+   * Build multiple items selection adorner on selected changed
+   */
+  buildSelectedAdorner() {
+    const selected = this.selectionService.getSelected();
+    selected.forEach((p) => p.cleanCache());
+    this.adornersService.buildSelectionAdorner(selected);
   }
 
   cleanCache() {
-    this.adornersService.buildSelectionAdorner(
-      this.selectionService.getSelected()
-    );
     this.selectionService.pathDataSubject.calculateHandlesBounds();
     this.adornersService.cleanCache();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());

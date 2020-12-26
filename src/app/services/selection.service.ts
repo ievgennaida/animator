@@ -120,6 +120,12 @@ export class SelectionService {
     this.setSelected(toSelect, ChangeStateMode.Normal);
   }
 
+  deselect(
+    nodes: TreeNode[] | TreeNode,
+    source: StateChangedSource = StateChangedSource.NotSet
+  ) {
+    this.setSelected(nodes, ChangeStateMode.Remove, source);
+  }
   setSelected(
     nodes: TreeNode[] | TreeNode,
     mode: ChangeStateMode = ChangeStateMode.Normal,
