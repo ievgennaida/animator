@@ -19,6 +19,7 @@ export class UntransformCommand implements BaseCommand {
     private adornersRenderer: AdornersRenderer,
     private adornersService: AdornersService
   ) {}
+
   active = false;
   tooltip = "Untransform matrix and preserve position of all path data points.";
   title = "Untransform";
@@ -30,6 +31,7 @@ export class UntransformCommand implements BaseCommand {
     return nodes && nodes.length > 0;
   }
   execute() {
+    // TODO: extract action for the undo/redo service.
     const nodes = this.selectionService.getSelected();
     if (nodes && nodes.length > 0) {
       const transformations = nodes.map((p) =>

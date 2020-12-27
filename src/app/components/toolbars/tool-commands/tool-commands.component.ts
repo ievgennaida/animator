@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { ToolCommandsService } from "src/app/services/commands/tool-commands-service";
+import { CommandsService } from "src/app/services/commands/commands-service";
 import { ToolsService } from "src/app/services/viewport/tools.service";
 import { BaseComponent } from "../../base-component";
 
@@ -16,34 +17,63 @@ import { BaseComponent } from "../../base-component";
 export class ToolCommandsComponent extends BaseComponent implements OnInit {
   constructor(
     private toolsService: ToolsService,
-    private toolCommands: ToolCommandsService,
+    private commandsService: CommandsService,
     private cdRef: ChangeDetectorRef
   ) {
     super();
-    // this.cdRef.detach();
+    this.cdRef.detach();
   }
 
-  commands: Array<BaseCommand> = [];
+  commands: BaseCommand[] = [];
 
+  protected commandChanged$ = new Subject();
+
+  subscribeCommands(commands: BaseCommand[]) {
+    // Notify to unsubscribe current subscribed list if any:
+    this.commandChanged$.next();
+
+    this.commands = commands;
+    if (this.commands) {
+      this.commands.forEach((command) => {
+        if (command && command.changed) {
+          command.changed
+            .asObservable()
+            .pipe(takeUntil(this.commandChanged$), takeUntil(this.destroyed$))
+            .subscribe(() => {
+              // Render commands again
+              this.cdRef.detectChanges();
+            });
+        }
+      });
+    }
+
+    this.cdRef.detectChanges();
+  }
   ngOnInit() {
-    this.commands = this.toolCommands.getCommands(
+    const commands = this.commandsService.getCommands(
       this.toolsService.getActiveTool()
     );
+    this.subscribeCommands(commands);
     this.toolsService
       .activeToolChanged()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((tool) => {
         if (tool) {
-          this.commands = this.toolCommands.getCommands(tool);
+          this.subscribeCommands(this.commandsService.getCommands(tool));
         }
-        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
       });
   }
-  onActionClicked(tool: BaseCommand) {
-    if (tool) {
-      this.toolCommands.executeCommand(tool, this.commands);
-    }
-    // TODO: make a subscription when active commands changed
+
+  onActionClicked(command: BaseCommand) {
+    // Run in a next tick to make interface a bit more responsive.
+    setTimeout(() => {
+      if (command && !command.commands) {
+        this.commandsService.executeCommand(command);
+        // TODO: make a subscription when active commands changed
+        this.cdRef.markForCheck();
+      }
+    }, 10);
     this.cdRef.markForCheck();
   }
 }

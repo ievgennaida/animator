@@ -14,6 +14,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ResizableModule } from "angular-resizable-element";
 import { AppComponent } from "./app.component";
 import { ContextMenuComponent } from "./components/context-menu/context-menu.component";
+import { DynamicContextMenuComponent } from "./components/dynamic-context-menu/dynamic-context-menu.component";
 import { FooterToolbarComponent } from "./components/footer-toolbar/footer-toolbar.component";
 import { MouseTrackerComponent } from "./components/footer-toolbar/mouse-tracker/mouse-tracker.component";
 import { HistoryComponent } from "./components/menu/history/history.component";
@@ -68,6 +69,7 @@ import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.componen
     BreadcrumbItemComponent,
     ToolCommandsComponent,
     HistoryComponent,
+    DynamicContextMenuComponent,
   ],
   imports: [
     ResizableModule,

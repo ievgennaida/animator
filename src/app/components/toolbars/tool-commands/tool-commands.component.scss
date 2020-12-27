@@ -18,6 +18,7 @@ button[mat-button] {
   &:hover {
     color: white;
   }
+
   button {
     div {
       padding: 0 10px !important;
@@ -27,7 +28,25 @@ button[mat-button] {
     color: #adadad;
     height: 100%;
     padding: 3px;
+    font-size: 18px;
   }
+  &[disabled] {
+    color: #565656 !important;
+    mat-icon {
+      color: #565656 !important;
+    }
+  }
+}
+.center {
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+}
+
+mat-divider {
+  padding: 5px;
+  height: 80%;
 }
 .active {
   background-color: #323232;

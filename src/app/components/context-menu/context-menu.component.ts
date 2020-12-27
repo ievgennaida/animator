@@ -9,7 +9,7 @@ import {
 import { MatMenuTrigger } from "@angular/material/menu";
 import { takeUntil } from "rxjs/operators";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { ToolCommandsService } from "src/app/services/commands/tool-commands-service";
+import { CommandsService } from "src/app/services/commands/commands-service";
 import { ContextMenuService } from "src/app/services/context-menu.service";
 import { BaseComponent } from "../base-component";
 
@@ -22,7 +22,7 @@ import { BaseComponent } from "../base-component";
 export class ContextMenuComponent extends BaseComponent implements OnInit {
   constructor(
     private contextMenu: ContextMenuService,
-    private toolCommands: ToolCommandsService,
+    private toolCommands: CommandsService,
     private cdRef: ChangeDetectorRef
   ) {
     super();
@@ -81,23 +81,8 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
     }
     return false;
   }
-  cut() {
-    console.log("cut");
-  }
-  copy() {}
-  paste() {}
-  delete() {}
-  untransform() {}
-  selectSameType() {}
+
   globalMouseDown(event: MouseEvent) {
     event.preventDefault();
-  }
-  onActionClicked(tool: BaseCommand) {
-    if (tool) {
-      console.log(`command clicked: ${tool.title}`);
-      this.toolCommands.executeCommand(tool, this.commands);
-    }
-    // TODO: make a subscription when active commands changed
-    this.cdRef.markForCheck();
   }
 }

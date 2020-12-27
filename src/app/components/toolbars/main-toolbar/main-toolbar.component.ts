@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import {
+  AfterContentChecked,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -12,13 +13,14 @@ import {
   InputDocumentType,
 } from "src/app/models/input-document";
 import { ViewMode } from "src/app/models/view-mode";
-import { RemoveElementCommand } from "src/app/services/commands/remove-element-command";
-import { UndoService } from "src/app/services/undo.service";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { CommandsService } from "src/app/services/commands/commands-service";
 import { DocumentService } from "src/app/services/document.service";
 import { LoggerService } from "src/app/services/logger.service";
 import { MenuService } from "src/app/services/menu-service";
 import { PasteService } from "src/app/services/paste.service";
 import { SelectionService } from "src/app/services/selection.service";
+import { UndoService } from "src/app/services/undo.service";
 import { ViewService } from "src/app/services/view.service";
 import { PanTool } from "src/app/services/viewport/pan.tool";
 import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
@@ -34,7 +36,7 @@ import { BaseComponent } from "../../base-component";
 })
 export class MainToolbarComponent
   extends BaseComponent
-  implements OnInit, OnDestroy {
+  implements OnInit, OnDestroy, AfterContentChecked {
   title = "animation";
   undoDisabled = !this.undoService.canUndo();
   redoDisabled = !this.undoService.canRedo();
@@ -47,7 +49,7 @@ export class MainToolbarComponent
   codeVisible = this.viewService.codeVisibleSubject.getValue();
   breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
-
+  editMenuCommands: BaseCommand[] = [];
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
   constructor(
@@ -64,7 +66,7 @@ export class MainToolbarComponent
     private toolsService: ToolsService,
     private pasteService: PasteService,
     private http: HttpClient,
-    public removeElementCommand: RemoveElementCommand
+    private commandsService: CommandsService
   ) {
     super();
   }
@@ -75,6 +77,7 @@ export class MainToolbarComponent
     this.cdRef.markForCheck();
   }
   ngOnInit(): void {
+    this.editMenuCommands = this.commandsService.getEditMenuCommands();
     this.undoService.actionIndexSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
@@ -186,6 +189,10 @@ export class MainToolbarComponent
           this.cdRef.markForCheck();
         }
       });
+  }
+  ngAfterContentChecked() {
+    // Fixed bug with material menu that menu trigger cannot be part of the custom component during the lifecycle.
+    this.cdRef.markForCheck();
   }
   setMode(mode: ViewMode) {
     this.viewService.setMode(mode);
@@ -345,31 +352,7 @@ export class MainToolbarComponent
   toggleCode() {
     this.viewService.toggleCode();
   }
-  cut() {
-    this.pasteService.cut();
-  }
-  copy() {
-    this.pasteService.copy();
-  }
-  paste() {
-    this.pasteService.paste();
-  }
-  delete() {
-    this.removeElementCommand.execute();
-  }
   fitViewportSelected() {
     this.toolsService.fitViewportToSelected();
-  }
-  selectAll() {
-    this.selectionService.selectAll();
-  }
-  selectNone() {
-    this.selectionService.deselectAll();
-  }
-  selectSameType() {
-    this.selectionService.selectSameType();
-  }
-  selectInverse() {
-    this.selectionService.inverseSelection();
   }
 }

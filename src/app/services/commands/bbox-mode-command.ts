@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { AdornersService } from "../adorners-service";
 import { ConfigService } from "../config-service";
@@ -18,7 +19,7 @@ export class BBoxModeCommand implements BaseCommand {
   ) {
     this.resolveState();
   }
-  active = false;
+  changed = new Subject<BaseCommand>();
   tooltip?: string;
   title?: string;
   icon: string;
@@ -31,6 +32,7 @@ export class BBoxModeCommand implements BaseCommand {
     this.resolveState();
     this.adornersService.cleanCache();
     this.adornersRenderer.invalidate();
+    this.changed.next(this);
   }
   resolveState() {
     const config = this.configService.get();
@@ -41,8 +43,5 @@ export class BBoxModeCommand implements BaseCommand {
       this.icon = "crop_16_9-black-18dp";
       this.tooltip = "Show only untransformed bboxes";
     }
-  }
-  deactivate() {
-    this.active = false;
   }
 }

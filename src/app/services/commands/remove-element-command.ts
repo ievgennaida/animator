@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
 import { TreeNode } from "src/app/models/tree-node";
-import { LoggerService } from "../logger.service";
-import { OutlineService } from "../outline.service";
-import { SelectionService } from "../selection.service";
-import { BaseCommand } from "./base-command";
 import { RemoveElementAction } from "../actions/remove-element-action";
+import { LoggerService } from "../logger.service";
+import { SelectionService } from "../selection.service";
 import { UndoService } from "../undo.service";
+import { BaseCommand } from "./base-command";
 
 /**
  * Undo/redo add element action
@@ -18,7 +18,9 @@ export class RemoveElementCommand implements BaseCommand {
     private selectionService: SelectionService,
     private undoService: UndoService,
     private logger: LoggerService
-  ) {}
+  ) {
+    this.selectionService.selected.subscribe(() => this.changed.next(this));
+  }
   tooltip = "Remove selected items";
   title = "Delete";
   icon = "clear";
@@ -27,6 +29,7 @@ export class RemoveElementCommand implements BaseCommand {
   nodes: TreeNode[] | null = null;
   // Store previous indexes of the elements
   indexes: number[] = [];
+  changed = new Subject<BaseCommand>();
   canExecute(): boolean {
     const selected = this.selectionService.getSelected();
     if (selected && selected.length > 0) {
