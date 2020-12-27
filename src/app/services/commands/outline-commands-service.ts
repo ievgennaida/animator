@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { BaseCommand } from "./base-command";
 import { CollapseAllCommand } from "./collapse-all-command";
 import { ExpandAllCommand } from "./expand-all-command";
-import { StepBackwardCommand } from "./order-commands/step-backward-command";
-import { StepForwardCommand } from "./order-commands/step-forward-command";
+import { OutlineStepBackwardCommand } from "./order-commands/step-backward-command";
+import { OutlineStepForwardCommand } from "./order-commands/step-forward-command";
 import { ScrollToSelected } from "./scroll-to-selected";
 import { SeparatorCommand } from "./separator-command";
 
@@ -15,8 +15,8 @@ import { SeparatorCommand } from "./separator-command";
 })
 export class OutlineCommandsService {
   constructor(
-    private stepForwardCommand: StepForwardCommand,
-    private stepBackwardCommand: StepBackwardCommand,
+    private outlineStepForwardCommand: OutlineStepForwardCommand,
+    private outlineStepBackwardCommand: OutlineStepBackwardCommand,
     private expandAllCommand: ExpandAllCommand,
     private collapseAllCommand: CollapseAllCommand,
     private separatorCommand: SeparatorCommand,
@@ -24,8 +24,8 @@ export class OutlineCommandsService {
   ) {}
   getCommands(): BaseCommand[] {
     return [
-      this.stepForwardCommand,
-      this.stepBackwardCommand,
+      this.outlineStepForwardCommand,
+      this.outlineStepBackwardCommand,
       this.separatorCommand,
       this.expandAllCommand,
       this.collapseAllCommand,
