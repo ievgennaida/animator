@@ -37,6 +37,10 @@ export class UndoService {
    * Perform action and add to the collection.
    */
   startAction(action: BaseAction, execute = true): BaseAction {
+    if (this.logger.isDebug()) {
+      this.logger.debug(`Start action: ${action.title || typeof action}`);
+    }
+
     if (execute) {
       action.execute();
     }
@@ -76,7 +80,7 @@ export class UndoService {
 
     const nextAction = this.actions[this.activeIndex];
     if (this.logger.isDebug()) {
-      this.logger.log(`Undo: (${this.activeIndex}) ${nextAction.title}.`);
+      this.logger.debug(`Undo: (${this.activeIndex}) ${nextAction.title}.`);
     }
 
     try {

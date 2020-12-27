@@ -5,6 +5,8 @@ import { SelectionTool } from "../viewport/selection.tool";
 import { BBoxModeCommand } from "./bbox-mode-command";
 import { CopyCommand } from "./copy-command";
 import { CutCommand } from "./cut-command";
+import { GroupCommand } from "./group-commands/group-command";
+import { UnGroupCommand } from "./group-commands/ungroup-command";
 import { BringToFrontCommand } from "./order-commands/bring-to-front-command";
 import { OrderGroupCommand } from "./order-commands/order-group-command";
 import { SendToBottomCommand } from "./order-commands/send-to-bottom-command";
@@ -15,9 +17,7 @@ import { RedoCommand } from "./redo-command";
 import { RemoveElementCommand } from "./remove-element-command";
 import { SelectAllCommand } from "./selection-commands/select-all-command";
 import { SelectGroupCommand } from "./selection-commands/select-group-command";
-import { SelectInverseCommand } from "./selection-commands/select-inverse-command";
 import { SelectNoneCommand } from "./selection-commands/select-none-command";
-import { SelectSameCommand } from "./selection-commands/select-same-type-command";
 import { SeparatorCommand } from "./separator-command";
 import { UndoCommand } from "./undo-command";
 import { UntransformCommand } from "./untransform-command";
@@ -45,8 +45,8 @@ export class CommandsService {
     private sendToBottomCommand: SendToBottomCommand,
     private selectAllCommand: SelectAllCommand,
     private selectNoneCommand: SelectNoneCommand,
-    private selectSameTypeCommand: SelectSameCommand,
-    private selectInverseCommand: SelectInverseCommand,
+    private groupCommand: GroupCommand,
+    private ungroupCommand: UnGroupCommand,
     private orderGroupCommand: OrderGroupCommand,
     private selectGroupCommand: SelectGroupCommand
   ) {}
@@ -62,6 +62,8 @@ export class CommandsService {
       this.orderGroupCommand,
       this.selectGroupCommand,
       this.separatorCommand,
+      this.groupCommand,
+      this.ungroupCommand,
       // TODO: add action first
       // this.untransformCommand,
     ];
@@ -78,6 +80,9 @@ export class CommandsService {
       this.separatorCommand,
       this.orderGroupCommand,
       this.selectGroupCommand,
+      this.separatorCommand,
+      this.groupCommand,
+      this.ungroupCommand,
     ];
   }
 
