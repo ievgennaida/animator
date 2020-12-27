@@ -47,6 +47,7 @@ export class RemoveElementAction extends BaseAction {
   }
 
   init(nodes: TreeNode[]) {
+    nodes = [...nodes];
     if (nodes.length === 1) {
       this.title = `Remove: ${nodes[0].name}`;
     } else {
