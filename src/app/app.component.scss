@@ -21,6 +21,7 @@ app-main-toolbar {
   flex-direction: column;
   position: relative;
   width: 100%;
+  overflow: hidden;
 }
 .main-container {
   grid-template-columns: auto minmax(0, 1fr);
