@@ -57,6 +57,16 @@ export class ShapeTool extends BaseTool {
     this.cursor.setCursor(CursorType.Default);
     super.onActivate();
 
+    // Update current when nodes are changed and container is not there anymore.
+    this.outlineService.nodesSubject
+      .asObservable()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((nodes) => {
+        if (!this.container || nodes.indexOf(this.container) < 0) {
+          this.updateCurrentContainer();
+        }
+      });
+
     // Update current container when new container is selected:
     this.selectionService.selectedSubject
       .asObservable()
@@ -161,7 +171,6 @@ export class ShapeTool extends BaseTool {
     );
     action.init(this.container, newTreeNode);
     this.undoService.startAction(action);
-
 
     const adorner = this.adornerService.getAdorner(newTreeNode);
     const handle = new HandleData();
