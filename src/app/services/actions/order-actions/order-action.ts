@@ -44,14 +44,15 @@ export class OrderAction extends BaseAction {
       return false;
     }
 
-    const alreadyFront = nodes.find(
+    const unmovableNode = nodes.find(
       (p) =>
-        p.parentNode &&
-        p.parentNode.children &&
-        p.parentNode.children.indexOf(p) === 0
+        !p ||
+        !p.parentNode ||
+        p?.parentNode?.children?.length <= 1 ||
+        p.index <= 0
     );
     // Found element that already in front;
-    if (alreadyFront) {
+    if (unmovableNode) {
       return false;
     }
 
@@ -66,14 +67,16 @@ export class OrderAction extends BaseAction {
       return false;
     }
 
-    const alreadyFront = nodes.find(
+    const unmovableNode = nodes.find(
       (p) =>
-        p.parentNode &&
-        p.parentNode.children &&
-        p.parentNode.children.indexOf(p) === p.parentNode.children.length - 1
+        !p ||
+        !p.parentNode ||
+        p?.parentNode?.children?.length <= 1 ||
+        p.index === p?.parentNode?.children?.length - 1
     );
+
     // Found element that already in front;
-    if (alreadyFront) {
+    if (unmovableNode) {
       return false;
     }
 
