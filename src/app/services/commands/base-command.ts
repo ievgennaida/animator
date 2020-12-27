@@ -18,9 +18,13 @@ export interface BaseCommand {
   tooltip?: string;
   title?: string;
   align?: string;
-  // Icon resource reference.
+  /**
+   * Icon resource reference.
+   */
   icon?: string;
-  // SVG or font icon.
+  /**
+   * SVG or font icon.
+   */
   iconSVG?: boolean;
   active?: boolean;
   group?: string;

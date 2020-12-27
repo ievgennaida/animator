@@ -4,7 +4,14 @@
 export abstract class BaseAction {
   title?: string;
   tooltip?: string;
+  /**
+   * Icon resource reference.
+   */
   icon?: string;
+  /**
+   * SVG or font icon.
+   */
+  iconSVG?: boolean;
   abstract execute();
   canExecute(): boolean {
     return true;
