@@ -106,6 +106,30 @@ export class OutlineService {
 
     return false;
   }
+  collapseAll() {
+    this.changeExpandedState(false);
+  }
+  expandAll() {
+    this.changeExpandedState(true);
+  }
+
+  changeExpandedState(expectedExpanded: boolean): boolean {
+    let changed = false;
+    this.getAllNodes().forEach((node) => {
+      if (
+        this.treeControl.isExpandable(node) &&
+        this.treeControl.isExpanded(node) !== expectedExpanded
+      ) {
+        changed = true;
+        if (expectedExpanded) {
+          this.treeControl.expand(node);
+        } else {
+          this.treeControl.collapse(node);
+        }
+      }
+    });
+    return changed;
+  }
   getAllNodes(): TreeNode[] {
     if (this.flatDataSource && this.flatDataSource._flattenedData) {
       return this.flatDataSource._flattenedData.getValue();

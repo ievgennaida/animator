@@ -40,6 +40,7 @@ import { TimelineComponent } from "./components/timeline/timeline.component";
 import { MainToolbarComponent } from "./components/toolbars/main-toolbar/main-toolbar.component";
 import { ToolCommandsComponent } from "./components/toolbars/tool-commands/tool-commands.component";
 import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.component";
+import { CommandsListComponent } from "./components/toolbars/commands-list/commands-list.component";
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,6 +71,7 @@ import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.componen
     ToolCommandsComponent,
     HistoryComponent,
     DynamicContextMenuComponent,
+    CommandsListComponent,
   ],
   imports: [
     ResizableModule,

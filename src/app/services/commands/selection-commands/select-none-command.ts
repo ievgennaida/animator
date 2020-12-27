@@ -16,10 +16,10 @@ export class SelectNoneCommand implements BaseCommand {
       .subscribe(() => this.changed.next(this));
   }
   changed = new Subject<BaseCommand>();
-  tooltip = "Select None";
-  title = "Select None";
-  icon = "tab_unselected";
+  title = "Deselect All";
   hotkey = "Ctrl+A";
+  tooltip = `Deselect All (${this.hotkey})`;
+  icon = "tab_unselected";
   iconSVG = false;
   canExecute(): boolean {
     return this.selectionService.getSelected().length > 0;

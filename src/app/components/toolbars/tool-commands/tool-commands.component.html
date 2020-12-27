@@ -1,11 +1,1 @@
-<div class="center" *ngFor="let command of commands">
-
-    <button class="center"  *ngIf="command && !command.separator" mat-button [class.active]="command?.active || false"
-        (click)="onActionClicked(command)" [disabled]="command.canExecute?!command.canExecute():false"
-        [attr.title]="command.title || '' + (command.tooltip && command.tooltip != command.title && command.title ? ' - ' : '') + (command.tooltip != command.title?command.tooltip:'' || '') + ((command.hotkey &&  command.tooltip && command.tooltip != command.title) ? ' ' : '') + (command.hotkey?('('+ (command.hotkey || '') +')'):'')"
-        [class.active]="command?.active || false">
-        <mat-icon [svgIcon]="command.iconSVG?command.icon:null">{{command.icon?command.icon:''}}
-        </mat-icon>
-    </button>
-    <mat-divider vertical *ngIf="command && command.separator"></mat-divider>
-</div>
+<app-commands-list [commands]="commands"></app-commands-list>

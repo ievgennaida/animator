@@ -81,7 +81,7 @@ export class CommandsService {
     ];
   }
 
-  getCommands(tool: BaseTool): BaseCommand[] {
+  getToolCommands(tool: BaseTool): BaseCommand[] {
     if (!tool) {
       return [];
     }
@@ -99,14 +99,5 @@ export class CommandsService {
       ];
     }
     return [];
-  }
-
-  executeCommand(command: BaseCommand): void {
-    if (command && command.execute) {
-      const canExecute = command.canExecute ? command.canExecute() : true;
-      if (canExecute) {
-        command.execute();
-      }
-    }
   }
 }

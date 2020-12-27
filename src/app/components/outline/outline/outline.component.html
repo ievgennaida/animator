@@ -1,11 +1,4 @@
-<div class="header noselect"><button title="Expand All" class="menu-button" mat-button
-        (click)="expandAll()">
-        <mat-icon>add</mat-icon>
-    </button><button title="Collapse all" class="menu-button" mat-button (click)="collapseAll()">
-        <mat-icon>remove</mat-icon>
-    </button><button title="Scroll To Selected" class="menu-button" mat-button (click)="scrollToSelected()">
-        <mat-icon>anchor</mat-icon>
-    </button></div>
+<div class="header noselect"><app-commands-list [commands]="commands"></app-commands-list></div>
 <div #treeScroll class="tree noselect" [scrollTop]="scrollTop"
     [ngClass]="{'scroll-container':allowScroll, 'no-scroll-container':!allowScroll}">
     <mat-tree [style.height.px]="height" [dataSource]="dataSource" [treeControl]="treeControl">

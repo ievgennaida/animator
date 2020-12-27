@@ -9,6 +9,8 @@ import {
 } from "@angular/core";
 import { TimelineScrollEvent } from "animation-timeline-js";
 import { debounceTime, takeUntil } from "rxjs/operators";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { OutlineCommandsService } from "src/app/services/commands/outline-commands-service";
 import { OutlineService } from "src/app/services/outline.service";
 import { SelectionService } from "src/app/services/selection.service";
 import { StateChangedSource } from "src/app/services/state-subject";
@@ -27,6 +29,7 @@ export class OutlineComponent extends BaseComponent implements OnInit {
     private outlineService: OutlineService,
     private selectionService: SelectionService,
     private cdRef: ChangeDetectorRef,
+    private outlineCommandsService: OutlineCommandsService,
     private element: ElementRef<HTMLElement>
   ) {
     super();
@@ -41,7 +44,14 @@ export class OutlineComponent extends BaseComponent implements OnInit {
   height: any = "";
   dataSource = this.outlineService.flatDataSource;
   treeControl = this.outlineService.treeControl;
+  commands: BaseCommand[] = [];
   ngOnInit(): void {
+    this.commands = this.outlineCommandsService.getCommands();
+    this.outlineCommandsService.scrollToSelectedCommand.executed
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.scrollToSelected();
+      });
     this.outlineService.nodesSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
@@ -72,34 +82,7 @@ export class OutlineComponent extends BaseComponent implements OnInit {
 
     this.cdRef.detectChanges();
   }
-  collapseAll() {
-    this.changeExpandedState(false);
-  }
-  expandAll() {
-    this.changeExpandedState(true);
-  }
 
-  changeExpandedState(expectedExpanded: boolean): boolean {
-    let changed = false;
-    this.outlineService.getAllNodes().forEach((node) => {
-      if (
-        this.treeControl.isExpandable(node) &&
-        this.treeControl.isExpanded(node) !== expectedExpanded
-      ) {
-        changed = true;
-        if (expectedExpanded) {
-          this.treeControl.expand(node);
-        } else {
-          this.treeControl.collapse(node);
-        }
-      }
-    });
-    if (changed) {
-      this.cdRef.detectChanges();
-    }
-
-    return changed;
-  }
   scrollToSelected() {
     if (this.element && this.element.nativeElement) {
       setTimeout(() => {

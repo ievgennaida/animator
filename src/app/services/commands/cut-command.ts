@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { BaseCommand } from "src/app/services/commands/base-command";
 
 /**
- * Undo command
+ * Cut command
  */
 @Injectable({
   providedIn: "root",

@@ -11,7 +11,6 @@
   height: 30px;
   display: flex;
   justify-content: flex-end;
-  padding-right: 17px;
 }
 .scroll-container {
   overflow: auto;
@@ -35,17 +34,4 @@ mat-tree-node {
   max-height: 30px;
   margin-bottom: 2px;
   font-size: 12px !important;
-}
-.menu-button {
-  min-width: 35px !important;
-  padding: 0px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  mat-icon {
-    margin: 0px !important;
-    height: 20px !important;
-    width: 20px !important;
-    font-size: 20px;
-  }
 }

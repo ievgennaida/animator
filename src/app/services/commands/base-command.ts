@@ -1,5 +1,16 @@
 import { Subject } from "rxjs";
 
+export function executeCommand(command: BaseCommand): boolean {
+  if (command && command.execute && !command.separator && !command.commands) {
+    const canExecute = command.canExecute ? command.canExecute() : true;
+    if (canExecute) {
+      command.execute();
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Base application command.
  */
