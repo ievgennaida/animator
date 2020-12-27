@@ -1,4 +1,4 @@
-<mat-toolbar>
+<mat-toolbar (mousedown)="$event.stopPropagation()" (mouseup)="$event.stopPropagation()">
     <button mat-button [matMenuTriggerFor]="menu">File</button>
     <mat-menu #menu>
         <button mat-menu-item (click)="newFile()">
