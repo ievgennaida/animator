@@ -1,5 +1,3 @@
 <span class="property-title">{{property?.name}}</span>
-<app-numeric [property]="property?.prop1"></app-numeric>
-<span class="second-input">
-    <app-numeric [property]="property?.prop2"></app-numeric>
-</span>
+<app-numeric class="first-input" [property]="property?.prop1"></app-numeric>
+<app-numeric class="second-input" [property]="property?.prop2"></app-numeric>

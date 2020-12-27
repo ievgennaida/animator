@@ -1,6 +1,5 @@
 :host {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-  }
-  
+  display: grid;
+  grid-template-columns: minmax(70px, auto) 1fr;
+  align-items: center;
+}

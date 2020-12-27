@@ -1,5 +1,5 @@
 import { TreeNode } from "src/app/models/tree-node";
-import { Utils } from 'src/app/services/utils/utils';
+import { Utils } from "src/app/services/utils/utils";
 import { Property } from "./Property";
 import { PropertyDataType } from "./PropertyDataType";
 import { PropertyType } from "./PropertyType";
@@ -33,6 +33,11 @@ export class NumberProperty extends Property {
 
   getValue(): number | undefined | string {
     if (this.data && this.key) {
+      if (this.data instanceof Element) {
+        const el = this.data as Element;
+        const value = el.getAttribute(this.key);
+        return parseInt(value);
+      }
       let data = this.data[this.key];
       if (data && this.dataType === PropertyDataType.value) {
         if (data.k !== undefined) {

@@ -1,29 +1,36 @@
 import { InputDocument } from "src/app/models/input-document";
 import { IParser } from "src/app/models/interfaces/parser";
+import { DNumberProperty } from "src/app/models/Properties/DNumberProperty";
+import { NumberProperty } from "src/app/models/Properties/NumberProperty";
+import { Property } from "src/app/models/Properties/Property";
+import { TextProperty } from "src/app/models/Properties/TextProperty";
 import { TreeNode } from "../../models/tree-node";
+import { SVGElementType } from "./svg-element-type";
 
 export class SvgTreeParser implements IParser {
-  allowed = [
-    "a",
-    "circle",
-    "ellipse",
-    "foreignObject",
-    "g",
-    "image",
-    "line",
-    "mesh",
-    "path",
-    "polygon",
-    "polyline",
-    "rect",
-    "svg",
-    "switch",
-    "symbol",
-    "text",
-    "textPath",
-    "tspan",
-    "unknown",
-    "use",
+  allowed: string[] = [
+    SVGElementType.a,
+    SVGElementType.circle, // cx, cy, r
+    SVGElementType.ellipse, // cx, cy, rx, ry
+    SVGElementType.foreignObject,
+    SVGElementType.g, // g
+    SVGElementType.image,
+    SVGElementType.line, // ‘x1’, ‘y1’, ‘x2’, ‘y2’, stroke-width
+    SVGElementType.mesh,
+    SVGElementType.path,
+    SVGElementType.polygon,
+    SVGElementType.polyline,
+    SVGElementType.rect, // https://www.w3.org/TR/2016/CR-SVG2-20160915/shapes.html#RectElement
+    SVGElementType.svg, // can be used as a group
+    SVGElementType.switch,
+
+    SVGElementType.symbol,
+    SVGElementType.text,
+    SVGElementType.textpath,
+    SVGElementType.tspan,
+    SVGElementType.unknown,
+    SVGElementType.use,
+    // "defs" // The <defs> element is used to store content that will not be directly displayed.
   ];
 
   parse(document: InputDocument): TreeNode[] {
@@ -48,7 +55,11 @@ export class SvgTreeParser implements IParser {
     if (!node) {
       return false;
     }
-    if (node.type === "svg" || node.type === "g") {
+    if (
+      node.type === SVGElementType.svg ||
+      node.type === SVGElementType.g ||
+      node.type === SVGElementType.symbol
+    ) {
       return true;
     }
     return false;
@@ -79,35 +90,242 @@ export class SvgTreeParser implements IParser {
    */
   convertTreeNode(elArgs: any): TreeNode {
     const el = elArgs as HTMLElement;
-    const currentNode = new TreeNode();
+    const node = new TreeNode();
 
     // custom label attribute:
-    currentNode.name = el.getAttribute("label") || el.id || `[${el.nodeName}]`;
-    currentNode.tag = el;
+    node.name = el.getAttribute("label") || el.id || `[${el.nodeName}]`;
+    node.tag = el;
     const tagName = el.tagName.toLowerCase();
-    currentNode.nodeName = el.nodeName;
-    currentNode.type = tagName;
-    if (tagName === "circle") {
-      currentNode.icon = "fiber_manual_record";
-    } else if (tagName === "rect") {
-      currentNode.icon = "crop_square";
-    } else if (tagName === "svg") {
-      currentNode.icon = "folder_special";
-    } else if (tagName === "path") {
-      currentNode.icon = "timeline";
-    } else if (tagName === "polygon") {
-      currentNode.icon = "star_border";
-    } else if (tagName === "tspan") {
-      currentNode.icon = "text_fields";
-      currentNode.allowRotate = false;
-      currentNode.allowResize = false;
-    } else if (tagName === "text") {
-      currentNode.icon = "text_fields";
-    } else if (tagName === "textpath") {
-      currentNode.icon = "text_fields";
+    node.nodeName = el.nodeName;
+    node.type = tagName;
+
+    if (tagName === SVGElementType.circle) {
+      node.properties.items = this.getCircleProperties(node);
+      node.icon = "fiber_manual_record";
+    } else if (tagName === SVGElementType.ellipse) {
+      node.properties.items = this.getEllipseProperties(node);
+      node.icon = "fiber_manual_record";
+    } else if (tagName === SVGElementType.rect) {
+      node.properties.items = this.getRectProperties(node);
+      node.icon = "crop_square";
+    } else if (tagName === SVGElementType.svg) {
+      node.icon = "folder_special";
+    } else if (tagName === SVGElementType.path) {
+      node.properties.items = this.getPathProperties(node);
+      node.icon = "timeline";
+    } else if (tagName === SVGElementType.polygon) {
+      node.properties.items = this.getPolygonProperties(node);
+      node.icon = "star_border";
+    } else if (tagName === SVGElementType.polyline) {
+      node.properties.items = this.getPolylineProperties(node);
+      node.icon = "star_border";
+    } else if (tagName === SVGElementType.tspan) {
+      node.icon = "text_fields";
+      node.allowRotate = false;
+      node.allowResize = false;
+    } else if (tagName === SVGElementType.text) {
+      node.icon = "text_fields";
+    } else if (tagName === SVGElementType.textpath) {
+      node.icon = "text_fields";
+    } else if (tagName === SVGElementType.line) {
+      node.properties.items = this.getLineProperties(node);
     }
-    return currentNode;
+    return node;
   }
+  getTransformProperty(node: TreeNode): TextProperty {
+    const el = node.getElement();
+    const text = new TextProperty(
+      node,
+      "transform",
+      "transform",
+      el,
+      "transform"
+    );
+    text.readonly = true;
+    return text;
+  }
+  getIdProperty(node: TreeNode): TextProperty {
+    const el = node.getElement();
+    const text = new TextProperty(node, "id", "id", el, "id");
+    text.readonly = true;
+    return text;
+  }
+  getPolylineProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    properties.push(this.getIdProperty(node));
+    const text = new TextProperty(
+      node,
+      "points",
+      "points",
+      node.getElement(),
+      "points"
+    );
+    text.readonly = true;
+    properties.push(text);
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+
+  getPolygonProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    properties.push(this.getIdProperty(node));
+    const text = new TextProperty(
+      node,
+      "points",
+      "points",
+      node.getElement(),
+      "points"
+    );
+    text.readonly = true;
+    properties.push(text);
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+  getPathProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    const el = node.getElement();
+    properties.push(this.getIdProperty(node));
+
+    const text = new TextProperty(node, "d", "d", el, "d");
+    text.readonly = true;
+    properties.push(text);
+
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+
+  getLineProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    const el = node.getElement();
+    properties.push(this.getIdProperty(node));
+    let dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "x1", "x1", el, "x1"),
+      new NumberProperty(node, "y1", "y1", el, "y1")
+    );
+
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+    dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "x2", "x2", el, "x2"),
+      new NumberProperty(node, "y2", "y2", el, "y2")
+    );
+
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+
+  getEllipseProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    const el = node.getElement();
+    const idProperty = new TextProperty(node, "id", "id", el, "id");
+    idProperty.readonly = true;
+    properties.push(idProperty);
+    let dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "cx", "cx", el, "cx"),
+      new NumberProperty(node, "cy", "cy", el, "cy")
+    );
+
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+    dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "rx", "rx", el, "rx"),
+      new NumberProperty(node, "ry", "ry", el, "ry")
+    );
+
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+
+  getCircleProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    const el = node.getElement();
+    const idProperty = new TextProperty(node, "id", "id", el, "id");
+    idProperty.readonly = true;
+    properties.push(idProperty);
+    const dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "cx", "cx", el, "cx"),
+      new NumberProperty(node, "cy", "cy", el, "cy")
+    );
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+    const numberProperty = new NumberProperty(node, "r", "r", el, "r");
+    numberProperty.min = 0;
+    numberProperty.readonly = true;
+
+    properties.push(numberProperty);
+
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+
+  getRectProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    const el = node.getElement();
+    const idProperty = new TextProperty(node, "id", "id", el, "id");
+    idProperty.readonly = true;
+    properties.push(idProperty);
+    let dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "x", "x", el, "x"),
+      new NumberProperty(node, "y", "y", el, "y")
+    );
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+    dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "width", "Width", el, "Width"),
+      new NumberProperty(node, "height", "Height", el, "Height")
+    );
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+
+    dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "rx", "rx", el, "rx"),
+      new NumberProperty(node, "ry", "ry", el, "ry")
+    );
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+
   addChildNodes(
     parent: TreeNode,
     collection: TreeNode[],

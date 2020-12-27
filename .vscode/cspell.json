@@ -1,6 +1,9 @@
 {
     "version": "0.1",
     "words": [
+        "altglyph",
+        "altglyphdef",
+        "altglyphitem",
         "apath",
         "bbounds",
         "bbox",
@@ -16,8 +19,10 @@
         "Dnumeric",
         "downlevel",
         "esnext",
+        "glyphref",
         "HCTX",
         "headerheight",
+        "hkern",
         "hljs",
         "hodograph",
         "hpath",
@@ -28,6 +33,7 @@
         "lpath",
         "mark",
         "minmax",
+        "missingglyph",
         "mpath",
         "mult",
         "NESW",

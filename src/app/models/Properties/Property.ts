@@ -66,8 +66,10 @@ export class Property {
   }
 
   getValue(): any {
-    if (this.data && this.key) {
-      return this.data[this.key];
+    if (this.data instanceof Element) {
+      const el = this.data as Element;
+      const value = el.getAttribute(this.key);
+      return value;
     }
   }
 

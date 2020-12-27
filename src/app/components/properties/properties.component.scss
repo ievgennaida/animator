@@ -6,10 +6,6 @@
   align-content: stretch;
 }
 
-:host ::ng-deep .property-title {
-  min-width: 70px;
-}
-
 .label-item {
   display: grid;
   grid-template-columns: minmax(auto, 30px) 1fr;
