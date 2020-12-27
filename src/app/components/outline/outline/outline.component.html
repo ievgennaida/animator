@@ -1,4 +1,6 @@
-<div class="header noselect"><app-commands-list [commands]="commands"></app-commands-list></div>
+<div class="header noselect">
+    <app-commands-list class="commands-list" [commands]="commands"></app-commands-list>
+</div>
 <div #treeScroll class="tree noselect" [scrollTop]="scrollTop"
     [ngClass]="{'scroll-container':allowScroll, 'no-scroll-container':!allowScroll}">
     <mat-tree [style.height.px]="height" [dataSource]="dataSource" [treeControl]="treeControl">

@@ -6,7 +6,9 @@
   align-items: stretch;
   align-content: stretch;
 }
-
+.commands-list {
+  gap: 0px;
+}
 .header {
   height: 30px;
   display: flex;
