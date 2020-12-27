@@ -62,8 +62,8 @@ export class CommandsService {
       this.orderGroupCommand,
       this.selectGroupCommand,
       this.separatorCommand,
-
-      this.untransformCommand,
+      // TODO: add action first
+      // this.untransformCommand,
     ];
   }
   getEditMenuCommands(): BaseCommand[] {
