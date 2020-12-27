@@ -57,6 +57,26 @@ export class TreeNode implements ICTMProvider, IBBox {
   set name(value: string) {
     this._name = value;
   }
+
+  /**
+   * Current node index in the virtual nodes DOM.
+   * -1 when detached or virtual.
+   */
+  get index(): number {
+    if (!this.parentNode || !this.parentNode.children) {
+      return -1;
+    }
+    return this.parentNode.children.indexOf(this);
+  }
+
+  /**
+   * Get index of the element in DOM.
+   * -1 when detached or virtual.
+   */
+  get indexDOM(): number {
+    const element = this.getElement();
+    return Utils.getElementIndex(element);
+  }
   // Note: flag is not cause screen refresh. Should be handled by the tree view control.
   expanded = false;
   get expandable(): boolean {

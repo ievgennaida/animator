@@ -75,7 +75,7 @@ export class SelectionService {
     const selected = this.getSelected();
     selected.forEach((p) => {
       const top = this.getTopSelectedNode(p);
-      if (topNodes.indexOf(p) < 0) {
+      if (topNodes.indexOf(top) < 0) {
         topNodes.push(top);
       }
     });

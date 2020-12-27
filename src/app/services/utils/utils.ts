@@ -270,6 +270,26 @@ export class Utils {
     element.transform.baseVal.initialize(transform);
     return true;
   }
+  static isSameParent(nodes: TreeNode[]): boolean {
+    if (!nodes) {
+      return false;
+    }
+
+    let parent: TreeNode | null = null;
+
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (i === 0) {
+        parent = node.parentNode;
+      }
+      if (!node || parent !== node.parentNode) {
+        return false;
+      }
+      parent = node.parentNode;
+    }
+
+    return true;
+  }
   static addTreeNodeToContainer(
     node: TreeNode,
     container: TreeNode,
@@ -317,10 +337,11 @@ export class Utils {
     Utils.deleteElement(container.children, node);
   }
   static getElementIndex(htmlElement: Element): number {
-    const index = Array.prototype.indexOf.call(
-      htmlElement.parentElement.children,
-      htmlElement
-    );
+    const children = htmlElement?.parentElement?.children;
+    if (!children) {
+      return -1;
+    }
+    const index = Array.prototype.indexOf.call(children, htmlElement);
     return index;
   }
   /**

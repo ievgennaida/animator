@@ -23,13 +23,13 @@ export class RemoveElementAction extends BaseAction {
    */
   treeNodeIndex: number[] = [];
   /**
-   * Real elements indexes.
+   * Real elements indexes (can be different from virtual dom)
    */
   indexes: number[] = [];
 
   execute() {
     this.nodes.forEach((node, index) => {
-      const container = node[index];
+      const container = this.containers[index];
       Utils.deleteTreeNode(node, container);
     });
 
@@ -60,15 +60,8 @@ export class RemoveElementAction extends BaseAction {
     this.nodes.forEach((node) => {
       const parent = node.parentNode;
       this.containers.push(parent);
-      const treeIndex = parent.children.indexOf(node);
-      if (treeIndex >= 0) {
-        this.treeNodeIndex.push(treeIndex);
-      }
-      const element = node.getElement();
-      const index = Utils.getElementIndex(element);
-      if (index >= 0) {
-        this.indexes.push(index);
-      }
+      this.treeNodeIndex.push(node.index);
+      this.indexes.push(node.indexDOM);
     });
   }
 }
