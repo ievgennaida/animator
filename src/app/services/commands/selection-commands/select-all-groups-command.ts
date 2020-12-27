@@ -3,22 +3,25 @@ import { Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { SelectionService } from "../../selection.service";
 
+/**
+ * Select Same
+ */
 @Injectable({
   providedIn: "root",
 })
-export class SelectAllCommand implements BaseCommand {
+export class SelectAllGroupsCommand implements BaseCommand {
   constructor(private selectionService: SelectionService) {
   }
-
-  tooltip = "Select All Nodes";
-  title = "Select All";
-  icon = "select_all";
-  hotkey = "Ctrl+A";
+  changed = new Subject<BaseCommand>();
+  tooltip = "Select all group nodes [g]";
+  title = "Select All Groups";
+  icon = "";
+  hotkey = "";
   iconSVG = false;
   canExecute(): boolean {
     return true;
   }
   execute() {
-    this.selectionService.selectAll();
+    this.selectionService.selectAllGroups();
   }
 }

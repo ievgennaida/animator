@@ -122,14 +122,20 @@ export class SelectionService {
     return this.selectedSubject.asObservable();
   }
 
-  selectSameType() {
-    const selectedNodes = this.getSelected();
+  selectSameType(): TreeNode[] {
+    const types = this.getSelected().map((p) => p.type);
+    return this.selectByTypes(types);
+  }
+  selectAllGroups(): TreeNode[] {
+    return this.selectByTypes(["g"]);
+  }
+
+  selectByTypes(types: string[]): TreeNode[] {
     const toSelect = this.outlineService
       .getAllNodes()
-      .filter(
-        (p) => p && p.type && selectedNodes.find((n) => n.type === p.type)
-      );
+      .filter((p) => p && p.type && types.find((n) => n === p.type));
     this.setSelected(toSelect, ChangeStateMode.Normal);
+    return toSelect;
   }
   inverseSelection() {
     const toSelect = this.outlineService
