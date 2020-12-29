@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { CursorType } from "../models/cursor-type";
-import { HandleData } from '../models/handle-data';
+import { HandleData } from "../models/handle-data";
 import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 
@@ -54,25 +54,25 @@ export class CursorService {
       !handle ||
       !screenPoint ||
       handle.handles === AdornerType.None ||
-      handle.handles === AdornerType.Center ||
-      handle.handles === AdornerType.CenterTransform
+      handle.handles === AdornerType.Center
     ) {
       this.setCursor(CursorType.Default);
     } else {
-      const angle = this.getCursorAngle(handle, screenPoint);
-      const cursor = handle.rotate
-        ? this.getCursorRotate(angle)
-        : this.getCursorResize(angle);
+      let cursor = CursorType.Default;
+      if (handle && handle.handles === AdornerType.CenterTransform) {
+        cursor = CursorType.Move;
+      } else {
+        const angle = this.getCursorAngle(handle, screenPoint);
+        cursor = handle.rotate
+          ? this.getCursorRotate(angle)
+          : this.getCursorResize(angle);
+      }
 
       this.setCursor(cursor);
     }
   }
   getCursorAngle(handle: HandleData, screenPoint: DOMPoint): number {
-    const deg =
-      Utils.angle(
-        screenPoint,
-        handle.adorner.center
-      ) + 180;
+    const deg = Utils.angle(screenPoint, handle.adorner.center) + 180;
     return deg;
   }
 }
