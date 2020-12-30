@@ -6,6 +6,7 @@ import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
+import { MatrixUtils } from "./actions/transformations/matrix-utils";
 import { LoggerService } from "./logger.service";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
@@ -47,7 +48,7 @@ export class IntersectionService {
     onlyFirst: boolean = false
   ): TreeNode[] | TreeNode {
     const matrix = this.viewService.getCTM();
-    const transformed = Utils.matrixRectTransform(
+    const transformed = MatrixUtils.matrixRectTransform(
       viewportSelector as DOMRect,
       matrix
     );
@@ -218,7 +219,7 @@ export class IntersectionService {
     if (!screenCTM || !viewportScreenCTM) {
       return;
     }
-    const outputRect = Utils.matrixRectTransform(
+    const outputRect = MatrixUtils.matrixRectTransform(
       selectorRect,
       screenCTM.inverse().multiply(viewportScreenCTM)
     );

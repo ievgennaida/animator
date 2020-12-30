@@ -7,11 +7,11 @@ const xmlns = "http://www.w3.org/2000/svg";
 export class ShapesRepositoryService {
   constructor() {}
   createPath(): SVGPathElement {
-    const el: any = document.createElementNS(xmlns, "path");
+    const el = document.createElementNS(xmlns, "path") as SVGPathElement;
     return el;
   }
   createRect(): SVGRectElement {
-    const el: any = document.createElementNS(xmlns, "rect");
+    const el = document.createElementNS(xmlns, "rect") as SVGRectElement;
     return el;
   }
 }

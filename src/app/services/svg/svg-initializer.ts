@@ -1,6 +1,7 @@
 import { IInitializer, InitResults } from "../../models/interfaces/initializer";
 import { InputDocument } from "src/app/models/input-document";
 import { SvgPlayer } from "./svg-player";
+import { SVGElementType } from "./svg-element-type";
 const xmlns = "http://www.w3.org/2000/svg";
 export class SvgInitializer implements IInitializer {
   constructor() {}
@@ -13,7 +14,7 @@ export class SvgInitializer implements IInitializer {
     if (
       !toSet ||
       !toSet.documentElement ||
-      toSet.documentElement.tagName !== "svg"
+      toSet.documentElement.tagName !== SVGElementType.svg
     ) {
       throw Error("SVG element is expected");
     }
@@ -63,10 +64,5 @@ export class SvgInitializer implements IInitializer {
     }
 
     return results;
-  }
-
-  createPath(): SVGPathElement {
-    const el: any = document.createElementNS(xmlns, "path");
-    return el;
   }
 }

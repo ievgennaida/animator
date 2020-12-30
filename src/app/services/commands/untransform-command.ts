@@ -3,7 +3,7 @@ import { BaseCommand } from "src/app/services/commands/base-command";
 import { AdornersService } from "../adorners-service";
 import { SelectionService } from "../selection.service";
 import { AdornersRenderer } from "../viewport/renderers/adorners.renderer";
-import { TransformsService } from "../viewport/transformations/transforms.service";
+import { TransformsService } from "../viewport/transforms.service";
 
 /**
  * Command to remove matrix transform.
@@ -34,7 +34,7 @@ export class UntransformCommand implements BaseCommand {
     // TODO: extract action for the undo/redo service.
     const nodes = this.selectionService.getSelected();
     if (nodes && nodes.length > 0) {
-      const transformations = nodes.map((p) =>
+      /* const transformations = nodes.map((p) =>
         this.transformService.getTransform(p)
       );
 
@@ -43,7 +43,7 @@ export class UntransformCommand implements BaseCommand {
         p.node.cleanCache();
       });
       this.adornersService.cleanCache();
-      this.adornersRenderer.invalidate();
+      this.adornersRenderer.invalidate();*/
     }
   }
 }

@@ -6,9 +6,9 @@ import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
 import { MouseEventArgs } from "../../models/mouse-event-args";
-import { AdornersService } from "../adorners-service";
 import { AddElementAction } from "../actions/add-element-action";
-import { UndoService } from "../undo.service";
+import { TransformationMode } from "../actions/transformations/transformation-mode";
+import { AdornersService } from "../adorners-service";
 import { CursorService } from "../cursor.service";
 import { DocumentService } from "../document.service";
 import { MouseOverMode, MouseOverService } from "../mouse-over.service";
@@ -16,6 +16,7 @@ import { NotificationService } from "../notification.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ShapesRepositoryService } from "../shapes-repository-service";
+import { UndoService } from "../undo.service";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
 import { AdornerType } from "./adorners/adorner-type";
@@ -23,7 +24,7 @@ import { AutoPanService } from "./auto-pan-service";
 import { BaseTool } from "./base.tool";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectionTool } from "./selection.tool";
-import { TransformsService } from "./transformations/transforms.service";
+import { TransformsService } from "./transforms.service";
 
 @Injectable({
   providedIn: "root",
@@ -166,9 +167,7 @@ export class ShapeTool extends BaseTool {
 
     this.outlineService.expandToTop(this.container);
 
-    const action = this.undoService.getAction<AddElementAction>(
-      AddElementAction
-    );
+    const action = this.undoService.getAction(AddElementAction);
     action.init(this.container, newTreeNode);
     this.undoService.startAction(action);
 
@@ -176,13 +175,7 @@ export class ShapeTool extends BaseTool {
     const handle = new HandleData();
     handle.adorner = adorner;
     handle.handles = AdornerType.BottomRight;
-    const transactions = this.transformsService.prepareTransactions(
-      [newTreeNode],
-      screenPoint,
-      handle
-    );
-
-    this.transformsService.start(transactions);
+    this.transformsService.start(TransformationMode.Scale, [newTreeNode], screenPoint, handle);
     this.selectionService.setSelected(newTreeNode);
   }
   /**

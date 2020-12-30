@@ -54,7 +54,7 @@ export class RemoveElementCommand implements BaseCommand {
       this.logger.log(`Remove command: (${selectedNodes.length}) ${title}`);
     }
 
-    const action = this.undoService.getAction<RemoveElementAction>(
+    const action = this.undoService.getAction(
       RemoveElementAction
     );
     action.init(selectedNodes);

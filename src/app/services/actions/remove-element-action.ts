@@ -17,7 +17,7 @@ export class RemoveElementAction extends BaseAction {
   icon = "clear";
   nodes: TreeNode[] | null = null;
   containers: TreeNode[] = [];
-
+  committed = true;
   /**
    * Store virtual dom indexes.
    */
@@ -48,11 +48,7 @@ export class RemoveElementAction extends BaseAction {
 
   init(nodes: TreeNode[]) {
     nodes = [...nodes];
-    if (nodes.length === 1) {
-      this.title = `Remove: ${nodes[0].name}`;
-    } else {
-      this.title = `Remove: items (${nodes.length})`;
-    }
+    this.title = `Remove: ${Utils.getTreeNodesTitle(nodes)}`;
 
     this.nodes = nodes;
     this.containers = [];

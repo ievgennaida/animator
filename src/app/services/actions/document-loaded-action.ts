@@ -13,6 +13,7 @@ export class DocumentLoadedAction extends BaseAction {
   }
   title = "Document";
   icon = "assignment";
+  committed = true;
   execute() {}
   canUndo(): boolean {
     // Document cannot be unloaded.

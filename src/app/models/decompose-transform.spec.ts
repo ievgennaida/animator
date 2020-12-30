@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { MatrixTransform } from './matrix-transform';
+import { MatrixTransform } from '../services/viewport/transformations/matrix-transform';
 
 describe('Decompose Transform', () => {
   beforeEach(() => TestBed.configureTestingModule({}));

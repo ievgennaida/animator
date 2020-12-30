@@ -69,7 +69,7 @@ export class MouseOverService {
 
     return (
       currentHandle.adorner.node === data.adorner.node &&
-      Utils.bitwiseEquals(currentHandle.handles, data.handles)
+      currentHandle.handles === data.handles
     );
   }
   isMouseOverAdornerHandle(
@@ -90,7 +90,7 @@ export class MouseOverService {
       (currentHandle.adorner.mode === AdornerMode.Selection &&
         currentHandle.adorner.mode === adorner.mode)
     ) {
-      return Utils.bitwiseEquals(currentHandle.handles, data);
+      return currentHandle.handles === data;
     }
     return true;
   }

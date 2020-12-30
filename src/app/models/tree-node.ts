@@ -1,4 +1,5 @@
 import { TimelineRow } from "animation-timeline-js";
+import { MatrixUtils } from "../services/actions/transformations/matrix-utils";
 import { Utils } from "../services/utils/utils";
 import { Adorner, AdornerMode } from "../services/viewport/adorners/adorner";
 import { IBBox } from "./interfaces/bbox";
@@ -23,13 +24,13 @@ export class TreeNode implements ICTMProvider, IBBox {
    */
   isRoot = false;
   nameProperty: Property;
-  properties: Properties;
+  properties: Properties = new Properties();
   children: TreeNode[];
   parent: TreeNode;
   nodeName = "";
   tag: any;
   shape: any;
-  type: any;
+  type: string;
   data: any;
 
   lane: TimelineRow;
@@ -111,7 +112,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     if (!bbox) {
       bbox = this.getBBox();
     }
-    const screenRect = Utils.matrixRectTransform(
+    const screenRect = MatrixUtils.matrixRectTransform(
       bbox,
       this.getScreenCTM(),
       true

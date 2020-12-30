@@ -3,6 +3,7 @@ import { CursorType } from "src/app/models/cursor-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { MouseEventArgs } from "../../models/mouse-event-args";
+import { TransformationMode } from "../actions/transformations/transformation-mode";
 import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
@@ -11,13 +12,13 @@ import { MouseOverService } from "../mouse-over.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
-import { AdornerType } from "./adorners/adorner-type";
+import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
 import { AutoPanService } from "./auto-pan-service";
 import { BaseTool } from "./base.tool";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { SelectionRectTracker } from "./selection-rect-tracker";
-import { TransformsService } from "./transformations/transforms.service";
+import { TransformsService } from "./transforms.service";
 
 /**
  * Select elements by a mouse move move.
@@ -84,19 +85,36 @@ export class SelectionTool extends BaseTool {
         .map((item) => this.selectionService.getTopSelectedNode(item))
         .filter((value, index, self) => value && self.indexOf(value) === index);
       const screenPoint = event.getDOMPoint();
-      const transactions = this.transformsService.prepareTransactions(
+      const transformMode = this.getTransformationMode(handle);
+      this.transformsService.start(
+        transformMode,
         nodesToSelect,
         screenPoint,
         handle
       );
-      this.transformsService.start(transactions);
     }
     // Use when accurate selection will be implemented, or to select groups:
     /* if (!this.startedNode) {
       this.startedNode = this.getIntersects(true) as TreeNode;
     } */
   }
-
+  /**
+   * Get transformation mode by the adorner type.
+   * @param node tree node to transform.
+   * @param handle clicked handler.
+   */
+  getTransformationMode(handle: HandleData): TransformationMode {
+    if (handle) {
+      if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
+        return TransformationMode.Rotate;
+      } else {
+        return TransformationMode.Scale;
+      }
+    } else {
+      // Default is translate
+      return TransformationMode.Translate;
+    }
+  }
   isOverNode(): boolean {
     // TODO: bad place
     const startedNode = this.mouseOverService.getValue();
@@ -116,12 +134,14 @@ export class SelectionTool extends BaseTool {
     this.startedNode = null;
     this.startedHandle = null;
     this.mouseOverRenderer.resume();
-    this.transformsService.cancel();
+    if (this.transformsService.isActive()) {
+      this.transformsService.cancel();
+    }
     this.selectionTracker.stop();
     this.autoPanService.stop();
-    this.cursor.setCursor(CursorType.Default);
     this.mouseOverService.leaveHandle();
     this.selectionService.deselectAdorner();
+    this.boundsRenderer.invalidate();
   }
 
   /**
@@ -193,6 +213,8 @@ export class SelectionTool extends BaseTool {
    */
   onWindowMouseUp(e: MouseEventArgs) {
     this.startSelectionEnd(e);
+    // Simulate and update current state again after the cleanup that was done during the mouse up commit.
+    this.onWindowMouseMove(e);
   }
 
   startSelectionEnd(e: MouseEventArgs) {
@@ -227,11 +249,12 @@ export class SelectionTool extends BaseTool {
     // Transformation was applied, no need to do selection
     if (
       this.transformsService.isActive() &&
-      this.transformsService.isChanged() &&
-      !this.selectionTracker.click
+      this.transformsService.isChanged()
     ) {
       this.transformsService.commit();
       return;
+    } else {
+      this.transformsService.cancel();
     }
 
     let mode = ChangeStateMode.Normal;
@@ -245,10 +268,14 @@ export class SelectionTool extends BaseTool {
       this.selectionService.deselectAdorner();
       return;
     }
-
     if (this.selectionTracker.click) {
+      // select the same node when mouse over one of the handles.
+      const overTreeNodeHandle = this.mouseOverService.mouseOverHandle?.adorner
+        ?.node;
+      // select mouse over node.
       const mouseOverTransform = this.mouseOverService.getValue();
-      this.selectionService.setSelected(mouseOverTransform, mode);
+      const toSelect = overTreeNodeHandle || mouseOverTransform;
+      this.selectionService.setSelected(toSelect, mode);
     } else if (!this.startedNode) {
       const selected = this.intersectionService.getIntersects(
         this.selectionTracker.rect

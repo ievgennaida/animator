@@ -9,6 +9,14 @@ export interface CalculatedEllipse {
 }
 
 export class Utils {
+  static getTreeNodesTitle(nodes: TreeNode[] | null): string {
+    const count = nodes?.length || 0;
+    if (count === 1) {
+      return `${nodes[0].name}`;
+    } else {
+      return `nodes (${count})`;
+    }
+  }
   static getVector(
     a: DOMPoint,
     b: DOMPoint = null,
@@ -226,21 +234,7 @@ export class Utils {
       return null;
     }
   }
-  /**
-   * Get element current transformation matrix.
-   * @param element element to get matrix for.
-   */
-  public static getMatrix(
-    element: SVGGraphicsElement | TreeNode
-  ): DOMMatrix | null {
-    if (!element) {
-      return null;
-    }
-    return Utils.transformToElement(
-      element,
-      element.parentNode as SVGGraphicsElement | TreeNode
-    );
-  }
+
   public static transformToElement(
     fromElement: SVGGraphicsElement | TreeNode,
     toElement: SVGGraphicsElement | TreeNode
@@ -353,46 +347,6 @@ export class Utils {
       element.ownerSVGElement.createSVGTransform();
     return transform;
   }
-  /**
-   * Transform rectangle by a matrix.
-   * @param rect rectangle to transform.
-   * @param matrix matrix to transform rectangle.
-   * @param recalculateBounds Use when rectangle can be rotated.
-   * In this case rotated bounds will be returned.
-   */
-  public static matrixRectTransform(
-    rect: DOMRect,
-    matrix: DOMMatrix,
-    recalculateBounds = false
-  ): DOMRect | null {
-    if (!rect || !matrix) {
-      return null;
-    }
-    const topLeft = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
-    const bottomRight = new DOMPoint(
-      rect.x + rect.width,
-      rect.y + rect.height
-    ).matrixTransform(matrix);
-    if (recalculateBounds) {
-      // We should recalculate bounds for a case when rect was rotated or skewed.
-      const topRight = new DOMPoint(
-        rect.x + rect.width,
-        rect.y
-      ).matrixTransform(matrix);
-      const bottomLeft = new DOMPoint(
-        rect.x,
-        rect.y + rect.height
-      ).matrixTransform(matrix);
-      return Utils.getPointsBounds(topLeft, bottomRight, topRight, bottomLeft);
-    } else {
-      return new DOMRect(
-        topLeft.x,
-        topLeft.y,
-        bottomRight.x - topLeft.x,
-        bottomRight.y - topLeft.y
-      );
-    }
-  }
 
   /**
    * Get Rect bounds from a list of points.
@@ -470,7 +424,7 @@ export class Utils {
   public static deleteElement<T>(array: T[], element: T): T[] {
     const index: number = array.indexOf(element);
     if (index !== -1) {
-      return array.splice(index, 1);
+      array.splice(index, 1);
     }
     return array;
   }

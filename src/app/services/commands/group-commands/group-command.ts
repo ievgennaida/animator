@@ -37,7 +37,7 @@ export class GroupCommand implements BaseCommand {
     if (this.canExecute && !this.canExecute()) {
       return;
     }
-    const action = this.undoService.getAction<GroupAction>(GroupAction);
+    const action = this.undoService.getAction(GroupAction);
     const selected = this.selectionService.getSelected();
     action.iconSVG = this.iconSVG;
     action.init(selected, GroupMode.Group);

@@ -1,6 +1,7 @@
 // tslint:disable: variable-name
 import { Injectable } from "@angular/core";
 import { consts } from "src/environments/consts";
+import { TransformationMode } from "../../actions/transformations/transformation-mode";
 import { AdornersService } from "../../adorners-service";
 import { LoggerService } from "../../logger.service";
 import { MouseOverService } from "../../mouse-over.service";
@@ -8,7 +9,7 @@ import { OutlineService } from "../../outline.service";
 import { Utils } from "../../utils/utils";
 import { Adorner, AdornerMode } from "../adorners/adorner";
 import { AdornerType } from "../adorners/adorner-type";
-import { TransformsService } from "../transformations/transforms.service";
+import { TransformsService } from "../transforms.service";
 import { BaseRenderer } from "./base.renderer";
 
 /**
@@ -237,7 +238,7 @@ export class BoundsRenderer extends BaseRenderer {
 
     const adorners = this.adornersService.getActiveAdorners();
     const multiple = !!adorners.find((p) => p.mode === AdornerMode.Selection);
-    const activeTransactions = this.transform.transactions || [];
+    const activeTransformTransaction = this.transform.activeMode;
     adorners.forEach((adorner) => {
       if (adorner) {
         const main = adorner.mode === AdornerMode.Selection;
@@ -252,12 +253,17 @@ export class BoundsRenderer extends BaseRenderer {
         adorner = adorner.toScreen().matrixTransform(this.screenCTM);
         this.drawAdornerRect(ctx, elementsThickness, elementsColor, adorner);
 
-        if (this.adornersService.isAdornerHandlesActive(adorner)) {
+        if (
+          (this.adornersService.isAdornerHandlesActive(adorner) &&
+            // Don't show scale adorner during the transformation
+            activeTransformTransaction === TransformationMode.None) ||
+          activeTransformTransaction === TransformationMode.Scale
+        ) {
           this.drawAdornersHandles(ctx, adorner);
         }
         if (main) {
           // Don't show center during the transaction:
-          if (!activeTransactions || activeTransactions.length === 0) {
+          if (!this.transform.isActive()) {
             this.drawCross(ctx, adorner.centerTransform);
           }
         }
@@ -266,13 +272,11 @@ export class BoundsRenderer extends BaseRenderer {
         // this.drawTextOnLine(ctx, "100px", Adorner.topRight, Adorner.bottomRight, Adorner.topLeft);
       }
     });
-
-    // Debug transform transactions.
     this.showDebugPoints();
   }
   showDebugPoints() {
     const ctx = this.ctx;
-    const trans = this.transform.transactions || [];
+    const trans = this.transform?.activeAction?.transformations || [];
     trans.forEach((p) => {
       if (p.debugPoints) {
         p.debugPoints.forEach((point) => {

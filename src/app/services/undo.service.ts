@@ -1,8 +1,9 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Type } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-import { LoggerService } from "./logger.service";
 import { ActionsFactory } from "./actions/actions-factory";
 import { BaseAction } from "./actions/base-action";
+import { LoggerService } from "./logger.service";
+import { Utils } from "./utils/utils";
 
 @Injectable({
   providedIn: "root",
@@ -17,6 +18,9 @@ export class UndoService {
   get actions(): BaseAction[] {
     return this.actionsSubject.getValue();
   }
+  set actions(value: BaseAction[]) {
+    this.actionsSubject.next(value);
+  }
   get activeIndex() {
     return this.actionIndexSubject.getValue();
   }
@@ -28,17 +32,52 @@ export class UndoService {
    *
    * @param actionType to create action and resolve dependencies.
    */
-  getAction<T>(actionType: unknown): T {
+  getAction<T>(actionType: Type<T>): T {
     const newActionInstance = this.actionsFactory.get<T>(actionType);
     return newActionInstance;
   }
   commitAction() {}
+
+  /**
+   * Remove the action from the history list.
+   * Can be used in a case when operation is started but cannot be finished.
+   * Ex: move by mouse transaction is started and focus is lost.
+   * @param action action to remove.
+   */
+  remove(action: BaseAction) {
+    const indexOf = this.actions.indexOf(action);
+    if (indexOf >= 0) {
+      // Check that index is not out of the bounds
+      if (this.activeIndex >= this.actions.length - 1) {
+        this.activeIndex = this.actions.length - 2;
+      }
+      this.actions = Utils.deleteElement(this.actions, action);
+    }
+  }
+  getActiveAction(): BaseAction | null {
+    return this.actions[this.activeIndex];
+  }
+
+  getLastAction(): BaseAction | null {
+    if (this.actions && this.actions.length > 0) {
+      return this.actions[this.actions.length - 1];
+    }
+    return null;
+  }
+
   /**
    * Perform action and add to the collection.
    */
   startAction(action: BaseAction, execute = true): BaseAction {
     if (this.logger.isDebug()) {
       this.logger.debug(`Start action: ${action.title || typeof action}`);
+    }
+
+    const lastAction = this.getLastAction();
+    if (lastAction && !lastAction.committed) {
+      throw Error(
+        `Cannot start new action while current active action is uncommitted ${lastAction.title}`
+      );
     }
 
     if (execute) {
@@ -73,25 +112,36 @@ export class UndoService {
     return false;
   }
 
+  /**
+   * Undo specific action without changing current active index
+   */
+  _undoAction(action: BaseAction): boolean {
+    try {
+      if (this.logger.isDebug()) {
+        this.logger.debug(
+          `Undo: ${action.title} active: (${this.activeIndex}).`
+        );
+      }
+
+      action.undo();
+      return true;
+    } catch (er) {
+      this.logger.error(
+        `Undo Failed: ${action.title} active: (${this.activeIndex})  ${er}.`
+      );
+    }
+    return false;
+  }
   undo(): boolean {
     if (!this.canUndo()) {
       return false;
     }
 
     const nextAction = this.actions[this.activeIndex];
-    if (this.logger.isDebug()) {
-      this.logger.debug(`Undo: (${this.activeIndex}) ${nextAction.title}.`);
-    }
 
-    try {
-      nextAction.undo();
-
+    if (this._undoAction(nextAction)) {
       this.activeIndex--;
       return true;
-    } catch (er) {
-      this.logger.error(
-        `Undo failed to execute: (${this.activeIndex}) ${nextAction.title} ${er}.`
-      );
     }
     return false;
   }
@@ -128,7 +178,22 @@ export class UndoService {
 
     return false;
   }
+  _executeAction(action: BaseAction): boolean {
+    if (this.logger.isDebug()) {
+      this.logger.log(
+        `Redo: (${this.actions.indexOf(action)}) ${action.title}.`
+      );
+    }
+    try {
+      action.execute();
 
+      return true;
+    } catch (er) {
+      this.logger.error(
+        `Redo Failed: (${this.activeIndex}) ${action.title} ${er}.`
+      );
+    }
+  }
   redo(): boolean {
     if (!this.canRedo()) {
       return false;
@@ -136,19 +201,10 @@ export class UndoService {
 
     const index = this.activeIndex + 1;
     const nextAction = this.actions[index];
-    if (this.logger.isDebug()) {
-      this.logger.log(`Redo: (${index}) ${nextAction.title}.`);
-    }
-    try {
-      nextAction.execute();
-
+    if (this._executeAction(nextAction)) {
       this.activeIndex = index;
       return true;
-    } catch (er) {
-      this.logger.error(
-        `Redo failed to execute: (${this.activeIndex}) ${nextAction.title} ${er}.`
-      );
     }
-    return;
+    return false;
   }
 }

@@ -16,7 +16,8 @@ import { MouseOverRenderer } from "./viewport/renderers/mouse-over.renderer";
 import { PathRenderer } from "./viewport/renderers/path.renderer";
 import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
 import { ToolsService } from "./viewport/tools.service";
-import { TransformsService } from "./viewport/transformations/transforms.service";
+import { TransformsService } from "./viewport/transforms.service";
+import { merge } from "rxjs";
 
 /**
  * Wire services together
@@ -88,9 +89,11 @@ export class WireService {
       toolsService.fitViewport();
       this.selectionService.deselectAll();
     });
-
-    // Individual element is transformed.
-    transformsService.transformed.subscribe(() => {
+    merge(
+      undoService.actionIndexSubject,
+      // Individual element is transformed.
+      transformsService.transformed
+    ).subscribe(() => {
       // TODO: invalidate from current to all children
       BaseRenderer.runSuspendedRenderers(
         () => {

@@ -29,7 +29,7 @@ export class OrderAction extends BaseAction {
   nodes: TreeNode[] | null = null;
   containers: TreeNode[] = [];
   mode: OrderMode;
-
+  committed = true;
   /**
    * Store virtual dom indexes.
    */
@@ -136,12 +136,8 @@ export class OrderAction extends BaseAction {
     } else {
       nodes = nodes.sort((a, b) => a.index - b.index);
     }
-    if (nodes.length === 1) {
-      this.title = `Order: ${mode} ${nodes[0].name}`;
-    } else {
-      this.title = `Order: ${mode} items (${nodes.length})`;
-    }
 
+    this.title = `Order: ${mode} ${Utils.getTreeNodesTitle(nodes)}`;
     this.nodes = nodes;
     this.containers = [];
     this.treeNodeIndex = [];

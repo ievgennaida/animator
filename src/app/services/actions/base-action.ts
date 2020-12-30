@@ -12,6 +12,7 @@ export abstract class BaseAction {
    * SVG or font icon.
    */
   iconSVG?: boolean;
+  committed: boolean;
   abstract execute();
   canExecute(): boolean {
     return true;

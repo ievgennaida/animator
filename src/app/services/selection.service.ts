@@ -10,7 +10,6 @@ import {
   StateChangedSource,
   StateSubject,
 } from "./state-subject";
-import { Utils } from "./utils/utils";
 import { AdornerType } from "./viewport/adorners/adorner-type";
 @Injectable({
   providedIn: "root",
@@ -39,7 +38,7 @@ export class SelectionService {
     this.selectedAdorner = value;
   }
   isAdornerHandleSelected(value: AdornerType) {
-    return Utils.bitwiseEquals(this.selectedAdorner, value);
+    return this.selectedAdorner === value;
   }
   /**
    * Get top most selected node from current.

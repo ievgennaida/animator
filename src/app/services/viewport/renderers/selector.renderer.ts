@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { consts } from "src/environments/consts";
+import { MatrixUtils } from "../../actions/transformations/matrix-utils";
 import { LoggerService } from "../../logger.service";
-import { Utils } from "../../utils/utils";
 import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 
@@ -42,7 +42,7 @@ export class SelectorRenderer extends BaseRenderer {
       return;
     }
 
-    const transformed = Utils.matrixRectTransform(
+    const transformed = MatrixUtils.matrixRectTransform(
       this.rect,
       this.viewService.getCTM()
     );

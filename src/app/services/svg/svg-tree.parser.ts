@@ -123,8 +123,10 @@ export class SvgTreeParser implements IParser {
       node.icon = "text_fields";
       node.allowRotate = false;
       node.allowResize = false;
+      node.properties.items = this.getTSpanProperties(node);
     } else if (tagName === SVGElementType.text) {
       node.icon = "text_fields";
+      node.properties.items = this.getTSpanProperties(node);
     } else if (tagName === SVGElementType.textpath) {
       node.icon = "text_fields";
     } else if (tagName === SVGElementType.line) {
@@ -144,6 +146,106 @@ export class SvgTreeParser implements IParser {
     text.readonly = true;
     return text;
   }
+
+  getTSpanProperties(node: TreeNode): Property[] {
+    const properties: Property[] = [];
+    const el = node.getElement();
+    const idProperty = new TextProperty(node, "id", "id", el, "id");
+    idProperty.readonly = true;
+    properties.push(idProperty);
+    let dynamic = new DNumberProperty(
+      node,
+      // Default value: none; Animatable: yes
+      new NumberProperty(
+        node,
+        "x",
+        "x",
+        el,
+        "The x coordinate of the starting point of the text baseline."
+      ),
+      new NumberProperty(
+        node,
+        "y",
+        "y",
+        el,
+        "The y coordinate of the starting point of the text baseline."
+      )
+    );
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+    dynamic = new DNumberProperty(
+      node,
+      // Value type: <length>|<percentage> ; Default value: none; Animatable: yes
+      new NumberProperty(node, "dx", "dx", el, ""),
+      // Default value: none; Animatable: yes
+      new NumberProperty(
+        node,
+        "dy",
+        "dy",
+        el,
+        "Shifts the text position vertically from a previous text element."
+      )
+    );
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+
+    dynamic = new DNumberProperty(
+      node,
+      new NumberProperty(node, "rx", "rx", el, "rx"),
+      new NumberProperty(node, "ry", "ry", el, "ry")
+    );
+    dynamic.prop1.min = 0;
+    dynamic.prop1.readonly = true;
+    dynamic.prop2.min = 0;
+    dynamic.prop2.readonly = true;
+    properties.push(dynamic);
+    // Value type: <list-of-number> ; Default value: none; Animatable: yes
+    let textProperty = new TextProperty(
+      node,
+      "rotate",
+      "r",
+      el,
+      "Rotates orientation of each individual glyph. Can rotate glyphs individually."
+    );
+    textProperty.readonly = true;
+
+    properties.push(textProperty);
+
+    // Value type: spacing|spacingAndGlyphs; Default value: spacing; Animatable: yes
+    textProperty = new TextProperty(
+      node,
+      "lengthAdjust",
+      "lengthAdjust",
+      el,
+      "How the text is stretched or compressed to fit the width defined by the textLength attribute."
+    );
+    textProperty.readonly = true;
+
+    properties.push(textProperty);
+
+    //Value type: <length>|<percentage> ; Default value: none; Animatable: yes
+    const numberProperty = new NumberProperty(
+      node,
+      "textLength",
+      "textLength",
+      el,
+      "A width that the text should be scaled to fit."
+    );
+    numberProperty.min = 0;
+    numberProperty.readonly = true;
+
+    properties.push(numberProperty);
+
+    properties.push(this.getTransformProperty(node));
+    return properties;
+  }
+
   getIdProperty(node: TreeNode): TextProperty {
     const el = node.getElement();
     const text = new TextProperty(node, "id", "id", el, "id");

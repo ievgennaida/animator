@@ -16,6 +16,7 @@ export class AddElementAction extends BaseAction {
   }
   container: TreeNode;
   element: TreeNode;
+  committed = true;
   execute() {
     Utils.addTreeNodeToContainer(this.element, this.container);
     this.outlineService.update();

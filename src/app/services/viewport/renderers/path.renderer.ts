@@ -123,7 +123,7 @@ export class PathRenderer extends BaseRenderer {
             2,
             "red",
             null,
-            Utils.matrixRectTransform(
+            MatrixUtils.matrixRectTransform(
               Utils.shrinkRect(abs.getBounds(), 2, 2),
               ctm
             )

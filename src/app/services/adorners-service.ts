@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
+import { MatrixUtils } from "./actions/transformations/matrix-utils";
 import { ConfigService } from "./config-service";
 import { SelectionService } from "./selection.service";
 import { Utils } from "./utils/utils";
@@ -37,7 +38,7 @@ export class AdornersService {
         if (!nodeBBox) {
           return;
         }
-        nodeBBox = Utils.matrixRectTransform(
+        nodeBBox = MatrixUtils.matrixRectTransform(
           nodeBBox,
           node.getScreenCTM(),
           true
@@ -112,6 +113,10 @@ export class AdornersService {
       return false;
     }
     if (active.length === 1) {
+      if (active[0].node && !active[0].node.allowResize) {
+        return false;
+      }
+
       return true;
     } else if (adorner.mode === AdornerMode.Selection) {
       return true;

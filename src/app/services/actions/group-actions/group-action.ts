@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import { ScrollToSelected } from "../../commands/scroll-to-selected";
 import { OutlineService } from "../../outline.service";
+import { Utils } from "../../utils/utils";
 import { BaseAction } from "../base-action";
 
 export enum GroupMode {
@@ -25,7 +26,7 @@ export class GroupAction extends BaseAction {
   nodes: TreeNode[] | null = null;
   containers: TreeNode[] = [];
   mode: GroupMode;
-
+  committed = true;
   /**
    * Store virtual dom indexes.
    */
@@ -41,12 +42,7 @@ export class GroupAction extends BaseAction {
 
   init(nodes: TreeNode[], mode: GroupMode) {
     this.mode = mode;
-    if (nodes.length === 1) {
-      this.title = `${mode}: ${nodes[0].name}`;
-    } else {
-      this.title = `${mode}: items (${nodes.length})`;
-    }
-
+    this.title = `${mode}: ${Utils.getTreeNodesTitle(nodes)}`;
     this.nodes = nodes;
     this.containers = [];
     this.treeNodeIndex = [];

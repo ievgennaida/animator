@@ -1,9 +1,11 @@
 import { Injectable } from "@angular/core";
+import { HandleData } from "src/app/models/handle-data";
 import {
   PathDataHandle,
   PathDataHandleType,
 } from "src/app/models/path-data-handle";
 import { MouseEventArgs } from "../../models/mouse-event-args";
+import { TransformationMode } from "../actions/transformations/transformation-mode";
 import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
@@ -18,9 +20,7 @@ import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
 import { PathRenderer } from "./renderers/path.renderer";
 import { SelectionRectTracker } from "./selection-rect-tracker";
 import { SelectionTool } from "./selection.tool";
-import { MatrixTransform } from "./transformations/matrix-transform";
-import { PathTransform } from "./transformations/path-transform";
-import { TransformsService } from "./transformations/transforms.service";
+import { TransformsService } from "./transforms.service";
 
 @Injectable({
   providedIn: "root",
@@ -113,7 +113,7 @@ export class PathDirectSelectionTool extends SelectionTool {
       // Start click or rect transform, deselect all selected
       this.selectionService.pathDataSubject.setNone();
     } else {
-      // Get transform handles to be moved
+      // Get transform path data handles to be moved
       const handles = this.getTransformHandles();
       // Transform one handle
       if (handles && handles.length > 0) {
@@ -124,14 +124,14 @@ export class PathDirectSelectionTool extends SelectionTool {
             nodesToSelect.push(element.node);
           }
         });
-        // Filter transform actions only by the path data transform
-        const transforms = this.transformsService
-          .prepareTransactions(nodesToSelect, event.getDOMPoint(), null)
-          .filter((p) => p instanceof PathTransform) as PathTransform[];
-        transforms.forEach((p) => {
-          p.pathHandles = handles.filter((handle) => handle.node === p.node);
-        });
-        this.transformsService.start(transforms as MatrixTransform[]);
+        const data = new HandleData();
+        data.pathDataHandles = handles;
+        this.transformsService.start(
+          TransformationMode.Translate,
+          nodesToSelect,
+          event.getDOMPoint(),
+          data
+        );
       }
     }
   }

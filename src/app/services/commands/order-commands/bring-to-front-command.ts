@@ -40,7 +40,7 @@ export class BringToFrontCommand implements BaseCommand {
     if (this.canExecute && !this.canExecute()) {
       return;
     }
-    const action = this.undoService.getAction<OrderAction>(OrderAction);
+    const action = this.undoService.getAction(OrderAction);
     const selected = this.selectionService.getSelected();
     action.icon = this.icon;
     action.iconSVG = this.iconSVG;
