@@ -31,7 +31,7 @@ export class TransformAction extends BaseAction {
   mode: TransformationMode = TransformationMode.None;
   transformations: Array<BaseTransformAction> = [];
   changed = false;
-  committed = true;
+  committed = false;
   /**
    * Get transform action for the node by type.
    */
@@ -68,10 +68,12 @@ export class TransformAction extends BaseAction {
     return this.changed;
   }
   commit(): boolean {
+    this.committed = true;
     this.changed = false;
     if (this.transformations) {
       this.transformations.forEach((p) => p.commit());
     }
+    this.undoService.update();
     return true;
   }
   execute() {

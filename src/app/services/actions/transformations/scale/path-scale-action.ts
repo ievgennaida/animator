@@ -1,4 +1,3 @@
-import { MapType } from "@angular/compiler";
 import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { PathDataHandle } from "src/app/models/path-data-handle";
@@ -7,7 +6,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
 import { AdornerMode } from "src/app/services/viewport/adorners/adorner";
-import { MatrixUtils, PathDataUtils } from "../matrix-utils";
+import { MatrixUtils, PathDataUtils } from "../../../utils/matrix-utils";
 import { MatrixScaleAction } from "./matrix-scale-action";
 
 @Injectable({

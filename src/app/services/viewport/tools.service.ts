@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, Subject } from "rxjs";
 import { consts } from "src/environments/consts";
 import { MouseEventArgs } from "../../models/mouse-event-args";
-import { MatrixUtils } from "../actions/transformations/matrix-utils";
+import { MatrixUtils } from "../utils/matrix-utils";
 import { SelectionService } from "../selection.service";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";

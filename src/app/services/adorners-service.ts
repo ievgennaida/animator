@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
-import { MatrixUtils } from "./actions/transformations/matrix-utils";
+import { MatrixUtils } from "./utils/matrix-utils";
 import { ConfigService } from "./config-service";
 import { SelectionService } from "./selection.service";
 import { Utils } from "./utils/utils";

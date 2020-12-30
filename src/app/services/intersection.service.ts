@@ -6,7 +6,7 @@ import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
-import { MatrixUtils } from "./actions/transformations/matrix-utils";
+import { MatrixUtils } from "./utils/matrix-utils";
 import { LoggerService } from "./logger.service";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";

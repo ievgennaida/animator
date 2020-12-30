@@ -8,7 +8,7 @@ export abstract class BaseTransformAction extends BaseAction {
     super();
   }
 
-  committed = true;
+  committed = false;
   node: TreeNode | null = null;
   handle: HandleData | null = null;
   /**

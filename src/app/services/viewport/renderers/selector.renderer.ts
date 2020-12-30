@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { consts } from "src/environments/consts";
-import { MatrixUtils } from "../../actions/transformations/matrix-utils";
 import { LoggerService } from "../../logger.service";
+import { MatrixUtils } from "../../utils/matrix-utils";
 import { ViewService } from "../../view.service";
 import { BaseRenderer } from "./base.renderer";
 

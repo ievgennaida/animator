@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
-import { MatrixUtils } from "../matrix-utils";
+import { MatrixUtils } from "../../../utils/matrix-utils";
 import { MatrixScaleAction } from "./matrix-scale-action";
 
 @Injectable({

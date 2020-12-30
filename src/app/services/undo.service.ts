@@ -36,7 +36,9 @@ export class UndoService {
     const newActionInstance = this.actionsFactory.get<T>(actionType);
     return newActionInstance;
   }
-  commitAction() {}
+  update() {
+    this.actionIndexSubject.next(this.activeIndex);
+  }
 
   /**
    * Remove the action from the history list.

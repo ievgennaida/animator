@@ -4,7 +4,6 @@ import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "../../../properties.service";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { MatrixUtils } from "../matrix-utils";
 
 /**
  * Rect translate by the mouse action.

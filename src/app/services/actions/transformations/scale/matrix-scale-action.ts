@@ -3,6 +3,7 @@ import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { DecomposedMatrix } from "../../../../models/decompose-matrix";
+import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { AdornerMode } from "../../../viewport/adorners/adorner";
 import {
@@ -10,7 +11,6 @@ import {
   AdornerTypeUtils,
 } from "../../../viewport/adorners/adorner-type";
 import { BaseTransformAction } from "../base-transform-action";
-import { MatrixUtils } from "../matrix-utils";
 
 @Injectable({
   providedIn: "root",
@@ -38,7 +38,6 @@ export class MatrixScaleAction extends BaseTransformAction {
   transformElementCoordinates = false;
 
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
-
     this.handle = handle;
     this.start = screenPos;
     this.node = node;

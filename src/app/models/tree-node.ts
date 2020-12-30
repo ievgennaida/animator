@@ -1,5 +1,5 @@
 import { TimelineRow } from "animation-timeline-js";
-import { MatrixUtils } from "../services/actions/transformations/matrix-utils";
+import { MatrixUtils } from "../services/utils/matrix-utils";
 import { Utils } from "../services/utils/utils";
 import { Adorner, AdornerMode } from "../services/viewport/adorners/adorner";
 import { IBBox } from "./interfaces/bbox";

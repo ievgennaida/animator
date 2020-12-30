@@ -4,8 +4,8 @@ import { PathDataHandle } from "src/app/models/path-data-handle";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
+import { PathDataUtils } from "../../../utils/matrix-utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { PathDataUtils } from "../matrix-utils";
 @Injectable({
   providedIn: "root",
 })

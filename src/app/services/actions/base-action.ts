@@ -12,13 +12,13 @@ export abstract class BaseAction {
    * SVG or font icon.
    */
   iconSVG?: boolean;
-  committed: boolean;
+  committed = false;
   abstract execute();
   canExecute(): boolean {
-    return true;
+    return this.committed;
   }
   abstract undo();
   canUndo(): boolean {
-    return true;
+    return this.committed;
   }
 }

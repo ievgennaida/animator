@@ -8,7 +8,7 @@ import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
-import { Utils } from "../../utils/utils";
+import { Utils } from "./utils";
 
 export class MatrixUtils {
   static TransformPropertyKey = "transform";

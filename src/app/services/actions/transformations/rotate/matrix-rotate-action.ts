@@ -3,9 +3,9 @@ import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "src/app/services/properties.service";
 import { DecomposedMatrix } from "../../../../models/decompose-matrix";
+import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { MatrixUtils } from "../matrix-utils";
 
 @Injectable({
   providedIn: "root",
