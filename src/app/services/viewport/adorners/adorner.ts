@@ -7,25 +7,25 @@ import { AdornerType } from "./adorner-type";
  * Adorner is a control points container.
  */
 export class TransformedRect implements IBBox {
-  get topCenter(): DOMPoint {
+  get topCenter(): DOMPoint | null {
     return this.get(AdornerType.TopCenter);
   }
-  get bottomCenter(): DOMPoint {
+  get bottomCenter(): DOMPoint | null {
     return this.get(AdornerType.BottomCenter);
   }
-  get leftCenter(): DOMPoint {
+  get leftCenter(): DOMPoint | null {
     return this.get(AdornerType.LeftCenter);
   }
-  get rightCenter(): DOMPoint {
+  get rightCenter(): DOMPoint | null {
     return this.get(AdornerType.RightCenter);
   }
-  get bottomLeft(): DOMPoint {
+  get bottomLeft(): DOMPoint | null {
     return this.get(AdornerType.BottomLeft);
   }
-  get bottomRight(): DOMPoint {
+  get bottomRight(): DOMPoint | null {
     return this.get(AdornerType.BottomRight);
   }
-  get topLeft(): DOMPoint {
+  get topLeft(): DOMPoint | null {
     return this.get(AdornerType.TopLeft);
   }
   get width(): number {
@@ -34,13 +34,13 @@ export class TransformedRect implements IBBox {
   get height(): number {
     return Utils.getLength(this.topLeft, this.bottomLeft);
   }
-  get topRight(): DOMPoint {
+  get topRight(): DOMPoint | null {
     return this.get(AdornerType.TopRight);
   }
-  get centerTransform(): DOMPoint {
+  get centerTransform(): DOMPoint | null {
     return this.get(AdornerType.CenterTransform);
   }
-  get center(): DOMPoint {
+  get center(): DOMPoint | null {
     return this.get(AdornerType.Center);
   }
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
@@ -58,8 +58,11 @@ export class TransformedRect implements IBBox {
     this.points.set(key, point);
   }
 
-  get(key: AdornerType): DOMPoint {
-    return this.points.get(key);
+  get(key: AdornerType): DOMPoint | null {
+    if (this.points && this.points.size > 0) {
+      return this.points.get(key);
+    }
+    return null;
   }
 
   untransformSelf(): TransformedRect {
@@ -142,7 +145,7 @@ export enum AdornerMode {
   TransformedElement,
   ElementsBounds,
   Selection,
-  PathDataSelection
+  PathDataSelection,
 }
 export class Adorner extends TransformedRect {
   selected: Map<AdornerType, boolean> = new Map<AdornerType, boolean>();
@@ -150,9 +153,9 @@ export class Adorner extends TransformedRect {
    * Screen or element coordinates.
    */
   isScreen = true;
-
+  enabled = true;
   mode = AdornerMode.TransformedElement;
-  node: TreeNode = null;
+  node: TreeNode | null = null;
   public allowResize = true;
 
   setSelected(adornerType: AdornerType, selectedState = true) {
