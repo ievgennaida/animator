@@ -26,7 +26,20 @@ export class MouseEventArgs {
       this.args.preventDefault();
     }
   }
-
+  leftClicked() {
+    // tslint:disable-next-line: deprecation
+    const e: any = this.args || window.event;
+    if (!e) {
+      return false;
+    }
+    if ("which" in e) {
+      // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+      return e.which === 1;
+    } else if ("button" in e) {
+      return e.button === 0;
+    }
+    return false;
+  }
   rightClicked() {
     // tslint:disable-next-line: deprecation
     const e: any = this.args || window.event;
