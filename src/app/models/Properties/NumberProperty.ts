@@ -36,7 +36,7 @@ export class NumberProperty extends Property {
       if (this.data instanceof Element) {
         const el = this.data as Element;
         const value = el.getAttribute(this.key);
-        return parseInt(value);
+        return parseInt(value, 10);
       }
       let data = this.data[this.key];
       if (data && this.dataType === PropertyDataType.value) {
@@ -50,7 +50,7 @@ export class NumberProperty extends Property {
       if (data === undefined) {
         return "";
       } else {
-        return parseInt(data);
+        return parseInt(data, 10);
       }
     }
   }

@@ -37,7 +37,7 @@ export class NumericComponent extends BaseComponent implements OnInit {
 
   onValueChanged(event) {
     if (this.property) {
-      this.property.setValue(parseInt(event.target.value, 2));
+      this.property.setValue(parseInt(event.target.value, 10));
       this.propertiesService.emitPropertyChanged(this.property);
     }
   }

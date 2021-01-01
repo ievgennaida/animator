@@ -1,11 +1,14 @@
 import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
-import { min } from "rxjs/operators";
 import { NumberProperty } from "../models/Properties/NumberProperty";
 import { Property } from "../models/Properties/Property";
 import { TreeNode } from "../models/tree-node";
 import { Utils } from "./utils/utils";
 
+export const CenterTransformX = "transform-center-x";
+export const CenterTransformY = "transform-center-y";
+export const TransformPropertyKey = "transform";
+export const PathDataPropertyKey = "d";
 @Injectable({
   providedIn: "root",
 })
@@ -40,7 +43,8 @@ export class PropertiesService {
     if (val === null) {
       element.removeAttribute(key);
     } else {
-      element.setAttribute(key, val?.toString() || "");
+      const toSet = val?.toString() || "";
+      element.setAttribute(key, toSet);
     }
 
     const property = this.getPropertyByKey(node, key);
@@ -57,6 +61,77 @@ export class PropertiesService {
   unset(node: TreeNode, key: string) {
     const element = node.getElement();
     element.removeAttribute(key);
+  }
+  setMatrixTransform(node: TreeNode, matrix: DOMMatrix | null): boolean {
+    const element = node.getElement();
+    if (element) {
+      const transform = Utils.getElementTransform(element);
+      transform.setMatrix(matrix);
+      element.transform.baseVal.initialize(transform);
+      const property = this.getPropertyByKey(node, TransformPropertyKey);
+      if (property) {
+        this.emitPropertyChanged(property);
+      }
+      return true;
+    }
+    return false;
+  }
+  /**
+   * Transform transformation center by matrix.
+   */
+  transformCenterByMatrix(
+    node: TreeNode,
+    matrix: DOMMatrix,
+    point: DOMPoint | null = null
+  ): boolean {
+    if (this.isCenterTransformSet(node)) {
+      let transform = point || this.getCenterTransform(node, true);
+      if (!transform) {
+        return false;
+      }
+      transform = transform.matrixTransform(matrix);
+      const bbox = node.getBBox();
+      transform.x -= bbox.x;
+      transform.y -= bbox.y;
+      this.setCenterTransform(node, transform.x, transform.y);
+      return true;
+    }
+    return false;
+  }
+  isCenterTransformSet(node: TreeNode) {
+    const x = this.getNum(node, CenterTransformX);
+    const y = this.getNum(node, CenterTransformY);
+    return (!isNaN(x) && x !== null) || (!isNaN(y) && y !== null);
+  }
+  /**
+   * get stored center transform.
+   * @param relative whether coordinates should be global or relative to the element position (in element coordinates system)
+   */
+  getCenterTransform(node: TreeNode, relative = false): DOMPoint | null {
+    if (!node || !node.getElement()) {
+      return null;
+    }
+    let x = this.getNum(node, CenterTransformX);
+    let y = this.getNum(node, CenterTransformY);
+    const bboxCache = node.getBBox();
+    const center = Utils.getRectCenter(bboxCache, relative);
+    if (isNaN(x) || x === null) {
+      x = center?.x || 0;
+    } else if (!relative) {
+      x += bboxCache.x;
+    }
+    if (isNaN(y) || y === null) {
+      y = center?.y || 0;
+    } else if (!relative) {
+      y += bboxCache.y;
+    }
+
+    const transformPoint = new DOMPoint(x, y);
+    return transformPoint;
+  }
+  setCenterTransform(node: TreeNode, x: number, y: number) {
+    this.setNum(node, CenterTransformX, x);
+    this.setNum(node, CenterTransformY, y);
   }
 
   setNum(node: TreeNode, key: string, val: number | null): boolean {
@@ -84,9 +159,20 @@ export class PropertiesService {
     this.setAttribute(node, key, val);
     return true;
   }
-  getNum(node: TreeNode, key: string): number {
-    const val = this.getAttributeValue<SVGLength>(node, key);
-    if (val) {
+  getNum(node: TreeNode, key: string): number | null {
+    const val = this.getAttributeValue<string | SVGLength>(node, key);
+    if (typeof val === "string") {
+      if (!val) {
+        return null;
+      }
+
+      const value = parseInt(val, 10);
+      if (isNaN(value)) {
+        return null;
+      }
+      return value;
+    }
+    if (val instanceof SVGLength) {
       return val.value;
     } else {
       return null;
@@ -109,11 +195,11 @@ export class PropertiesService {
     const propAttribute = element.getAttribute(key);
     return propAttribute;
   }
-  getAttributeValue<T>(node: TreeNode, key: string): T {
+  getAttributeValue<T>(node: TreeNode, key: string): T | string {
     const element = node.getElement();
     const propAttribute = element[key];
     if (!propAttribute) {
-      return null;
+      return element.getAttribute(key);
     }
     const val = propAttribute.baseVal;
     if (!val) {
