@@ -29,9 +29,15 @@ export class TransformedRect implements IBBox {
     return this.get(AdornerType.TopLeft);
   }
   get width(): number {
+    if (!this.topLeft || !this.topRight) {
+      return 0;
+    }
     return Utils.getLength(this.topLeft, this.topRight);
   }
   get height(): number {
+    if (!this.topLeft || !this.bottomLeft) {
+      return 0;
+    }
     return Utils.getLength(this.topLeft, this.bottomLeft);
   }
   get topRight(): DOMPoint | null {
@@ -44,7 +50,6 @@ export class TransformedRect implements IBBox {
     return this.get(AdornerType.Center);
   }
   points: Map<AdornerType, DOMPoint> = new Map<AdornerType, DOMPoint>();
-
   /**
    * Initialize adorner from rect
    * @param bounds rectangle to decompose.
@@ -110,11 +115,9 @@ export class TransformedRect implements IBBox {
     );
     const center = Utils.getRectCenter(bounds);
     this.points.set(AdornerType.Center, center);
-    // Transform around this point.
-    this.setCenterTransform(center);
   }
 
-  setCenterTransform(center: DOMPoint) {
+  setCenterTransform(center: DOMPoint | null) {
     this.points.set(AdornerType.CenterTransform, center);
   }
   /**
@@ -187,7 +190,11 @@ export class Adorner extends TransformedRect {
     cloned.mode = this.mode;
     cloned.node = this.node;
     this.points.forEach((adornerPoint, key) => {
-      cloned.set(key, new DOMPoint(adornerPoint.x, adornerPoint.y));
+      if (adornerPoint) {
+        cloned.set(key, new DOMPoint(adornerPoint.x, adornerPoint.y));
+      } else {
+        cloned.set(key, null);
+      }
     });
     cloned.matrixTransformSelf(m);
     return cloned;
