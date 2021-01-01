@@ -9,6 +9,8 @@
 button[mat-button] {
   height: 100%;
   min-width: 34px;
+  max-width: 34px;
+  overflow: hidden;
   box-sizing: border-box;
   margin: 0px;
   padding: 0px;

@@ -9,6 +9,8 @@
 button[mat-button] {
   padding: 0px;
   width: 44px;
+  overflow: hidden;
+  max-width: 44px;
   min-width: 44px;
   color: #adadad;
   &:hover {
