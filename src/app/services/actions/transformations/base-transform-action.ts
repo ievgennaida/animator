@@ -51,7 +51,11 @@ export abstract class BaseTransformAction extends BaseAction {
   }
   commit() {
     this.committed = true;
-    if (this.attributesToStore) {
+    if (
+      this.attributesToStore &&
+      this.attributesToStore.length > 0 &&
+      this.node
+    ) {
       this.committedValues = this.propertiesService.getAttributes(
         this.node,
         this.attributesToStore
