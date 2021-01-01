@@ -1,7 +1,7 @@
 // tslint:disable: no-bitwise
 
 export enum AdornerType {
-  None = 0,
+  None,
 
   TopLeft,
   TopCenter,
@@ -37,7 +37,7 @@ export class AdornerTypeUtils {
     if (key <= AdornerType.Center) {
       return key;
     } else {
-      return key / AdornerType.Center / 2;
+      return key - AdornerType.Center;
     }
   }
 
@@ -45,7 +45,7 @@ export class AdornerTypeUtils {
     if (key > AdornerType.Center) {
       return key;
     } else {
-      return key * AdornerType.Center * 2;
+      return key + AdornerType.Center;
     }
   }
   /**

@@ -42,8 +42,8 @@ export class HistoryComponent extends BaseComponent implements OnInit {
   @ViewChild("virtual", { static: true }) virtual: CdkVirtualScrollViewport;
   items: HistoryItem[] = [];
   ngOnInit(): void {
-    this.virtual.renderedRangeStream
-      .pipe(takeUntil(this.destroyed$))
+    this.virtual?.renderedRangeStream
+      ?.pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.cdRef.detectChanges();
       });
@@ -113,7 +113,11 @@ export class HistoryComponent extends BaseComponent implements OnInit {
    * Scroll only if active selected index is not visible.
    */
   scrollToSelectedIndex(index: number): void {
-    const container = this.virtualElementRef.nativeElement;
+    const container = this.virtualElementRef?.nativeElement;
+    if (!this.virtual || !container) {
+      console.log("Error: virtual list is not defined.");
+      return;
+    }
     const element = container.querySelector(".selected") as HTMLElement;
     if (!Utils.isVisibleVertically(element, container)) {
       // execute after angular data binding

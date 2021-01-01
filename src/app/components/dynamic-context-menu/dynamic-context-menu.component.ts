@@ -28,7 +28,7 @@ export class DynamicContextMenuComponent
   constructor(private cdRef: ChangeDetectorRef) {
     super();
   }
-  @ViewChild(MatMenu) public matMenu: MatMenu;
+  @ViewChild("menu") public matMenu: MatMenu;
 
   public commands: BaseCommand[] | null = [];
   @Input("commands") set setCommand(commands: BaseCommand[]) {

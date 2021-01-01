@@ -1,11 +1,9 @@
-import { TestBed } from '@angular/core/testing';
-import { MatrixTransform } from '../services/viewport/transformations/matrix-transform';
-
-describe('Decompose Transform', () => {
+import { TestBed } from "@angular/core/testing";
+/*describe("Decompose Transform", () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
-  it('Scale Transform', () => {
-    /*let element = new SVGSVGElement();
+  it("Scale Transform", () => {
+   let element = new SVGSVGElement();
     const tfmList = element.transform.baseVal;
     // Create a seperate transform object for each transform
     const translate = element.createSVGTransform();
@@ -21,6 +19,6 @@ describe('Decompose Transform', () => {
     tfmList.appendItem(rotate);
     tfmList.appendItem(scale);
     const service: MatrixTransform = new MatrixTransform(element, null);
-    expect(service).toBeTruthy();*/
+    expect(service).toBeTruthy();
   });
-});
+});*/

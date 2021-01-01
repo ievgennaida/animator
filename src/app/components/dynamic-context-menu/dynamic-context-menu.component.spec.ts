@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatMenuModule } from "@angular/material/menu";
 
 import { DynamicContextMenuComponent } from "./dynamic-context-menu.component";
 
@@ -8,6 +9,7 @@ describe("DynamicContextMenuComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [MatMenuModule],
       declarations: [DynamicContextMenuComponent],
     }).compileComponents();
   });
