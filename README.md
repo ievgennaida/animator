@@ -14,3 +14,10 @@ Steps:
 - edit existing transformations with the timeline keyframes.
 - edit other properties with the timeline.
 - easing functions.
+
+
+# Developer
+
+- install npm
+- install angular CLI 
+- run ng serve
