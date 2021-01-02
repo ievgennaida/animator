@@ -107,10 +107,13 @@ export class Adorner implements IBBox {
         if (maxY === null) {
           maxY = value.y;
           maxX = value.x;
-        } else if (value.y > maxY) {
+        } else if (Utils.round(value.y, 0) > Utils.round(maxY, 0)) {
           maxY = value.y;
           maxX = value.x;
-        } else if (value.y === maxY && value.x >= maxX) {
+        } else if (
+          Utils.round(value.y, 0) === Utils.round(maxY, 0) &&
+          Utils.round(value.x, 0) > Utils.round(maxX, 0)
+        ) {
           maxY = value.y;
           maxX = value.x;
         }
@@ -219,16 +222,14 @@ export class AdornerContainer {
     AdornerPointType,
     boolean
   >();
-  /**
-   * Screen or element coordinates.
-   */
-  isScreen = true;
+
   enabled = true;
   element: Adorner = new Adorner();
   private screenCache: Adorner;
 
   elementAdorner: Adorner;
-
+  showHandles = true;
+  showBounds = true;
   type = AdornerType.TransformedElement;
   node: TreeNode | null = null;
 
