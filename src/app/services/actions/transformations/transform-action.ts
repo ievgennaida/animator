@@ -18,7 +18,6 @@ import {
 import { BaseTransformAction } from "./base-transform-action";
 import { MatrixRotateAction } from "./rotate/matrix-rotate-action";
 import { CenterSelectionScaleAction } from "./scale/center-selection-scale-action";
-import { MatrixElementScaleAction } from "./scale/matrix-element-scale-action";
 import { MatrixScaleAction } from "./scale/matrix-scale-action";
 import { MatrixSkewAction } from "./skew/matrix-skew-action";
 import {
@@ -58,7 +57,10 @@ export class TransformAction extends BaseAction {
     let actionType: Type<BaseTransformAction> | null = null;
     if (mode === TransformationMode.Translate) {
       if (adornerType === AdornerPointType.CenterTransform) {
-        if (adornerMode === AdornerType.Selection) {
+        if (
+          adornerMode === AdornerType.Selection ||
+          adornerMode === AdornerType.PathDataSelection
+        ) {
           actionType = CenterSelectionTranslateAction;
         } else {
           actionType = CenterElementTranslateAction;
@@ -66,7 +68,10 @@ export class TransformAction extends BaseAction {
       }
     } else if (mode === TransformationMode.Scale) {
       if (adornerType === AdornerPointType.CenterTransform) {
-        if (adornerMode === AdornerType.Selection) {
+        if (
+          adornerMode === AdornerType.Selection ||
+          adornerMode === AdornerType.PathDataSelection
+        ) {
           actionType = CenterSelectionScaleAction;
         } else {
           return null;
@@ -89,9 +94,11 @@ export class TransformAction extends BaseAction {
         if (!node.allowResize) {
           return null;
         }
-        if (adornerMode === AdornerType.TransformedElement) {
-          actionType =
-            scaleElementActions.get(node.type) || MatrixElementScaleAction;
+        if (
+          adornerMode === AdornerType.TransformedElement ||
+          adornerMode === AdornerType.PathDataSelection
+        ) {
+          actionType = scaleElementActions.get(node.type) || MatrixScaleAction;
         } else {
           actionType = scaleActions.get(node.type) || MatrixScaleAction;
         }

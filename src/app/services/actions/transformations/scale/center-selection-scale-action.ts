@@ -35,7 +35,6 @@ export class CenterSelectionScaleAction extends MatrixScaleAction {
     this.handle = handle;
     this.moveSelectionHandle =
       this.handle?.adorner?.type === AdornerType.Selection;
-    // this.getScreenTransformOrigin();
 
     this.transformOriginInitial = this.handle?.adorner?.element?.centerTransform;
     super.init(node, screenPos, handle);

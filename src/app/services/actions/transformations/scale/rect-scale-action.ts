@@ -8,16 +8,17 @@ import {
   TransformPropertyKey,
 } from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
+import { ViewService } from "src/app/services/view.service";
 import { MatrixUtils } from "../../../utils/matrix-utils";
 import { TransformationModeIcon } from "../transformation-mode";
-import { MatrixElementScaleAction } from "./matrix-element-scale-action";
+import { MatrixScaleAction } from "./matrix-scale-action";
 
 @Injectable({
   providedIn: "root",
 })
-export class RectScaleAction extends MatrixElementScaleAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
+export class RectScaleAction extends MatrixScaleAction {
+  constructor(propertiesService: PropertiesService, viewService: ViewService) {
+    super(propertiesService, viewService);
   }
   title = "Scale";
   icon = TransformationModeIcon.Scale;
@@ -66,10 +67,10 @@ export class RectScaleAction extends MatrixElementScaleAction {
   /**
    * Apply matrix in screen coordinates,
    */
-  applyMatrix(matrix: DOMMatrix): boolean {
-    // const transform = Utils.getElementTransform(element);
-    // matrix = transform.matrix.multiply(matrix);
-
+  applyMatrix(matrix: DOMMatrix, applyCurrent = false): boolean {
+    if (!this.transformElementCoordinates) {
+      return super.applyMatrix(matrix, applyCurrent);
+    }
     const out = MatrixUtils.matrixRectTransform(this.startRect, matrix);
     if (!out) {
       return false;

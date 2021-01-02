@@ -1,3 +1,6 @@
+import { HandleData } from "src/app/models/handle-data";
+import { TransformationMode } from "../../actions/transformations/transformation-mode";
+
 /**
  * Adorner container type.
  */
@@ -73,7 +76,25 @@ export class AdornerTypeUtils {
       return key - AdornerPointType.Center;
     }
   }
-
+  /**
+   * Get transformation mode by the adorner type.
+   * @param node tree node to transform.
+   * @param handle clicked handler.
+   */
+  static getTransformationMode(handle: HandleData): TransformationMode {
+    if (handle && handle.handle !== AdornerPointType.CenterTransform) {
+      if (AdornerTypeUtils.isRotateAdornerType(handle.handle)) {
+        return TransformationMode.Rotate;
+      } else if (AdornerTypeUtils.isScaleAdornerType(handle.handle)) {
+        return TransformationMode.Scale;
+      } else {
+        return TransformationMode.Translate;
+      }
+    } else {
+      // Default is translate
+      return TransformationMode.Translate;
+    }
+  }
   static toRotateAdornerType(key: AdornerPointType): AdornerPointType {
     if (key > AdornerPointType.Center) {
       return key;

@@ -31,21 +31,6 @@ export class BoundsRenderer extends BaseRenderer {
     super();
   }
 
-  /**
-   * Value indicating whether main selection should be rendered
-   */
-  // tslint:disable-next-line: variable-name
-  private _suppressMainSelection = true;
-  get suppressMainSelection() {
-    return this._suppressMainSelection;
-  }
-  set suppressMainSelection(value: boolean) {
-    if (this._suppressMainSelection !== value) {
-      this._suppressMainSelection = value;
-      this.invalidate();
-    }
-  }
-
   private _drawPathDataPointsHandle = false;
   get drawPathDataPointsHandle(): boolean {
     return this._drawPathDataPointsHandle;
@@ -246,15 +231,27 @@ export class BoundsRenderer extends BaseRenderer {
     this.clear();
 
     const adorners = this.adornersService.getActiveAdorners();
-    const multiple = !!adorners.find((p) => p.type === AdornerType.Selection);
+    const selectorAdorner = adorners.find(
+      (p) => p.type === AdornerType.Selection
+    );
+    const pathDataSelector = adorners.find(
+      (p) => p.type === AdornerType.PathDataSelection
+    );
     const activeTransformTransaction = this.transform.activeMode;
     adorners.forEach((adorner) => {
       if (!adorner) {
         return;
       }
-
-      const main = adorner.type === AdornerType.Selection;
-      const isAlt = (multiple || this.suppressMainSelection) && !main;
+      if (pathDataSelector && adorner !== pathDataSelector) {
+        return;
+      }
+      if (pathDataSelector && selectorAdorner && adorner === selectorAdorner) {
+        return;
+      }
+      const main =
+        adorner.type === AdornerType.Selection ||
+        adorner.type === AdornerType.PathDataSelection;
+      const isAlt = selectorAdorner && selectorAdorner.enabled && !main;
       const elementsColor = isAlt
         ? consts.altSelectionStroke
         : consts.mainSelectionStroke;
@@ -263,17 +260,17 @@ export class BoundsRenderer extends BaseRenderer {
         : consts.mainSelectionThickness;
 
       const converted = adorner.screen.matrixTransform(this.screenCTM);
-      this.drawAdornerRect(ctx, elementsThickness, elementsColor, converted);
-
+      if (adorner.enabled && adorner.showBounds) {
+        this.drawAdornerRect(ctx, elementsThickness, elementsColor, converted);
+      }
       if (
-        (this.adornersService.isAdornerActive(
+        this.adornersService.isAdornerActive(
           adorner,
           adorners,
           AdornerPointType.TopLeft
         ) &&
-          // Don't show scale adorner during the transformation
-          activeTransformTransaction === TransformationMode.None) ||
-        activeTransformTransaction === TransformationMode.Scale
+        // Don't show scale adorner during the transformation
+        activeTransformTransaction === TransformationMode.None
       ) {
         this.drawAdornersHandles(ctx, adorner, converted);
       }
@@ -286,7 +283,7 @@ export class BoundsRenderer extends BaseRenderer {
         )
       ) {
         const transformOrigin = converted.centerTransform || converted.center;
-        if (transformOrigin) {
+        if (transformOrigin && activeTransformTransaction !== TransformationMode.Scale) {
           // Don't show center during the transaction:
           this.drawCross(ctx, transformOrigin);
         }

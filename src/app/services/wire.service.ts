@@ -44,24 +44,33 @@ export class WireService {
     pathRenderer: PathRenderer
   ) {
     toolsService.activeToolChanged().subscribe((activeTool) => {
-      BaseRenderer.runSuspendedRenderers(() => {
-        const isSelectionToolActive = activeTool === toolsService.selectionTool;
-        adornersService.adornerHandlesActive = isSelectionToolActive;
-        boundsRenderer.suppressMainSelection = !isSelectionToolActive;
-        if (activeTool !== toolsService.pathTool) {
-          mouseOverService.pathDataSubject.setNone();
-          selectionService.pathDataSubject.setNone();
-        }
-        boundsRenderer.invalidate();
-      }, pathRenderer);
+      BaseRenderer.invalidateOnceAfter(
+        () => {
+          const isSelectionToolActive =
+            activeTool === toolsService.selectionTool;
+          const isDirectPathTool = activeTool === toolsService.pathTool;
+          adornersService.selectionAdorner.showHandles = isSelectionToolActive;
+          adornersService.pathDataSelectionAdorner.showHandles = isDirectPathTool;
+
+          if (!isDirectPathTool) {
+            mouseOverService.pathDataSubject.setNone();
+            selectionService.pathDataSubject.setNone();
+          }
+
+          this.buildPathDataSelectionAdorner();
+        },
+        boundsRenderer,
+        pathRenderer
+      );
     });
     selectionService.pathDataSubject.subscribe(() => {
-      boundsRenderer.invalidate();
-      // Recalculate path data adorners on selection change
-      selectionService.pathDataSubject.calculateHandlesBounds();
+      BaseRenderer.invalidateOnceAfter(() => {
+        // Recalculate path data adorners on selection change
+        this.buildPathDataSelectionAdorner();
+      }, boundsRenderer);
     });
     selectionService.selected.subscribe((state) => {
-      BaseRenderer.runSuspendedRenderers(
+      BaseRenderer.invalidateOnceAfter(
         () => {
           // Remove mouse over path data states:
           mouseOverService.pathDataSubject.leaveNodes(state.removed);
@@ -88,6 +97,7 @@ export class WireService {
       this.adornersService.cleanCache();
       toolsService.fitViewport();
       this.selectionService.deselectAll();
+      adornersRenderer.invalidate();
     });
     merge(
       undoService.actionIndexSubject,
@@ -95,10 +105,11 @@ export class WireService {
       transformsService.transformed
     ).subscribe(() => {
       // TODO: invalidate from current to all children
-      BaseRenderer.runSuspendedRenderers(
+      BaseRenderer.invalidateOnceAfter(
         () => {
           this.cleanCache();
           this.buildSelectionAdorner();
+          this.buildPathDataSelectionAdorner();
         },
         boundsRenderer,
         pathRenderer,
@@ -111,6 +122,8 @@ export class WireService {
       // Clean screen cache first when view is transformed
       this.cleanCache();
       this.buildSelectionAdorner();
+      this.buildPathDataSelectionAdorner();
+
       adornersRenderer.invalidate();
       adornersRenderer.invalidateSizeChanged();
     });
@@ -152,7 +165,7 @@ export class WireService {
 
     // Update selection when tree nodes list changed (deleted, grouped, undo and etc):
     this.outlineService.nodesSubject.subscribe(() => {
-      BaseRenderer.runSuspendedRenderers(
+      BaseRenderer.invalidateOnceAfter(
         () => {
           this.cleanCache();
           const nodes = this.outlineService.getAllNodes();
@@ -187,8 +200,13 @@ export class WireService {
     );
   }
 
+  buildPathDataSelectionAdorner() {
+    this.adornersService.buildPathDataSelectionAdorner(
+      this.outlineService.rootNode
+    );
+  }
   cleanCache() {
-    this.selectionService.pathDataSubject.calculateHandlesBounds();
+    this.buildPathDataSelectionAdorner();
     this.adornersService.cleanCache();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }

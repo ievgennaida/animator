@@ -3,8 +3,6 @@ import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "src/app/services/outline.service";
 import { Utils } from "src/app/services/utils/utils";
-import { ViewService } from "src/app/services/view.service";
-import { AdornerType } from "src/app/services/viewport/adorners/adorner-type";
 import { PropertiesService } from "../../../properties.service";
 import { BaseTransformAction } from "../base-transform-action";
 import { TransformationModeIcon } from "../transformation-mode";
@@ -37,13 +35,10 @@ export class CenterSelectionTranslateAction extends BaseTransformAction {
   transformOrigin: DOMPoint | null = null;
   committedOrigin: DOMPoint | null = null;
   committed = false;
-  moveSelectionHandle = false;
   anchor: TreeNode | null = null;
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
     this.handle = handle;
-    this.moveSelectionHandle =
-      this.handle?.adorner?.type === AdornerType.Selection;
     this.anchor = this.outlineService.rootNode;
     this.transformOrigin = Utils.toElementPoint(
       this.anchor,
@@ -73,7 +68,7 @@ export class CenterSelectionTranslateAction extends BaseTransformAction {
     this.handle?.adorner?.setCenterTransform(this.transformOriginInitial);
   }
   transformByMouse(screenPos: DOMPoint): boolean {
-    if (screenPos && this.moveSelectionHandle && this.transformOrigin) {
+    if (screenPos && this.transformOrigin) {
       const clickPosition = Utils.toElementPoint(this.anchor, screenPos);
       this.committedOrigin = new DOMPoint(
         clickPosition.x - this.offset.x,

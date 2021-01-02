@@ -106,7 +106,6 @@ export class TreeNode implements ICTMProvider, IBBox {
 
   cleanCache() {
     this.screenCTMCache = null;
-    this.ctmCache = null;
     this.cacheBBox = null;
     this.cacheClientRect = null;
     this.cacheAdorners = null;
@@ -142,18 +141,6 @@ export class TreeNode implements ICTMProvider, IBBox {
       return this.cacheClientRect;
     }
     return null;
-  }
-
-  getCTM() {
-    if (this.ctmCache) {
-      return this.ctmCache;
-    }
-    const element = this.getElement();
-    if (!element) {
-      return;
-    }
-    this.ctmCache = element.getCTM();
-    return this.ctmCache;
   }
 
   getScreenCTM() {

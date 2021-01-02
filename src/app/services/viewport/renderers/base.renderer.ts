@@ -26,7 +26,13 @@ export class BaseRenderer {
     }
   }
   invalidated = false;
-  public static runSuspendedRenderers(
+
+  /**
+   * Force suspend renderers and render once when some 'heavy' command executed that can call render multiple times.
+   * @param callback execute command.
+   * @param params list of renderers to update after the command executed.
+   */
+  public static invalidateOnceAfter(
     callback: () => void,
     ...params: BaseRenderer[]
   ) {

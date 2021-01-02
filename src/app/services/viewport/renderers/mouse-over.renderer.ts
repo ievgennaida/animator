@@ -35,6 +35,7 @@ export class MouseOverRenderer extends BaseRenderer {
     if (
       this.node &&
       this.node.mouseOver &&
+      // Selected adorners are displayed with the separate renderer.
       !this.node.selected &&
       !this.mouseOverService.isMouseOverAdornerHandle()
     ) {

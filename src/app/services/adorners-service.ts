@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { PathDataHandleType } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { ConfigService } from "./config-service";
 import { PropertiesService } from "./properties.service";
@@ -9,6 +10,7 @@ import { AdornerContainer } from "./viewport/adorners/adorner";
 import {
   AdornerPointType,
   AdornerType,
+  AdornerTypeUtils,
 } from "./viewport/adorners/adorner-type";
 /**
  *
@@ -21,13 +23,21 @@ export class AdornersService {
     private selectionService: SelectionService,
     private configService: ConfigService,
     private propertiesService: PropertiesService
-  ) {}
+  ) {
+    this.selectionAdorner.type = AdornerType.Selection;
+    this.pathDataSelectionAdorner.type = AdornerType.PathDataSelection;
+  }
 
   /**
    * Adorner that represents multiple items selected.
    */
   selectionAdorner: AdornerContainer = new AdornerContainer();
-  adornerHandlesActive = true;
+
+  /**
+   * Adorner that represents multiple path data items selected.
+   */
+  pathDataSelectionAdorner: AdornerContainer = new AdornerContainer();
+  pathDataSelectorActive = true;
   cache = new Map<TreeNode, AdornerContainer>();
   /**
    * Calculate multiple selected items bounds adorner
@@ -38,8 +48,7 @@ export class AdornersService {
     resetCenterTransform = false
   ): AdornerContainer {
     this.selectionAdorner.node = rootNode;
-    this.selectionAdorner.isScreen = false;
-    let globalBBox: DOMRect = null;
+    let anchoredBBOx: DOMRect | null = null;
     if (nodes && nodes.length > 1) {
       nodes.forEach((node) => {
         if (!node) {
@@ -55,42 +64,113 @@ export class AdornersService {
         // Get rect bbounds in transformed viewport coordinates:
         nodeBBox = MatrixUtils.matrixRectTransform(nodeBBox, matrix, true);
 
-        if (!globalBBox) {
-          globalBBox = nodeBBox;
+        if (!anchoredBBOx) {
+          anchoredBBOx = nodeBBox;
         } else {
-          globalBBox = Utils.mergeRects(globalBBox, nodeBBox);
+          anchoredBBOx = Utils.mergeRects(anchoredBBOx, nodeBBox);
         }
       });
     }
-    if (globalBBox && globalBBox.height > 0 && globalBBox.width > 0) {
-      const center = this.selectionAdorner.element.centerTransform;
+
+    this.setBBoxToAdorner(
+      this.selectionAdorner,
+      anchoredBBOx,
+      resetCenterTransform
+    );
+    this.selectionAdorner.showBounds = !this.pathDataSelectionAdorner.enabled;
+    return this.selectionAdorner;
+  }
+
+  /**
+   * Calculate multiple selected path data adorners
+   */
+  buildPathDataSelectionAdorner(
+    rootNode: TreeNode,
+    resetCenterTransform = false
+  ) {
+    this.pathDataSelectionAdorner.node = rootNode;
+    const points = (
+      this.selectionService.pathDataSubject.getValues() || []
+    ).filter((p) => p.commandType === PathDataHandleType.Point);
+    let bbox: DOMRect | null = null;
+    if (points && points.length > 1) {
+      const screenPoints = points.map((handle) => {
+        const node = handle?.node;
+        if (!node) {
+          return;
+        }
+        let p = node.getPathData()?.commands[handle.commandIndex]?.p;
+        if (!p) {
+          return;
+        }
+
+        p = Utils.toScreenPoint(node, p);
+        return p;
+      });
+      // In screen coords
+      bbox = Utils.getPointsBounds(...screenPoints);
+    }
+
+    if (bbox) {
+      // Anchor coordinates to the view port root svg node.
+      // so any viewport transform can be applied. ex: zoom, pan and point will remain the same.
+      bbox = MatrixUtils.matrixRectTransform(
+        bbox,
+        rootNode.getScreenCTM().inverse(),
+        false
+      );
+    }
+
+    this.setBBoxToAdorner(
+      this.pathDataSelectionAdorner,
+      bbox,
+      resetCenterTransform
+    );
+    this.selectionAdorner.showBounds = !this.pathDataSelectionAdorner.enabled;
+  }
+
+  private setBBoxToAdorner(
+    container: AdornerContainer,
+    rectElementCoords: DOMRect,
+    resetCenterTransform = false
+  ) {
+    if (
+      rectElementCoords &&
+      rectElementCoords.height > 0 &&
+      rectElementCoords.width > 0
+    ) {
+      const center = container.element.centerTransform;
       const config = this.configService.get();
-      this.selectionAdorner.setBBox(globalBBox);
+      container.setBBox(rectElementCoords);
       if (center && !resetCenterTransform) {
-        this.selectionAdorner.setCenterTransform(center);
+        container.setCenterTransform(center);
       }
-      this.selectionAdorner.calculateTranslatePosition(
+      container.calculateTranslatePosition(
         config.translateHandleOffsetX,
         config.translateHandleOffsetY
       );
-      this.selectionAdorner.type = AdornerType.Selection;
-      this.selectionAdorner.enabled = true;
-    } else {
-      this.selectionAdorner.setCenterTransform(null);
-      this.selectionAdorner.enabled = false;
-    }
 
-    return this.selectionAdorner;
+      container.enabled = true;
+    } else {
+      container.setCenterTransform(null);
+      container.enabled = false;
+    }
   }
+
   getActiveAdorners(): AdornerContainer[] {
     const adorners = this.selectionService
       .getSelected()
       .map((p) => this.getAdorner(p));
-    if (this.selectionAdorner && this.selectionAdorner.enabled) {
+
+    if (
+      this.pathDataSelectionAdorner &&
+      this.pathDataSelectionAdorner.enabled &&
+      this.pathDataSelectorActive
+    ) {
+      adorners.push(this.pathDataSelectionAdorner);
+      // Active main selection only when path data is not active:
+    } else if (this.selectionAdorner && this.selectionAdorner.enabled) {
       adorners.push(this.selectionAdorner);
-    }
-    if (this.selectionService.pathDataSubject.bounds) {
-      // adorners.push(this.pathDataSubject.bounds);
     }
 
     return adorners;
@@ -143,37 +223,33 @@ export class AdornersService {
     activeAdorners: AdornerContainer[],
     adornerPointType: AdornerPointType
   ): boolean {
+    if (!adorner || !activeAdorners || !adorner.showHandles) {
+      return false;
+    }
+
     if (adornerPointType === AdornerPointType.Center) {
       return false;
     }
     const config = this.configService.get();
 
-    const multiple = !!activeAdorners.find(
+    const multipleSelected = activeAdorners.find(
       (p) => p.type === AdornerType.Selection
     );
+    if (multipleSelected && multipleSelected.enabled) {
+      // Not a main selection:
+      if (adorner.type !== AdornerType.Selection) {
+        // Don't show translate adorners when multiple are selected:
+        return false;
+      }
+    }
+    // When translate handle is disabled:
     if (
       adornerPointType === AdornerPointType.Translate &&
       !config.translateHandleEnabled
     ) {
       return false;
     }
-    if (
-      multiple &&
-      adorner.type !== AdornerType.Selection &&
-      adornerPointType === AdornerPointType.Translate &&
-      config.translateHandleEnabled
-    ) {
-      return false;
-    }
-    if (
-      multiple &&
-      adorner.type !== AdornerType.Selection &&
-      adornerPointType === AdornerPointType.CenterTransform
-    ) {
-      return false;
-    }
-
-    if (!this.adornerHandlesActive || !adorner || !activeAdorners) {
+    if (!adorner.showHandles) {
       return false;
     }
     if (!activeAdorners || activeAdorners.length <= 0) {
@@ -187,6 +263,8 @@ export class AdornersService {
 
       return true;
     } else if (adorner.type === AdornerType.Selection) {
+      return true;
+    } else if (adorner.type === AdornerType.PathDataSelection) {
       return true;
     }
 

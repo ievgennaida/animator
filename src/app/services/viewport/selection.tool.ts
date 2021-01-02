@@ -3,7 +3,6 @@ import { CursorType } from "src/app/models/cursor-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { MouseEventArgs } from "../../models/mouse-event-args";
-import { TransformationMode } from "../actions/transformations/transformation-mode";
 import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
@@ -69,7 +68,7 @@ export class SelectionTool extends BaseTool {
 
   onViewportMouseDown(event: MouseEventArgs) {
     this.lastDeg = null;
-    // don't allow to transform on right click:
+    // don't allow to transform when right click:
     if (event.rightClicked()) {
       this.cleanUp();
       return;
@@ -79,6 +78,7 @@ export class SelectionTool extends BaseTool {
     let handle = this.mouseOverService.mouseOverHandle;
     if (startedNode || handle) {
       if (!handle && this.adornersService?.selectionAdorner?.enabled) {
+        // Move selection data
         handle = new HandleData();
         handle.adorner = this.adornersService?.selectionAdorner;
         handle.handle = AdornerPointType.None;
@@ -97,43 +97,17 @@ export class SelectionTool extends BaseTool {
         return;
       }
 
-      const nodesToSelect = this.selectionService
-        .getSelected()
-        .map((item) => this.selectionService.getTopSelectedNode(item))
-        .filter((value, index, self) => value && self.indexOf(value) === index);
-      const screenPoint = event.getDOMPoint();
-      const transformMode = this.getTransformationMode(handle);
+      const nodesToSelect = this.selectionService.getTopSelectedNodes();
+      const transformMode = AdornerTypeUtils.getTransformationMode(handle);
       this.transformsService.start(
         transformMode,
         nodesToSelect,
-        screenPoint,
+        event.getDOMPoint(),
         handle
       );
     }
-    // Use when accurate selection will be implemented, or to select groups:
-    /* if (!this.startedNode) {
-      this.startedNode = this.getIntersects(true) as TreeNode;
-    } */
   }
-  /**
-   * Get transformation mode by the adorner type.
-   * @param node tree node to transform.
-   * @param handle clicked handler.
-   */
-  getTransformationMode(handle: HandleData): TransformationMode {
-    if (handle && handle.handle !== AdornerPointType.CenterTransform) {
-      if (AdornerTypeUtils.isRotateAdornerType(handle.handle)) {
-        return TransformationMode.Rotate;
-      } else if (AdornerTypeUtils.isScaleAdornerType(handle.handle)) {
-        return TransformationMode.Scale;
-      } else {
-        return TransformationMode.Translate;
-      }
-    } else {
-      // Default is translate
-      return TransformationMode.Translate;
-    }
-  }
+
   isOverNode(): boolean {
     // TODO: bad place
     const startedNode = this.mouseOverService.getValue();
@@ -169,6 +143,8 @@ export class SelectionTool extends BaseTool {
   onWindowMouseMove(event: MouseEventArgs) {
     this.lastUsedArgs = event;
     if (this.transformsService.isActive()) {
+      // Don't allow to move when left was released.
+      // this is missed blur event:
       if (!event.leftClicked()) {
         this.cleanUp();
         return;
@@ -296,7 +272,7 @@ export class SelectionTool extends BaseTool {
       this.selectionService.setSelected(toSelect, mode);
     } else if (!this.startedNode) {
       const selected = this.intersectionService.getIntersects(
-        this.selectionTracker.rect
+        this.selectionTracker.getScreenRect()
       ) as TreeNode[];
       this.selectionService.setSelected(selected, mode);
     }

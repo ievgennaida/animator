@@ -29,8 +29,7 @@ export class PathTranslateAction extends BaseTransformAction {
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.start = Utils.toElementPoint(node.getElement(), screenPos);
-    this.pathHandles =
-      handle?.pathDataHandles?.filter((p) => p.node === this.node) || null;
+    this.pathHandles = handle?.getHandlesByNode(node);
   }
   //    this.pathHandles = handle.pathDataHandles.filter((p) => p.node === this.node);
   transformByMouse(screenPos: DOMPoint): boolean {

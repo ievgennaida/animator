@@ -1,43 +1,11 @@
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { ChangeStateMode, StateSubject } from "./state-subject";
-import { Utils } from "./utils/utils";
-import { AdornerContainer } from "./viewport/adorners/adorner";
-import { AdornerType } from "./viewport/adorners/adorner-type";
 /**
  * Subject to track selected/mouse over path data handles.
  */
 export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
-  bounds: AdornerContainer | null;
-  /**
-   * Calculate multiple selected path data adorners
-   */
-  calculateHandlesBounds() {
-    const points = (this.getValues() || []).filter(
-      (p) => p.commandType === PathDataHandleType.Point
-    );
-    if (points.length <= 1) {
-      this.bounds = null;
-    } else {
-      const screenPoints = points.map((handle) => {
-        const node = handle?.node;
-        if (!node) {
-          return;
-        }
-        let p = node.getPathData()?.commands[handle.commandIndex]?.p;
-        if (!p) {
-          return;
-        }
-        p = Utils.toScreenPoint(node, p);
-        return p;
-      });
-      const bounds = Utils.getPointsBounds(...screenPoints);
-      this.bounds = new AdornerContainer();
-      this.bounds.type = AdornerType.ElementsBounds;
-      // Utils.shrinkRect(, 1, 1)
-      this.bounds.setBBox(bounds);
-    }
-  }
+
   /**
    * Override.
    * Check path data on equality comparison

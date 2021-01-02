@@ -40,6 +40,7 @@ export class SelectionService {
   isAdornerHandleSelected(value: AdornerPointType) {
     return this.selectedAdorner === value;
   }
+
   /**
    * Get top most selected node from current.
    * @param node Node to start top-search from.

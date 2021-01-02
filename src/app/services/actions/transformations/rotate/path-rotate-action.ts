@@ -41,8 +41,7 @@ export class PathRotateAction extends BaseTransformAction {
       this.node,
       false
     );
-    this.pathHandles =
-      handle?.pathDataHandles?.filter((p) => p.node === this.node) || null;
+    this.pathHandles = handle?.getHandlesByNode(node);
     const element = this.node.getElement();
     const adornerScreen = handle?.adorner?.screen;
     this.transformOrigin = Utils.toElementPoint(

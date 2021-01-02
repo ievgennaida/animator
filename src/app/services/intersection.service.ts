@@ -47,15 +47,12 @@ export class IntersectionService {
    * get intersection by the viewport coordinates selector.
    */
   getIntersects(
-    viewportSelector: DOMRect | DOMPoint,
+    screenRect: DOMRect,
     onlyFirst: boolean = false
   ): TreeNode[] | TreeNode {
-    const matrix = this.viewService.getCTM();
-    const transformed = MatrixUtils.matrixRectTransform(
-      viewportSelector as DOMRect,
-      matrix
-    );
-
+    if (!screenRect) {
+      return null;
+    }
     let selected: TreeNode[] = null;
     const nodes = this.outlineService.getAllNodes();
 
@@ -74,7 +71,7 @@ export class IntersectionService {
             bounds.x -= containerRect.left;
             bounds.y -= containerRect.top;
 
-            if (Utils.rectsIntersect(bounds, transformed)) {
+            if (Utils.rectsIntersect(bounds, screenRect)) {
               if (onlyFirst) {
                 return node;
               }
@@ -119,6 +116,12 @@ export class IntersectionService {
     results.adorner = toReturn;
     return results;
   }
+  /**
+   * get path data handles under the point or rectangle.
+   * @param nodes list of nodes with path data.
+   * @param selectorRect in screen coordinates.
+   * @param screenPos in screen coordinates.
+   */
   intersectPathDataHandles(
     nodes: TreeNode[],
     selectorRect: DOMRect,
@@ -132,23 +135,22 @@ export class IntersectionService {
       nodes.forEach((node) => {
         const data = node.getPathData();
         const p = Utils.toElementPoint(node, screenPos);
-        const rectSelector = this.selectionRectToNodeCoordinates(
-          selectorRect,
-          node
-        );
         if (data && data.commands) {
           data.forEach((command, commandIndex) => {
             const abs = command;
             if (abs.type === PathType.closeAbs) {
               return;
             }
+
             let pointSelected = false;
-            if (rectSelector) {
-              pointSelected =
-                pointSelected || Utils.rectIntersectPoint(rectSelector, abs.p);
+            if (selectorRect) {
+              pointSelected = Utils.rectIntersectPoint(
+                selectorRect,
+                Utils.toScreenPoint(node, abs.p)
+              );
             }
             let handleType = PathDataHandleType.Point;
-            if (p && !rectSelector) {
+            if (p && !selectorRect) {
               // TODO: select a,b helper handles.
               const screenPointSize = Utils.getLength(
                 Utils.toElementPoint(
@@ -193,7 +195,7 @@ export class IntersectionService {
 
             if (pointSelected) {
               // Return only one when selected by screen point.
-              if (!rectSelector) {
+              if (!selectorRect) {
                 // Cleanup but keep array reference.
                 mouseOverItems.length = 0;
               }
@@ -207,25 +209,6 @@ export class IntersectionService {
       });
     }
     return mouseOverItems;
-  }
-  selectionRectToNodeCoordinates(
-    selectorRect: DOMRect,
-    node: TreeNode
-  ): DOMRect {
-    if (!node) {
-      return null;
-    }
-    const screenCTM = node.getScreenCTM();
-    const viewportScreenCTM = this.viewService.getScreenCTM();
-    if (!screenCTM || !viewportScreenCTM) {
-      return;
-    }
-    const outputRect = MatrixUtils.matrixRectTransform(
-      selectorRect,
-      screenCTM.inverse().multiply(viewportScreenCTM)
-    );
-
-    return outputRect;
   }
 
   getMouseOverPathCurve(

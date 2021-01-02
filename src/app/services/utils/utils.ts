@@ -48,7 +48,7 @@ export class Utils {
     return value >= min && value <= max;
   }
   static rectIntersectPoint(rect1: DOMRect, point: DOMPoint): boolean {
-    if (!rect1 || !point) {
+    if (!rect1 || !point || rect1.width === 0 || rect1.height === 0) {
       return false;
     }
 
@@ -377,6 +377,9 @@ export class Utils {
     // tslint:disable-next-line: no-bitwise
     return (a & b) === b;
   }
+  /**
+   * This is the top-left relative matrix to the SVG element.
+   */
   public static getCTM(element: SVGElement | any): DOMMatrix {
     if (!element) {
       return null;

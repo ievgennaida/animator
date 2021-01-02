@@ -35,14 +35,14 @@ export class PathScaleAction extends MatrixScaleAction {
   initPathData: PathData = null;
   attributesToStore = [PathDataPropertyKey, TransformPropertyKey];
   initialized = false;
+  untransformOnStart = false;
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
-    this.pathHandles =
-      handle?.pathDataHandles?.filter((p) => p.node === this.node) || null;
     this.node = node;
     this.handle = handle;
+    this.pathHandles = handle?.getHandlesByNode(node);
     this.started = Utils.toElementPoint(this.node.getElement(), screenPos);
 
-    this.transformElementCoordinates =
+    this.untransformOnStart =
       this.handle.adorner.type === AdornerType.TransformedElement;
     if (this.propertiesService.isCenterTransformSet(node)) {
       this.attributesToStore.push(CenterTransformX);
@@ -55,7 +55,10 @@ export class PathScaleAction extends MatrixScaleAction {
   }
 
   applyMatrix(matrix: DOMMatrix): boolean {
-    const isTransformed = this.transformInitialPathByMatrix(matrix);
+    const isTransformed = this.transformInitialPathByMatrix(
+      matrix,
+      this.pathHandles
+    );
     if (isTransformed) {
       if (this.centerTransform) {
         this.propertiesService.transformCenterByMatrix(
@@ -98,10 +101,10 @@ export class PathScaleAction extends MatrixScaleAction {
         this.node.getElement(),
         this.started
       );
-      if (!this.transformElementCoordinates) {
-        this.untransform();
-      }
+      // this.untransform();
+      // Delayed initialization:
       super.init(this.node, initializedScreenPos, this.handle);
+
       this.initialized = true;
     }
     return super.transformByMouse(screenPos);
@@ -110,7 +113,10 @@ export class PathScaleAction extends MatrixScaleAction {
    * Apply matrix to originally stored path data.
    * @param matrix to be applied.
    */
-  transformInitialPathByMatrix(matrix: DOMMatrix): boolean {
+  transformInitialPathByMatrix(
+    matrix: DOMMatrix,
+    filters: PathDataHandle[] | null = null
+  ): boolean {
     if (!this.initPathData) {
       this.initPathData = this.node.getPathData(false);
     }
@@ -119,7 +125,7 @@ export class PathScaleAction extends MatrixScaleAction {
     const changed = PathDataUtils.transformPathByMatrix(
       pathData,
       matrix,
-      this.pathHandles
+      filters
     );
     if (changed) {
       this.node.setPathData(pathData);
@@ -133,9 +139,13 @@ export class PathScaleAction extends MatrixScaleAction {
   untransform() {
     const element = this.node.getElement();
     const currentTransform = MatrixUtils.getMatrix(this.node);
-    // Remove current transformation
-    MatrixUtils.setMatrix(element, element.ownerSVGElement.createSVGMatrix());
-    this.transformInitialPathByMatrix(currentTransform);
+    // Remove current transformation from the node.
+    this.propertiesService.setMatrixTransform(
+      this.node,
+      element.ownerSVGElement.createSVGMatrix()
+    );
+    // No need to pass matrix:
+    this.transformInitialPathByMatrix(currentTransform, null);
     this.node.cleanCache();
     this.initPathData = null;
   }

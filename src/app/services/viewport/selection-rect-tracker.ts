@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { MouseEventArgs } from "src/app/models/mouse-event-args";
 import { consts } from "src/environments/consts";
 import { LoggerService } from "../logger.service";
+import { MatrixUtils } from "../utils/matrix-utils";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
 import { SelectorRenderer } from "./renderers/selector.renderer";
@@ -37,6 +38,17 @@ export class SelectionRectTracker {
    * Whether current react is a click actually.
    */
   click = false;
+
+  getScreenRect(): DOMRect | null {
+    if (!this.rect) {
+      return;
+    }
+
+    return MatrixUtils.matrixRectTransform(
+      this.rect,
+      this.viewService.getScreenCTM()
+    );
+  }
   selectionRectStarted(): boolean {
     const active = this.isActive() && !this.click;
     return active;
