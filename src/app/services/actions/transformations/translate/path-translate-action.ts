@@ -9,6 +9,7 @@ import {
 import { Utils } from "src/app/services/utils/utils";
 import { PathDataUtils } from "../../../utils/matrix-utils";
 import { BaseTransformAction } from "../base-transform-action";
+import { TransformationModeIcon } from "../transformation-mode";
 @Injectable({
   providedIn: "root",
 })
@@ -17,6 +18,8 @@ export class PathTranslateAction extends BaseTransformAction {
     super(propertiesService);
   }
 
+  title = "Move";
+  icon = TransformationModeIcon.Move;
   /**
    * List of a particular path handles to be transformed. (filter)
    */

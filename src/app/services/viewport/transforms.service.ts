@@ -93,7 +93,6 @@ export class TransformsService {
       return;
     }
     this.activeAction = this.undoService.getAction(TransformAction);
-    this.activeAction.title = `${mode} ${Utils.getTreeNodesTitle(nodes)}`;
     this.activeAction.init(mode, nodes, screenPos, handle);
     this.undoService.startAction(this.activeAction, false);
   }

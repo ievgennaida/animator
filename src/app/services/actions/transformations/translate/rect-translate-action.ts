@@ -17,6 +17,7 @@ export class RectTranslateAction extends BaseTransformAction {
     super(propertiesService);
   }
   title = "Move";
+  icon = TransformationModeIcon.Move;
   propX = "x";
   propY = "y";
   changed = false;
@@ -27,7 +28,6 @@ export class RectTranslateAction extends BaseTransformAction {
   start: DOMPoint = null;
 
   committed = false;
-  icon = TransformationModeIcon.Scale;
 
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;

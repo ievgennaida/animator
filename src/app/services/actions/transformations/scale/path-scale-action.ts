@@ -14,6 +14,7 @@ import { Utils } from "src/app/services/utils/utils";
 import { ViewService } from "src/app/services/view.service";
 import { AdornerType } from "src/app/services/viewport/adorners/adorner-type";
 import { MatrixUtils, PathDataUtils } from "../../../utils/matrix-utils";
+import { TransformationModeIcon } from "../transformation-mode";
 import { MatrixScaleAction } from "./matrix-scale-action";
 
 @Injectable({
@@ -24,7 +25,7 @@ export class PathScaleAction extends MatrixScaleAction {
     super(propertiesService, viewService);
   }
   title = "Scale";
-  icon = "aspect_ratio";
+  icon = TransformationModeIcon.Scale;
   started: DOMPoint | null = null;
   centerTransform: DOMPoint | null = null;
   /**

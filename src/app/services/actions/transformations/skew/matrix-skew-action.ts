@@ -16,6 +16,7 @@ export class MatrixSkewAction extends BaseTransformAction {
   constructor(propertiesService: PropertiesService) {
     super(propertiesService);
   }
+  title = "Skew";
   /**
    * Start click position in anchor coordinates.
    */

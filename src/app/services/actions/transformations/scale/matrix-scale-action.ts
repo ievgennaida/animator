@@ -14,6 +14,7 @@ import {
   AdornerTypeUtils,
 } from "../../../viewport/adorners/adorner-type";
 import { BaseTransformAction } from "../base-transform-action";
+import { TransformationModeIcon } from "../transformation-mode";
 
 /**
  * Matrix scale in screen rectangle coordinates.
@@ -29,7 +30,7 @@ export class MatrixScaleAction extends BaseTransformAction {
     super(propertiesService);
   }
   title = "Scale";
-  icon = "aspect_ratio";
+  icon = TransformationModeIcon.Scale;
   /**
    * Start click position in anchor coordinates.
    */

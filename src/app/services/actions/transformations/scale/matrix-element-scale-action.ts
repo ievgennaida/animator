@@ -12,6 +12,7 @@ import {
   AdornerTypeUtils,
 } from "../../../viewport/adorners/adorner-type";
 import { BaseTransformAction } from "../base-transform-action";
+import { TransformationModeIcon } from "../transformation-mode";
 
 /**
  * Transform element in element coordinates.
@@ -23,8 +24,8 @@ export class MatrixElementScaleAction extends BaseTransformAction {
   constructor(propertiesService: PropertiesService) {
     super(propertiesService);
   }
-  title = "Center Scale";
-  icon = "aspect_ratio";
+  title = "Scale";
+  icon = TransformationModeIcon.Scale;
   /**
    * Start click position in anchor coordinates.
    */

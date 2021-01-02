@@ -21,7 +21,10 @@ import { CenterSelectionScaleAction } from "./scale/center-selection-scale-actio
 import { MatrixElementScaleAction } from "./scale/matrix-element-scale-action";
 import { MatrixScaleAction } from "./scale/matrix-scale-action";
 import { MatrixSkewAction } from "./skew/matrix-skew-action";
-import { TransformationMode } from "./transformation-mode";
+import {
+  TransformationMode,
+  TransformationModeIcon,
+} from "./transformation-mode";
 import { CenterElementTranslateAction } from "./translate/center-element-translate-action";
 import { CenterSelectionTranslateAction } from "./translate/center-selection-translate-action";
 import { MatrixTranslateAction } from "./translate/matrix-translate-action";
@@ -196,10 +199,21 @@ export class TransformAction extends BaseAction {
         this.icon = action.icon;
         this.iconSVG = action.iconSVG;
       }
-      this.title = `${action.title} ${Utils.getTreeNodesTitle(nodes)}`;
+      this.title = `${action.title || mode}: ${Utils.getTreeNodesTitle(nodes)}`;
       this.tooltip = action.tooltip;
     }
-
+    if (!this.title) {
+      this.title = `${mode}: ${Utils.getTreeNodesTitle(nodes)}`;
+    }
+    if (!this.icon) {
+      if (this.mode === TransformationMode.Rotate) {
+        this.icon = TransformationModeIcon.Rotate;
+      } else if (this.mode === TransformationMode.Scale) {
+        this.icon = TransformationModeIcon.Scale;
+      } else if (this.mode === TransformationMode.Translate) {
+        this.icon = TransformationModeIcon.Move;
+      }
+    }
     // When multiple items are transformed we need also to transform central point if was changed:
     if (
       multipleSelected &&

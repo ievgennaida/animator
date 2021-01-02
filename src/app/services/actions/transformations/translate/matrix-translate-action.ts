@@ -8,6 +8,7 @@ import {
 import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
+import { TransformationModeIcon } from "../transformation-mode";
 @Injectable({
   providedIn: "root",
 })
@@ -15,6 +16,8 @@ export class MatrixTranslateAction extends BaseTransformAction {
   constructor(propertiesService: PropertiesService) {
     super(propertiesService);
   }
+  title = "Move";
+  icon = TransformationModeIcon.Move;
   /**
    * Start click position in anchor coordinates.
    */

@@ -9,6 +9,7 @@ import {
 } from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
 import { MatrixUtils } from "../../../utils/matrix-utils";
+import { TransformationModeIcon } from "../transformation-mode";
 import { MatrixElementScaleAction } from "./matrix-element-scale-action";
 
 @Injectable({
@@ -19,7 +20,7 @@ export class RectScaleAction extends MatrixElementScaleAction {
     super(propertiesService);
   }
   title = "Scale";
-  icon = "aspect_ratio";
+  icon = TransformationModeIcon.Scale;
 
   propX = "x";
   propY = "y";

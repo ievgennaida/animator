@@ -25,6 +25,7 @@ export class CenterSelectionTranslateAction extends BaseTransformAction {
   }
   title = "Center Transform";
   changed = false;
+  icon = TransformationModeIcon.Move;
   /**
    * Original value for the undo service
    */
@@ -36,7 +37,6 @@ export class CenterSelectionTranslateAction extends BaseTransformAction {
   transformOrigin: DOMPoint | null = null;
   committedOrigin: DOMPoint | null = null;
   committed = false;
-  icon = TransformationModeIcon.Scale;
   moveSelectionHandle = false;
   anchor: TreeNode | null = null;
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
