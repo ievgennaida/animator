@@ -1,8 +1,11 @@
 import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
-import { MatrixUtils } from "../../../utils/matrix-utils";
+import {
+  PathDataPropertyKey,
+  PropertiesService,
+} from "src/app/services/properties.service";
+import { AdornerPointType } from "src/app/services/viewport/adorners/adorner-type";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
 
@@ -16,7 +19,7 @@ export class MatrixSkewAction extends BaseTransformAction {
   /**
    * Start click position in anchor coordinates.
    */
-  start: DOMPoint = null;
+  start: DOMPoint | null = null;
   /**
    * Skew mode, vertical or horizontal.
    */
@@ -28,13 +31,17 @@ export class MatrixSkewAction extends BaseTransformAction {
 
   initTransformMatrix: DOMMatrix = null;
   startOffset = 0;
-  node: TreeNode = null;
-
+  attributesToStore = [PathDataPropertyKey];
+  centerTransform: DOMPoint | null = null;
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
+    this.node = node;
+    this.handle = handle;
+    this.vertical = handle.handle === AdornerPointType.BottomLeft;
+    const centerBox = this.propertiesService.getCenterTransform(node);
+
     const element = node.getElement();
-    this.vertical = true;
-    const centerBox = Utils.getCenterTransform(element);
-    this.start = centerBox;
+    this.centerTransform = centerBox;
+    this.start = Utils.toScreenPoint(element, centerBox);
     const transformedCenter = Utils.toScreenPoint(element, centerBox);
     this.startOffset = this.vertical
       ? transformedCenter.x - screenPos.x
@@ -60,9 +67,8 @@ export class MatrixSkewAction extends BaseTransformAction {
     const element = this.node.getElement();
     this.saveInitialValue();
     const transform = Utils.getElementTransform(element);
-    const centerBox = MatrixUtils.getTransformOrigin(element).matrixTransform(
-      transform.matrix
-    );
+
+    const centerBox = this.centerTransform.matrixTransform(transform.matrix);
     let matrix = element.ownerSVGElement
       .createSVGMatrix()
       .translate(centerBox.x, centerBox.y);
@@ -77,8 +83,7 @@ export class MatrixSkewAction extends BaseTransformAction {
       .translate(-centerBox.x, -centerBox.y)
       .multiply(transform.matrix);
 
-    transform.setMatrix(matrix);
-    element.transform.baseVal.initialize(transform);
+    this.propertiesService.setMatrixTransform(this.node, matrix);
     return true;
   }
 }

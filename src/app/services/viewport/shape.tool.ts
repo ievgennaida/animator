@@ -19,7 +19,7 @@ import { ShapesRepositoryService } from "../shapes-repository-service";
 import { UndoService } from "../undo.service";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
-import { AdornerType } from "./adorners/adorner-type";
+import { AdornerPointType } from "./adorners/adorner-type";
 import { AutoPanService } from "./auto-pan-service";
 import { BaseTool } from "./base.tool";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
@@ -115,9 +115,8 @@ export class ShapeTool extends BaseTool {
     this.updateContainerName();
   }
   updateContainerName() {
-    const document = this.documentService.getDocument();
     // Show container name that will be used:
-    if (this.container && document && document.rootNode !== this.container) {
+    if (this.container && this.outlineService.rootNode !== this.container) {
       this.notificationMessage.showMessage(`Container: ${this.container.name}`);
     } else {
       this.notificationMessage.hideMessage();
@@ -174,7 +173,7 @@ export class ShapeTool extends BaseTool {
     const adorner = this.adornerService.getAdorner(newTreeNode);
     const handle = new HandleData();
     handle.adorner = adorner;
-    handle.handles = AdornerType.BottomRight;
+    handle.handle = AdornerPointType.BottomRight;
     this.transformsService.start(TransformationMode.Scale, [newTreeNode], screenPoint, handle);
     this.selectionService.setSelected(newTreeNode);
   }

@@ -5,9 +5,11 @@ import { PathDataHandle } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { PathDataSelectionSubject } from "./path-data-subject";
 import { ChangeStateMode } from "./state-subject";
-import { Utils } from "./utils/utils";
-import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
-import { AdornerType } from "./viewport/adorners/adorner-type";
+import { Adorner, AdornerContainer } from "./viewport/adorners/adorner";
+import {
+  AdornerPointType,
+  AdornerType,
+} from "./viewport/adorners/adorner-type";
 
 export enum MouseOverMode {
   Elements,
@@ -69,12 +71,12 @@ export class MouseOverService {
 
     return (
       currentHandle.adorner.node === data.adorner.node &&
-      currentHandle.handles === data.handles
+      currentHandle.handle === data.handle
     );
   }
   isMouseOverAdornerHandle(
-    adorner: Adorner = null,
-    data: AdornerType | null = null
+    adorner: AdornerContainer = null,
+    data: AdornerPointType | null = null
   ): boolean {
     const currentHandle = this.mouseOverHandleSubject.getValue();
     if (!data) {
@@ -87,10 +89,10 @@ export class MouseOverService {
       (adorner &&
         currentHandle.adorner &&
         currentHandle.adorner.node === adorner.node) ||
-      (currentHandle.adorner.mode === AdornerMode.Selection &&
-        currentHandle.adorner.mode === adorner.mode)
+      (currentHandle.adorner.type === AdornerType.Selection &&
+        currentHandle.adorner.type === adorner.type)
     ) {
-      return currentHandle.handles === data;
+      return currentHandle.handle === data;
     }
     return true;
   }

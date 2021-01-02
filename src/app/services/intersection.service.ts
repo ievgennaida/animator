@@ -6,16 +6,16 @@ import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
-import { MatrixUtils } from "./utils/matrix-utils";
 import { LoggerService } from "./logger.service";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
+import { MatrixUtils } from "./utils/matrix-utils";
 import { Utils } from "./utils/utils";
 import { ViewService } from "./view.service";
-import { Adorner } from "./viewport/adorners/adorner";
+import { Adorner, AdornerContainer } from "./viewport/adorners/adorner";
 import {
-  AdornerType,
-  AdornerTypeUtils
+  AdornerPointType,
+  AdornerTypeUtils,
 } from "./viewport/adorners/adorner-type";
 
 export interface NearestCommandPoint {
@@ -91,25 +91,28 @@ export class IntersectionService {
 
   getAdornerHandleIntersection(
     screenPoint: DOMPoint,
-    adorners: Adorner[]
+    adorners: AdornerContainer[]
   ): HandleData | null {
     if (!adorners) {
       return null;
     }
     let results: HandleData = null;
     const toReturn = adorners.find((adorner) => {
-      if (!adorner || !adorner.allowResize) {
+      if (!adorner) {
         return false;
       }
 
       const accuracy = consts.handleSize;
-      const intersects = this.intersectAdorner(adorner, screenPoint, accuracy);
-      if (intersects !== AdornerType.None) {
+      const intersects = this.intersectAdorner(
+        adorner.screen,
+        screenPoint,
+        accuracy
+      );
+      if (intersects !== AdornerPointType.None) {
         if (!results) {
           results = new HandleData();
         }
-        results.rotate = AdornerTypeUtils.isRotateAdornerType(intersects);
-        results.handles = intersects;
+        results.handle = intersects;
         return true;
       }
     });
@@ -428,8 +431,8 @@ export class IntersectionService {
     adorner: Adorner,
     point: DOMPoint,
     accuracy = 6
-  ): AdornerType {
-    let toReturn = AdornerType.None;
+  ): AdornerPointType {
+    let toReturn = AdornerPointType.None;
     if (!point || !adorner) {
       return toReturn;
     }
@@ -438,17 +441,27 @@ export class IntersectionService {
 
     // Find nearest point:
     adorner.points.forEach((adornerPoint, key) => {
-      if (!adornerPoint) {
+      const isCenterTransform = key === AdornerPointType.CenterTransform;
+      if (!adornerPoint && isCenterTransform) {
+        adornerPoint = adorner.center;
+      }
+      if (!adornerPoint || key === AdornerPointType.Center) {
         return;
       }
-      const v = Utils.getVector(adornerPoint, adorner.center, true);
-      const rotateAccuracy = accuracy * rotateArea;
-      const moveAdornerDistance = Utils.getLength(
-        Utils.alongVector(adornerPoint, v, accuracy),
-        point
-      );
+
+      let adornerPosition = adornerPoint;
+      let v: DOMPoint | null = null;
+      if (!isCenterTransform) {
+        v = Utils.getVector(adornerPoint, adorner.center, true);
+        // Add displacement so selection will be started a bit outside of the bbox.
+        adornerPosition = Utils.alongVector(adornerPoint, v, accuracy);
+      }
+
+      const moveAdornerDistance = Utils.getLength(adornerPosition, point);
+      // Rotate adorner displacement:
       let rotateDistance = Number.MAX_VALUE;
-      if (adorner.allowToRotateAdorners(key)) {
+      if (v && AdornerTypeUtils.allowToRotateAdorners(key)) {
+        const rotateAccuracy = accuracy * rotateArea;
         rotateDistance = Utils.getLength(
           Utils.alongVector(adornerPoint, v, rotateAccuracy),
           point
@@ -459,7 +472,10 @@ export class IntersectionService {
         moveAdornerDistance <= minDistance
       ) {
         // Move has a priority:
-        if (rotateDistance + rotateDistance * 0.2 < moveAdornerDistance) {
+        if (
+          rotateDistance + rotateDistance * 0.2 < moveAdornerDistance &&
+          !isCenterTransform
+        ) {
           // Corresponding rotate key:
           toReturn = AdornerTypeUtils.toRotateAdornerType(key);
           minDistance = rotateDistance;

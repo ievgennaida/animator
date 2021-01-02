@@ -1,11 +1,15 @@
 import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
+import {
+  PropertiesService,
+  TransformPropertyKey,
+} from "src/app/services/properties.service";
 import { DecomposedMatrix } from "../../../../models/decompose-matrix";
 import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
+import { TransformationModeIcon } from "../transformation-mode";
 
 @Injectable({
   providedIn: "root",
@@ -14,6 +18,10 @@ export class MatrixRotateAction extends BaseTransformAction {
   constructor(propertiesService: PropertiesService) {
     super(propertiesService);
   }
+
+  title = "Rotate";
+  icon = TransformationModeIcon.Rotate;
+
   /**
    * Start click position in anchor coordinates.
    */
@@ -27,11 +35,15 @@ export class MatrixRotateAction extends BaseTransformAction {
     screenPos: DOMPoint | null = null,
     handle: HandleData | null = null
   ) {
-    this.attributesToStore = [MatrixUtils.TransformPropertyKey];
+    this.attributesToStore = [TransformPropertyKey];
     this.node = node;
     this.handle = handle;
     const element = this.node.getElement();
-    this.transformOrigin = MatrixUtils.getTransformOrigin(element);
+
+    this.transformOrigin = Utils.toElementPoint(
+      node,
+      this.getScreenTransformOrigin()
+    );
     const transformedCenter = Utils.toScreenPoint(
       element,
       this.transformOrigin
@@ -80,8 +92,7 @@ export class MatrixRotateAction extends BaseTransformAction {
       .translate(-transformPoint.x, -transformPoint.y)
       .multiply(transform.matrix);
 
-    transform.setMatrix(matrix);
-    element.transform.baseVal.initialize(transform);
+    this.propertiesService.setMatrixTransform(this.node, matrix);
     return true;
   }
 }

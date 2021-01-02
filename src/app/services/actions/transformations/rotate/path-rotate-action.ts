@@ -3,10 +3,16 @@ import { HandleData } from "src/app/models/handle-data";
 import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
+import {
+  CenterTransformX,
+  CenterTransformY,
+  PathDataPropertyKey,
+  PropertiesService,
+} from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
-import { MatrixUtils, PathDataUtils } from "../../../utils/matrix-utils";
+import { PathDataUtils } from "../../../utils/matrix-utils";
 import { BaseTransformAction } from "../base-transform-action";
+import { TransformationModeIcon } from "../transformation-mode";
 
 @Injectable({
   providedIn: "root",
@@ -15,25 +21,42 @@ export class PathRotateAction extends BaseTransformAction {
   constructor(propertiesService: PropertiesService) {
     super(propertiesService);
   }
+  title = "Rotate";
+  icon = TransformationModeIcon.Rotate;
   prevAngle = 0;
   transformOrigin: DOMPoint = null;
   startOffset = 0;
+  centerTransform: DOMPoint = null;
   /**
    * List of a particular path handles to be transformed. (filter)
    */
   public pathHandles: PathDataHandle[] | null = null;
   start: DOMPoint = null;
 
-  attributesToStore = ["d"];
+  attributesToStore = [PathDataPropertyKey];
 
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
+    this.centerTransform = this.propertiesService.getCenterTransform(
+      this.node,
+      false
+    );
     this.pathHandles =
       handle?.pathDataHandles?.filter((p) => p.node === this.node) || null;
     const element = this.node.getElement();
-    this.transformOrigin = MatrixUtils.getTransformOrigin(element);
-    const transformOrigin = this.transformOrigin;
-    const transformedCenter = Utils.toScreenPoint(element, transformOrigin);
+    const adornerScreen = handle?.adorner?.screen;
+    this.transformOrigin = Utils.toElementPoint(
+      node,
+      adornerScreen?.centerTransform || adornerScreen?.center
+    );
+    if (this.propertiesService.isCenterTransformSet(node)) {
+      this.attributesToStore.push(CenterTransformX);
+      this.attributesToStore.push(CenterTransformY);
+    }
+    const transformedCenter = Utils.toScreenPoint(
+      element,
+      this.transformOrigin
+    );
     this.startOffset = -Utils.angle(transformedCenter, screenPos);
   }
 
@@ -77,6 +100,13 @@ export class PathRotateAction extends BaseTransformAction {
     );
     if (changed) {
       this.node.setPathData(pathData);
+      if (this.centerTransform) {
+        this.propertiesService.transformCenterByMatrix(
+          this.node,
+          matrix,
+          this.centerTransform
+        );
+      }
     }
     return changed;
   }

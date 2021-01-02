@@ -77,6 +77,7 @@ export class DocumentService {
       if (!refresh) {
         const rootNodes = this.outlineService.parseDocumentOutline(document);
         document.rootNode = rootNodes.find((p) => p.isRoot);
+        this.outlineService.rootNode = document.rootNode;
         this.outlineService.setNodes(rootNodes);
       }
 

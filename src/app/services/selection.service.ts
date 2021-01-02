@@ -10,7 +10,7 @@ import {
   StateChangedSource,
   StateSubject,
 } from "./state-subject";
-import { AdornerType } from "./viewport/adorners/adorner-type";
+import { AdornerPointType } from "./viewport/adorners/adorner-type";
 @Injectable({
   providedIn: "root",
 })
@@ -29,15 +29,15 @@ export class SelectionService {
     }
   );
   pathDataSubject = new PathDataSelectionSubject();
-  selectedAdorner: AdornerType = AdornerType.None;
+  selectedAdorner: AdornerPointType = AdornerPointType.None;
 
   deselectAdorner() {
-    this.setSelectedAdorner(AdornerType.None);
+    this.setSelectedAdorner(AdornerPointType.None);
   }
-  setSelectedAdorner(value: AdornerType) {
+  setSelectedAdorner(value: AdornerPointType) {
     this.selectedAdorner = value;
   }
-  isAdornerHandleSelected(value: AdornerType) {
+  isAdornerHandleSelected(value: AdornerPointType) {
     return this.selectedAdorner === value;
   }
   /**

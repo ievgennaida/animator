@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
-import { MatrixUtils } from "./utils/matrix-utils";
 import { ConfigService } from "./config-service";
+import { PropertiesService } from "./properties.service";
 import { SelectionService } from "./selection.service";
+import { MatrixUtils } from "./utils/matrix-utils";
 import { Utils } from "./utils/utils";
-import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
+import { AdornerContainer } from "./viewport/adorners/adorner";
+import { AdornerType } from "./viewport/adorners/adorner-type";
 /**
  *
  */
@@ -14,22 +16,28 @@ import { Adorner, AdornerMode } from "./viewport/adorners/adorner";
 export class AdornersService {
   constructor(
     private selectionService: SelectionService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private propertiesService: PropertiesService
   ) {}
+
   /**
    * Adorner that represents multiple items selected.
    */
-  selectionAdorner: Adorner | null = null;
+  selectionAdorner: AdornerContainer = new AdornerContainer();
   adornerHandlesActive = true;
-  cache = new Map<TreeNode, Adorner>();
+  cache = new Map<TreeNode, AdornerContainer>();
   /**
    * Calculate multiple selected items bounds adorner
    */
-  buildSelectionAdorner(nodes: TreeNode[]): Adorner {
-    if (!nodes || nodes.length <= 1) {
-      this.selectionAdorner = null;
-    } else {
-      let globalBBox: DOMRect = null;
+  buildSelectionAdorner(
+    rootNode: TreeNode,
+    nodes: TreeNode[],
+    resetCenterTransform = false
+  ): AdornerContainer {
+    this.selectionAdorner.node = rootNode;
+    this.selectionAdorner.isScreen = false;
+    let globalBBox: DOMRect = null;
+    if (nodes && nodes.length > 1) {
       nodes.forEach((node) => {
         if (!node) {
           return;
@@ -38,33 +46,40 @@ export class AdornersService {
         if (!nodeBBox) {
           return;
         }
-        nodeBBox = MatrixUtils.matrixRectTransform(
-          nodeBBox,
-          node.getScreenCTM(),
-          true
-        );
+
+        // Anchor coordinates to the view port root svg node:
+        const matrix = MatrixUtils.transformToElement(node, rootNode);
+        // Get rect bbounds in transformed viewport coordinates:
+        nodeBBox = MatrixUtils.matrixRectTransform(nodeBBox, matrix, true);
+
         if (!globalBBox) {
           globalBBox = nodeBBox;
         } else {
           globalBBox = Utils.mergeRects(globalBBox, nodeBBox);
         }
       });
-      if (globalBBox) {
-        const toSet = Adorner.fromDOMRect(globalBBox);
-        toSet.mode = AdornerMode.Selection;
-        this.selectionAdorner = toSet;
-      } else {
-        this.selectionAdorner = null;
+    }
+    if (globalBBox && globalBBox.height > 0 && globalBBox.width > 0) {
+      const center = this.selectionAdorner.element.centerTransform;
+
+      this.selectionAdorner.setBBox(globalBBox);
+      if (center && !resetCenterTransform) {
+        this.selectionAdorner.setCenterTransform(center);
       }
+      this.selectionAdorner.type = AdornerType.Selection;
+      this.selectionAdorner.enabled = true;
+    } else {
+      this.selectionAdorner.setCenterTransform(null);
+      this.selectionAdorner.enabled = false;
     }
 
     return this.selectionAdorner;
   }
-  getActiveAdorners(): Adorner[] {
+  getActiveAdorners(): AdornerContainer[] {
     const adorners = this.selectionService
       .getSelected()
       .map((p) => this.getAdorner(p));
-    if (this.selectionAdorner) {
+    if (this.selectionAdorner && this.selectionAdorner.enabled) {
       adorners.push(this.selectionAdorner);
     }
     if (this.selectionService.pathDataSubject.bounds) {
@@ -74,37 +89,42 @@ export class AdornersService {
     return adorners;
   }
 
-  cleanCache() {
-    this.cache.clear();
+  cleanCache(onlyScreenCache = false) {
+    // Reset only screen coordinates cache.(ex: viewport scaled, no need to recalc elements)
+    if (onlyScreenCache) {
+      this.cache.forEach((p) => p.resetCache());
+    } else {
+      this.cache.clear();
+    }
   }
   /**
    * Get adorner manipulation points points in screen coordinates.
    */
-  getAdorner(node: TreeNode): Adorner {
+  getAdorner(node: TreeNode): AdornerContainer {
     const cached = this.cache.get(node);
     if (cached) {
       return cached;
     }
 
-    let adorner = new Adorner();
+    const adorner = new AdornerContainer();
     adorner.node = node;
-    adorner.mode = AdornerMode.TransformedElement;
-    const bounds = node.getBBox();
-    adorner.setRect(bounds);
-    adorner.setCenterTransform(
-      Utils.getCenterTransform(node.getElement(), bounds)
-    );
-
-    adorner = adorner.matrixTransform(node.getScreenCTM());
+    adorner.type = AdornerType.TransformedElement;
+    const elementAdorner = adorner.setBBox(node.getBBox());
     if (!this.configService.get().showTransformedBBoxes) {
-      adorner.untransformSelf();
-      adorner.mode = AdornerMode.ElementsBounds;
+      adorner.type = AdornerType.ElementsBounds;
+      elementAdorner.matrixTransformSelf(node.getScreenCTM());
+      elementAdorner.untransformSelf();
+      elementAdorner.matrixTransformSelf(node.getScreenCTM().inverse());
     }
+
+    adorner.setCenterTransform(
+      this.propertiesService.getCenterTransform(node, false)
+    );
 
     this.cache.set(node, adorner);
     return adorner;
   }
-  isAdornerHandlesActive(adorner: Adorner): boolean {
+  isAdornerHandlesActive(adorner: AdornerContainer): boolean {
     if (!this.adornerHandlesActive || !adorner) {
       return false;
     }
@@ -118,7 +138,7 @@ export class AdornersService {
       }
 
       return true;
-    } else if (adorner.mode === AdornerMode.Selection) {
+    } else if (adorner.type === AdornerType.Selection) {
       return true;
     }
 

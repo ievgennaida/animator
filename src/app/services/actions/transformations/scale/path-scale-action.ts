@@ -3,9 +3,16 @@ import { HandleData } from "src/app/models/handle-data";
 import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathData } from "src/app/models/path/path-data";
 import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
+import {
+  CenterTransformX,
+  CenterTransformY,
+  PathDataPropertyKey,
+  PropertiesService,
+  TransformPropertyKey,
+} from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
-import { AdornerMode } from "src/app/services/viewport/adorners/adorner";
+import { ViewService } from "src/app/services/view.service";
+import { AdornerType } from "src/app/services/viewport/adorners/adorner-type";
 import { MatrixUtils, PathDataUtils } from "../../../utils/matrix-utils";
 import { MatrixScaleAction } from "./matrix-scale-action";
 
@@ -13,17 +20,19 @@ import { MatrixScaleAction } from "./matrix-scale-action";
   providedIn: "root",
 })
 export class PathScaleAction extends MatrixScaleAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
+  constructor(propertiesService: PropertiesService, viewService: ViewService) {
+    super(propertiesService, viewService);
   }
-
+  title = "Scale";
+  icon = "aspect_ratio";
   started: DOMPoint | null = null;
+  centerTransform: DOMPoint | null = null;
   /**
    * List of a particular path handles to be transformed.
    */
   public pathHandles: PathDataHandle[] | null = null;
   initPathData: PathData = null;
-  attributesToStore = ["d", MatrixUtils.TransformPropertyKey];
+  attributesToStore = [PathDataPropertyKey, TransformPropertyKey];
   initialized = false;
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.pathHandles =
@@ -31,13 +40,31 @@ export class PathScaleAction extends MatrixScaleAction {
     this.node = node;
     this.handle = handle;
     this.started = Utils.toElementPoint(this.node.getElement(), screenPos);
-    // TODO: read from the config
+
     this.transformElementCoordinates =
-      this.handle.adorner.mode === AdornerMode.TransformedElement;
+      this.handle.adorner.type === AdornerType.TransformedElement;
+    if (this.propertiesService.isCenterTransformSet(node)) {
+      this.attributesToStore.push(CenterTransformX);
+      this.attributesToStore.push(CenterTransformY);
+      this.centerTransform = Utils.toElementPoint(
+        node,
+        handle?.adorner?.screen?.centerTransform
+      );
+    }
   }
 
-  applyMatrix(matrix: DOMMatrix, offset: boolean): boolean {
-    return this.transformInitialPathByMatrix(matrix);
+  applyMatrix(matrix: DOMMatrix): boolean {
+    const isTransformed = this.transformInitialPathByMatrix(matrix);
+    if (isTransformed) {
+      if (this.centerTransform) {
+        this.propertiesService.transformCenterByMatrix(
+          this.node,
+          matrix,
+          this.centerTransform
+        );
+      }
+    }
+    return isTransformed;
   }
 
   /**
@@ -61,7 +88,7 @@ export class PathScaleAction extends MatrixScaleAction {
     );
 
     // Apply new created transform back to the element:
-    return this.applyMatrix(newTransformationMatrix, false);
+    return this.applyMatrix(newTransformationMatrix);
   }
   transformByMouse(screenPos: DOMPoint): boolean {
     if (!this.initialized) {
@@ -106,7 +133,7 @@ export class PathScaleAction extends MatrixScaleAction {
     const element = this.node.getElement();
     const currentTransform = MatrixUtils.getMatrix(this.node);
     // Remove current transformation
-    Utils.setMatrix(element, element.ownerSVGElement.createSVGMatrix());
+    MatrixUtils.setMatrix(element, element.ownerSVGElement.createSVGMatrix());
     this.transformInitialPathByMatrix(currentTransform);
     this.node.cleanCache();
     this.initPathData = null;

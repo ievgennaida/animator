@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { ViewMode } from "src/app/models/view-mode";
 import { consts } from "src/environments/consts";
 import { ICTMProvider } from "../models/interfaces/ctm-provider";
+import { MatrixUtils } from "./utils/matrix-utils";
 import { Utils } from "./utils/utils";
 export class ClientSize {
   prevClientWidth = 0;
@@ -146,7 +147,7 @@ export class ViewService implements ICTMProvider {
       return;
     }
 
-    Utils.setCTM(this.viewport, matrix);
+    MatrixUtils.setMatrix(this.viewport, matrix);
     this.viewportTransformedSubject.next(this.viewport);
   }
 
@@ -196,6 +197,10 @@ export class ViewService implements ICTMProvider {
 
     return Utils.getCTM(this.viewport);
   }
+
+  /**
+   * Get viewport screen CTM.
+   */
   public getScreenCTM(): DOMMatrix {
     if (!this.isInit()) {
       return null;

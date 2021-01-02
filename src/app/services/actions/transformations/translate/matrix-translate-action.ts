@@ -1,7 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
+import {
+  PropertiesService,
+  TransformPropertyKey,
+} from "src/app/services/properties.service";
 import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
@@ -19,7 +22,7 @@ export class MatrixTranslateAction extends BaseTransformAction {
   node: TreeNode = null;
 
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
-    this.attributesToStore = [MatrixUtils.TransformPropertyKey];
+    this.attributesToStore = [TransformPropertyKey];
     this.node = node;
     const element = node.getElement();
     const startPoint = Utils.toElementPoint(element, screenPos);
@@ -73,9 +76,7 @@ export class MatrixTranslateAction extends BaseTransformAction {
     const transform = Utils.getElementTransform(element);
 
     const matrix = transform.matrix.translate(x, y);
-    transform.setMatrix(matrix);
-
-    element.transform.baseVal.initialize(transform);
+    this.propertiesService.setMatrixTransform(this.node, matrix);
 
     return true;
   }

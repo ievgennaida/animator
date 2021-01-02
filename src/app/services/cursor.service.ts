@@ -3,7 +3,10 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { CursorType } from "../models/cursor-type";
 import { HandleData } from "../models/handle-data";
 import { Utils } from "./utils/utils";
-import { AdornerType } from "./viewport/adorners/adorner-type";
+import {
+  AdornerPointType,
+  AdornerTypeUtils,
+} from "./viewport/adorners/adorner-type";
 
 @Injectable({
   providedIn: "root",
@@ -19,13 +22,16 @@ export class CursorService {
       this.cursorSubject.next(cursor);
     }
   }
-  public getCursorResize(deg: number): CursorType {
+  public getCursorResize(deg: number | null): CursorType {
     return this.getHandleCursor(deg);
   }
-  public getCursorRotate(deg: number): CursorType {
+  public getCursorRotate(deg: number | null): CursorType {
     return this.getHandleCursor(deg, true);
   }
-  private getHandleCursor(deg: number, rotate = false) {
+  private getHandleCursor(deg: number | null, rotate = false) {
+    if (deg === null) {
+      return CursorType.Default;
+    }
     const tolerance = 15;
     if (
       (deg >= 0 && deg <= 0 + tolerance) ||
@@ -53,26 +59,43 @@ export class CursorService {
     if (
       !handle ||
       !screenPoint ||
-      handle.handles === AdornerType.None ||
-      handle.handles === AdornerType.Center
+      handle.handle === AdornerPointType.None ||
+      handle.handle === AdornerPointType.Center
     ) {
       this.setCursor(CursorType.Default);
     } else {
       let cursor = CursorType.Default;
-      if (handle && handle.handles === AdornerType.CenterTransform) {
+      if (handle && handle.handle === AdornerPointType.CenterTransform) {
         cursor = CursorType.Move;
       } else {
-        const angle = this.getCursorAngle(handle, screenPoint);
-        cursor = handle.rotate
-          ? this.getCursorRotate(angle)
-          : this.getCursorResize(angle);
+        const screen = handle?.adorner?.screen;
+        if (AdornerTypeUtils.isRotateAdornerType(handle.handle)) {
+          cursor = this.getCursorRotate(
+            this.getCursorAngle(
+              handle,
+              screen?.centerTransform || screen?.center,
+              screenPoint
+            )
+          );
+        } else if (AdornerTypeUtils.isScaleAdornerType(handle.handle)) {
+          cursor = this.getCursorResize(
+            this.getCursorAngle(handle, screen?.center, screenPoint)
+          );
+        }
       }
 
       this.setCursor(cursor);
     }
   }
-  getCursorAngle(handle: HandleData, screenPoint: DOMPoint): number {
-    const deg = Utils.angle(screenPoint, handle.adorner.center) + 180;
+  getCursorAngle(
+    handle: HandleData,
+    centerTransform: DOMPoint,
+    screenPoint: DOMPoint
+  ): number | null {
+    if (!centerTransform || !screenPoint) {
+      return null;
+    }
+    const deg = Utils.angle(screenPoint, centerTransform) + 180;
     return deg;
   }
 }

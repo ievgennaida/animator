@@ -11,7 +11,6 @@ import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from "./utils";
 
 export class MatrixUtils {
-  static TransformPropertyKey = "transform";
   /**
    * Get element current transformation matrix.
    * @param element element to get matrix for.
@@ -22,10 +21,39 @@ export class MatrixUtils {
     if (!element) {
       return null;
     }
-    return Utils.transformToElement(
+    return MatrixUtils.transformToElement(
       element,
       element.parentNode as SVGGraphicsElement | TreeNode
     );
+  }
+  public static transformToElement(
+    fromElement: SVGGraphicsElement | TreeNode,
+    toElement: SVGGraphicsElement | TreeNode
+  ): DOMMatrix | null {
+    if (!fromElement || !fromElement.getScreenCTM) {
+      return null;
+    }
+    if (!toElement) {
+      return fromElement.getScreenCTM();
+    }
+
+    const toMatrix = toElement.getScreenCTM();
+    const fromMatrix = fromElement.getScreenCTM();
+    if (!toMatrix || !fromMatrix) {
+      return null;
+    }
+    return toMatrix.inverse().multiply(fromMatrix);
+  }
+  /**
+   * Set matrix as transform attribute for the element.
+   */
+  public static setMatrix(element: SVGGraphicsElement, matrix: DOMMatrix) {
+    const transform = element.ownerSVGElement.createSVGTransform();
+    if (matrix) {
+      transform.setMatrix(matrix);
+    }
+    element.transform.baseVal.initialize(transform);
+    return true;
   }
   /**
    * Convert some screen matrix to element matrix coordinates.
@@ -42,20 +70,6 @@ export class MatrixUtils {
         .multiply(elementToScreenMatrix)
     );
     return currentMatrix;
-  }
-  static getTransformOrigin(
-    element: SVGGraphicsElement,
-    handle: HandleData = null
-  ): DOMPoint {
-    if (handle && handle.adorner) {
-      const center = handle.adorner.centerTransform;
-      if (center) {
-        const offset = Utils.toElementPoint(element, center);
-        return offset;
-      }
-    }
-
-    return Utils.getCenterTransform(element);
   }
 
   static fitToBounds(
@@ -105,7 +119,7 @@ export class MatrixUtils {
     );
 
     // Apply new created transform back to the element:
-    Utils.setMatrix(element, currentMatrix);
+    MatrixUtils.setMatrix(element, currentMatrix);
     return true;
   }
   /**
@@ -248,6 +262,7 @@ export class MatrixUtils {
     }
     return MatrixUtils.decomposeTransformList(transforms.baseVal);
   }
+
   static decomposeTransformList(
     transforms: SVGTransformList
   ): DecomposedMatrix {

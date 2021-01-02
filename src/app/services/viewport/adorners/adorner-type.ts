@@ -1,6 +1,29 @@
-// tslint:disable: no-bitwise
-
+/**
+ * Adorner container type.
+ */
 export enum AdornerType {
+  /**
+   * Relative bounds, all applied transformations are displayed.
+   */
+  TransformedElement,
+  /**
+   * Untransformed bounds of the element. Element transformation are ignored.
+   */
+  ElementsBounds,
+  /**
+   * Selection Rectangle.
+   */
+  Selection,
+  /**
+   * Selected path data points.
+   */
+  PathDataSelection,
+}
+
+/**
+ * Adorner point
+ */
+export enum AdornerPointType {
   None,
 
   TopLeft,
@@ -30,62 +53,76 @@ export enum AdornerType {
 }
 
 export class AdornerTypeUtils {
-  static isRotateAdornerType(data: AdornerType): boolean {
-    return data > AdornerType.Center;
+  static isRotateAdornerType(data: AdornerPointType): boolean {
+    return (
+      data > AdornerPointType.Center &&
+      data <= AdornerPointType.RotateRightCenter
+    );
   }
-  static toMoveAdornerType(key: AdornerType): AdornerType {
-    if (key <= AdornerType.Center) {
+  static isScaleAdornerType(data: AdornerPointType): boolean {
+    return data > AdornerPointType.None && data <= AdornerPointType.RightCenter;
+  }
+  static toScaleAdornerType(key: AdornerPointType): AdornerPointType {
+    if (key <= AdornerPointType.Center) {
       return key;
     } else {
-      return key - AdornerType.Center;
+      return key - AdornerPointType.Center;
     }
   }
 
-  static toRotateAdornerType(key: AdornerType): AdornerType {
-    if (key > AdornerType.Center) {
+  static toRotateAdornerType(key: AdornerPointType): AdornerPointType {
+    if (key > AdornerPointType.Center) {
       return key;
     } else {
-      return key + AdornerType.Center;
+      return key + AdornerPointType.Center;
     }
   }
+
+  static allowToRotateAdorners(key: AdornerPointType): boolean {
+    return (
+      key !== AdornerPointType.Center &&
+      key !== AdornerPointType.CenterTransform
+    );
+  }
+
   /**
    * Get opposite adorner side if any.
    */
-  static getOpposite(handle: AdornerType): AdornerType {
-    if (handle === AdornerType.RotateTopLeft) {
-      return AdornerType.RotateBottomRight;
-    } else if (handle === AdornerType.RotateTopCenter) {
-      return AdornerType.RotateBottomCenter;
-    } else if (handle === AdornerType.RotateTopRight) {
-      return AdornerType.RotateBottomLeft;
-    } else if (handle === AdornerType.RotateBottomLeft) {
-      return AdornerType.RotateTopRight;
-    } else if (handle === AdornerType.RotateBottomCenter) {
-      return AdornerType.RotateTopCenter;
-    } else if (handle === AdornerType.RotateBottomRight) {
-      return AdornerType.RotateTopLeft;
-    } else if (handle === AdornerType.RotateLeftCenter) {
-      return AdornerType.RotateRightCenter;
-    } else if (handle === AdornerType.RotateRightCenter) {
-      return AdornerType.RotateLeftCenter;
+  static getOpposite(handle: AdornerPointType): AdornerPointType {
+    if (handle === AdornerPointType.RotateTopLeft) {
+      return AdornerPointType.RotateBottomRight;
+    } else if (handle === AdornerPointType.RotateTopCenter) {
+      return AdornerPointType.RotateBottomCenter;
+    } else if (handle === AdornerPointType.RotateTopRight) {
+      return AdornerPointType.RotateBottomLeft;
+    } else if (handle === AdornerPointType.RotateBottomLeft) {
+      return AdornerPointType.RotateTopRight;
+    } else if (handle === AdornerPointType.RotateBottomCenter) {
+      return AdornerPointType.RotateTopCenter;
+    } else if (handle === AdornerPointType.RotateBottomRight) {
+      return AdornerPointType.RotateTopLeft;
+    } else if (handle === AdornerPointType.RotateLeftCenter) {
+      return AdornerPointType.RotateRightCenter;
+    } else if (handle === AdornerPointType.RotateRightCenter) {
+      return AdornerPointType.RotateLeftCenter;
     }
 
-    if (handle === AdornerType.TopLeft) {
-      return AdornerType.BottomRight;
-    } else if (handle === AdornerType.TopCenter) {
-      return AdornerType.BottomCenter;
-    } else if (handle === AdornerType.TopRight) {
-      return AdornerType.BottomLeft;
-    } else if (handle === AdornerType.BottomLeft) {
-      return AdornerType.TopRight;
-    } else if (handle === AdornerType.BottomCenter) {
-      return AdornerType.TopCenter;
-    } else if (handle === AdornerType.BottomRight) {
-      return AdornerType.TopLeft;
-    } else if (handle === AdornerType.LeftCenter) {
-      return AdornerType.RightCenter;
-    } else if (handle === AdornerType.RightCenter) {
-      return AdornerType.LeftCenter;
+    if (handle === AdornerPointType.TopLeft) {
+      return AdornerPointType.BottomRight;
+    } else if (handle === AdornerPointType.TopCenter) {
+      return AdornerPointType.BottomCenter;
+    } else if (handle === AdornerPointType.TopRight) {
+      return AdornerPointType.BottomLeft;
+    } else if (handle === AdornerPointType.BottomLeft) {
+      return AdornerPointType.TopRight;
+    } else if (handle === AdornerPointType.BottomCenter) {
+      return AdornerPointType.TopCenter;
+    } else if (handle === AdornerPointType.BottomRight) {
+      return AdornerPointType.TopLeft;
+    } else if (handle === AdornerPointType.LeftCenter) {
+      return AdornerPointType.RightCenter;
+    } else if (handle === AdornerPointType.RightCenter) {
+      return AdornerPointType.LeftCenter;
     }
 
     return handle;
@@ -95,51 +132,54 @@ export class AdornerTypeUtils {
    * @param bounds rect bounds.
    * @param handle adorner type.
    */
-  static getAdornerPosition(bounds: DOMRect, handle: AdornerType): DOMPoint {
+  static getAdornerPosition(
+    bounds: DOMRect,
+    handle: AdornerPointType
+  ): DOMPoint {
     const transformPoint = new DOMPoint(bounds.x, bounds.y);
 
     if (
-      handle === AdornerType.TopLeft ||
-      handle === AdornerType.RotateTopLeft
+      handle === AdornerPointType.TopLeft ||
+      handle === AdornerPointType.RotateTopLeft
     ) {
       return transformPoint;
     } else if (
-      handle === AdornerType.TopCenter ||
-      handle === AdornerType.RotateTopCenter
+      handle === AdornerPointType.TopCenter ||
+      handle === AdornerPointType.RotateTopCenter
     ) {
       transformPoint.x = bounds.x + bounds.width / 2;
     } else if (
-      handle === AdornerType.TopRight ||
-      handle === AdornerType.RotateTopRight
+      handle === AdornerPointType.TopRight ||
+      handle === AdornerPointType.RotateTopRight
     ) {
       transformPoint.x = bounds.x + bounds.width;
     } else if (
-      handle === AdornerType.BottomLeft ||
-      handle === AdornerType.RotateBottomLeft
+      handle === AdornerPointType.BottomLeft ||
+      handle === AdornerPointType.RotateBottomLeft
     ) {
       transformPoint.x = bounds.x;
       transformPoint.y = bounds.y + bounds.height;
     } else if (
-      handle === AdornerType.BottomCenter ||
-      handle === AdornerType.RotateBottomCenter
+      handle === AdornerPointType.BottomCenter ||
+      handle === AdornerPointType.RotateBottomCenter
     ) {
       transformPoint.x = bounds.x + bounds.width / 2;
       transformPoint.y = bounds.y + bounds.height;
     } else if (
-      handle === AdornerType.BottomRight ||
-      handle === AdornerType.RotateBottomRight
+      handle === AdornerPointType.BottomRight ||
+      handle === AdornerPointType.RotateBottomRight
     ) {
       transformPoint.x = bounds.x + bounds.width;
       transformPoint.y = bounds.y + bounds.height;
     } else if (
-      handle === AdornerType.LeftCenter ||
-      handle === AdornerType.RotateLeftCenter
+      handle === AdornerPointType.LeftCenter ||
+      handle === AdornerPointType.RotateLeftCenter
     ) {
       transformPoint.x = bounds.x;
       transformPoint.y = bounds.y + bounds.height / 2;
     } else if (
-      handle === AdornerType.RightCenter ||
-      handle === AdornerType.RotateRightCenter
+      handle === AdornerPointType.RightCenter ||
+      handle === AdornerPointType.RotateRightCenter
     ) {
       transformPoint.x = bounds.x + bounds.width;
       transformPoint.y = bounds.y + bounds.height / 2;

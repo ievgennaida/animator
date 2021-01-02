@@ -5,6 +5,7 @@ import { PathRotateAction } from "./rotate/path-rotate-action";
 import { EllipseScaleAction } from "./scale/ellipse-scale-action";
 import { PathScaleAction } from "./scale/path-scale-action";
 import { RectScaleAction } from "./scale/rect-scale-action";
+import { MatrixSkewAction } from "./skew/matrix-skew-action";
 import { CircleTransformAction } from "./translate/circle-translate-action";
 import { EllipseTransformAction } from "./translate/ellipse-translate-action";
 import { PathTranslateAction } from "./translate/path-translate-action";
@@ -15,15 +16,27 @@ import { TextTranslateAction } from "./translate/text-translate-action";
  * List of the available scale actions for the different elements.
  * Matrix transform is default for all the elements.
  */
-export const scaleActions = new Map<
+
+/**
+ * Scale, resize in element coordinates. (ex: can scale only width or height for rect)
+ */
+export const scaleElementActions = new Map<
   SVGElementType | string,
   Type<BaseTransformAction>
 >();
 
-scaleActions.set(SVGElementType.rect, RectScaleAction);
-scaleActions.set(SVGElementType.circle, RectScaleAction);
-scaleActions.set(SVGElementType.ellipse, EllipseScaleAction);
-scaleActions.set(SVGElementType.path, PathScaleAction);
+scaleElementActions.set(SVGElementType.rect, RectScaleAction);
+scaleElementActions.set(SVGElementType.circle, RectScaleAction);
+scaleElementActions.set(SVGElementType.ellipse, EllipseScaleAction);
+scaleElementActions.set(SVGElementType.path, PathScaleAction);
+
+/**
+ * Scale in screen coordinates by screen rect matrix.
+ */
+export const scaleActions = new Map<
+  SVGElementType | string,
+  Type<BaseTransformAction>
+>();
 
 export const translateActions = new Map<
   SVGElementType | string,
@@ -43,6 +56,9 @@ export const rotateActions = new Map<
   Type<BaseTransformAction>
 >();
 rotateActions.set(SVGElementType.path, PathRotateAction);
+
+// rotateActions.set(SVGElementType.rect, MatrixSkewAction);
+// rotateActions.set(SVGElementType.circle, MatrixSkewAction);
 
 export const skewActions = new Map<
   SVGElementType | string,

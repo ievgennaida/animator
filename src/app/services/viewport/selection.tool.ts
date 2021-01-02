@@ -12,7 +12,11 @@ import { MouseOverService } from "../mouse-over.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
-import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
+import {
+  AdornerPointType,
+  AdornerType,
+  AdornerTypeUtils,
+} from "./adorners/adorner-type";
 import { AutoPanService } from "./auto-pan-service";
 import { BaseTool } from "./base.tool";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
@@ -72,10 +76,23 @@ export class SelectionTool extends BaseTool {
     }
     this.selectionTracker.start(event);
     const startedNode = this.mouseOverService.getValue();
-    const handle = this.mouseOverService.mouseOverHandle;
+    let handle = this.mouseOverService.mouseOverHandle;
     if (startedNode || handle) {
+      if (!handle && this.adornersService?.selectionAdorner?.enabled) {
+        handle = new HandleData();
+        handle.adorner = this.adornersService?.selectionAdorner;
+        handle.handle = AdornerPointType.None;
+      }
+
       this.startedHandle = handle;
-      this.startedNode = handle ? handle.adorner.node : startedNode;
+      if (handle) {
+        if (handle?.adorner?.type !== AdornerType.Selection) {
+          this.startedNode = handle.adorner.node;
+        }
+      } else {
+        this.startedNode = startedNode;
+      }
+
       if (this.startedNode && !this.startedNode.selected) {
         return;
       }
@@ -104,11 +121,13 @@ export class SelectionTool extends BaseTool {
    * @param handle clicked handler.
    */
   getTransformationMode(handle: HandleData): TransformationMode {
-    if (handle) {
-      if (AdornerTypeUtils.isRotateAdornerType(handle.handles)) {
+    if (handle && handle.handle !== AdornerPointType.CenterTransform) {
+      if (AdornerTypeUtils.isRotateAdornerType(handle.handle)) {
         return TransformationMode.Rotate;
-      } else {
+      } else if (AdornerTypeUtils.isScaleAdornerType(handle.handle)) {
         return TransformationMode.Scale;
+      } else {
+        return TransformationMode.Translate;
       }
     } else {
       // Default is translate
@@ -150,6 +169,10 @@ export class SelectionTool extends BaseTool {
   onWindowMouseMove(event: MouseEventArgs) {
     this.lastUsedArgs = event;
     if (this.transformsService.isActive()) {
+      if (!event.leftClicked()) {
+        this.cleanUp();
+        return;
+      }
       // Start transformation of the element by mouse
       this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
       // Don't draw mouse over when transformation is started:
@@ -264,7 +287,7 @@ export class SelectionTool extends BaseTool {
       mode = ChangeStateMode.Append;
     }
 
-    if (this.selectionService.selectedAdorner !== AdornerType.None) {
+    if (this.selectionService.selectedAdorner !== AdornerPointType.None) {
       this.selectionService.deselectAdorner();
       return;
     }

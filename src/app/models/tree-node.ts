@@ -1,7 +1,6 @@
 import { TimelineRow } from "animation-timeline-js";
-import { MatrixUtils } from "../services/utils/matrix-utils";
 import { Utils } from "../services/utils/utils";
-import { Adorner, AdornerMode } from "../services/viewport/adorners/adorner";
+import { Adorner } from "../services/viewport/adorners/adorner";
 import { IBBox } from "./interfaces/bbox";
 import { ICTMProvider } from "./interfaces/ctm-provider";
 import { PathData } from "./path/path-data";
@@ -104,27 +103,7 @@ export class TreeNode implements ICTMProvider, IBBox {
 
     return null;
   }
-  /**
-   * Get tree node untransformed bbox in element coordinates.
-   * @param node node to get untransformed bbox for.
-   */
-  untransformedBBox(bbox: DOMRect | null = null): Adorner | null {
-    if (!bbox) {
-      bbox = this.getBBox();
-    }
-    const screenRect = MatrixUtils.matrixRectTransform(
-      bbox,
-      this.getScreenCTM(),
-      true
-    );
-    const adorner = Adorner.fromDOMRect(screenRect).matrixTransform(
-      this.getScreenCTM().inverse()
-    );
-    adorner.node = this;
-    adorner.isScreen = false;
-    adorner.mode = AdornerMode.ElementsBounds;
-    return adorner;
-  }
+
   cleanCache() {
     this.screenCTMCache = null;
     this.ctmCache = null;

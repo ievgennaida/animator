@@ -7,8 +7,8 @@ import { LoggerService } from "../../logger.service";
 import { MouseOverService } from "../../mouse-over.service";
 import { OutlineService } from "../../outline.service";
 import { Utils } from "../../utils/utils";
-import { Adorner, AdornerMode } from "../adorners/adorner";
-import { AdornerType } from "../adorners/adorner-type";
+import { Adorner, AdornerContainer } from "../adorners/adorner";
+import { AdornerPointType, AdornerType } from "../adorners/adorner-type";
 import { TransformsService } from "../transforms.service";
 import { BaseRenderer } from "./base.renderer";
 
@@ -55,9 +55,12 @@ export class BoundsRenderer extends BaseRenderer {
     }
   }
 
-  getAdornerStroke(adorner: Adorner, adornerType: AdornerType): string {
+  getAdornerStroke(
+    container: AdornerContainer,
+    adornerType: AdornerPointType
+  ): string {
     const isSelected = this.mouseOverService.isMouseOverAdornerHandle(
-      adorner,
+      container,
       adornerType
     );
     if (isSelected) {
@@ -67,7 +70,11 @@ export class BoundsRenderer extends BaseRenderer {
     return consts.handleFillColor;
   }
 
-  drawAdornersHandles(ctx: CanvasRenderingContext2D, adorner: Adorner) {
+  drawAdornersHandles(
+    ctx: CanvasRenderingContext2D,
+    container: AdornerContainer,
+    adorner: Adorner
+  ) {
     const alongH = Utils.getVector(adorner.topLeft, adorner.topRight, true);
     const alongW = Utils.getVector(adorner.topLeft, adorner.bottomLeft, true);
     const alongHR = Utils.reverseVector(alongH);
@@ -82,7 +89,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       false,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.TopLeft)
+      this.getAdornerStroke(container, AdornerPointType.TopLeft)
     );
     // top right
     this.drawAdornerHandle(
@@ -92,7 +99,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       false,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.TopRight)
+      this.getAdornerStroke(container, AdornerPointType.TopRight)
     );
     // bottom left
     this.drawAdornerHandle(
@@ -102,7 +109,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       false,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.BottomLeft)
+      this.getAdornerStroke(container, AdornerPointType.BottomLeft)
     );
     // bottom right
     this.drawAdornerHandle(
@@ -112,7 +119,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongHR,
       false,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.BottomRight)
+      this.getAdornerStroke(container, AdornerPointType.BottomRight)
     );
 
     // top center
@@ -123,7 +130,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       true,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.TopCenter)
+      this.getAdornerStroke(container, AdornerPointType.TopCenter)
     );
     // bottom center
     this.drawAdornerHandle(
@@ -133,7 +140,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       true,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.BottomCenter)
+      this.getAdornerStroke(container, AdornerPointType.BottomCenter)
     );
     // left center
     this.drawAdornerHandle(
@@ -143,7 +150,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       true,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.LeftCenter)
+      this.getAdornerStroke(container, AdornerPointType.LeftCenter)
     );
     // right center
     this.drawAdornerHandle(
@@ -153,7 +160,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       true,
       handleStroke,
-      this.getAdornerStroke(adorner, AdornerType.RightCenter)
+      this.getAdornerStroke(container, AdornerPointType.RightCenter)
     );
   }
 
@@ -237,40 +244,43 @@ export class BoundsRenderer extends BaseRenderer {
     this.clear();
 
     const adorners = this.adornersService.getActiveAdorners();
-    const multiple = !!adorners.find((p) => p.mode === AdornerMode.Selection);
+    const multiple = !!adorners.find((p) => p.type === AdornerType.Selection);
     const activeTransformTransaction = this.transform.activeMode;
     adorners.forEach((adorner) => {
-      if (adorner) {
-        const main = adorner.mode === AdornerMode.Selection;
-        const isAlt = (multiple || this.suppressMainSelection) && !main;
-        const elementsColor = isAlt
-          ? consts.altSelectionStroke
-          : consts.mainSelectionStroke;
-        const elementsThickness = isAlt
-          ? consts.altSelectionThickness
-          : consts.mainSelectionThickness;
-
-        adorner = adorner.toScreen().matrixTransform(this.screenCTM);
-        this.drawAdornerRect(ctx, elementsThickness, elementsColor, adorner);
-
-        if (
-          (this.adornersService.isAdornerHandlesActive(adorner) &&
-            // Don't show scale adorner during the transformation
-            activeTransformTransaction === TransformationMode.None) ||
-          activeTransformTransaction === TransformationMode.Scale
-        ) {
-          this.drawAdornersHandles(ctx, adorner);
-        }
-        if (main) {
-          // Don't show center during the transaction:
-          if (!this.transform.isActive()) {
-            this.drawCross(ctx, adorner.centerTransform);
-          }
-        }
-        // draw when resized.
-        // this.drawTextOnLine(ctx, "200px", Adorner.topLeft, Adorner.topRight, Adorner.bottomLeft);
-        // this.drawTextOnLine(ctx, "100px", Adorner.topRight, Adorner.bottomRight, Adorner.topLeft);
+      if (!adorner) {
+        return;
       }
+
+      const main = adorner.type === AdornerType.Selection;
+      const isAlt = (multiple || this.suppressMainSelection) && !main;
+      const elementsColor = isAlt
+        ? consts.altSelectionStroke
+        : consts.mainSelectionStroke;
+      const elementsThickness = isAlt
+        ? consts.altSelectionThickness
+        : consts.mainSelectionThickness;
+
+      const converted = adorner.screen.matrixTransform(this.screenCTM);
+      this.drawAdornerRect(ctx, elementsThickness, elementsColor, converted);
+
+      if (
+        (this.adornersService.isAdornerHandlesActive(adorner) &&
+          // Don't show scale adorner during the transformation
+          activeTransformTransaction === TransformationMode.None) ||
+        activeTransformTransaction === TransformationMode.Scale
+      ) {
+        this.drawAdornersHandles(ctx, adorner, converted);
+      }
+      if ((main && adorners.length > 1) || adorners.length === 1) {
+        const transformOrigin = converted.centerTransform || converted.center;
+        if (transformOrigin) {
+          // Don't show center during the transaction:
+          this.drawCross(ctx, transformOrigin);
+        }
+      }
+      // draw when resized.
+      // this.drawTextOnLine(ctx, "200px", Adorner.topLeft, Adorner.topRight, Adorner.bottomLeft);
+      // this.drawTextOnLine(ctx, "100px", Adorner.topRight, Adorner.bottomRight, Adorner.topLeft);
     });
     this.showDebugPoints();
   }

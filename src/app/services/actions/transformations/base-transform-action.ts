@@ -22,6 +22,10 @@ export abstract class BaseTransformAction extends BaseAction {
    * Set points to be displayed.
    */
   debugPoints: DOMPoint[] = [];
+  getScreenTransformOrigin(): DOMPoint | null {
+    const screen = this.handle?.adorner?.screen;
+    return screen.centerTransform || screen.center;
+  }
   saveInitialValue() {
     if (!this.initialValues || this.initialValues.size === 0) {
       this.initialValues = this.propertiesService.getAttributes(

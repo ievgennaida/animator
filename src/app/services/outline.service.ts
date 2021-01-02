@@ -1,14 +1,13 @@
+import { FlatTreeControl } from "@angular/cdk/tree";
 import { Injectable } from "@angular/core";
-import { Observable, BehaviorSubject } from "rxjs";
-import { TreeNode } from "../models/tree-node";
-
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
 } from "@angular/material/tree";
-import { FlatTreeControl } from "@angular/cdk/tree";
-import { Keyframe } from "../models/keyframes/Keyframe";
+import { BehaviorSubject, Observable } from "rxjs";
 import { InputDocument } from "../models/input-document";
+import { Keyframe } from "../models/keyframes/Keyframe";
+import { TreeNode } from "../models/tree-node";
 import { AppFactory } from "./app-factory";
 import { LoggerService } from "./logger.service";
 
@@ -46,7 +45,13 @@ export class OutlineService {
   }
 
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
-
+  rootNodeSubject = new BehaviorSubject<TreeNode | null>(null);
+  get rootNode(): TreeNode | null {
+    return this.rootNodeSubject.getValue();
+  }
+  set rootNode(value: TreeNode | null) {
+    this.rootNodeSubject.next(value);
+  }
   /**
    * Outline tree view model.
    */

@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
+import { merge } from "rxjs";
 import { TreeNode } from "../models/tree-node";
-import { AdornersService } from "./adorners-service";
 import { DocumentLoadedAction } from "./actions/document-loaded-action";
-import { UndoService } from "./undo.service";
+import { AdornersService } from "./adorners-service";
 import { DocumentService } from "./document.service";
 import { MouseOverService } from "./mouse-over.service";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
+import { UndoService } from "./undo.service";
 import { ViewService } from "./view.service";
 import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
 import { BaseRenderer } from "./viewport/renderers/base.renderer";
@@ -17,7 +18,6 @@ import { PathRenderer } from "./viewport/renderers/path.renderer";
 import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
 import { ToolsService } from "./viewport/tools.service";
 import { TransformsService } from "./viewport/transforms.service";
-import { merge } from "rxjs";
 
 /**
  * Wire services together
@@ -63,11 +63,11 @@ export class WireService {
     selectionService.selected.subscribe((state) => {
       BaseRenderer.runSuspendedRenderers(
         () => {
-          this.buildSelectedAdorner();
           // Remove mouse over path data states:
           mouseOverService.pathDataSubject.leaveNodes(state.removed);
           // Deselect any path data were selected.
           selectionService.pathDataSubject.leaveNodes(state.removed);
+          this.buildSelectionAdorner();
         },
         pathRenderer,
         boundsRenderer
@@ -98,7 +98,7 @@ export class WireService {
       BaseRenderer.runSuspendedRenderers(
         () => {
           this.cleanCache();
-          this.buildSelectedAdorner();
+          this.buildSelectionAdorner();
         },
         boundsRenderer,
         pathRenderer,
@@ -110,10 +110,7 @@ export class WireService {
     viewService.transformed.subscribe(() => {
       // Clean screen cache first when view is transformed
       this.cleanCache();
-      this.adornersService.buildSelectionAdorner(
-        this.selectionService.getSelected()
-      );
-      this.buildSelectedAdorner();
+      this.buildSelectionAdorner();
       adornersRenderer.invalidate();
       adornersRenderer.invalidateSizeChanged();
     });
@@ -180,10 +177,14 @@ export class WireService {
   /**
    * Build multiple items selection adorner on selected changed
    */
-  buildSelectedAdorner() {
-    const selected = this.selectionService.getSelected();
-    selected.forEach((p) => p.cleanCache());
-    this.adornersService.buildSelectionAdorner(selected);
+  buildSelectionAdorner(resetCenterTransform = false) {
+    const selectedNodes = this.selectionService.getSelected();
+    selectedNodes.forEach((p) => p.cleanCache());
+    this.adornersService.buildSelectionAdorner(
+      this.outlineService.rootNode,
+      selectedNodes,
+      resetCenterTransform
+    );
   }
 
   cleanCache() {

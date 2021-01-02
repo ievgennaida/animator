@@ -1,25 +1,34 @@
 import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
+import {
+  PropertiesService,
+  TransformPropertyKey,
+} from "src/app/services/properties.service";
+import { ViewService } from "src/app/services/view.service";
 import { DecomposedMatrix } from "../../../../models/decompose-matrix";
 import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
-import { AdornerMode } from "../../../viewport/adorners/adorner";
 import {
-  AdornerType,
+  AdornerPointType,
   AdornerTypeUtils,
 } from "../../../viewport/adorners/adorner-type";
 import { BaseTransformAction } from "../base-transform-action";
 
+/**
+ * Matrix scale in screen rectangle coordinates.
+ */
 @Injectable({
   providedIn: "root",
 })
 export class MatrixScaleAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
+  constructor(
+    propertiesService: PropertiesService,
+    protected viewService: ViewService
+  ) {
     super(propertiesService);
   }
-  title = "Matrix Scale";
+  title = "Scale";
   icon = "aspect_ratio";
   /**
    * Start click position in anchor coordinates.
@@ -32,96 +41,48 @@ export class MatrixScaleAction extends BaseTransformAction {
    */
   anchor: SVGGraphicsElement = null;
   transformOrigin: DOMPoint = null;
-  adornerOrigin: DOMPoint = null;
+
   initTransformMatrix: DOMMatrix = null;
-  attributesToStore = [MatrixUtils.TransformPropertyKey];
+  attributesToStore = [TransformPropertyKey];
   transformElementCoordinates = false;
 
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.handle = handle;
     this.start = screenPos;
     this.node = node;
-    const element = node.getElement();
-    // TODO: read from the config
-    this.transformElementCoordinates =
-      this.handle.adorner.mode === AdornerMode.TransformedElement;
-    if (this.transformElementCoordinates) {
-      this.anchor = element;
-      this.initBBox = this.node.getBBox();
-    } else {
-      this.anchor = element.ownerSVGElement;
-      this.initBBox = this.handle.adorner.getBBox();
-      const toElementMatrix = this.anchor.getScreenCTM().inverse();
-      // To viewport element coordinates:
-      this.initBBox = MatrixUtils.matrixRectTransform(
-        this.initBBox,
-        toElementMatrix,
-        false
-      );
 
+    this.anchor = this.viewService.viewport;
+
+    this.initBBox = this.handle?.adorner?.screen?.getBBox();
+    const toElementMatrix = this.anchor.getScreenCTM().inverse();
+    // To viewport element coordinates:
+    this.initBBox = MatrixUtils.matrixRectTransform(
+      this.initBBox,
+      toElementMatrix,
+      false
+    );
+
+    const element = this.getElement();
+    if (element) {
       this.initTransformMatrix = MatrixUtils.getMatrix(element);
     }
-
     this.start = Utils.toElementPoint(this.anchor, screenPos);
-    // Adorner origin position in anchor coordinates
-    this.adornerOrigin = AdornerTypeUtils.getAdornerPosition(
-      this.initBBox,
-      this.handle.handles
-    );
 
     // Opposite point = transform origin
     this.transformOrigin = AdornerTypeUtils.getAdornerPosition(
       this.initBBox,
-      AdornerTypeUtils.getOpposite(this.handle.handles)
+      AdornerTypeUtils.getOpposite(this.handle.handle)
     );
+  }
+  getElement(): SVGGraphicsElement | null {
+    if (!this.node) {
+      return null;
+    }
+    return this.node.getElement();
   }
 
   transformByMouse(screenPos: DOMPoint): boolean {
-    if (this.transformElementCoordinates) {
-      return this.scaleElementByMouse(screenPos);
-    } else {
-      return this.scaleByMouse(screenPos);
-    }
-  }
-
-  /**
-   * Scaling in element coordinates.
-   * Allow to keep proportions of element and scale proportionally transformed element.
-   */
-  scaleElementByMouse(screenPos: DOMPoint): boolean {
-    if (
-      !screenPos ||
-      !this.initBBox ||
-      this.initBBox.height === 0 ||
-      this.initBBox.width === 0
-    ) {
-      return false;
-    }
-    const element = this.node.getElement();
-    let offset = screenPos;
-    offset = Utils.toElementPoint(element, screenPos);
-
-    const handle = this.handle.handles;
-    const newWidth = this.transformOrigin.x - offset.x;
-    const newHeight = this.transformOrigin.y - offset.y;
-
-    let scaleY = newHeight / this.initBBox.height;
-    let scaleX = newWidth / this.initBBox.width;
-    scaleY = (this.transformOrigin.y <= this.initBBox.y ? -1 : 1) * scaleY;
-    scaleX = (this.transformOrigin.x <= this.initBBox.x ? -1 : 1) * scaleX;
-    if (
-      handle === AdornerType.TopCenter ||
-      handle === AdornerType.BottomCenter
-    ) {
-      scaleX = null;
-    } else if (
-      handle === AdornerType.RightCenter ||
-      handle === AdornerType.LeftCenter
-    ) {
-      scaleY = null;
-    }
-
-    return this.scaleOffset(scaleX, scaleY, this.transformOrigin);
+    return this.scaleByMouse(screenPos);
   }
 
   /**
@@ -145,7 +106,7 @@ export class MatrixScaleAction extends BaseTransformAction {
 
     // Handle can be clicked with some offset.
     // Calculate relative mouse new mouse position.
-    const handle = this.handle.handles;
+    const handle = this.handle.handle;
     const newWidth = screenTransformOrigin.x - offset.x;
     const newHeight = screenTransformOrigin.y - offset.y;
     const initialWidth = screenTransformOrigin.x - startScreen.x;
@@ -154,13 +115,13 @@ export class MatrixScaleAction extends BaseTransformAction {
     let scaleX = newWidth / initialWidth;
 
     if (
-      handle === AdornerType.TopCenter ||
-      handle === AdornerType.BottomCenter
+      handle === AdornerPointType.TopCenter ||
+      handle === AdornerPointType.BottomCenter
     ) {
       scaleX = null;
     } else if (
-      handle === AdornerType.RightCenter ||
-      handle === AdornerType.LeftCenter
+      handle === AdornerPointType.RightCenter ||
+      handle === AdornerPointType.LeftCenter
     ) {
       scaleY = null;
     }
@@ -168,7 +129,7 @@ export class MatrixScaleAction extends BaseTransformAction {
     scaleY = MatrixUtils.normalizeScale(scaleY);
     // scale change in screen coordinates:
     const screenScaleMatrix = MatrixUtils.generateScaleMatrix(
-      this.node.getElement(),
+      this.getElement() || this.anchor,
       scaleX,
       scaleY,
       screenTransformOrigin
@@ -184,7 +145,7 @@ export class MatrixScaleAction extends BaseTransformAction {
    * @param screenScaleMatrix screen coordinates matrix.
    */
   scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {
-    const element = this.node.getElement();
+    const element = this.getElement();
     const parent = element.parentNode as SVGGraphicsElement;
     // Get original to screen matrix from which transformation was started (anchor for when screen coords are changed on pan)
     const toScreenMatrix = parent
@@ -199,40 +160,15 @@ export class MatrixScaleAction extends BaseTransformAction {
     );
 
     // Apply new created transform back to the element:
-    return this.applyMatrix(newTransformationMatrix, false);
-  }
-
-  scaleOffset(
-    offsetX: number | null,
-    offsetY: number | null,
-    transformPoint: DOMPoint
-  ): boolean {
-    offsetY = MatrixUtils.normalizeScale(offsetY);
-    offsetX = MatrixUtils.normalizeScale(offsetX);
-    const element = this.node.getElement();
-
-    const matrix = MatrixUtils.generateScaleMatrix(
-      element,
-      offsetX,
-      offsetY,
-      transformPoint
-    );
-    return this.applyMatrix(matrix, true);
+    return this.applyMatrix(newTransformationMatrix);
   }
 
   /**
    * Apply transformation by matrix.
    */
-  applyMatrix(matrix: DOMMatrix, offset: boolean): boolean {
+  applyMatrix(matrix: DOMMatrix): boolean {
     this.saveInitialValue();
-    const element = this.node.getElement();
-    const transform = Utils.getElementTransform(element);
-    if (offset) {
-      matrix = transform.matrix.multiply(matrix);
-    }
-    transform.setMatrix(matrix);
-    element.transform.baseVal.initialize(transform);
-    return true;
+    return this.propertiesService.setMatrixTransform(this.node, matrix);
   }
   /**
    * Set direct scale value.
@@ -266,7 +202,7 @@ export class MatrixScaleAction extends BaseTransformAction {
       .translate(-transformPoint.x, -transformPoint.y)
       .multiply(transform.matrix);
 
-    this.applyMatrix(matrix, false);
+    this.applyMatrix(matrix);
     // TODO: use generic monitoring for the elements
     return true;
   }

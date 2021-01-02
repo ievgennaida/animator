@@ -53,7 +53,7 @@ export class MouseOverRenderer extends BaseRenderer {
         outlineRendered = false;
       }
       if (!outlineRendered) {
-        const adorner = this.adornersService.getAdorner(this.node)?.toScreen();
+        const adorner = this.adornersService.getAdorner(this.node)?.screen;
         if (adorner) {
           const screenAdorner = adorner.matrixTransform(this.screenCTM);
           const thickness = consts.mouseOverBorderThickness * this.onePixel;

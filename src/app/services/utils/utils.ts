@@ -1,6 +1,6 @@
 import { TreeNode } from "src/app/models/tree-node";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
-import { AdornerType } from "../viewport/adorners/adorner-type";
+import { AdornerPointType } from "../viewport/adorners/adorner-type";
 
 export interface CalculatedEllipse {
   center: DOMPoint;
@@ -210,9 +210,9 @@ export class Utils {
   }
   static toScreenPoint(
     el: SVGGraphicsElement | ICTMProvider,
-    screenPoint: DOMPoint
+    elementPoint: DOMPoint
   ): DOMPoint {
-    const current = screenPoint.matrixTransform(el.getScreenCTM());
+    const current = elementPoint.matrixTransform(el.getScreenCTM());
     return current;
   }
   static toElementPoint(
@@ -230,40 +230,11 @@ export class Utils {
       const current = screenPoint.matrixTransform(ctm.inverse());
       return current;
     } catch (err) {
-      console.log("Cannot inverse matrix:" + err);
+      console.log(`Cannot inverse matrix: ${err || "unknown error"}`);
       return null;
     }
   }
 
-  public static transformToElement(
-    fromElement: SVGGraphicsElement | TreeNode,
-    toElement: SVGGraphicsElement | TreeNode
-  ): DOMMatrix | null {
-    if (!fromElement || !fromElement.getScreenCTM) {
-      return null;
-    }
-    if (!toElement) {
-      return fromElement.getScreenCTM();
-    }
-
-    const toMatrix = toElement.getScreenCTM();
-    const fromMatrix = fromElement.getScreenCTM();
-    if (!toMatrix || !fromMatrix) {
-      return null;
-    }
-    return toMatrix.inverse().multiply(fromMatrix);
-  }
-  /**
-   * Set matrix as transform attribute for the element.
-   */
-  public static setMatrix(element: SVGGraphicsElement, matrix: DOMMatrix) {
-    const transform = Utils.getElementTransform(element);
-    if (matrix) {
-      transform.setMatrix(matrix);
-    }
-    element.transform.baseVal.initialize(transform);
-    return true;
-  }
   static isSameParent(nodes: TreeNode[]): boolean {
     if (!nodes) {
       return false;
@@ -401,12 +372,8 @@ export class Utils {
 
     return Math.round(num * mult) / mult;
   }
-  public static setCTM(element: SVGElement | any, matrix: DOMMatrix) {
-    const transform = element.ownerSVGElement.createSVGTransform();
-    transform.setMatrix(matrix);
-    element.transform.baseVal.initialize(transform);
-  }
-  public static bitwiseEquals(a: AdornerType, b: AdornerType) {
+
+  public static bitwiseEquals(a: AdornerPointType, b: AdornerPointType) {
     // tslint:disable-next-line: no-bitwise
     return (a & b) === b;
   }
@@ -538,40 +505,17 @@ export class Utils {
       return Math.abs(x1 - y1);
     }
   }
-  static getRectCenter(rect: DOMRect): DOMPoint | null {
+  static getRectCenter(rect: DOMRect, relative = false): DOMPoint | null {
     if (!rect) {
       return null;
     }
-    return new DOMPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+    if (relative) {
+      return new DOMPoint(rect.width / 2, rect.height / 2);
+    } else {
+      return new DOMPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+    }
   }
-  static getCenterTransform(
-    element: SVGGraphicsElement,
-    bboxCache: DOMRect = null
-  ): DOMPoint | null {
-    if (!element && !bboxCache) {
-      return null;
-    }
 
-    if (!bboxCache && element) {
-      bboxCache = element.getBBox();
-    }
-
-    if (!bboxCache) {
-      return null;
-    }
-    const x = element
-      ? parseInt(element.getAttribute("transform-center-x"), 2)
-      : null;
-    const y = element
-      ? parseInt(element.getAttribute("transform-center-y"), 2)
-      : null;
-    const rectCenter = Utils.getRectCenter(bboxCache);
-    const transformPoint = new DOMPoint(
-      isNaN(x) ? (rectCenter ? rectCenter.x : 0) : x,
-      isNaN(y) ? (rectCenter ? rectCenter.y : 0) : y
-    );
-    return transformPoint;
-  }
   /**
    * Check whether element is visible vertically.
    */

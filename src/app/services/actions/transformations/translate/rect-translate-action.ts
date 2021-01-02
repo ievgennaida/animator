@@ -4,6 +4,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "../../../properties.service";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
+import { TransformationModeIcon } from "../transformation-mode";
 
 /**
  * Rect translate by the mouse action.
@@ -26,13 +27,9 @@ export class RectTranslateAction extends BaseTransformAction {
   start: DOMPoint = null;
 
   committed = false;
-  icon = "open_with";
+  icon = TransformationModeIcon.Scale;
 
-  init(
-    node: TreeNode,
-    screenPos: DOMPoint | number,
-    handle: HandleData | null
-  ) {
+  init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
     this.attributesToStore = [this.propX, this.propY];
     // Store mouse position

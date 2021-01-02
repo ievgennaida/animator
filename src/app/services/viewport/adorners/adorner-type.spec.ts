@@ -1,33 +1,33 @@
-import { AdornerType, AdornerTypeUtils } from "./adorner-type";
+import { AdornerPointType, AdornerTypeUtils } from "./adorner-type";
 
 describe("AdornersConversion", () => {
   it("To move adorner", () => {
     expect(
-      AdornerTypeUtils.toMoveAdornerType(AdornerType.RotateBottomCenter)
-    ).toEqual(AdornerType.BottomCenter);
+      AdornerTypeUtils.toScaleAdornerType(AdornerPointType.RotateBottomCenter)
+    ).toEqual(AdornerPointType.BottomCenter);
     expect(
-      AdornerTypeUtils.toMoveAdornerType(AdornerType.RotateRightCenter)
-    ).toEqual(AdornerType.RightCenter);
+      AdornerTypeUtils.toScaleAdornerType(AdornerPointType.RotateRightCenter)
+    ).toEqual(AdornerPointType.RightCenter);
     expect(
-      AdornerTypeUtils.toMoveAdornerType(AdornerType.RotateTopRight)
-    ).toEqual(AdornerType.TopRight);
-    expect(AdornerTypeUtils.toMoveAdornerType(AdornerType.TopCenter)).toEqual(
-      AdornerType.TopCenter
+      AdornerTypeUtils.toScaleAdornerType(AdornerPointType.RotateTopRight)
+    ).toEqual(AdornerPointType.TopRight);
+    expect(AdornerTypeUtils.toScaleAdornerType(AdornerPointType.TopCenter)).toEqual(
+      AdornerPointType.TopCenter
     );
   });
 
   it("To rotate adorner", () => {
     expect(
-      AdornerTypeUtils.toRotateAdornerType(AdornerType.BottomCenter)
-    ).toEqual(AdornerType.RotateBottomCenter);
+      AdornerTypeUtils.toRotateAdornerType(AdornerPointType.BottomCenter)
+    ).toEqual(AdornerPointType.RotateBottomCenter);
     expect(
-      AdornerTypeUtils.toRotateAdornerType(AdornerType.RightCenter)
-    ).toEqual(AdornerType.RotateRightCenter);
-    expect(AdornerTypeUtils.toRotateAdornerType(AdornerType.TopRight)).toEqual(
-      AdornerType.RotateTopRight
+      AdornerTypeUtils.toRotateAdornerType(AdornerPointType.RightCenter)
+    ).toEqual(AdornerPointType.RotateRightCenter);
+    expect(AdornerTypeUtils.toRotateAdornerType(AdornerPointType.TopRight)).toEqual(
+      AdornerPointType.RotateTopRight
     );
     expect(
-      AdornerTypeUtils.toRotateAdornerType(AdornerType.RotateRightCenter)
-    ).toEqual(AdornerType.RotateRightCenter);
+      AdornerTypeUtils.toRotateAdornerType(AdornerPointType.RotateRightCenter)
+    ).toEqual(AdornerPointType.RotateRightCenter);
   });
 });

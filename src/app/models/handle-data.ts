@@ -1,18 +1,30 @@
-import { Adorner } from "../services/viewport/adorners/adorner";
-import { AdornerType } from "../services/viewport/adorners/adorner-type";
+import { AdornerContainer } from "../services/viewport/adorners/adorner";
+import {
+  AdornerPointType,
+  AdornerType,
+} from "../services/viewport/adorners/adorner-type";
 import { PathDataHandle } from "./path-data-handle";
 /**
  * Handle tuple
  */
 export class HandleData {
-  adorner: Adorner;
+  adorner: AdornerContainer;
   /**
    * Binary selected list of the control points.
    */
-  handles: AdornerType;
+  handle: AdornerPointType;
   /**
    * Selected path handle data.
    */
   pathDataHandles: PathDataHandle[];
-  rotate = false;
+
+  get type(): AdornerType {
+    if (this.pathDataHandles) {
+      return AdornerType.PathDataSelection;
+    } else if (this.adorner) {
+      return this.adorner.type;
+    } else {
+      return AdornerType.ElementsBounds;
+    }
+  }
 }

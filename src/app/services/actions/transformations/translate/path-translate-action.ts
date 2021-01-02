@@ -2,7 +2,10 @@ import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { PathDataHandle } from "src/app/models/path-data-handle";
 import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
+import {
+  PathDataPropertyKey,
+  PropertiesService,
+} from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
 import { PathDataUtils } from "../../../utils/matrix-utils";
 import { BaseTransformAction } from "../base-transform-action";
@@ -19,7 +22,7 @@ export class PathTranslateAction extends BaseTransformAction {
    */
   public pathHandles: PathDataHandle[] | null = null;
   start: DOMPoint = null;
-  attributesToStore = ["d"];
+  attributesToStore = [PathDataPropertyKey];
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.start = Utils.toElementPoint(node.getElement(), screenPos);
