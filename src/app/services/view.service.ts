@@ -66,6 +66,9 @@ export class ViewService implements ICTMProvider {
       this.emitViewportResized();
     }
   }
+  getMode(): ViewMode {
+    return this.viewModeSubject.getValue();
+  }
   toggleBreadcrumbs() {
     this.breadcrumbsVisibleSubject.next(
       !this.breadcrumbsVisibleSubject.getValue()

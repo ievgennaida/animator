@@ -50,6 +50,7 @@ export class MainToolbarComponent
   breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
   editMenuCommands: BaseCommand[] = [];
+  viewMenuCommands: BaseCommand[] = [];
   mode: ViewMode = consts.appearance.defaultMode;
   ViewMode = ViewMode;
   constructor(
@@ -78,6 +79,7 @@ export class MainToolbarComponent
   }
   ngOnInit(): void {
     this.editMenuCommands = this.commandsService.getEditMenuCommands();
+    this.viewMenuCommands = this.commandsService.getViewMenuCommands();
     this.undoService.actionIndexSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))

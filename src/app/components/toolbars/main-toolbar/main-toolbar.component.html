@@ -29,62 +29,10 @@
     </button>
     <app-dynamic-context-menu #edit [commands]="editMenuCommands"></app-dynamic-context-menu>
     <button mat-button *ngIf="edit && edit.matMenu" [matMenuTriggerFor]="edit.matMenu">Edit</button>
-    <button mat-button [matMenuTriggerFor]="view">View</button>
-    <mat-menu #view>
-        <button mat-menu-item disabled (click)="setMode(ViewMode.Animator)">
-            <mat-icon><span *ngIf="mode === ViewMode.Animator">check</span></mat-icon>Animator
-        </button>
-        <button mat-menu-item disabled (click)="setMode(ViewMode.Editor)">
-            <mat-icon><span *ngIf="mode === ViewMode.Editor">check</span></mat-icon>Editor
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item [matMenuTriggerFor]="appearance">
-            <mat-icon></mat-icon>Viewport
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="toggleMenu()">
-            <mat-icon><span *ngIf="showMenu">check</span></mat-icon>Menu
-        </button>
-        <button mat-menu-item (click)="toggleHistory()">
-            <mat-icon><span *ngIf="showHistory">check</span></mat-icon>History
-        </button>
-        <button mat-menu-item (click)="toggleProperties()">
-            <mat-icon><span *ngIf="showProperties">check</span></mat-icon>Properties
-        </button>
-        <button mat-menu-item (click)="toggleOutline()">
-            <mat-icon><span *ngIf="showOutline">check</span></mat-icon>Outline
-        </button>
-        <mat-menu #appearance>
-            <button mat-menu-item (click)="toggleGridLines()">
-                <mat-icon><span *ngIf="showGridLines">check</span></mat-icon>Grid Lines
-            </button>
-            <button mat-menu-item (click)="toggleRuler()">
-                <mat-icon><span *ngIf="rulerVisible">check</span></mat-icon>Ruler
-            </button>
-            <button mat-menu-item (click)="toggleBreadcrumbs()">
-                <mat-icon><span *ngIf="breadcrumbsVisible">check</span></mat-icon>Breadcrumbs
-            </button>
-            <button mat-menu-item (click)="toggleCode()">
-                <mat-icon><span *ngIf="codeVisible">check</span></mat-icon>Code
-            </button>
-            <mat-divider></mat-divider>
-            <button mat-menu-item (click)="zoomIn()">
-                <mat-icon>zoom_in</mat-icon>Zoom In
-            </button>
-            <button mat-menu-item (click)="zoomOut()">
-                <mat-icon>zoom_out</mat-icon>Zoom Out
-            </button>
-            <button mat-menu-item (click)="center()">
-                <mat-icon></mat-icon>Center
-            </button>
-            <button mat-menu-item (click)="fitViewport()">
-                <mat-icon></mat-icon>Fit
-            </button>
-            <button mat-menu-item (click)="fitViewportSelected()">
-                <mat-icon></mat-icon>Fit to Selected
-            </button>
-        </mat-menu>
-    </mat-menu>
+    
+    <app-dynamic-context-menu #view [commands]="viewMenuCommands"></app-dynamic-context-menu>
+    <button mat-button *ngIf="view && view.matMenu" [matMenuTriggerFor]="view.matMenu">View</button>
+        
     <span class="toolbar-center">{{title}}</span>
     <button class="menu-button" (click)="toggleMenu()" mat-button>
         <mat-icon class="example-icon" aria-hidden="false">menu</mat-icon>

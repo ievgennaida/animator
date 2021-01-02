@@ -21,6 +21,12 @@ import { SelectNoneCommand } from "./selection-commands/select-none-command";
 import { SeparatorCommand } from "./separator-command";
 import { UndoCommand } from "./undo-command";
 import { UntransformCommand } from "./untransform-command";
+import { ViewLayoutAnimatorCommand } from "./view-commands/view-layout-animator-command";
+import { ViewLayoutEditorCommand } from "./view-commands/view-layout-editor-command";
+import { ToggleMenuVisibilityCommand } from "./view-commands/toggle-menu-visibility-command";
+import { ToggleHistoryPanelCommand } from "./view-commands/toggle-history-panel-command";
+import { TogglePropertiesPanelCommand } from "./view-commands/toggle-properties-panel-command";
+import { ToggleOutlinePanelCommand } from "./view-commands/toggle-outline-panel-command";
 import { WireframeCommand } from "./view-commands/wireframe-command";
 
 /**
@@ -50,6 +56,12 @@ export class CommandsService {
     private ungroupCommand: UnGroupCommand,
     private orderGroupCommand: OrderGroupCommand,
     private selectGroupCommand: SelectGroupCommand,
+    private viewLayoutAnimatorCommand: ViewLayoutAnimatorCommand,
+    private viewLayoutEditorCommand: ViewLayoutEditorCommand,
+    private toggleMenuVisibilityCommand: ToggleMenuVisibilityCommand, 
+    private toggleHistoryPanelCommand: ToggleHistoryPanelCommand, 
+    private togglePropertiesPanelCommand: TogglePropertiesPanelCommand,
+    private toggleOutlinePanelCommand: ToggleOutlinePanelCommand,    
     private wireframeCommand: WireframeCommand
   ) {}
 
@@ -84,8 +96,21 @@ export class CommandsService {
       this.selectGroupCommand,
       this.separatorCommand,
       this.groupCommand,
-      this.ungroupCommand,
-      // TODO: move to another commands list
+      this.ungroupCommand
+    ];
+  }
+
+  getViewMenuCommands(): BaseCommand[] {
+    return [
+      this.viewLayoutAnimatorCommand,
+      this.viewLayoutEditorCommand,
+      this.separatorCommand, 
+      /*this.viewportGroupCommand,*/
+      this.separatorCommand, 
+      this.toggleMenuVisibilityCommand,
+      this.toggleHistoryPanelCommand,
+      this.togglePropertiesPanelCommand,
+      this.toggleOutlinePanelCommand,
       this.wireframeCommand
     ];
   }
