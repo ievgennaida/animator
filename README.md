@@ -20,4 +20,5 @@ Steps:
 
 - install npm
 - install angular CLI 
+- run once npm install
 - run ng serve
