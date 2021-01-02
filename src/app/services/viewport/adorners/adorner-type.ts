@@ -50,6 +50,10 @@ export enum AdornerPointType {
   RotateBottomRight,
   RotateLeftCenter,
   RotateRightCenter,
+  /**
+   * Start translate transaction
+   */
+  Translate,
 }
 
 export class AdornerTypeUtils {

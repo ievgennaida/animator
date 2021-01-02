@@ -253,7 +253,7 @@ export class BaseRenderer {
     ctx.beginPath();
 
     points.forEach((point, index) => {
-      const p = point;
+      const p = this.getSharpPos(point, thickness);
       if (!p) {
         return;
       }
@@ -287,13 +287,14 @@ export class BaseRenderer {
   drawCross(
     ctx: CanvasRenderingContext2D,
     p: DOMPoint,
-    stroke: string = "black"
+    centerSize = 5,
+    stroke: string = "black",
+    thickness: number = 1
   ) {
     ctx.beginPath();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = thickness;
     ctx.strokeStyle = stroke;
     p = this.getSharpPos(p);
-    const centerSize = 5;
     ctx.moveTo(p.x - centerSize, p.y);
     ctx.lineTo(p.x + centerSize, p.y);
     ctx.moveTo(p.x, p.y - centerSize);

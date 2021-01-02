@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { consts } from "src/environments/consts";
 import { TransformationMode } from "../../actions/transformations/transformation-mode";
 import { AdornersService } from "../../adorners-service";
+import { ConfigService } from "../../config-service";
 import { LoggerService } from "../../logger.service";
 import { MouseOverService } from "../../mouse-over.service";
 import { OutlineService } from "../../outline.service";
@@ -24,7 +25,8 @@ export class BoundsRenderer extends BaseRenderer {
     protected logger: LoggerService,
     private adornersService: AdornersService,
     private mouseOverService: MouseOverService,
-    private transform: TransformsService
+    private transform: TransformsService,
+    private configService: ConfigService
   ) {
     super();
   }
@@ -264,25 +266,82 @@ export class BoundsRenderer extends BaseRenderer {
       this.drawAdornerRect(ctx, elementsThickness, elementsColor, converted);
 
       if (
-        (this.adornersService.isAdornerHandlesActive(adorner) &&
+        (this.adornersService.isAdornerActive(
+          adorner,
+          adorners,
+          AdornerPointType.TopLeft
+        ) &&
           // Don't show scale adorner during the transformation
           activeTransformTransaction === TransformationMode.None) ||
         activeTransformTransaction === TransformationMode.Scale
       ) {
         this.drawAdornersHandles(ctx, adorner, converted);
       }
-      if ((main && adorners.length > 1) || adorners.length === 1) {
+
+      if (
+        this.adornersService.isAdornerActive(
+          adorner,
+          adorners,
+          AdornerPointType.CenterTransform
+        )
+      ) {
         const transformOrigin = converted.centerTransform || converted.center;
         if (transformOrigin) {
           // Don't show center during the transaction:
           this.drawCross(ctx, transformOrigin);
         }
       }
+      if (
+        this.adornersService.isAdornerActive(
+          adorner,
+          adorners,
+          AdornerPointType.Translate
+        )
+      ) {
+        this.drawMoveHandle(ctx, adorner, converted);
+      }
+
       // draw when resized.
       // this.drawTextOnLine(ctx, "200px", Adorner.topLeft, Adorner.topRight, Adorner.bottomLeft);
       // this.drawTextOnLine(ctx, "100px", Adorner.topRight, Adorner.bottomRight, Adorner.topLeft);
     });
     this.showDebugPoints();
+  }
+  drawMoveHandle(
+    ctx: CanvasRenderingContext2D,
+    container: AdornerContainer,
+    adorner: Adorner
+  ) {
+    const config = this.configService.get();
+    const centerSize = config.translateHandleSize;
+    if (!centerSize) {
+      return;
+    }
+    const isMouseOver = this.mouseOverService.isMouseOverAdornerHandle(
+      container,
+      AdornerPointType.Translate
+    );
+    const p = adorner.translate;
+    const thickness = config.translateHandleThickness;
+    const fillColor = isMouseOver
+      ? config.translateHandleMouseOverFillColor
+      : "";
+    const strokeColor = isMouseOver
+      ? config.translateHandleMouseOverColor
+      : config.translateHandleColor;
+    this.drawRect(
+      ctx,
+      new DOMRect(
+        p.x - centerSize / 2,
+        p.y - centerSize / 2,
+        centerSize,
+        centerSize
+      ),
+      thickness,
+      strokeColor,
+      fillColor
+    );
+    this.drawCross(ctx, p, centerSize / 2 - 1, strokeColor, thickness);
   }
   showDebugPoints() {
     const ctx = this.ctx;

@@ -6,7 +6,10 @@ import { SelectionService } from "./selection.service";
 import { MatrixUtils } from "./utils/matrix-utils";
 import { Utils } from "./utils/utils";
 import { AdornerContainer } from "./viewport/adorners/adorner";
-import { AdornerType } from "./viewport/adorners/adorner-type";
+import {
+  AdornerPointType,
+  AdornerType,
+} from "./viewport/adorners/adorner-type";
 /**
  *
  */
@@ -61,11 +64,15 @@ export class AdornersService {
     }
     if (globalBBox && globalBBox.height > 0 && globalBBox.width > 0) {
       const center = this.selectionAdorner.element.centerTransform;
-
+      const config = this.configService.get();
       this.selectionAdorner.setBBox(globalBBox);
       if (center && !resetCenterTransform) {
         this.selectionAdorner.setCenterTransform(center);
       }
+      this.selectionAdorner.calculateTranslatePosition(
+        config.translateHandleOffsetX,
+        config.translateHandleOffsetY
+      );
       this.selectionAdorner.type = AdornerType.Selection;
       this.selectionAdorner.enabled = true;
     } else {
@@ -110,13 +117,17 @@ export class AdornersService {
     adorner.node = node;
     adorner.type = AdornerType.TransformedElement;
     const elementAdorner = adorner.setBBox(node.getBBox());
-    if (!this.configService.get().showTransformedBBoxes) {
+    const config = this.configService.get();
+    if (!config.showTransformedBBoxes) {
       adorner.type = AdornerType.ElementsBounds;
       elementAdorner.matrixTransformSelf(node.getScreenCTM());
       elementAdorner.untransformSelf();
       elementAdorner.matrixTransformSelf(node.getScreenCTM().inverse());
     }
-
+    adorner.calculateTranslatePosition(
+      config.translateHandleOffsetX,
+      config.translateHandleOffsetY
+    );
     adorner.setCenterTransform(
       this.propertiesService.getCenterTransform(node, false)
     );
@@ -124,16 +135,53 @@ export class AdornersService {
     this.cache.set(node, adorner);
     return adorner;
   }
-  isAdornerHandlesActive(adorner: AdornerContainer): boolean {
-    if (!this.adornerHandlesActive || !adorner) {
+  /**
+   * Common check point whether adorner is active for mouse over and renderers.
+   */
+  isAdornerActive(
+    adorner: AdornerContainer,
+    activeAdorners: AdornerContainer[],
+    adornerPointType: AdornerPointType
+  ): boolean {
+    if (adornerPointType === AdornerPointType.Center) {
       return false;
     }
-    const active = this.getActiveAdorners();
-    if (!active || active.length <= 0) {
+    const config = this.configService.get();
+
+    const multiple = !!activeAdorners.find(
+      (p) => p.type === AdornerType.Selection
+    );
+    if (
+      adornerPointType === AdornerPointType.Translate &&
+      !config.translateHandleEnabled
+    ) {
       return false;
     }
-    if (active.length === 1) {
-      if (active[0].node && !active[0].node.allowResize) {
+    if (
+      multiple &&
+      adorner.type !== AdornerType.Selection &&
+      adornerPointType === AdornerPointType.Translate &&
+      config.translateHandleEnabled
+    ) {
+      return false;
+    }
+    if (
+      multiple &&
+      adorner.type !== AdornerType.Selection &&
+      adornerPointType === AdornerPointType.CenterTransform
+    ) {
+      return false;
+    }
+
+    if (!this.adornerHandlesActive || !adorner || !activeAdorners) {
+      return false;
+    }
+    if (!activeAdorners || activeAdorners.length <= 0) {
+      return false;
+    }
+
+    if (activeAdorners.length === 1) {
+      if (activeAdorners[0].node && !activeAdorners[0].node.allowResize) {
         return false;
       }
 

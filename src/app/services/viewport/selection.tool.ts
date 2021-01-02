@@ -185,13 +185,8 @@ export class SelectionTool extends BaseTool {
         // Mouse should be released in order to avoid drag by mistake, than happens often.
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const adorners = this.adornersService.getActiveAdorners();
-        const adornersWithActiveHandles = adorners.filter((p) =>
-          this.adornersService.isAdornerHandlesActive(p)
-        );
         const handle = this.intersectionService.getAdornerHandleIntersection(
-          event.screenPoint,
-          adornersWithActiveHandles
+          event.screenPoint
         );
         if (!handle) {
           this.mouseOverService.leaveHandle();

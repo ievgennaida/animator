@@ -111,6 +111,17 @@ export const consts = {
   showTransformedBBoxes: true,
   // Can be a bit slow until tree is about to be virtualized.
   outlineAutoScrollToSelected: true,
+  translateHandleEnabled: true,
+  /**
+   * Additional offset for the translate handler
+   */
+  translateHandleOffsetX: 25,
+  translateHandleOffsetY: 25,
+  translateHandleSize: 12,
+  translateHandleThickness: 1,
+  translateHandleColor: '#3399FF',
+  translateHandleMouseOverColor: '#3399FF',
+  translateHandleMouseOverFillColor: '#FFFFFF'
 };
 
 export const enum PanelsIds {

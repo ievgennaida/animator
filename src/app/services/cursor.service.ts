@@ -67,6 +67,8 @@ export class CursorService {
       let cursor = CursorType.Default;
       if (handle && handle.handle === AdornerPointType.CenterTransform) {
         cursor = CursorType.Move;
+      } else if (handle && handle.handle === AdornerPointType.Translate) {
+        cursor = CursorType.Move;
       } else {
         const screen = handle?.adorner?.screen;
         if (AdornerTypeUtils.isRotateAdornerType(handle.handle)) {

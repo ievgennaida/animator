@@ -1,18 +1,19 @@
 import { Injectable } from "@angular/core";
-import { consts } from "src/environments/consts";
 import { environment } from "src/environments/environment";
 import { HandleData } from "../models/handle-data";
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
+import { AdornersService } from "./adorners-service";
+import { ConfigService } from "./config-service";
 import { LoggerService } from "./logger.service";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
 import { MatrixUtils } from "./utils/matrix-utils";
 import { Utils } from "./utils/utils";
 import { ViewService } from "./view.service";
-import { Adorner, AdornerContainer } from "./viewport/adorners/adorner";
+import { AdornerContainer } from "./viewport/adorners/adorner";
 import {
   AdornerPointType,
   AdornerTypeUtils,
@@ -37,7 +38,9 @@ export class IntersectionService {
     private viewService: ViewService,
     private outlineService: OutlineService,
     private logger: LoggerService,
-    private selectionService: SelectionService
+    private configService: ConfigService,
+    private selectionService: SelectionService,
+    private adornersService: AdornersService
   ) {}
 
   /**
@@ -89,25 +92,19 @@ export class IntersectionService {
     return selected;
   }
 
-  getAdornerHandleIntersection(
-    screenPoint: DOMPoint,
-    adorners: AdornerContainer[]
-  ): HandleData | null {
+  getAdornerHandleIntersection(screenPoint: DOMPoint): HandleData | null {
+    const config = this.configService.get();
+    let results: HandleData = null;
+    const adorners = this.adornersService.getActiveAdorners();
     if (!adorners) {
       return null;
     }
-    let results: HandleData = null;
     const toReturn = adorners.find((adorner) => {
       if (!adorner) {
         return false;
       }
 
-      const accuracy = consts.handleSize;
-      const intersects = this.intersectAdorner(
-        adorner.screen,
-        screenPoint,
-        accuracy
-      );
+      const intersects = this.intersectAdorner(adorner, adorners, screenPoint);
       if (intersects !== AdornerPointType.None) {
         if (!results) {
           results = new HandleData();
@@ -128,6 +125,7 @@ export class IntersectionService {
     screenPos: DOMPoint
   ): Array<PathDataHandle> {
     const mouseOverItems: Array<PathDataHandle> = [];
+    const config = this.configService.get();
 
     if (nodes) {
       let prevBestDistance = Number.MAX_VALUE;
@@ -160,7 +158,7 @@ export class IntersectionService {
                 p
               );
 
-              let accuracy = screenPointSize * consts.pathPointSize;
+              let accuracy = screenPointSize * config.pathPointSize;
               let l = Utils.getLength(p, abs.p);
               if (l <= accuracy && prevBestDistance > l) {
                 prevBestDistance = l;
@@ -171,7 +169,7 @@ export class IntersectionService {
                 commandIndex
               );
               if (handlesActivated) {
-                accuracy = screenPointSize * consts.pathHandleSelectedSize;
+                accuracy = screenPointSize * config.pathHandleSelectedSize;
                 const a = abs.a;
                 if (a) {
                   l = Utils.getLength(p, a);
@@ -294,6 +292,7 @@ export class IntersectionService {
     if (!pathData) {
       return null;
     }
+
     let nearest: NearestCommandPoint = null;
     const expectedLen = 8;
     let usedStep = 0;
@@ -428,40 +427,50 @@ export class IntersectionService {
   }
 
   intersectAdorner(
-    adorner: Adorner,
-    point: DOMPoint,
-    accuracy = 6
+    adornerContainer: AdornerContainer,
+    adorners: AdornerContainer[],
+    point: DOMPoint
   ): AdornerPointType {
     let toReturn = AdornerPointType.None;
-    if (!point || !adorner) {
+    if (!point || !adornerContainer) {
       return toReturn;
     }
-    let minDistance = accuracy;
-    const rotateArea = 1.5;
+    const config = this.configService.get();
 
+    const rotateArea = 1.5;
+    const adorner = adornerContainer.screen;
     // Find nearest point:
     adorner.points.forEach((adornerPoint, key) => {
+      let minDistance =
+        key === AdornerPointType.Translate
+          ? config.translateHandleSize
+          : config.handleSize;
+
+      if (
+        !minDistance ||
+        !this.adornersService.isAdornerActive(adornerContainer, adorners, key)
+      ) {
+        return;
+      }
       const isCenterTransform = key === AdornerPointType.CenterTransform;
+      const isTranslate = key === AdornerPointType.Translate;
       if (!adornerPoint && isCenterTransform) {
         adornerPoint = adorner.center;
-      }
-      if (!adornerPoint || key === AdornerPointType.Center) {
-        return;
       }
 
       let adornerPosition = adornerPoint;
       let v: DOMPoint | null = null;
-      if (!isCenterTransform) {
+      if (!isCenterTransform && !isTranslate) {
         v = Utils.getVector(adornerPoint, adorner.center, true);
         // Add displacement so selection will be started a bit outside of the bbox.
-        adornerPosition = Utils.alongVector(adornerPoint, v, accuracy);
+        adornerPosition = Utils.alongVector(adornerPoint, v, minDistance);
       }
 
       const moveAdornerDistance = Utils.getLength(adornerPosition, point);
       // Rotate adorner displacement:
       let rotateDistance = Number.MAX_VALUE;
       if (v && AdornerTypeUtils.allowToRotateAdorners(key)) {
-        const rotateAccuracy = accuracy * rotateArea;
+        const rotateAccuracy = minDistance * rotateArea;
         rotateDistance = Utils.getLength(
           Utils.alongVector(adornerPoint, v, rotateAccuracy),
           point
@@ -474,7 +483,8 @@ export class IntersectionService {
         // Move has a priority:
         if (
           rotateDistance + rotateDistance * 0.2 < moveAdornerDistance &&
-          !isCenterTransform
+          !isCenterTransform &&
+          !isTranslate
         ) {
           // Corresponding rotate key:
           toReturn = AdornerTypeUtils.toRotateAdornerType(key);

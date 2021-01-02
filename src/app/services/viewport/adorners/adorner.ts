@@ -51,6 +51,10 @@ export class Adorner implements IBBox {
   get topRight(): DOMPoint | null {
     return this.get(AdornerPointType.TopRight);
   }
+
+  get translate(): DOMPoint | null {
+    return this.get(AdornerPointType.Translate);
+  }
   /**
    * Center transform can be null, in this case it's means that it was unchanged.
    */
@@ -91,6 +95,29 @@ export class Adorner implements IBBox {
     const bounds = Utils.getPointsBounds(...values);
     this.setRect(bounds);
     return this;
+  }
+  calculateTranslatePosition(
+    offsetX: number = 0,
+    offsetY: number = 0
+  ): DOMPoint | null {
+    let maxX: number | null = null;
+    let maxY: number | null = null;
+    this.points.forEach((value, key) => {
+      if (value && AdornerTypeUtils.isScaleAdornerType(key)) {
+        if (maxY === null) {
+          maxY = value.y;
+          maxX = value.x;
+        } else if (value.y > maxY) {
+          maxY = value.y;
+          maxX = value.x;
+        } else if (value.y === maxY && value.x >= maxX) {
+          maxY = value.y;
+          maxX = value.x;
+        }
+      }
+    });
+
+    return new DOMPoint(maxX + offsetX, maxY + offsetY);
   }
   /**
    * Set new bounds to the rect.
@@ -226,6 +253,20 @@ export class AdornerContainer {
     // Reset screen cache:
     this.screenCache = null;
     return this.element.setRect(rect);
+  }
+  /**
+   * Calculate translate handler point position
+   */
+  calculateTranslatePosition(offsetX: number = 0, offsetY: number = 0) {
+    const translate = this.screen.calculateTranslatePosition(
+      offsetX || 0,
+      offsetY || 0
+    );
+    this.screen.set(AdornerPointType.Translate, translate);
+    this.element.set(
+      AdornerPointType.Translate,
+      Utils.toElementPoint(this.node, translate)
+    );
   }
   setCenterTransform(center: DOMPoint | null) {
     this.element.setCenterTransform(center);
