@@ -21,6 +21,7 @@ import { SelectNoneCommand } from "./selection-commands/select-none-command";
 import { SeparatorCommand } from "./separator-command";
 import { UndoCommand } from "./undo-command";
 import { UntransformCommand } from "./untransform-command";
+import { WireframeCommand } from "./view-commands/wireframe-command";
 
 /**
  * Handle current active tool and services.
@@ -48,7 +49,8 @@ export class CommandsService {
     private groupCommand: GroupCommand,
     private ungroupCommand: UnGroupCommand,
     private orderGroupCommand: OrderGroupCommand,
-    private selectGroupCommand: SelectGroupCommand
+    private selectGroupCommand: SelectGroupCommand,
+    private wireframeCommand: WireframeCommand
   ) {}
 
   getContextCommands(): BaseCommand[] {
@@ -83,6 +85,8 @@ export class CommandsService {
       this.separatorCommand,
       this.groupCommand,
       this.ungroupCommand,
+      // TODO: move to another commands list
+      this.wireframeCommand
     ];
   }
 

@@ -14,6 +14,16 @@ body {
   color: #adadad;
   font-size: 12px;
 }
+.player.wireframe * {
+  fill: none !important;
+  background-color: none !important;
+  stroke: black !important;
+  vector-effect: non-scaling-stroke !important;
+  stroke-width: 1px !important;
+  stroke-dasharray: 0 !important;
+  stroke-opacity: 1 !important;
+  opacity: 1 !important;
+}
 .player {
   overflow: visible !important;
   > svg {
