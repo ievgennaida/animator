@@ -104,6 +104,30 @@ export class PropertiesService {
     return (!isNaN(x) && x !== null) || (!isNaN(y) && y !== null);
   }
   /**
+   * Check whether exact node is displayed
+   */
+  isVisible(node: TreeNode) {
+    return !!(node?.getElement()?.style?.display !== "none");
+  }
+  setDisplay(node: TreeNode, value: string | boolean): boolean {
+    const element = node?.getElement();
+
+    if (element) {
+      if (typeof value === "boolean") {
+        if (value) {
+          element.style.display = "";
+        } else {
+          element.style.display = "none";
+        }
+      } else {
+        element.style.display = value;
+      }
+
+      return true;
+    }
+    return false;
+  }
+  /**
    * get stored center transform.
    * @param relative whether coordinates should be global or relative to the element position (in element coordinates system)
    */

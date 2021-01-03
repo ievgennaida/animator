@@ -1,4 +1,4 @@
-# animator
+# Animator
 
 Suppose to be a simple (svg) animation editor:
 
@@ -18,7 +18,14 @@ Steps:
 
 # Developer
 
-- install npm
+- install npm (node.js)
 - install angular CLI 
 - run once npm install
 - run ng serve
+- start your debugger
+
+Useful tools: 
+- VSCode 
+
+Extensions: 
+- chrome debugger for chrome.

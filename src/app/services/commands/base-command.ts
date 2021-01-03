@@ -32,7 +32,8 @@ export interface BaseCommand {
   separator?: boolean;
   commands?: BaseCommand[];
   /**
-   * On command changed. ex: can execute, or any of the properties.
+   * Call to refresh command in the UI.
+   * You should manually rise when can execute is changed.
    */
   changed?: Subject<BaseCommand>;
   canExecute?: () => boolean;

@@ -1,6 +1,6 @@
 <mat-menu #menu="matMenu">
     <div *ngFor="let command of commands">
-        <div *ngIf="command && command.commands">
+        <div *ngIf="command && command.commands && !command.separator">
             <app-dynamic-context-menu #subMenu [commands]="command.commands"></app-dynamic-context-menu>
             <button mat-menu-item [matMenuTriggerFor]="subMenu.matMenu"
                 *ngIf="subMenu && subMenu.matMenu && command && !command.separator" (mouseEnter)="render()"
@@ -13,10 +13,10 @@
                     ''}}</span>
             </button>
         </div>
-        <div *ngIf="command && !command.commands">
-            <button mat-menu-item *ngIf="command && !command.separator"
-                [disabled]="command.canExecute?!command.canExecute():false" [attr.title]="command.tooltip"
-                [class.active]="command?.active || false" (click)="onActionClicked($event, command)">
+        <div *ngIf="command && !command.commands && !command.separator">
+            <button mat-menu-item [disabled]="command.canExecute?!command.canExecute():false"
+                [attr.title]="command.tooltip" [class.active]="command?.active || false"
+                (click)="onActionClicked($event, command)">
                 <mat-icon [svgIcon]="command.iconSVG?command.icon:null">{{command.icon?command.icon:''}}
                 </mat-icon>
                 <span *ngIf="command.title">{{command.title}}</span><span class="hotkey">{{command.hotkey ||

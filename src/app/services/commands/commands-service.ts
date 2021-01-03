@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { BaseTool } from "../viewport/base.tool";
+import { PathDirectSelectionTool } from "../viewport/path-direct-selection.tool";
 import { SelectionTool } from "../viewport/selection.tool";
 import { BBoxModeCommand } from "./bbox-mode-command";
 import { CopyCommand } from "./copy-command";
@@ -22,6 +23,7 @@ import { SeparatorCommand } from "./separator-command";
 import { UndoCommand } from "./undo-command";
 import { UntransformCommand } from "./untransform-command";
 import { WireframeCommand } from "./view-commands/wireframe-command";
+import { VisibilityCommand } from "./visibility-command";
 
 /**
  * Handle current active tool and services.
@@ -50,7 +52,8 @@ export class CommandsService {
     private ungroupCommand: UnGroupCommand,
     private orderGroupCommand: OrderGroupCommand,
     private selectGroupCommand: SelectGroupCommand,
-    private wireframeCommand: WireframeCommand
+    private wireframeCommand: WireframeCommand,
+    private visibilityCommand: VisibilityCommand
   ) {}
 
   getContextCommands(): BaseCommand[] {
@@ -86,7 +89,7 @@ export class CommandsService {
       this.groupCommand,
       this.ungroupCommand,
       // TODO: move to another commands list
-      this.wireframeCommand
+      this.wireframeCommand,
     ];
   }
 
@@ -94,7 +97,9 @@ export class CommandsService {
     if (!tool) {
       return [];
     }
-    if (tool instanceof SelectionTool) {
+    if (tool instanceof PathDirectSelectionTool) {
+      return [];
+    } else if (tool instanceof SelectionTool) {
       return [
         this.selectAllCommand,
         this.selectNoneCommand,
@@ -105,6 +110,7 @@ export class CommandsService {
         this.sendToBottomCommand,
         this.separatorCommand,
         this.bboxRectOnlyCommand,
+        this.visibilityCommand,
       ];
     }
     return [];
