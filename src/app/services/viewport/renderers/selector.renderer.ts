@@ -44,7 +44,7 @@ export class SelectorRenderer extends BaseRenderer {
 
     const transformed = MatrixUtils.matrixRectTransform(
       this.rect,
-      this.viewService.getScreenCTM()
+      this.viewService.getCTM()
     );
     this.ctx.strokeStyle = consts.selector.stroke;
     this.ctx.fillStyle = consts.selector.fill;

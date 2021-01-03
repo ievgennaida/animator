@@ -57,8 +57,6 @@ export class IntersectionService {
     const nodes = this.outlineService.getAllNodes();
 
     if (nodes && nodes.length > 0) {
-      const containerRect = this.viewService.getContainerClientRect();
-
       for (let i = nodes.length - 1; i >= 0; i--) {
         const node = nodes[i];
         if (node) {
@@ -67,9 +65,6 @@ export class IntersectionService {
             if (!bounds) {
               continue;
             }
-
-            bounds.x -= containerRect.left;
-            bounds.y -= containerRect.top;
 
             if (Utils.rectsIntersect(bounds, screenRect)) {
               if (onlyFirst) {
