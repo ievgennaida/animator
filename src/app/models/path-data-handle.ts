@@ -1,3 +1,5 @@
+import { PathData } from "./path/path-data";
+import { PathDataCommand } from "./path/path-data-command";
 import { TreeNode } from "./tree-node";
 /**
  * Path data handle.
@@ -5,6 +7,8 @@ import { TreeNode } from "./tree-node";
 export class PathDataHandle {
   constructor(
     public node: TreeNode,
+    public pathData: PathData,
+    public command: PathDataCommand,
     public commandIndex: number,
     public commandType: PathDataHandleType = PathDataHandleType.Point
   ) {}

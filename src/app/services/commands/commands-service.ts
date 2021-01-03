@@ -16,6 +16,7 @@ import { StepForwardCommand } from "./order-commands/step-forward-command";
 import { PasteCommand } from "./paste-command";
 import { RedoCommand } from "./redo-command";
 import { RemoveElementCommand } from "./remove-element-command";
+import { RemovePathNodesCommand } from "./remove-path-nodes-command";
 import { SelectAllCommand } from "./selection-commands/select-all-command";
 import { SelectGroupCommand } from "./selection-commands/select-group-command";
 import { SelectNoneCommand } from "./selection-commands/select-none-command";
@@ -53,9 +54,12 @@ export class CommandsService {
     private orderGroupCommand: OrderGroupCommand,
     private selectGroupCommand: SelectGroupCommand,
     private wireframeCommand: WireframeCommand,
-    private visibilityCommand: VisibilityCommand
+    private visibilityCommand: VisibilityCommand,
+    private removePathNodesCommand: RemovePathNodesCommand
   ) {}
-
+  getPathDataContextCommands(): BaseCommand[] {
+    return [this.removePathNodesCommand];
+  }
   getContextCommands(): BaseCommand[] {
     return [
       this.separatorCommand,
@@ -98,7 +102,7 @@ export class CommandsService {
       return [];
     }
     if (tool instanceof PathDirectSelectionTool) {
-      return [];
+      return [this.removePathNodesCommand];
     } else if (tool instanceof SelectionTool) {
       return [
         this.selectAllCommand,

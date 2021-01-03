@@ -276,6 +276,8 @@ export class PathDirectSelectionTool extends SelectionTool {
       if (nearest) {
         const curve = new PathDataHandle(
           nearest.node,
+          nearest.pathData,
+          nearest.command,
           nearest.commandIndex,
           PathDataHandleType.Curve
         );

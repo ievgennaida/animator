@@ -49,8 +49,6 @@ export class MatrixScaleAction extends BaseTransformAction {
   transformOrigin: DOMPoint = null;
 
   initTransformMatrix: DOMMatrix = null;
-  attributesToStore = [TransformPropertyKey];
-
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.handle = handle;
     this.start = screenPos;
@@ -210,7 +208,9 @@ export class MatrixScaleAction extends BaseTransformAction {
    * Apply transformation by matrix.
    */
   applyMatrix(matrix: DOMMatrix, applyCurrent = false): boolean {
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues([this.node], [TransformPropertyKey]);
+    }
     if (applyCurrent) {
       const element = this.node.getElement();
       const transform = Utils.getElementTransform(element);

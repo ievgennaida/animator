@@ -32,9 +32,6 @@ export class PathRotateAction extends BaseTransformAction {
    */
   public pathHandles: PathDataHandle[] | null = null;
   start: DOMPoint = null;
-
-  attributesToStore = [PathDataPropertyKey];
-
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.centerTransform = this.propertiesService.getCenterTransform(
@@ -48,10 +45,6 @@ export class PathRotateAction extends BaseTransformAction {
       node,
       adornerScreen?.centerTransform || adornerScreen?.center
     );
-    if (this.propertiesService.isCenterTransformSet(node)) {
-      this.attributesToStore.push(CenterTransformX);
-      this.attributesToStore.push(CenterTransformY);
-    }
     const transformedCenter = Utils.toScreenPoint(
       element,
       this.transformOrigin
@@ -78,8 +71,12 @@ export class PathRotateAction extends BaseTransformAction {
   }
   rotateOffset(angle: number, transformPoint: DOMPoint) {
     const element = this.node.getElement();
-    this.saveInitialValue();
-
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues(
+        [this.node],
+        [PathDataPropertyKey, CenterTransformX, CenterTransformY]
+      );
+    }
     const matrix = element.ownerSVGElement
       .createSVGMatrix()
       .translate(transformPoint.x, transformPoint.y)

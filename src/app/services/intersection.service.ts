@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";
 import { HandleData } from "../models/handle-data";
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
+import { PathData } from "../models/path/path-data";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
@@ -10,7 +11,6 @@ import { ConfigService } from "./config-service";
 import { LoggerService } from "./logger.service";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
-import { MatrixUtils } from "./utils/matrix-utils";
 import { Utils } from "./utils/utils";
 import { ViewService } from "./view.service";
 import { AdornerContainer } from "./viewport/adorners/adorner";
@@ -21,6 +21,7 @@ import {
 
 export interface NearestCommandPoint {
   point: DOMPoint;
+  pathData: PathData;
   command: PathDataCommand;
   commandIndex: number;
   node: TreeNode;
@@ -196,7 +197,13 @@ export class IntersectionService {
               }
 
               mouseOverItems.push(
-                new PathDataHandle(node, commandIndex, handleType)
+                new PathDataHandle(
+                  node,
+                  data,
+                  command,
+                  commandIndex,
+                  handleType
+                )
               );
             }
           });
@@ -304,7 +311,10 @@ export class IntersectionService {
             const length = Utils.getLength(elementPoint, pLen);
             if (!lengthLimit || lengthLimit >= length) {
               if (!nearest) {
-                nearest = { distance: Number.MAX_VALUE } as NearestCommandPoint;
+                nearest = {
+                  distance: Number.MAX_VALUE,
+                  pathData,
+                } as NearestCommandPoint;
               }
 
               if (nearest.distance > length) {

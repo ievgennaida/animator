@@ -96,7 +96,9 @@ export class PathScaleAction extends MatrixScaleAction {
   }
   transformByMouse(screenPos: DOMPoint): boolean {
     if (!this.initialized) {
-      this.saveInitialValue();
+      if (this.initialValues.size === 0) {
+        this.saveInitialValues([this.node], this.attributesToStore);
+      }
       const initializedScreenPos = Utils.toScreenPoint(
         this.node.getElement(),
         this.started

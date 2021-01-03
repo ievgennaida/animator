@@ -33,17 +33,7 @@ export class RectScaleAction extends MatrixScaleAction {
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.handle = handle;
-    this.attributesToStore = [
-      this.propX,
-      this.propY,
-      this.sizePropertyX,
-      this.sizePropertyY,
-      TransformPropertyKey,
-    ];
-
     if (this.propertiesService.isCenterTransformSet(node)) {
-      this.attributesToStore.push(CenterTransformX);
-      this.attributesToStore.push(CenterTransformY);
       this.centerTransform = Utils.toElementPoint(
         node,
         handle?.adorner?.screen?.centerTransform
@@ -75,8 +65,20 @@ export class RectScaleAction extends MatrixScaleAction {
     if (!out) {
       return false;
     }
-
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues(
+        [this.node],
+        [
+          this.propX,
+          this.propY,
+          this.sizePropertyX,
+          this.sizePropertyY,
+          TransformPropertyKey,
+          CenterTransformX,
+          CenterTransformY,
+        ]
+      );
+    }
     this.onReverseScale(out);
 
     this.propertiesService.setNum(this.node, this.propX, out.x);

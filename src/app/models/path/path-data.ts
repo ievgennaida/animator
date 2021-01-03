@@ -213,6 +213,15 @@ export class PathData {
     });
     return cloned;
   }
+
+  deleteCommand(command: PathDataCommand) {
+    this.commands = Utils.deleteElement(this.commands, command);
+  }
+
+  deleteCommandByIndex(index: number) {
+    this.deleteCommand(this.commands[index]);
+  }
+
   /**
    * Iterate all absolute commands.
    */

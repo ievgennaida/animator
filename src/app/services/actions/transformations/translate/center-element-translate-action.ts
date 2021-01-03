@@ -28,8 +28,6 @@ export class CenterElementTranslateAction extends BaseTransformAction {
    */
   offset: DOMPoint | null = null;
   committed = false;
-  // Store DOM properties for the UNDO service.
-  attributesToStore = [CenterTransformX, CenterTransformY];
   moveSelectionHandle = false;
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
@@ -76,7 +74,9 @@ export class CenterElementTranslateAction extends BaseTransformAction {
    * Translate
    */
   translate(x: number | null = null, y: number | null = null): boolean {
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues([this.node], [CenterTransformX, CenterTransformY]);
+    }
     this.handle?.adorner?.setCenterTransform(new DOMPoint(x, y));
     // make it relative to the element pos:
     const bbox = this.node.getBBox();

@@ -31,7 +31,6 @@ export class RectTranslateAction extends BaseTransformAction {
 
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
-    this.attributesToStore = [this.propX, this.propY];
     // Store mouse position
     if (screenPos) {
       this.start = Utils.toElementPoint(
@@ -66,7 +65,9 @@ export class RectTranslateAction extends BaseTransformAction {
    * Translate
    */
   translate(x: number | null = null, y: number | null = null): boolean {
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues([this.node], [this.propX, this.propY]);
+    }
     if (x !== null) {
       this.propertiesService.setNum(this.node, this.propX, x);
     }

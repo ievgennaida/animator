@@ -25,7 +25,7 @@ export class PathTranslateAction extends BaseTransformAction {
    */
   public pathHandles: PathDataHandle[] | null = null;
   start: DOMPoint = null;
-  attributesToStore = [PathDataPropertyKey];
+
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.start = Utils.toElementPoint(node.getElement(), screenPos);
@@ -51,7 +51,9 @@ export class PathTranslateAction extends BaseTransformAction {
     if (!offsetX && !offsetY) {
       return false;
     }
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues([this.node], [PathDataPropertyKey]);
+    }
     const element = this.node.getElement();
     const matrix = element.ownerSVGElement
       .createSVGMatrix()

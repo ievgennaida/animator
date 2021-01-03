@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import {
-  PathDataPropertyKey,
   PropertiesService,
+  TransformPropertyKey,
 } from "src/app/services/properties.service";
 import { AdornerPointType } from "src/app/services/viewport/adorners/adorner-type";
 import { Utils } from "../../../utils/utils";
@@ -32,7 +32,6 @@ export class MatrixSkewAction extends BaseTransformAction {
 
   initTransformMatrix: DOMMatrix = null;
   startOffset = 0;
-  attributesToStore = [PathDataPropertyKey];
   centerTransform: DOMPoint | null = null;
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
@@ -66,7 +65,9 @@ export class MatrixSkewAction extends BaseTransformAction {
 
   skewOffset(deg: number, vertical: boolean): boolean {
     const element = this.node.getElement();
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues([this.node], [TransformPropertyKey]);
+    }
     const transform = Utils.getElementTransform(element);
 
     const centerBox = this.centerTransform.matrixTransform(transform.matrix);

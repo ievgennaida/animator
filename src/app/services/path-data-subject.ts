@@ -5,7 +5,6 @@ import { ChangeStateMode, StateSubject } from "./state-subject";
  * Subject to track selected/mouse over path data handles.
  */
 export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
-
   /**
    * Override.
    * Check path data on equality comparison
@@ -35,6 +34,11 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     const array = this.getValues();
     return array.find((p) => p.isHandle(node, commandIndex, commandType));
   }
+  getHandlesByType(pathHandleType: PathDataHandleType): Array<PathDataHandle> {
+    const array = this.getValues();
+    return array.filter((p) => p.commandType === pathHandleType);
+  }
+
   getHandles(nodeFilter: TreeNode = null): Array<PathDataHandle> {
     const array = this.getValues();
     if (nodeFilter) {

@@ -30,12 +30,12 @@ export class MatrixRotateAction extends BaseTransformAction {
   node: TreeNode = null;
   startAngle = 0;
   changed = false;
+
   init(
     node: TreeNode,
     screenPos: DOMPoint | null = null,
     handle: HandleData | null = null
   ) {
-    this.attributesToStore = [TransformPropertyKey];
     this.node = node;
     this.handle = handle;
     const element = this.node.getElement();
@@ -79,7 +79,9 @@ export class MatrixRotateAction extends BaseTransformAction {
     const element = this.node.getElement();
 
     const transform = Utils.getElementTransform(element);
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues([this.node], [TransformPropertyKey]);
+    }
     transformPoint = transformPoint.matrixTransform(transform.matrix);
     const currentAngle = DecomposedMatrix.decomposeMatrix(transform.matrix)
       .rotateZ;

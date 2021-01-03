@@ -47,6 +47,7 @@ export class RemoveElementAction extends BaseAction {
   }
 
   init(nodes: TreeNode[]) {
+    // Important, clone the reference to keep it for undo service
     nodes = [...nodes];
     this.title = `Remove: ${Utils.getTreeNodesTitle(nodes)}`;
 

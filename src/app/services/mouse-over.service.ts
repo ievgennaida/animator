@@ -44,12 +44,6 @@ export class MouseOverService {
    */
   pathDataSubject = new PathDataSelectionSubject();
 
-  setMouseOverPathData(node: TreeNode, mouseOverItems: Array<number>) {
-    this.pathDataSubject.change(
-      mouseOverItems.map((p) => new PathDataHandle(node, p)),
-      ChangeStateMode.Normal
-    );
-  }
   setMouseOverHandle(data: HandleData): boolean {
     if (data !== this.mouseOverHandle) {
       this.mouseOverHandleSubject.next(data);

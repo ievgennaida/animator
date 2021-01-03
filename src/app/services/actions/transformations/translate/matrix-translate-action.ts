@@ -25,7 +25,6 @@ export class MatrixTranslateAction extends BaseTransformAction {
   node: TreeNode = null;
 
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
-    this.attributesToStore = [TransformPropertyKey];
     this.node = node;
     const element = node.getElement();
     const startPoint = Utils.toElementPoint(element, screenPos);
@@ -50,7 +49,9 @@ export class MatrixTranslateAction extends BaseTransformAction {
    */
   offsetTranslate(x: number, y: number): boolean {
     const element = this.node.getElement();
-    this.saveInitialValue();
+    if (this.initialValues.size === 0) {
+      this.saveInitialValues([this.node], [TransformPropertyKey]);
+    }
     const transformList = element.transform;
     if (transformList.baseVal.numberOfItems === 0) {
       const svgTransform = element.ownerSVGElement.createSVGTransform();

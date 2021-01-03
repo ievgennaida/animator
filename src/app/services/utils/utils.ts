@@ -390,6 +390,19 @@ export class Utils {
   public static insertElement<T>(array: T[], element: T, index: number): T[] {
     return array.splice(index, 0, element);
   }
+  public static distinctElement<T>(array: T[]): T[] {
+    if (!array) {
+      return array;
+    }
+    const unique: T[] = [];
+    array.forEach((p) => {
+      if (!unique.includes(p)) {
+        unique.push(p);
+      }
+    });
+
+    return unique;
+  }
 
   public static deleteElement<T>(array: T[], element: T): T[] {
     const index: number = array.indexOf(element);
