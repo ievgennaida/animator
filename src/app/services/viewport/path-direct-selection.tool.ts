@@ -12,14 +12,11 @@ import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
 import { IntersectionService } from "../intersection.service";
 import { MouseOverService } from "../mouse-over.service";
+import { NotificationService } from "../notification.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
-import {
-  AdornerPointType,
-  AdornerType,
-  AdornerTypeUtils,
-} from "./adorners/adorner-type";
+import { AdornerType, AdornerTypeUtils } from "./adorners/adorner-type";
 import { AutoPanService } from "./auto-pan-service";
 import { BoundsRenderer } from "./renderers/bounds.renderer";
 import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
@@ -50,7 +47,8 @@ export class PathDirectSelectionTool extends SelectionTool {
     contextMenu: ContextMenuService,
     adornersService: AdornersService,
     autoPanService: AutoPanService,
-    selectionTracker: SelectionRectTracker
+    selectionTracker: SelectionRectTracker,
+    notification: NotificationService
   ) {
     super(
       transformsService,
@@ -64,7 +62,8 @@ export class PathDirectSelectionTool extends SelectionTool {
       contextMenu,
       adornersService,
       autoPanService,
-      selectionTracker
+      selectionTracker,
+      notification
     );
   }
 

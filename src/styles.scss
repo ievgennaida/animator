@@ -97,7 +97,11 @@ Used to capture mouse over events for the g containers.*/
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
-
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .mat-button {
   border-radius: 0px !important;
   border: none;

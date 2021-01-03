@@ -9,6 +9,7 @@ import { BehaviorSubject } from "rxjs";
 })
 export class NotificationService {
   notificationSubject = new BehaviorSubject<string | null>(null);
+  footerMessageSubject = new BehaviorSubject<string | null>(null);
   constructor() {}
 
   hideMessage() {
@@ -16,5 +17,12 @@ export class NotificationService {
   }
   showMessage(message: string) {
     this.notificationSubject.next(message);
+  }
+
+  hideFooterMessage() {
+    this.footerMessageSubject.next(null);
+  }
+  showFooterMessage(message: string) {
+    this.footerMessageSubject.next(message);
   }
 }

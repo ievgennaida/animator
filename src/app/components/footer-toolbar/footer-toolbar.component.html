@@ -46,4 +46,7 @@
     </button-->
     <span id="currentTime"></span>
 </div>
-<app-mouse-tracker></app-mouse-tracker>
+<div class="end-container flex-center">
+    <div class="flex-center" *ngIf="message">{{message}}</div>
+    <app-mouse-tracker></app-mouse-tracker>
+</div>

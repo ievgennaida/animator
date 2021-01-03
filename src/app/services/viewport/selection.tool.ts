@@ -8,6 +8,7 @@ import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
 import { IntersectionService } from "../intersection.service";
 import { MouseOverService } from "../mouse-over.service";
+import { NotificationService } from "../notification.service";
 import { OutlineService } from "../outline.service";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
@@ -48,7 +49,8 @@ export class SelectionTool extends BaseTool {
     protected contextMenu: ContextMenuService,
     protected adornersService: AdornersService,
     protected autoPanService: AutoPanService,
-    protected selectionTracker: SelectionRectTracker
+    protected selectionTracker: SelectionRectTracker,
+    protected notification: NotificationService
   ) {
     super();
   }
@@ -116,10 +118,12 @@ export class SelectionTool extends BaseTool {
   }
   onActivate() {
     this.mouseOverRenderer.resume();
+    this.notification.showFooterMessage("[Shift] - Append [CTRL] - Toggle");
   }
   onDeactivate() {
     super.onDeactivate();
     this.cleanUp();
+    this.notification.hideFooterMessage();
   }
   cleanUp() {
     this.lastUsedArgs = null;

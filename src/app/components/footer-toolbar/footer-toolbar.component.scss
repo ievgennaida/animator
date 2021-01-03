@@ -17,8 +17,10 @@ button[mat-button] {
     color: white;
   }
 }
-app-mouse-tracker {
+.end-container {
   margin-left: auto;
+  display: flex;
+  gap: 10px;
 }
 .separator {
   margin-right: 15px;
