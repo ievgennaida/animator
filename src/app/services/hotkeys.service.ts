@@ -50,6 +50,9 @@ export class HotkeysService {
       this.toolsService.setActiveTool(this.selectionTool)
     );
     this.add(`keydown.a`, () => this.toolsService.setActiveTool(this.pathTool));
+    this.add(`keydown.control.0`, () => {
+      this.zoomTool.setDirectZoom(1);
+    });
     this.add(`keydown.h`, () => this.toolsService.setActiveTool(this.panTool));
     this.add(`keydown.z`, () => this.toolsService.setActiveTool(this.zoomTool));
   }

@@ -10,7 +10,7 @@
     <mat-icon>arrow_drop_down</mat-icon>
 </button>
 <mat-menu #menu>
-    <button mat-menu-item (click)="setZoomLevel(100)">100%</button>
+    <button mat-menu-item (click)="setZoomLevel(100)"><span>100%</span><span class="hotkey">Ctrl + 0</span></button>
     <button mat-menu-item (click)="centerViewport()">Center</button>
     <button mat-menu-item (click)="fitViewport()">Fit</button>
     <button mat-menu-item (click)="fitViewportSelected()">Fit to Selected</button>
@@ -22,6 +22,6 @@
     <button mat-menu-item (click)="setZoomLevel(300)">300%</button>
     <button mat-menu-item (click)="setZoomLevel(500)">500%</button>
 </mat-menu>
-<button [ngClass]="{'displayed': showGridLines}" mat-button (click)="toggleGridLines()" >
+<button [ngClass]="{'displayed': showGridLines}" mat-button (click)="toggleGridLines()">
     <mat-icon>grid_on</mat-icon>
 </button>
