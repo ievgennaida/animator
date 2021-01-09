@@ -8,7 +8,7 @@ export class LoggerService {
   constructor() {}
 
   isDebug() {
-    return !environment.debug;
+    return environment.debug || (location?.hash || "").includes("debug");
   }
   debug(str) {
     if (this.isDebug()) {
