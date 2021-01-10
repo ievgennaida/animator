@@ -10,7 +10,11 @@ export class PathDataHandle {
     public pathData: PathData,
     public command: PathDataCommand,
     public commandIndex: number,
-    public commandType: PathDataHandleType = PathDataHandleType.Point
+    public commandType: PathDataHandleType = PathDataHandleType.Point,
+    /**
+     * Intersection point
+     */
+    public point: DOMPoint | null = null
   ) {}
 
   isHandle(
@@ -28,28 +32,33 @@ export class PathDataHandle {
     if (!another) {
       return false;
     }
-    return this.isHandle(
-      another.node,
-      another.commandIndex,
-      another.commandType
-    );
+    if (
+      this.isHandle(another.node, another.commandIndex, another.commandType)
+    ) {
+      return (this.point || another.point) && this.point === another.point;
+    }
+    return false;
   }
 }
 export enum PathDataHandleType {
   /**
    * Path data point.
    */
-  Point = 0,
+  Point,
+  /**
+   * Not existing point to be added on a curve.
+   */
+  AddPoint,
   /**
    * Handle\Control point for a path data.
    */
-  HandleA = 1,
+  HandleA,
   /**
    * Handle\Control point for a path data.
    */
-  HandleB = 2,
+  HandleB,
   /**
    * Selected bezier curve or a line between two path data commands.
    */
-  Curve = 3,
+  Curve,
 }

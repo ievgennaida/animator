@@ -110,12 +110,6 @@ export class SelectionTool extends BaseTool {
     }
   }
 
-  isOverNode(): boolean {
-    // TODO: bad place
-    const startedNode = this.mouseOverService.getValue();
-    const handle = this.mouseOverService.mouseOverHandle;
-    return !handle && !!startedNode;
-  }
   onActivate() {
     this.mouseOverRenderer.resume();
     this.notification.showFooterMessage("[Shift] - Append [CTRL] - Toggle");

@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { BaseCommand } from "src/app/services/commands/base-command";
 
 /**
- * Undo command
+ * copy element command
  */
 @Injectable({
   providedIn: "root",

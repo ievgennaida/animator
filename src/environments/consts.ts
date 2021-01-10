@@ -7,6 +7,7 @@ export const consts = {
    * Digits after coma for a path data.
    */
   pathDataAccuracy: 2,
+  addNewPointAccuracy: 10,
   timelineHeaderHeight: 30,
   timelineScrollSpeed: 20,
   pathPointSize: 5,

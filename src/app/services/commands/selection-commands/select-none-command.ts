@@ -4,7 +4,7 @@ import { BaseCommand } from "src/app/services/commands/base-command";
 import { SelectionService } from "../../selection.service";
 
 /**
- * Undo command
+ * Deselect all command
  */
 @Injectable({
   providedIn: "root",

@@ -14,6 +14,8 @@ import { ScrollbarsPanTool } from "./scrollbars-pan.tool";
 import { SelectionTool } from "./selection.tool";
 import { ShapeTool } from "./shape.tool";
 import { ZoomTool } from "./zoom.tool";
+import { MouseOverService } from "../mouse-over.service";
+import { TreeNode } from "src/app/models/tree-node";
 
 /**
  * Handle current active tool and services.
@@ -26,6 +28,7 @@ export class ToolsService {
   viewportMouseMoveSubject = new Subject<MouseEventArgs>();
   public tools: Array<BaseTool> = [];
   private activeTool: BaseTool = null;
+  private lastMouseOverTreeNode: TreeNode | null = null;
   private prevMouseUpArgs: MouseEventArgs | null = null;
   constructor(
     private panTool: PanTool,
@@ -36,6 +39,7 @@ export class ToolsService {
     private selectionService: SelectionService,
     private viewService: ViewService,
     private shapeTool: ShapeTool,
+    private mouseOverService: MouseOverService,
     // Special tool to control pan by scrollbars
     private scrollbarsPanTool: ScrollbarsPanTool
   ) {
@@ -161,29 +165,23 @@ export class ToolsService {
   }
   onWindowMouseUp(event: MouseEvent) {
     const mouseEventsArgs = new MouseEventArgs(event);
-    if (
-      this.prevMouseUpArgs &&
-      // Execution time of prev click
-      mouseEventsArgs.executedMs - this.prevMouseUpArgs.executedMs <=
-        consts.doubleClickToleranceMs &&
-      // Click was close to the destination
-      Utils.getLength(
-        mouseEventsArgs.getDOMPoint(),
-        this.prevMouseUpArgs.getDOMPoint()
-      ) <= consts.clickThreshold &&
-      !mouseEventsArgs.rightClicked()
-    ) {
+    if (mouseEventsArgs.isDoubleClick(this.prevMouseUpArgs)) {
       // TODO: make generic event
       if (this.activeTool === this.selectionTool) {
         this.activeTool.onWindowMouseUp(mouseEventsArgs);
-        const overSelectedNode = this.selectionTool.isOverNode();
-        if (overSelectedNode) {
+        const overNode = this.mouseOverService.overNode();
+        if (
+          this.lastMouseOverTreeNode &&
+          overNode &&
+          this.lastMouseOverTreeNode === overNode
+        ) {
           this.setActiveTool(this.pathTool);
         }
+        this.lastMouseOverTreeNode = this.mouseOverService.overNode();
         return;
       }
     }
-
+    this.lastMouseOverTreeNode = this.mouseOverService.overNode();
     this.prevMouseUpArgs = mouseEventsArgs;
 
     this.activeTool.onWindowMouseUp(mouseEventsArgs);

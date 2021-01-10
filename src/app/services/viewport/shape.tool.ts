@@ -55,7 +55,7 @@ export class ShapeTool extends BaseTool {
   onActivate() {
     this.mouseOverService.setMode(MouseOverMode.Containers);
     this.mouseOverRenderer.clear();
-    this.cursor.setCursor(CursorType.Default);
+    this.cursor.setDefaultCursor(CursorType.Default);
     super.onActivate();
 
     // Update current when nodes are changed and container is not there anymore.

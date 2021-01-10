@@ -57,6 +57,17 @@ export class MouseOverService {
   get mouseOverHandle(): HandleData {
     return this.mouseOverHandleSubject.getValue();
   }
+
+  /**
+   * Get node, any type of handle
+   */
+  overNode(): TreeNode | null {
+    return (
+      this.getValue() ||
+      this.mouseOverHandle?.adorner?.node ||
+      this.pathDataSubject.getValues().find((p) => p.node)?.node
+    );
+  }
   isMouseOverHandle(data: HandleData): boolean {
     const currentHandle = this.mouseOverHandleSubject.getValue();
     if (!currentHandle || !data) {

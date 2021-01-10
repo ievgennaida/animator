@@ -1,3 +1,6 @@
+import { consts } from "src/environments/consts";
+import { Utils } from "../services/utils/utils";
+
 /**
  * normalize different event args to be generic.
  */
@@ -65,6 +68,19 @@ export class MouseEventArgs {
     return this.screenPoint;
   }
 
+  isDoubleClick(prevMouseUpArgs: MouseEventArgs): boolean {
+    const isDoubleClick =
+      prevMouseUpArgs &&
+      // Execution time of prev click
+      this.executedMs - prevMouseUpArgs.executedMs <=
+        consts.doubleClickToleranceMs &&
+      // Click was close to the destination
+      Utils.getDistance(this.getDOMPoint(), prevMouseUpArgs.getDOMPoint()) <=
+        consts.clickThreshold &&
+      !this.rightClicked() &&
+      !prevMouseUpArgs.rightClicked();
+    return isDoubleClick;
+  }
   constructor(event: MouseEvent | WheelEvent | TouchEvent) {
     this.args = event;
     this.executedMs = Date.now();
