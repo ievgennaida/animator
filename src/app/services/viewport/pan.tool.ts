@@ -29,7 +29,7 @@ export class PanTool extends BaseTool {
   }
   onDeactivate() {
     this.mouseOverRenderer.resume();
-    this.cursor.setCursor(CursorType.Default);
+    this.cursor.applyDefault();
   }
 
   onWindowBlur(event: Event) {

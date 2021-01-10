@@ -12,11 +12,31 @@ import {
   providedIn: "root",
 })
 export class CursorService {
-  cursorSubject = new BehaviorSubject<CursorType>(CursorType.Default);
+  /**
+   * Default cursor.
+   */
+  defaultCursorSubject = new BehaviorSubject<CursorType>(CursorType.Default);
+  /**
+   * Current active cursor.
+   */
+  cursorSubject = new BehaviorSubject<CursorType>(
+    this.defaultCursorSubject.getValue()
+  );
   public get changed(): Observable<CursorType> {
     return this.cursorSubject.asObservable();
   }
 
+  public setDefaultCursor(cursor: CursorType, applyToActiveCursor = true) {
+    if (cursor !== this.defaultCursorSubject.getValue()) {
+      this.defaultCursorSubject.next(cursor);
+    }
+    if (applyToActiveCursor) {
+      this.setCursor(cursor);
+    }
+  }
+  public applyDefault() {
+    this.setCursor(this.defaultCursorSubject.getValue());
+  }
   public setCursor(cursor: CursorType) {
     if (cursor !== this.cursorSubject.getValue()) {
       this.cursorSubject.next(cursor);
@@ -30,7 +50,7 @@ export class CursorService {
   }
   private getHandleCursor(deg: number | null, rotate = false) {
     if (deg === null) {
-      return CursorType.Default;
+      return this.defaultCursorSubject.getValue();
     }
     const tolerance = 15;
     if (
@@ -56,15 +76,16 @@ export class CursorService {
   }
 
   setHandleCursor(handle: HandleData, screenPoint: DOMPoint) {
+    const defaultCursor = this.defaultCursorSubject.getValue();
     if (
       !handle ||
       !screenPoint ||
       handle.handle === AdornerPointType.None ||
       handle.handle === AdornerPointType.Center
     ) {
-      this.setCursor(CursorType.Default);
+      this.setCursor(defaultCursor);
     } else {
-      let cursor = CursorType.Default;
+      let cursor = defaultCursor;
       if (handle && handle.handle === AdornerPointType.CenterTransform) {
         cursor = CursorType.Move;
       } else if (handle && handle.handle === AdornerPointType.Translate) {
