@@ -28,14 +28,17 @@ button[mat-button] {
   }
   mat-icon {
     color: #adadad;
+    stroke: #adadad;
     height: 100%;
     padding: 3px;
     font-size: 18px;
   }
   &[disabled] {
     color: #565656 !important;
+    stroke: #565656 !important;
     mat-icon {
       color: #565656 !important;
+      stroke: #565656 !important;
     }
   }
 }
@@ -60,5 +63,6 @@ mat-divider {
   mat-icon {
     color: white;
     fill: white;
+    stroke: white;
   }
 }
