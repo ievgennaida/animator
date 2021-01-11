@@ -3,12 +3,12 @@ import { CursorType } from "src/app/models/cursor-type";
 import { consts } from "src/environments/consts";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { CursorService } from "../cursor.service";
+import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
 import { AutoPanService } from "./auto-pan-service";
 import { BaseTool } from "./base.tool";
 import { PanTool } from "./pan.tool";
-import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
 import { SelectionRectTracker } from "./selection-rect-tracker";
 
 @Injectable({

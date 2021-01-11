@@ -24,6 +24,22 @@ export class MouseEventArgs {
    * viewport Point
    */
   viewportPoint: DOMPoint;
+  isDoubleClick = false;
+  static getIsDoubleClick(
+    args: MouseEventArgs,
+    prevArgs: MouseEventArgs
+  ): boolean {
+    const isDoubleClick =
+      prevArgs &&
+      // Execution time of prev click
+      args.executedMs - prevArgs.executedMs <= consts.doubleClickToleranceMs &&
+      // Click was close to the destination
+      Utils.getDistance(args.getDOMPoint(), prevArgs.getDOMPoint()) <=
+        consts.clickThreshold &&
+      !args.rightClicked() &&
+      !prevArgs.rightClicked();
+    return isDoubleClick;
+  }
   preventDefault() {
     if (this.args) {
       this.args.preventDefault();
@@ -68,19 +84,6 @@ export class MouseEventArgs {
     return this.screenPoint;
   }
 
-  isDoubleClick(prevMouseUpArgs: MouseEventArgs): boolean {
-    const isDoubleClick =
-      prevMouseUpArgs &&
-      // Execution time of prev click
-      this.executedMs - prevMouseUpArgs.executedMs <=
-        consts.doubleClickToleranceMs &&
-      // Click was close to the destination
-      Utils.getDistance(this.getDOMPoint(), prevMouseUpArgs.getDOMPoint()) <=
-        consts.clickThreshold &&
-      !this.rightClicked() &&
-      !prevMouseUpArgs.rightClicked();
-    return isDoubleClick;
-  }
   constructor(event: MouseEvent | WheelEvent | TouchEvent) {
     this.args = event;
     this.executedMs = Date.now();

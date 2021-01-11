@@ -1,14 +1,14 @@
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { AdornerPointType } from "src/app/models/adorner-type";
 import { CursorType } from "src/app/models/cursor-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
-import { AdornerPointType } from "../../models/adorner-type";
 import { MouseEventArgs } from "../../models/mouse-event-args";
-import { AddElementAction } from "../actions/add-element-action";
 import { TransformationMode } from "../../models/transformation-mode";
+import { AddElementAction } from "../actions/add-element-action";
 import { AdornersService } from "../adorners-service";
 import { CursorService } from "../cursor.service";
 import { DocumentService } from "../document.service";

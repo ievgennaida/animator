@@ -29,7 +29,7 @@ export class ToolsService {
   public tools: Array<BaseTool> = [];
   private activeTool: BaseTool = null;
   private lastMouseOverTreeNode: TreeNode | null = null;
-  private prevMouseUpArgs: MouseEventArgs | null = null;
+
   constructor(
     private panTool: PanTool,
     private zoomTool: ZoomTool,
@@ -163,9 +163,8 @@ export class ToolsService {
     }
     this.activeTool.onWindowMouseMove(args);
   }
-  onWindowMouseUp(event: MouseEvent) {
-    const mouseEventsArgs = new MouseEventArgs(event);
-    if (mouseEventsArgs.isDoubleClick(this.prevMouseUpArgs)) {
+  onWindowMouseUp(mouseEventsArgs: MouseEventArgs) {
+    if (mouseEventsArgs.isDoubleClick) {
       // TODO: make generic event
       if (this.activeTool === this.selectionTool) {
         this.activeTool.onWindowMouseUp(mouseEventsArgs);
@@ -182,7 +181,6 @@ export class ToolsService {
       }
     }
     this.lastMouseOverTreeNode = this.mouseOverService.overNode();
-    this.prevMouseUpArgs = mouseEventsArgs;
 
     this.activeTool.onWindowMouseUp(mouseEventsArgs);
   }

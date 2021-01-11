@@ -19,6 +19,7 @@ import { AssetsService } from "./services/assets.service";
 import { Utils } from "./services/utils/utils";
 import { BaseComponent } from "./components/base-component";
 import { takeUntil } from "rxjs/operators";
+import { MouseEventArgs } from "./models/mouse-event-args";
 
 @Component({
   selector: "app-root",
@@ -49,7 +50,7 @@ export class AppComponent extends BaseComponent implements OnInit {
     assetsService.registerIcons();
     wire.init();
   }
-
+  prevMouseUpArgs: MouseEventArgs | null = null;
   @ViewChild("footer", { static: true, read: ElementRef })
   footer: ElementRef;
 
@@ -109,7 +110,16 @@ export class AppComponent extends BaseComponent implements OnInit {
   @HostListener("window:mouseup", ["$event"])
   onWindowMouseUp(event: MouseEvent) {
     this.out(() => {
-      this.toolsService.onWindowMouseUp(event);
+      const mouseEventsArgs = new MouseEventArgs(event);
+      mouseEventsArgs.isDoubleClick = MouseEventArgs.getIsDoubleClick(
+        mouseEventsArgs,
+        this.prevMouseUpArgs
+      );
+      try {
+        this.toolsService.onWindowMouseUp(mouseEventsArgs);
+      } finally {
+        this.prevMouseUpArgs = mouseEventsArgs;
+      }
     });
   }
 
@@ -180,7 +190,7 @@ export class AppComponent extends BaseComponent implements OnInit {
         (event: KeyboardEvent) => {
           console.log(`Key up: ${event.key}`);
           this.toolsService.onWindowKeyUp(event);
-        }, 
+        },
         false
       );
 
