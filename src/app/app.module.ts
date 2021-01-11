@@ -41,6 +41,7 @@ import { MainToolbarComponent } from "./components/toolbars/main-toolbar/main-to
 import { ToolCommandsComponent } from "./components/toolbars/tool-commands/tool-commands.component";
 import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.component";
 import { CommandsListComponent } from "./components/toolbars/commands-list/commands-list.component";
+import { PathDataEditorComponent } from './components/properties/path-data-editor/path-data-editor.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -72,6 +73,7 @@ import { CommandsListComponent } from "./components/toolbars/commands-list/comma
     HistoryComponent,
     DynamicContextMenuComponent,
     CommandsListComponent,
+    PathDataEditorComponent,
   ],
   imports: [
     ResizableModule,

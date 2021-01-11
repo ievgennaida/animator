@@ -3,6 +3,7 @@ import { IParser } from "src/app/models/interfaces/parser";
 import { DNumberProperty } from "src/app/models/Properties/DNumberProperty";
 import { NumberProperty } from "src/app/models/Properties/NumberProperty";
 import { Property } from "src/app/models/Properties/Property";
+import { PropertyType } from "src/app/models/Properties/PropertyType";
 import { TextProperty } from "src/app/models/Properties/TextProperty";
 import { TreeNode } from "../../models/tree-node";
 import { SVGElementType } from "./svg-element-type";
@@ -289,6 +290,7 @@ export class SvgTreeParser implements IParser {
     properties.push(this.getIdProperty(node));
 
     const text = new TextProperty(node, "d", "d", el, "d");
+    text.type = PropertyType.pathData;
     text.readonly = true;
     properties.push(text);
 

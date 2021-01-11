@@ -1,0 +1,47 @@
+@import "/src/variables.scss";
+:host {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.commands-list {
+  gap: 0px;
+}
+
+.list {
+  height: 100%;
+  color: white;
+}
+.container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 30px;
+  padding: 0px 10px;
+  cursor: pointer;
+}
+.deactivated {
+  color: gray;
+}
+.hover {
+  background-color: $node-hover;
+}
+.container:hover {
+  background-color: $node-hover;
+}
+.selected {
+  background-color: #3399ff !important;
+  color: white;
+}
+.content {
+  margin-top: 2px;
+  cursor: pointer;
+}
+.text {
+  cursor: pointer;
+  white-space: nowrap;
+}

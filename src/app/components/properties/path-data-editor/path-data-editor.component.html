@@ -1,0 +1,13 @@
+<div *ngIf="commands && commands.length > 0" class="header noselect">
+    <app-commands-list class="commands-list" [commands]="commands"></app-commands-list>
+</div>
+<cdk-virtual-scroll-viewport [itemSize]="30" [style.minHeight.px]="items.length*30" #virtual scrolled="onScrolled()"
+    class="list">
+    <div *cdkVirtualFor="let item of items" (contextmenu)="onRightClick($event)" (click)="onItemClick(item)"
+        class="container" (mouseenter)="mouseEnter(item)" (mouseleave)="mouseLeave(item)" [title]="item.tooltip || ''"
+        [ngClass]="{'deactivated':!item.active, 'hover':item.hover, 'selected':item.selected}">
+        <div class="content text">
+            {{item.title}} {{item.values}}
+        </div>
+    </div>
+</cdk-virtual-scroll-viewport>

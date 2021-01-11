@@ -6,5 +6,6 @@ export enum PropertyType {
   // Two numbers in a row:
   dnumber = "dnumber",
   color = "color",
-  shape = "shape"
+  shape = "shape",
+  pathData = "path-data",
 }
