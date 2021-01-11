@@ -1,15 +1,10 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
+import { AdornerContainer } from "../models/adorner";
+import { AdornerPointType, AdornerType } from "../models/adorner-type";
 import { HandleData } from "../models/handle-data";
-import { PathDataHandle } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { PathDataSelectionSubject } from "./path-data-subject";
-import { ChangeStateMode } from "./state-subject";
-import { Adorner, AdornerContainer } from "./viewport/adorners/adorner";
-import {
-  AdornerPointType,
-  AdornerType,
-} from "./viewport/adorners/adorner-type";
 
 export enum MouseOverMode {
   Elements,

@@ -7,7 +7,7 @@ import {
   Input,
   ChangeDetectorRef,
 } from "@angular/core";
-import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer";
+import { BaseRenderer } from "src/app/services/renderers/base.renderer";
 import { BaseComponent } from 'src/app/components/base-component';
 
 @Component({

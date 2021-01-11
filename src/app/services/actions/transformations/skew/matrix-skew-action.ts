@@ -5,7 +5,7 @@ import {
   PropertiesService,
   TransformPropertyKey,
 } from "src/app/services/properties.service";
-import { AdornerPointType } from "src/app/services/viewport/adorners/adorner-type";
+import { AdornerPointType } from "src/app/models/adorner-type";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
 

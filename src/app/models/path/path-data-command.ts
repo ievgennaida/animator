@@ -54,6 +54,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    */
   saveAsRelative = false;
   prev: PathDataCommand | null = null;
+  next: PathDataCommand | null = null;
   /**
    * Cleanup cached calculations.
    */
@@ -275,7 +276,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
 
   /**
-   * get bezier control point 'a'.
+   * get bezier control handle point 'a'.
    */
   public set a(point: DOMPoint) {
     // Clean cached point.
@@ -294,6 +295,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
         prev.type === PathType.shorthandSmoothAbs ||
         prev.type === PathType.cubicBezierAbs
       ) {
+        // Change handle of the prev node.
         const virtualHandle = new DOMPoint(
           2 * prev.x - point.x,
           2 * prev.y - point.y
@@ -374,7 +376,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     return this._changedP;
   }
   /**
-   * Control point 'b' for the bezier.
+   * get bezier control handle point 'b'.
    */
   public get b(): DOMPoint | null {
     if (

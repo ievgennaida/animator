@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { PropertiesService } from "src/app/services/properties.service";
-import { ColorProperty } from "src/app/models/Properties/ColorProperty";
+import { ColorProperty } from "src/app/models/properties/color-property";
 import { BaseComponent } from "../../base-component";
 
 @Component({

@@ -1,4 +1,9 @@
 import { Injectable } from "@angular/core";
+import {
+  AdornerPointType,
+  AdornerType,
+  AdornerTypeUtils,
+} from "src/app/models/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import {
@@ -9,13 +14,8 @@ import { ViewService } from "src/app/services/view.service";
 import { DecomposedMatrix } from "../../../../models/decompose-matrix";
 import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
-import {
-  AdornerPointType,
-  AdornerType,
-  AdornerTypeUtils,
-} from "../../../viewport/adorners/adorner-type";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 /**
  * Matrix scale in screen rectangle coordinates.

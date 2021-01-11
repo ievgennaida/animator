@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
+import { AdornerPointType } from "../models/adorner-type";
 import { TreeNode } from "../models/tree-node";
 import { OutlineService } from "./outline.service";
 import { PathDataSelectionSubject } from "./path-data-subject";
@@ -10,7 +11,7 @@ import {
   StateChangedSource,
   StateSubject,
 } from "./state-subject";
-import { AdornerPointType } from "./viewport/adorners/adorner-type";
+
 @Injectable({
   providedIn: "root",
 })

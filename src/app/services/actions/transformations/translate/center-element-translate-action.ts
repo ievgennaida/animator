@@ -8,7 +8,7 @@ import {
 } from "../../../properties.service";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 /**
  * Translate center transformation point for the DOM element and store as custom attribute.

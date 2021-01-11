@@ -7,7 +7,8 @@ export class PathData {
   public static setPathData(
     data: PathData,
     element: any | SVGGraphicsElement
-  ): void {
+  ): boolean {
+    const set = false;
     if (element.setPathData && data && data.commands) {
       // Try to preserve original data
       const valuesToSet = data.commands.map((command) => {
@@ -26,7 +27,9 @@ export class PathData {
         return command;
       });
       element.setPathData(valuesToSet);
+      return set;
     }
+    return set;
   }
   public static getPathData(element: any | SVGGraphicsElement): PathData {
     if (element && element.getPathData) {
@@ -74,7 +77,7 @@ export class PathData {
     return false;
   }
   /**
-   * Get path data and set absolute version for each point.
+   * Get path data and calculate absolute version for each point.
    * @param pathData arguments.
    */
   public static analyze(pathData: PathData | Array<any>): PathData {
@@ -95,9 +98,12 @@ export class PathData {
               .filter((p) => !!p && !!p.type)
               .map((p) => {
                 const command = new PathDataCommand(p.type, p.values);
-                // Work only with absolute values, but store the original value
-                // so wen can preserve the original state (original state rel/abs command is important for the animations)
+                // Application is working only with absolute values, but every time original value mode is calculated as well.
+                // This is a way to preserve the original state!
                 command.prev = prev;
+                if (prev) {
+                  prev.next = command;
+                }
                 prev = command;
 
                 const type = p.type as PathType;
@@ -208,6 +214,9 @@ export class PathData {
       if (index > 0) {
         const prev = cloned.commands[index - 1];
         clonedCommand.prev = prev;
+        if (prev) {
+          prev.next = clonedCommand;
+        }
       }
       cloned.commands.push(clonedCommand);
     });
@@ -216,6 +225,14 @@ export class PathData {
 
   deleteCommand(command: PathDataCommand) {
     this.commands = Utils.deleteElement(this.commands, command);
+    // relink chain:
+    if (command.prev) {
+      command.prev.next = command.next;
+    }
+
+    if (command.next) {
+      command.next.prev = command.prev;
+    }
   }
 
   deleteCommandByIndex(index: number) {

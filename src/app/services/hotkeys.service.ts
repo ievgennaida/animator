@@ -6,11 +6,11 @@ import { UndoService } from "./undo.service";
 import { OutlineService } from "./outline.service";
 import { PasteService } from "./paste.service";
 import { SelectionService } from "./selection.service";
-import { PanTool } from "./viewport/pan.tool";
-import { PathDirectSelectionTool } from "./viewport/path-direct-selection.tool";
-import { SelectionTool } from "./viewport/selection.tool";
-import { ToolsService } from "./viewport/tools.service";
-import { ZoomTool } from "./viewport/zoom.tool";
+import { PanTool } from "./tools/pan.tool";
+import { PathDirectSelectionTool } from "./tools/path-direct-selection.tool";
+import { SelectionTool } from "./tools/selection.tool";
+import { ToolsService } from "./tools/tools.service";
+import { ZoomTool } from "./tools/zoom.tool";
 
 @Injectable({
   providedIn: "root",

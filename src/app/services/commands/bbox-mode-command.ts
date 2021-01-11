@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { AdornersService } from "../adorners-service";
 import { ConfigService } from "../config-service";
-import { AdornersRenderer } from "../viewport/renderers/adorners.renderer";
+import { AdornersRenderer } from "../renderers/adorners.renderer";
 
 /**
  * Command that will allow viewport switch adorners manipulation type: visual elements viewport transform or in elements coordinates.

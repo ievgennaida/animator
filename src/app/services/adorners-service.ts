@@ -1,4 +1,6 @@
 import { Injectable } from "@angular/core";
+import { AdornerContainer } from "../models/adorner";
+import { AdornerPointType, AdornerType } from "../models/adorner-type";
 import { PathDataHandleType } from "../models/path-data-handle";
 import { TreeNode } from "../models/tree-node";
 import { ConfigService } from "./config-service";
@@ -6,12 +8,6 @@ import { PropertiesService } from "./properties.service";
 import { SelectionService } from "./selection.service";
 import { MatrixUtils } from "./utils/matrix-utils";
 import { Utils } from "./utils/utils";
-import { AdornerContainer } from "./viewport/adorners/adorner";
-import {
-  AdornerPointType,
-  AdornerType,
-  AdornerTypeUtils,
-} from "./viewport/adorners/adorner-type";
 /**
  *
  */

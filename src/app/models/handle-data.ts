@@ -1,8 +1,8 @@
-import { AdornerContainer } from "../services/viewport/adorners/adorner";
+import { AdornerContainer } from "./adorner";
 import {
   AdornerPointType,
   AdornerType,
-} from "../services/viewport/adorners/adorner-type";
+} from "../models/adorner-type";
 import { PathDataHandle } from "./path-data-handle";
 import { TreeNode } from "./tree-node";
 /**

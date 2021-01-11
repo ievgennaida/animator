@@ -4,8 +4,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from "@angular/core";
-import { AdornersRenderer } from "src/app/services/viewport/renderers/adorners.renderer";
-import { BaseRenderer } from "src/app/services/viewport/renderers/base.renderer";
+import { AdornersRenderer } from "src/app/services/renderers/adorners.renderer";
+import { BaseRenderer } from "src/app/services/renderers/base.renderer";
 import { BaseComponent } from '../../base-component';
 
 @Component({

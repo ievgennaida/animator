@@ -5,7 +5,7 @@ import { OutlineService } from "src/app/services/outline.service";
 import { Utils } from "src/app/services/utils/utils";
 import { PropertiesService } from "../../../properties.service";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 /**
  * Translate center transformation point for the virtual selection rectangle.

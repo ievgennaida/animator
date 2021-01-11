@@ -5,12 +5,12 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import { ZoomTool } from "src/app/services/viewport/zoom.tool";
+import { ZoomTool } from "src/app/services/tools/zoom.tool";
 import { takeUntil } from "rxjs/operators";
-import { ToolsService } from "src/app/services/viewport/tools.service";
-import { PanTool } from "src/app/services/viewport/pan.tool";
+import { ToolsService } from "src/app/services/tools/tools.service";
+import { PanTool } from "src/app/services/tools/pan.tool";
 import { ViewService } from "src/app/services/view.service";
-import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
+import { GridLinesRenderer } from "src/app/services/renderers/grid-lines.renderer";
 import { BaseComponent } from '../../base-component';
 
 @Component({

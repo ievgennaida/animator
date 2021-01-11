@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";
+import { AdornerContainer } from "../models/adorner";
+import { AdornerPointType, AdornerTypeUtils } from "../models/adorner-type";
 import { HandleData } from "../models/handle-data";
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
 import { PathData } from "../models/path/path-data";
@@ -13,11 +15,6 @@ import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
 import { Utils } from "./utils/utils";
 import { ViewService } from "./view.service";
-import { AdornerContainer } from "./viewport/adorners/adorner";
-import {
-  AdornerPointType,
-  AdornerTypeUtils,
-} from "./viewport/adorners/adorner-type";
 
 export interface NearestCommandPoint {
   point: DOMPoint;
@@ -86,7 +83,6 @@ export class IntersectionService {
   }
 
   getAdornerHandleIntersection(screenPoint: DOMPoint): HandleData | null {
-    const config = this.configService.get();
     let results: HandleData = null;
     const adorners = this.adornersService.getActiveAdorners();
     if (!adorners) {
@@ -148,7 +144,7 @@ export class IntersectionService {
             let handleType = PathDataHandleType.Point;
             if (p && !selectorRect) {
               // TODO: select a,b helper handles.
-              const screenPointSize = Utils.getLength(
+              const screenPointSize = Utils.getDistance(
                 Utils.toElementPoint(
                   node,
                   new DOMPoint(screenPos.x + 1, screenPos.y + 1)
@@ -157,7 +153,7 @@ export class IntersectionService {
               );
 
               let accuracy = screenPointSize * config.pathPointSize;
-              let l = Utils.getLength(p, abs.p);
+              let l = Utils.getDistance(p, abs.p);
               if (l <= accuracy && prevBestDistance > l) {
                 prevBestDistance = l;
                 pointSelected = true;
@@ -170,7 +166,7 @@ export class IntersectionService {
                 accuracy = screenPointSize * config.pathHandleSelectedSize;
                 const a = abs.a;
                 if (a) {
-                  l = Utils.getLength(p, a);
+                  l = Utils.getDistance(p, a);
                   if (l <= accuracy && prevBestDistance > l) {
                     handleType = PathDataHandleType.HandleA;
                     prevBestDistance = l;
@@ -179,7 +175,7 @@ export class IntersectionService {
                 }
                 const b = abs.b;
                 if (b) {
-                  l = Utils.getLength(p, b);
+                  l = Utils.getDistance(p, b);
                   if (l <= accuracy && prevBestDistance > l) {
                     handleType = PathDataHandleType.HandleB;
                     prevBestDistance = l;
@@ -215,7 +211,8 @@ export class IntersectionService {
 
   getMouseOverPathCurve(
     nodes: TreeNode[],
-    screenPoint: DOMPoint
+    screenPoint: DOMPoint,
+    accuracy = 2
   ): NearestCommandPoint | null {
     if (!nodes || !screenPoint) {
       return null;
@@ -229,7 +226,7 @@ export class IntersectionService {
         zoom = 0.01;
       }
       // Convert stroke with with screen zoom level, so properly calculated when zoomed.
-      const strokeThickness = Math.max(node.strokeWidth(), 2);
+      const strokeThickness = Math.max(node.strokeWidth(), accuracy);
       const nextNearest = this.getNearestPathPoint(
         node,
         elementPoint,
@@ -269,7 +266,14 @@ export class IntersectionService {
     }
 
     const nodeBounds = node.getBBox();
-    if (!Utils.rectIntersectPoint(nodeBounds, elementPoint)) {
+    // Optimize, skip in a case if outside of the bounds.
+    if (
+      !Utils.rectIntersectPoint(
+        // Shrink a bit so accuracy can also included
+        Utils.shrinkRect(nodeBounds, accuracy, accuracy),
+        elementPoint
+      )
+    ) {
       return null;
     }
 
@@ -308,7 +312,7 @@ export class IntersectionService {
         for (let i = startWith; i <= totalLength; i += step) {
           const pLen = command.getPointOnPath(i);
           if (pLen) {
-            const length = Utils.getLength(elementPoint, pLen);
+            const length = Utils.getDistance(elementPoint, pLen);
             if (!lengthLimit || lengthLimit >= length) {
               if (!nearest) {
                 nearest = {
@@ -360,7 +364,7 @@ export class IntersectionService {
           if (nearest.allPoints) {
             nearest.allPoints.push(nextPointFound);
           }
-          const nextLength = Utils.getLength(nextPointFound, elementPoint);
+          const nextLength = Utils.getDistance(nextPointFound, elementPoint);
           if (nearest.distance > nextLength) {
             n.distance = nextLength;
             n.point = nextPointFound;
@@ -440,6 +444,7 @@ export class IntersectionService {
       ) {
         return;
       }
+
       const isCenterTransform = key === AdornerPointType.CenterTransform;
       const isTranslate = key === AdornerPointType.Translate;
       if (!adornerPoint && isCenterTransform) {
@@ -454,16 +459,17 @@ export class IntersectionService {
         adornerPosition = Utils.alongVector(adornerPoint, v, minDistance);
       }
 
-      const moveAdornerDistance = Utils.getLength(adornerPosition, point);
+      const moveAdornerDistance = Utils.getDistance(adornerPosition, point);
       // Rotate adorner displacement:
       let rotateDistance = Number.MAX_VALUE;
       if (v && AdornerTypeUtils.allowToRotateAdorners(key)) {
         const rotateAccuracy = minDistance * rotateArea;
-        rotateDistance = Utils.getLength(
+        rotateDistance = Utils.getDistance(
           Utils.alongVector(adornerPoint, v, rotateAccuracy),
           point
         );
       }
+
       if (
         rotateDistance <= minDistance * rotateArea ||
         moveAdornerDistance <= minDistance

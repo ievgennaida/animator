@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { BaseTool } from "../viewport/base.tool";
-import { PathDirectSelectionTool } from "../viewport/path-direct-selection.tool";
-import { SelectionTool } from "../viewport/selection.tool";
+import { BaseTool } from "../tools/base.tool";
+import { PathDirectSelectionTool } from "../tools/path-direct-selection.tool";
+import { SelectionTool } from "../tools/selection.tool";
 import { BBoxModeCommand } from "./bbox-mode-command";
 import { CopyCommand } from "./copy-command";
 import { CutCommand } from "./cut-command";
@@ -14,9 +14,11 @@ import { SendToBottomCommand } from "./order-commands/send-to-bottom-command";
 import { StepBackwardCommand } from "./order-commands/step-backward-command";
 import { StepForwardCommand } from "./order-commands/step-forward-command";
 import { PasteCommand } from "./paste-command";
+import { AddPathNodesCommand } from "./path-commands/add-path-nodes-mode-command";
+import { RemovePathNodesCommand } from "./path-commands/remove-path-nodes-command";
+import { SmoothNodesCommand } from "./path-commands/smooth-path-nodes-command";
 import { RedoCommand } from "./redo-command";
 import { RemoveElementCommand } from "./remove-element-command";
-import { RemovePathNodesCommand } from "./remove-path-nodes-command";
 import { SelectAllCommand } from "./selection-commands/select-all-command";
 import { SelectGroupCommand } from "./selection-commands/select-group-command";
 import { SelectNoneCommand } from "./selection-commands/select-none-command";
@@ -55,7 +57,9 @@ export class CommandsService {
     private selectGroupCommand: SelectGroupCommand,
     private wireframeCommand: WireframeCommand,
     private visibilityCommand: VisibilityCommand,
-    private removePathNodesCommand: RemovePathNodesCommand
+    private removePathNodesCommand: RemovePathNodesCommand,
+    private smoothNodesCommand: SmoothNodesCommand,
+    private addPathNodesCommand: AddPathNodesCommand
   ) {}
   getPathDataContextCommands(): BaseCommand[] {
     return [this.removePathNodesCommand];
@@ -102,7 +106,12 @@ export class CommandsService {
       return [];
     }
     if (tool instanceof PathDirectSelectionTool) {
-      return [this.removePathNodesCommand];
+      return [
+        this.addPathNodesCommand,
+        this.removePathNodesCommand,
+        this.separatorCommand,
+        this.smoothNodesCommand,
+      ];
     } else if (tool instanceof SelectionTool) {
       return [
         this.selectAllCommand,

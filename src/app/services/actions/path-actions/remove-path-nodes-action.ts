@@ -3,6 +3,7 @@ import {
   PathDataHandle,
   PathDataHandleType,
 } from "src/app/models/path-data-handle";
+import { PathData } from "src/app/models/path/path-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
 import {
@@ -53,26 +54,25 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
   commit() {
     this.saveInitialValues(this.nodes, [PathDataPropertyKey]);
 
-    this.nodes.forEach((node) => {
-      const data = node.getPathData();
-      this.items.forEach((p) => {
-        if (p.commandType === PathDataHandleType.Point && p.node === node) {
-          // data.deleteCommand(p.command);
-        }
-      });
-
-      // data.recalculate();
-      // node.setPathData(data);
-      // node.cleanCache();
+    const items = new Map<TreeNode, PathData>();
+    this.items.forEach((p) => {
+      if (p.commandType === PathDataHandleType.Point) {
+        p.pathData.deleteCommand(p.command);
+        items.set(p.node, p.pathData);
+      }
     });
 
+    items.forEach((pathData, node) => {
+      this.propertiesService.setPathData(node, pathData);
+      node.cleanCache();
+    });
     super.commit();
   }
   init(items: PathDataHandle[]) {
     // Important, clone the reference to keep it for undo service
-    const filtered = items.filter(
-      (p) => p.commandType === PathDataHandleType.Point
-    );
+    const filtered = items
+      .filter((p) => p.commandType === PathDataHandleType.Point)
+      .sort((a, b) => b.commandIndex - a.commandIndex);
     this.items = [...filtered];
     this.nodes = Utils.distinctElement(items.map((p) => p.node));
     this.title = `Remove: ${Utils.getTreeNodesTitle(this.nodes)}`;

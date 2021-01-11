@@ -6,7 +6,7 @@ import {
 } from "@angular/material/tree";
 import { BehaviorSubject, Observable } from "rxjs";
 import { InputDocument } from "../models/input-document";
-import { Keyframe } from "../models/keyframes/Keyframe";
+import { Keyframe } from "../models/keyframes/keyframe";
 import { TreeNode } from "../models/tree-node";
 import { AppFactory } from "./app-factory";
 import { LoggerService } from "./logger.service";
@@ -135,6 +135,22 @@ export class OutlineService {
     });
     return changed;
   }
+
+  syncExpandedState(): boolean {
+    let changed = false;
+    this.getAllNodes().forEach((node) => {
+      if (this.treeControl.isExpandable(node)) {
+        changed = true;
+        if (node.expanded) {
+          this.treeControl.expand(node);
+        } else {
+          this.treeControl.collapse(node);
+        }
+      }
+    });
+    return changed;
+  }
+
   getAllNodes(): TreeNode[] {
     if (this.flatDataSource && this.flatDataSource._flattenedData) {
       return this.flatDataSource._flattenedData.getValue();

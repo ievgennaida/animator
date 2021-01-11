@@ -4,7 +4,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { PropertiesService } from "../../../properties.service";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 /**
  * Rect translate by the mouse action.

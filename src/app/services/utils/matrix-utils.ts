@@ -307,7 +307,7 @@ export class PathDataUtils {
    * transform path data by a matrix.
    * @param matrix matrix to transform path data
    * @param pathData path data to transform.
-   * @param filters filter the points to be be transformed.
+   * @param filters filter the points list to be be transformed.
    */
   static transformPathByMatrix(
     pathData: PathData,
@@ -316,8 +316,8 @@ export class PathDataUtils {
   ): boolean {
     let changed = false;
     if (pathData) {
-      // Virtual control point can affect previous related commands.
-      // We need to avoid double
+      // Virtual control point can affect previous related commands points and handlers.
+      // hack: We need to avoid double apply for the same handler.
       pathData.forEach((command) => command.markAsUnchanged());
       pathData.forEach((command, commandIndex) => {
         if (command) {
@@ -380,8 +380,8 @@ export class PathDataUtils {
             );
 
             const newCenter = center.matrixTransform(matrix);
-            const ryLen = Utils.getLength(ry, newCenter);
-            const rxLen = Utils.getLength(rx, newCenter);
+            const ryLen = Utils.getDistance(ry, newCenter);
+            const rxLen = Utils.getDistance(rx, newCenter);
             command.rx = rxLen;
             command.ry = ryLen;
             if (command.rx !== rxLen || command.ry !== ryLen) {

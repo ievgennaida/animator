@@ -11,7 +11,7 @@ import {
 import { takeUntil } from "rxjs/operators";
 import { MouseEventArgs } from "src/app/models/mouse-event-args";
 import { Utils } from "src/app/services/utils/utils";
-import { ToolsService } from "src/app/services/viewport/tools.service";
+import { ToolsService } from "src/app/services/tools/tools.service";
 import { BaseComponent } from "../../base-component";
 
 @Component({

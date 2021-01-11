@@ -11,7 +11,7 @@ import { takeUntil, throttleTime } from "rxjs/operators";
 import { PathDataHandleType } from "src/app/models/path-data-handle";
 import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
-import { Property } from "src/app/models/Properties/Property";
+import { Property } from "src/app/models/properties/property";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { MouseOverService } from "src/app/services/mouse-over.service";
 import {

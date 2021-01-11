@@ -1,10 +1,10 @@
 import { InputDocument } from "src/app/models/input-document";
 import { IParser } from "src/app/models/interfaces/parser";
-import { DNumberProperty } from "src/app/models/Properties/DNumberProperty";
-import { NumberProperty } from "src/app/models/Properties/NumberProperty";
-import { Property } from "src/app/models/Properties/Property";
-import { PropertyType } from "src/app/models/Properties/PropertyType";
-import { TextProperty } from "src/app/models/Properties/TextProperty";
+import { DNumberProperty } from "src/app/models/properties/dnumber-property";
+import { NumberProperty } from "src/app/models/properties/number-property";
+import { Property } from "src/app/models/properties/property";
+import { PropertyType } from "src/app/models/properties/property-type";
+import { TextProperty } from "src/app/models/properties/text-property";
 import { TreeNode } from "../../models/tree-node";
 import { SVGElementType } from "./svg-element-type";
 

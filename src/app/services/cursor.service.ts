@@ -1,12 +1,9 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
+import { AdornerPointType, AdornerTypeUtils } from "../models/adorner-type";
 import { CursorType } from "../models/cursor-type";
 import { HandleData } from "../models/handle-data";
 import { Utils } from "./utils/utils";
-import {
-  AdornerPointType,
-  AdornerTypeUtils,
-} from "./viewport/adorners/adorner-type";
 
 @Injectable({
   providedIn: "root",

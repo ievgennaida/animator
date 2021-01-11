@@ -12,9 +12,9 @@ import {
 } from "src/app/services/properties.service";
 import { Utils } from "src/app/services/utils/utils";
 import { ViewService } from "src/app/services/view.service";
-import { AdornerType } from "src/app/services/viewport/adorners/adorner-type";
+import { AdornerType } from "src/app/models/adorner-type";
 import { MatrixUtils, PathDataUtils } from "../../../utils/matrix-utils";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 import { MatrixScaleAction } from "./matrix-scale-action";
 
 @Injectable({
@@ -130,7 +130,7 @@ export class PathScaleAction extends MatrixScaleAction {
       filters
     );
     if (changed) {
-      this.node.setPathData(pathData);
+      this.propertiesService.setPathData(this.node, pathData);
     }
     return changed;
   }

@@ -1,12 +1,9 @@
 import { Injectable, Type } from "@angular/core";
+import { AdornerPointType, AdornerType } from "src/app/models/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { UndoService } from "../../undo.service";
 import { Utils } from "../../utils/utils";
-import {
-  AdornerPointType,
-  AdornerType,
-} from "../../viewport/adorners/adorner-type";
 import { BaseAction } from "../base-action";
 import {
   rotateActions,
@@ -23,7 +20,7 @@ import { MatrixSkewAction } from "./skew/matrix-skew-action";
 import {
   TransformationMode,
   TransformationModeIcon,
-} from "./transformation-mode";
+} from "../../../models/transformation-mode";
 import { CenterElementTranslateAction } from "./translate/center-element-translate-action";
 import { CenterSelectionTranslateAction } from "./translate/center-selection-translate-action";
 import { MatrixTranslateAction } from "./translate/matrix-translate-action";

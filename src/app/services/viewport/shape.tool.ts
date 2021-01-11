@@ -7,7 +7,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { AddElementAction } from "../actions/add-element-action";
-import { TransformationMode } from "../actions/transformations/transformation-mode";
+import { TransformationMode } from "../../models/transformation-mode";
 import { AdornersService } from "../adorners-service";
 import { CursorService } from "../cursor.service";
 import { DocumentService } from "../document.service";
@@ -22,8 +22,8 @@ import { ViewService } from "../view.service";
 import { AdornerPointType } from "./adorners/adorner-type";
 import { AutoPanService } from "./auto-pan-service";
 import { BaseTool } from "./base.tool";
-import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
-import { SelectionTool } from "./selection.tool";
+import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
+import { SelectionTool } from "../tools/selection.tool";
 import { TransformsService } from "./transforms.service";
 
 @Injectable({

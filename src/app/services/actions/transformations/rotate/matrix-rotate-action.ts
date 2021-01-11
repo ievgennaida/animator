@@ -9,7 +9,7 @@ import { DecomposedMatrix } from "../../../../models/decompose-matrix";
 import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 @Injectable({
   providedIn: "root",

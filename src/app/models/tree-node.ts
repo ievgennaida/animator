@@ -1,11 +1,11 @@
 import { TimelineRow } from "animation-timeline-js";
 import { Utils } from "../services/utils/utils";
-import { Adorner } from "../services/viewport/adorners/adorner";
+import { Adorner } from "./adorner";
 import { IBBox } from "./interfaces/bbox";
 import { ICTMProvider } from "./interfaces/ctm-provider";
 import { PathData } from "./path/path-data";
-import { Properties } from "./Properties/Properties";
-import { Property } from "./Properties/Property";
+import { Properties } from "./properties/properties";
+import { Property } from "./properties/property";
 
 /**
  * Application node view model.
@@ -124,10 +124,7 @@ export class TreeNode implements ICTMProvider, IBBox {
 
     return pathData;
   }
-  public setPathData(data: PathData) {
-    this.pathDataCache = data;
-    PathData.setPathData(data, this.getElement());
-  }
+
   /**
    * get cached bounding client rect.
    */

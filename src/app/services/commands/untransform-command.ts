@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { AdornersService } from "../adorners-service";
 import { SelectionService } from "../selection.service";
-import { AdornersRenderer } from "../viewport/renderers/adorners.renderer";
-import { TransformsService } from "../viewport/transforms.service";
+import { AdornersRenderer } from "../renderers/adorners.renderer";
+import { TransformsService } from "../tools/transforms.service";
 
 /**
  * Command to remove matrix transform.

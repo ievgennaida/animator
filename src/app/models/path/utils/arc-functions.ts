@@ -156,7 +156,7 @@ export const approximateArcLengthOfCurve = (
   for (let i = 0; i < resolution; i++) {
     const t = Utils.clamp(i * (1 / resolution), 0, 1);
     nextPoint = pointOnCurveFunc(t);
-    resultantArcLength += Utils.getLength(prevPoint, nextPoint);
+    resultantArcLength += Utils.getDistance(prevPoint, nextPoint);
     approximationLines.push([prevPoint, nextPoint]);
 
     arcLengthMap.push({
@@ -169,7 +169,7 @@ export const approximateArcLengthOfCurve = (
   // Last stretch to the endpoint
   nextPoint = pointOnCurveFunc(1);
   approximationLines.push([prevPoint, nextPoint]);
-  resultantArcLength += Utils.getLength(prevPoint, nextPoint);
+  resultantArcLength += Utils.getDistance(prevPoint, nextPoint);
   arcLengthMap.push({
     t: 1,
     arcLength: resultantArcLength,

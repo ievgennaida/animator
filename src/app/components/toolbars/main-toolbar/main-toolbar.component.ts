@@ -22,10 +22,10 @@ import { PasteService } from "src/app/services/paste.service";
 import { SelectionService } from "src/app/services/selection.service";
 import { UndoService } from "src/app/services/undo.service";
 import { ViewService } from "src/app/services/view.service";
-import { PanTool } from "src/app/services/viewport/pan.tool";
-import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
-import { ToolsService } from "src/app/services/viewport/tools.service";
-import { ZoomTool } from "src/app/services/viewport/zoom.tool";
+import { PanTool } from "src/app/services/tools/pan.tool";
+import { GridLinesRenderer } from "src/app/services/renderers/grid-lines.renderer";
+import { ToolsService } from "src/app/services/tools/tools.service";
+import { ZoomTool } from "src/app/services/tools/zoom.tool";
 import { consts, PanelsIds } from "src/environments/consts";
 import { BaseComponent } from "../../base-component";
 @Component({

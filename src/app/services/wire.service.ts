@@ -6,18 +6,19 @@ import { AdornersService } from "./adorners-service";
 import { DocumentService } from "./document.service";
 import { MouseOverService } from "./mouse-over.service";
 import { OutlineService } from "./outline.service";
+import { PathDataPropertyKey, PropertiesService } from "./properties.service";
+import { AdornersRenderer } from "./renderers/adorners.renderer";
+import { BaseRenderer } from "./renderers/base.renderer";
+import { BoundsRenderer } from "./renderers/bounds.renderer";
+import { GridLinesRenderer } from "./renderers/grid-lines.renderer";
+import { MouseOverRenderer } from "./renderers/mouse-over.renderer";
+import { PathRenderer } from "./renderers/path.renderer";
+import { SelectorRenderer } from "./renderers/selector.renderer";
 import { SelectionService } from "./selection.service";
+import { ToolsService } from "./tools/tools.service";
+import { TransformsService } from "./tools/transforms.service";
 import { UndoService } from "./undo.service";
 import { ViewService } from "./view.service";
-import { AdornersRenderer } from "./viewport/renderers/adorners.renderer";
-import { BaseRenderer } from "./viewport/renderers/base.renderer";
-import { BoundsRenderer } from "./viewport/renderers/bounds.renderer";
-import { GridLinesRenderer } from "./viewport/renderers/grid-lines.renderer";
-import { MouseOverRenderer } from "./viewport/renderers/mouse-over.renderer";
-import { PathRenderer } from "./viewport/renderers/path.renderer";
-import { SelectorRenderer } from "./viewport/renderers/selector.renderer";
-import { ToolsService } from "./viewport/tools.service";
-import { TransformsService } from "./viewport/transforms.service";
 
 /**
  * Wire services together
@@ -38,6 +39,7 @@ export class WireService {
     private adornersService: AdornersService,
     private selectionService: SelectionService,
     private undoService: UndoService,
+    propertiesService: PropertiesService,
     viewService: ViewService,
     toolsService: ToolsService,
     documentService: DocumentService,
@@ -62,6 +64,12 @@ export class WireService {
         boundsRenderer,
         pathRenderer
       );
+    });
+    propertiesService.changedSubject.subscribe((prop) => {
+      if (!prop || prop.key === PathDataPropertyKey) {
+        pathRenderer.invalidate();
+        boundsRenderer.invalidate();
+      }
     });
     selectionService.pathDataSubject.subscribe(() => {
       BaseRenderer.invalidateOnceAfter(() => {
@@ -168,6 +176,8 @@ export class WireService {
       BaseRenderer.invalidateOnceAfter(
         () => {
           this.cleanCache();
+
+          // Deselect nodes that was removed from the outline tree
           const nodes = this.outlineService.getAllNodes();
           const selected = this.selectionService.getSelected();
           const toDeselect = [];

@@ -19,10 +19,10 @@ import {
 } from "src/app/services/mouse-over.service";
 import { OutlineService } from "src/app/services/outline.service";
 import { ViewService } from "src/app/services/view.service";
-import { PanTool } from "src/app/services/viewport/pan.tool";
-import { GridLinesRenderer } from "src/app/services/viewport/renderers/grid-lines.renderer";
-import { ScrollbarsPanTool } from "src/app/services/viewport/scrollbars-pan.tool";
-import { ToolsService } from "src/app/services/viewport/tools.service";
+import { PanTool } from "src/app/services/tools/pan.tool";
+import { GridLinesRenderer } from "src/app/services/renderers/grid-lines.renderer";
+import { ScrollbarsPanTool } from "src/app/services/tools/scrollbars-pan.tool";
+import { ToolsService } from "src/app/services/tools/tools.service";
 import { BaseComponent } from "../base-component";
 
 @Component({

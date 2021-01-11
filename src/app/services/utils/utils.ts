@@ -1,6 +1,6 @@
+import { AdornerPointType } from "src/app/models/adorner-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
-import { AdornerPointType } from "../viewport/adorners/adorner-type";
 
 export interface CalculatedEllipse {
   center: DOMPoint;
@@ -11,8 +11,8 @@ export interface CalculatedEllipse {
 export class Utils {
   static getTreeNodesTitle(nodes: TreeNode[] | null): string {
     const count = nodes?.length || 0;
-    if (count === 1) {
-      return `${nodes[0].name}`;
+    if (count === 1 && nodes[0]) {
+      return `${nodes[0].name || count}`;
     } else {
       return `nodes (${count})`;
     }
@@ -31,6 +31,16 @@ export class Utils {
     }
     return vector;
   }
+  static subtract(point: DOMPoint, point2: DOMPoint): DOMPoint {
+    return new DOMPoint(point.x - point2.x, point.y + point2.y);
+  }
+  static multiplyByPoint(point: DOMPoint, point2: DOMPoint): DOMPoint {
+    return new DOMPoint(point.x * point2.x, point.y * point2.y);
+  }
+  static multiply(point: DOMPoint, value: number): DOMPoint {
+    return new DOMPoint(point.x * value, point.y * value);
+  }
+
   /**
    * find point along vector.
    * @param point point.
@@ -493,7 +503,7 @@ export class Utils {
   }
 
   static normalizeSelf(vector: DOMPoint): DOMPoint {
-    const mag = Utils.getLength(vector);
+    const mag = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
     if (mag === 0) {
       return vector;
     }
@@ -502,24 +512,23 @@ export class Utils {
     return vector;
   }
   static getPointAtLength(a: DOMPoint, b: DOMPoint, pos: number): DOMPoint {
-    const fraction = pos / Utils.getLength(a, b);
+    const fraction = pos / Utils.getDistance(a, b);
     const newDeltaX = (b.x - a.x) * fraction;
     const newDeltaY = (b.y - a.y) * fraction;
     return new DOMPoint(a.x + newDeltaX, a.y + newDeltaY);
   }
 
-  static getLength(a: DOMPoint, b: DOMPoint = null): number {
+  static getDistance(a: DOMPoint | null, b: DOMPoint | null): number {
+    if (!a || !b) {
+      return 0;
+    }
     const leng = Math.sqrt(
       Math.pow(a.x - (b ? b.x : 0), 2) + Math.pow(a.y - (b ? b.y : 0), 2)
     );
     return leng;
   }
-  static getDistance(x1: number, y1: number, x2?: number, y2?: number) {
-    if (x2 !== undefined && y2 !== undefined) {
-      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-    } else {
-      return Math.abs(x1 - y1);
-    }
+  static getABDistance(a: number, b: number) {
+    return Math.abs(a - b);
   }
   static getRectCenter(rect: DOMRect, relative = false): DOMPoint | null {
     if (!rect) {

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnDestroy } from "@angular/core";
-import { NumberProperty } from "src/app/models/Properties/NumberProperty";
+import { NumberProperty } from "src/app/models/properties/number-property";
 import { PropertiesService } from "src/app/services/properties.service";
 import { PlayerService } from "src/app/services/player.service";
 import { TimeData } from "src/app/models/timedata";

@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
-import { NumberProperty } from "../models/Properties/NumberProperty";
-import { Property } from "../models/Properties/Property";
+import { PathData } from "../models/path/path-data";
+import { NumberProperty } from "../models/properties/number-property";
+import { Property } from "../models/properties/property";
 import { TreeNode } from "../models/tree-node";
 import { Utils } from "./utils/utils";
 
@@ -52,6 +53,17 @@ export class PropertiesService {
       this.emitPropertyChanged(property);
     }
     return true;
+  }
+  public setPathData(node: TreeNode, data: PathData) {
+    node.cleanCache();
+    const element = node.getElement();
+    const changed = PathData.setPathData(data, element);
+    if (changed) {
+      const property = this.getPropertyByKey(node, PathDataPropertyKey);
+      if (property) {
+        this.emitPropertyChanged(property);
+      }
+    }
   }
 
   getPropertyByKey<T extends Property>(node: TreeNode, key: string): T {

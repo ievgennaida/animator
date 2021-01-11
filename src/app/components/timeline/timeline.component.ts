@@ -19,7 +19,7 @@ import {
   TimelineRowStyle,
 } from "animation-timeline-js";
 import { takeUntil } from "rxjs/operators";
-import { Keyframe } from "src/app/models/keyframes/Keyframe";
+import { Keyframe } from "src/app/models/keyframes/keyframe";
 import { TreeNode } from "src/app/models/tree-node";
 
 import { OutlineService } from "src/app/services/outline.service";

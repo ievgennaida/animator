@@ -12,7 +12,7 @@ import {
 import { Utils } from "src/app/services/utils/utils";
 import { PathDataUtils } from "../../../utils/matrix-utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 @Injectable({
   providedIn: "root",
@@ -95,7 +95,7 @@ export class PathRotateAction extends BaseTransformAction {
       this.pathHandles
     );
     if (changed) {
-      this.node.setPathData(pathData);
+      this.propertiesService.setPathData(this.node, pathData);
       if (this.centerTransform) {
         this.propertiesService.transformCenterByMatrix(
           this.node,

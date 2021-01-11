@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { ResizeEvent } from "angular-resizable-element";
 import { consts } from "src/environments/consts";
-import { ToolsService } from "./services/viewport/tools.service";
+import { ToolsService } from "./services/tools/tools.service";
 import { ViewService } from "./services/view.service";
 import { HotkeysService } from "./services/hotkeys.service";
 import { WireService } from "./services/wire.service";

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { Property } from "src/app/models/Properties/Property";
+import { Property } from "src/app/models/properties/property";
 import { PropertiesService } from "src/app/services/properties.service";
 import { BaseComponent } from '../../base-component';
 

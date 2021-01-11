@@ -10,7 +10,7 @@ import {
 import { Utils } from "src/app/services/utils/utils";
 import { ViewService } from "src/app/services/view.service";
 import { MatrixUtils } from "../../../utils/matrix-utils";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 import { MatrixScaleAction } from "./matrix-scale-action";
 
 @Injectable({

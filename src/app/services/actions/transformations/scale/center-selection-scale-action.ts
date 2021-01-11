@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
+import { AdornerType } from "src/app/models/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { Utils } from "src/app/services/utils/utils";
 import { ViewService } from "src/app/services/view.service";
-import { AdornerType } from "src/app/services/viewport/adorners/adorner-type";
 import { PropertiesService } from "../../../properties.service";
-import { TransformationModeIcon } from "../transformation-mode";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 import { MatrixScaleAction } from "./matrix-scale-action";
 
 /**

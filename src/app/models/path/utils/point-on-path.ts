@@ -116,7 +116,7 @@ export class PointOnPathUtils {
         );
         return length;
       } else {
-        return Utils.getLength(prevPoint, currentPoint);
+        return Utils.getDistance(prevPoint, currentPoint);
       }
       // T Shorthand/smooth quadratic Bezier curveto x,y
     } else if (
@@ -131,10 +131,10 @@ export class PointOnPathUtils {
       if (!moveAbs) {
         return null;
       }
-      return Utils.getLength(moveAbs.p, prevPoint);
+      return Utils.getDistance(moveAbs.p, prevPoint);
     } else {
       // L,H,V
-      return Utils.getLength(prevPoint, command.p);
+      return Utils.getDistance(prevPoint, command.p);
     }
   }
 

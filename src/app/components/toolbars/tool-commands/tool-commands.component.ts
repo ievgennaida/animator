@@ -8,7 +8,7 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { CommandsService } from "src/app/services/commands/commands-service";
-import { ToolsService } from "src/app/services/viewport/tools.service";
+import { ToolsService } from "src/app/services/tools/tools.service";
 import { BaseComponent } from "../../base-component";
 
 /**

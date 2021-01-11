@@ -17,7 +17,7 @@ import {
   ChangeStateMode,
   StateChangedSource,
 } from "src/app/services/state-subject";
-import { MouseOverRenderer } from "src/app/services/viewport/renderers/mouse-over.renderer";
+import { MouseOverRenderer } from "src/app/services/renderers/mouse-over.renderer";
 import { BaseComponent } from "../../base-component";
 
 @Component({
