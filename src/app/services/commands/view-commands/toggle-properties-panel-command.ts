@@ -42,6 +42,11 @@ export class TogglePropertiesPanelCommand implements BaseCommand {
     const visible = this.menuService.isPanelVisible(panelId);
     if (!visible) {
       this.viewService.openMenu();
+      this.icon = "check";
+    }
+    else
+    {
+      this.icon = "null";
     }
     this.menuService.setPanelVisibility(panelId, !visible);
     return !visible;
