@@ -50,6 +50,7 @@ export class OutlineComponent extends BaseComponent implements OnInit {
     this.outlineCommandsService.scrollToSelectedCommand.executed
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
+        this.expandSelected();
         this.scrollToSelected();
       });
     this.outlineService.nodesSubject
@@ -67,9 +68,7 @@ export class OutlineComponent extends BaseComponent implements OnInit {
       )
       .subscribe((data) => {
         if (data && data.values) {
-          data.values.forEach((node) => {
-            this.outlineService.expandToTop(node);
-          });
+          this.expandSelected();
         }
         this.cdRef.detectChanges();
         if (
@@ -83,6 +82,11 @@ export class OutlineComponent extends BaseComponent implements OnInit {
     this.cdRef.detectChanges();
   }
 
+  expandSelected() {
+    this.selectionService.getSelected().forEach((node) => {
+      this.outlineService.expandToTop(node);
+    });
+  }
   scrollToSelected() {
     if (this.element && this.element.nativeElement) {
       setTimeout(() => {
