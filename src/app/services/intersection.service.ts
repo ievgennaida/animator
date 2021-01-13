@@ -196,7 +196,6 @@ export class IntersectionService {
                 new PathDataHandle(
                   node,
                   data,
-                  command,
                   commandIndex,
                   handleType
                 )

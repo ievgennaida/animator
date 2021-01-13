@@ -7,7 +7,6 @@ export interface IParser {
    * Convert element to tree node.
    * @param el element to be converted.
    */
-  convertTreeNode(el: any): TreeNode;
-  buildFlat(item: TreeNode, collection?: TreeNode[]): TreeNode[];
+  convertTreeNode(el: any, deep: boolean): TreeNode;
   isContainer(node: TreeNode): boolean;
 }

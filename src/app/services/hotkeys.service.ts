@@ -1,16 +1,18 @@
 import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable } from "@angular/core";
 import { EventManager } from "@angular/platform-browser";
+import { CopyCommand } from "./commands/copy-command";
+import { CutCommand } from "./commands/cut-command";
+import { PasteCommand } from "./commands/paste-command";
 import { RemoveElementCommand } from "./commands/remove-element-command";
-import { UndoService } from "./undo.service";
 import { OutlineService } from "./outline.service";
-import { PasteService } from "./paste.service";
 import { SelectionService } from "./selection.service";
 import { PanTool } from "./tools/pan.tool";
 import { PathDirectSelectionTool } from "./tools/path-direct-selection.tool";
 import { SelectionTool } from "./tools/selection.tool";
 import { ToolsService } from "./tools/tools.service";
 import { ZoomTool } from "./tools/zoom.tool";
+import { UndoService } from "./undo.service";
 
 @Injectable({
   providedIn: "root",
@@ -25,8 +27,10 @@ export class HotkeysService {
     private zoomTool: ZoomTool,
     private selectionTool: SelectionTool,
     private pathTool: PathDirectSelectionTool,
-    private pasteService: PasteService,
     private undoService: UndoService,
+    private cutCommand: CutCommand,
+    private copyCommand: CopyCommand,
+    private pasteCommand: PasteCommand,
     private removeElementCommand: RemoveElementCommand,
     @Inject(DOCUMENT) private document: Document
   ) {}
@@ -40,11 +44,23 @@ export class HotkeysService {
   initialize() {
     // TODO: make it language invariant
     this.add(`keydown.control.a`, () => this.selectionService.selectAll());
-    this.add(`keydown.control.x`, () => this.pasteService.cut());
     this.add(`keydown.control.z`, () => this.undoService.undo());
     this.add(`keydown.control.y`, () => this.undoService.redo());
-    this.add(`keydown.control.c`, () => this.pasteService.copy());
-    this.add(`keydown.control.p`, () => this.pasteService.paste());
+    this.add(`keydown.control.x`, () => {
+      if (this.cutCommand.canExecute()) {
+        this.cutCommand.execute();
+      }
+    });
+    this.add(`keydown.control.c`, () => {
+      if (this.copyCommand.canExecute()) {
+        this.copyCommand.execute();
+      }
+    });
+    this.add(`keydown.control.v`, () => {
+      if (this.pasteCommand.canExecute()) {
+        this.pasteCommand.execute();
+      }
+    });
     this.add(`keydown.delete`, () => this.removeElementCommand.execute());
     this.add(`keydown.v`, () =>
       this.toolsService.setActiveTool(this.selectionTool)

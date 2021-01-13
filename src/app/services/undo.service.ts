@@ -32,7 +32,7 @@ export class UndoService {
    *
    * @param actionType to create action and resolve dependencies.
    */
-  getAction<T>(actionType: Type<T>): T {
+  getAction<T extends BaseAction>(actionType: Type<T>): T {
     const newActionInstance = this.actionsFactory.get<T>(actionType);
     return newActionInstance;
   }
@@ -67,6 +67,16 @@ export class UndoService {
     return null;
   }
 
+  executeAction<T extends BaseAction>(
+    actionType: Type<T>,
+    initCallback: (action: T) => void
+  ) {
+    const action = this.getAction(actionType);
+    if (initCallback) {
+      initCallback(action);
+    }
+    this.startAction(action as BaseAction, true);
+  }
   /**
    * Perform action and add to the collection.
    */

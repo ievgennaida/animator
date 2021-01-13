@@ -8,56 +8,47 @@ import { UndoService } from "../undo.service";
 import { BaseCommand } from "./base-command";
 
 /**
- * Undo/redo add element action
+ * Undo/redo remove element action
  */
 @Injectable({
   providedIn: "root",
 })
 export class RemoveElementCommand implements BaseCommand {
   constructor(
-    private selectionService: SelectionService,
-    private undoService: UndoService,
-    private logger: LoggerService
+    protected selectionService: SelectionService,
+    protected undoService: UndoService,
+    protected logger: LoggerService
   ) {
     this.selectionService.selected.subscribe(() => this.changed.next(this));
   }
-  tooltip = "Remove selected items";
+
   title = "Delete";
   icon = "clear";
   hotkey = "Del";
+  tooltip = `Remove selected items (${this.hotkey})`;
   iconSVG = false;
   nodes: TreeNode[] | null = null;
   // Store previous indexes of the elements
   indexes: number[] = [];
   changed = new Subject<BaseCommand>();
-  canExecute(): boolean {
-    const selected = this.selectionService.getSelected();
+  canRemove(nodes: TreeNode[]): boolean {
+    const selected = nodes.filter((p) => p.allowRemove);
     if (selected && selected.length > 0) {
-      const nodeCannotBeRemoved = selected.find((p) => !p.allowDelete);
-      if (nodeCannotBeRemoved) {
-        return false;
-      }
       return true;
     }
-
-    return false;
+  }
+  canExecute(): boolean {
+    // Check whether all selected can be removed.
+    return this.canRemove(this.selectionService.getSelected());
   }
   execute() {
     if (!this.canExecute()) {
       return;
     }
 
-    const selectedNodes = this.selectionService.getTopSelectedNodes();
-
-    if (this.logger.isDebug()) {
-      const title = selectedNodes.length === 1 ? selectedNodes[0].name : "";
-      this.logger.log(`Remove command: (${selectedNodes.length}) ${title}`);
-    }
-
-    const action = this.undoService.getAction(
-      RemoveElementAction
-    );
-    action.init(selectedNodes);
-    this.undoService.startAction(action, true);
+    this.undoService.executeAction(RemoveElementAction, (action) => {
+      const selectedNodes = this.selectionService.getTopSelectedNodes();
+      action.init(selectedNodes);
+    });
   }
 }

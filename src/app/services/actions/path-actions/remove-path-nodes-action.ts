@@ -57,7 +57,7 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     const items = new Map<TreeNode, PathData>();
     this.items.forEach((p) => {
       if (p.commandType === PathDataHandleType.Point) {
-        p.pathData.deleteCommand(p.command);
+        p.pathData.deleteCommandByIndex(p.commandIndex);
         items.set(p.node, p.pathData);
       }
     });

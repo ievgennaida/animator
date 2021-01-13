@@ -17,10 +17,10 @@ export class RedoCommand implements BaseCommand {
       .subscribe(() => this.changed.next(this));
   }
   changed = new Subject<BaseCommand>();
-  tooltip = "Redo Operation";
   title = "Redo";
   icon = "redo";
   hotkey = "Ctrl+Y";
+  tooltip = `Redo Operation (${this.hotkey})`;
   iconSVG = false;
   canExecute(): boolean {
     return this.undoService.canRedo();

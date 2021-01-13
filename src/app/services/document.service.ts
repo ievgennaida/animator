@@ -28,6 +28,9 @@ export class DocumentService {
     });
   }
 
+  /**
+   * Active document subject
+   */
   documentSubject = new BehaviorSubject<InputDocument>(null);
   public get document(): Observable<InputDocument> {
     return this.documentSubject.asObservable();

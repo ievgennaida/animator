@@ -17,10 +17,10 @@ export class UndoCommand implements BaseCommand {
       .subscribe(() => this.changed.next(this));
   }
   changed = new Subject<BaseCommand>();
-  tooltip = "Undo Operation";
   title = "Undo";
   icon = "undo";
   hotkey = "Ctrl+Z";
+  tooltip = `Undo Operation (${this.hotkey})`;
   iconSVG = false;
   canExecute(): boolean {
     return this.undoService.canUndo();

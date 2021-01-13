@@ -1,116 +1,38 @@
-import { InputDocument } from "src/app/models/input-document";
-import { IParser } from "src/app/models/interfaces/parser";
 import { DNumberProperty } from "src/app/models/properties/dnumber-property";
 import { NumberProperty } from "src/app/models/properties/number-property";
 import { Property } from "src/app/models/properties/property";
 import { PropertyType } from "src/app/models/properties/property-type";
 import { TextProperty } from "src/app/models/properties/text-property";
-import { Flags, TreeNode } from "../../models/tree-node";
+import { TreeNode } from "../../models/tree-node";
 import { SVGElementType } from "./svg-element-type";
-import { SvgProperties } from "./svg-properties";
 
-export class SvgTreeParser implements IParser {
-  constructor(private svgPropertiesProvider = new SvgProperties()) {}
-  allowed: string[] = [
-    SVGElementType.a,
-    SVGElementType.circle, // cx, cy, r
-    SVGElementType.ellipse, // cx, cy, rx, ry
-    SVGElementType.foreignObject,
-    SVGElementType.g, // g
-    SVGElementType.image,
-    SVGElementType.line, // ‘x1’, ‘y1’, ‘x2’, ‘y2’, stroke-width
-    SVGElementType.mesh,
-    SVGElementType.path,
-    SVGElementType.polygon,
-    SVGElementType.polyline,
-    SVGElementType.rect, // https://www.w3.org/TR/2016/CR-SVG2-20160915/shapes.html#RectElement
-    SVGElementType.svg, // can be used as a group
-    SVGElementType.switch,
-
-    SVGElementType.symbol,
-    SVGElementType.text,
-    SVGElementType.textpath,
-    SVGElementType.tspan,
-    SVGElementType.unknown,
-    SVGElementType.use,
-    // "defs" // The <defs> element is used to store content that will not be directly displayed.
-  ];
-
-  parse(document: InputDocument): TreeNode[] {
-    const element = document.parsedData as HTMLElement;
-    if (!element) {
-      return;
-    }
-
-    // Represent root node:
-    const svgRootNode = this.convertTreeNode(element, true);
-    svgRootNode.addFlag(Flags.disableRotate);
-    svgRootNode.addFlag(Flags.disableRemove);
-    svgRootNode.addFlag(Flags.disableTransform);
-    svgRootNode.icon = "assignment";
-    svgRootNode.name = document.title;
-    svgRootNode.isRoot = true;
-    svgRootNode.expanded = true;
-    return [svgRootNode];
-  }
-  isContainer(node: TreeNode): boolean {
-    if (!node) {
-      return false;
-    }
-    if (
-      node.type === SVGElementType.svg ||
-      node.type === SVGElementType.g ||
-      node.type === SVGElementType.symbol
-    ) {
-      return true;
-    }
-    return false;
-  }
-
+export class SvgProperties {
   /**
-   * Convert element to treeNode.
-   * @param el element to be converted.
+   * get properties
    */
-  convertTreeNode(elArgs: any, deep = true): TreeNode {
-    const el = elArgs as HTMLElement;
-    const node = new TreeNode();
-
-    // custom label attribute:
-    node.name = el.getAttribute("label") || el.id || `[${el.nodeName}]`;
-    node.tag = el;
-    const tagName = el.tagName.toLowerCase();
-    node.nodeName = el.nodeName;
-    node.type = tagName;
+  getProperties(node: TreeNode): Property[] {
+    const tagName = node.getElement().tagName.toLowerCase();
 
     if (tagName === SVGElementType.circle) {
-      node.icon = "fiber_manual_record";
+      return this.getCircleProperties(node);
     } else if (tagName === SVGElementType.ellipse) {
-      node.icon = "fiber_manual_record";
+      return this.getEllipseProperties(node);
     } else if (tagName === SVGElementType.rect) {
-      node.icon = "crop_square";
-    } else if (tagName === SVGElementType.svg) {
-      node.icon = "folder_special";
+      return this.getRectProperties(node);
     } else if (tagName === SVGElementType.path) {
-      node.icon = "timeline";
+      return this.getPathProperties(node);
     } else if (tagName === SVGElementType.polygon) {
-      node.icon = "star_border";
+      return this.getPolygonProperties(node);
     } else if (tagName === SVGElementType.polyline) {
-      node.icon = "star_border";
+      return this.getPolylineProperties(node);
     } else if (tagName === SVGElementType.tspan) {
-      node.icon = "text_fields";
-      node.addFlag(Flags.disableRotate);
-      node.addFlag(Flags.disableScale);
+      return this.getTSpanProperties(node);
     } else if (tagName === SVGElementType.text) {
-      node.icon = "text_fields";
-    } else if (tagName === SVGElementType.textpath) {
-      node.icon = "text_fields";
+      return this.getTSpanProperties(node);
+    } else if (tagName === SVGElementType.line) {
+      return this.getLineProperties(node);
     }
-
-    node.properties.items = this.svgPropertiesProvider.getProperties(node);
-    if (deep) {
-      this.addChildNodes(node, node.children, el);
-    }
-    return node;
+    return [];
   }
   getTransformProperty(node: TreeNode): TextProperty {
     const el = node.getElement();
@@ -405,37 +327,5 @@ export class SvgTreeParser implements IParser {
 
     properties.push(this.getTransformProperty(node));
     return properties;
-  }
-
-  addChildNodes(
-    parent: TreeNode,
-    collection: TreeNode[],
-    element: HTMLElement
-  ): TreeNode[] {
-    if (!element) {
-      return;
-    }
-
-    const converted = element as HTMLElement;
-    if (!converted) {
-      return;
-    }
-
-    element.childNodes.forEach((childElement) => {
-      if (childElement.nodeType !== 1) {
-        return;
-      }
-
-      const el = childElement as HTMLElement;
-      if (!el || !this.allowed.includes(el.nodeName)) {
-        return;
-      }
-
-      const currentNode = this.convertTreeNode(el);
-      currentNode.parent = parent;
-      this.addChildNodes(currentNode, currentNode.children, el);
-      collection.push(currentNode);
-    });
-    return collection;
   }
 }

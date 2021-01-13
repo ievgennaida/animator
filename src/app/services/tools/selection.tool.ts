@@ -99,7 +99,9 @@ export class SelectionTool extends BaseTool {
         return;
       }
 
-      const nodesToSelect = this.selectionService.getTopSelectedNodes();
+      const nodesToSelect = this.selectionService
+        .getTopSelectedNodes()
+        .filter((p) => !p.allowTransform);
       const transformMode = AdornerTypeUtils.getTransformationMode(handle);
       this.transformsService.start(
         transformMode,

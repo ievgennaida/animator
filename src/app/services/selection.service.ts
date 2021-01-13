@@ -47,7 +47,7 @@ export class SelectionService {
    * @param node Node to start top-search from.
    */
   getTopSelectedNode(node: TreeNode): TreeNode | null {
-    if (!node || !node.selected || !node.transformable) {
+    if (!node || !node.selected) {
       return null;
     }
 
@@ -55,10 +55,8 @@ export class SelectionService {
     while (node != null) {
       node = node.parent;
       if (node) {
-        if (node.selected && node.transformable) {
+        if (node.selected) {
           toReturn = node;
-        } else if (!node.transformable) {
-          break;
         }
       }
     }

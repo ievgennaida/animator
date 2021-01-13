@@ -8,7 +8,6 @@ export class PathDataHandle {
   constructor(
     public node: TreeNode,
     public pathData: PathData,
-    public command: PathDataCommand,
     public commandIndex: number,
     public commandType: PathDataHandleType = PathDataHandleType.Point,
     /**
@@ -16,7 +15,9 @@ export class PathDataHandle {
      */
     public point: DOMPoint | null = null
   ) {}
-
+  get command(): PathDataCommand {
+    return this.pathData.commands[this.commandIndex];
+  }
   isHandle(
     node: TreeNode,
     commandIndex: number,

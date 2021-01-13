@@ -1,22 +1,44 @@
 import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
+import { TreeNode } from "src/app/models/tree-node";
 import { BaseCommand } from "src/app/services/commands/base-command";
+import { LoggerService } from "../logger.service";
+import { PasteService } from "../paste.service";
+import { SelectionService } from "../selection.service";
+import { UndoService } from "../undo.service";
+import { RemoveElementCommand } from "./remove-element-command";
 
 /**
- * Cut command
+ * Cut command based on the remove command. But items are copied to the buffer before.
  */
 @Injectable({
   providedIn: "root",
 })
-export class CutCommand implements BaseCommand {
-  constructor() {}
+export class CutCommand extends RemoveElementCommand implements BaseCommand {
+  constructor(
+    selectionService: SelectionService,
+    undoService: UndoService,
+    logger: LoggerService,
+    private clipboardService: PasteService
+  ) {
+    super(selectionService, undoService, logger);
+  }
+  nodes: TreeNode[];
+  indexes: number[];
+  changed: Subject<BaseCommand>;
 
-  tooltip = "Cut selected items";
   title = "Cut";
-  icon = "cut";
+  icon = "content_cut";
   hotkey = "Ctrl+X";
+  tooltip = `Cut selected items (${this.hotkey})`;
   iconSVG = false;
   canExecute(): boolean {
-    return false;
+    return super.canExecute();
   }
-  execute() {}
+  execute(): void {
+    const selectedNodes = this.selectionService.getTopSelectedNodes();
+    this.clipboardService.addToBuffer(selectedNodes);
+    // Execute remove command:
+    super.execute();
+  }
 }

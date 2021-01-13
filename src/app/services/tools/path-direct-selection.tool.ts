@@ -354,7 +354,6 @@ export class PathDirectSelectionTool extends SelectionTool {
         const curve = new PathDataHandle(
           nearest.node,
           nearest.pathData,
-          nearest.command,
           nearest.commandIndex,
           handleMode,
           nearest.point
@@ -425,11 +424,7 @@ export class PathDirectSelectionTool extends SelectionTool {
           screenPos,
           accuracy
         );
-        if (
-          nearest &&
-          event.isDoubleClick(this.prevMouseUpArgs) &&
-          this.selectionTracker.click
-        ) {
+        if (nearest && event.isDoubleClick && this.selectionTracker.click) {
           // double click
           // TODO: add new point
           console.log("TODO: double click");

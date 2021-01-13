@@ -162,7 +162,7 @@ export class ShapeTool extends BaseTool {
     element.setAttribute("height", "1px");
     element.setAttribute("x", Utils.round(pos.x).toString());
     element.setAttribute("y", Utils.round(pos.y).toString());
-    const newTreeNode = document.parser.convertTreeNode(element);
+    const newTreeNode = document.parser.convertTreeNode(element, true);
 
     this.outlineService.expandToTop(this.container);
 

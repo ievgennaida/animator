@@ -7,6 +7,17 @@ import { PathData } from "./path/path-data";
 import { Properties } from "./properties/properties";
 import { Property } from "./properties/property";
 
+export enum Flags {
+  /**
+   * Disable all transformations
+   */
+  disableTransform = "disableTransform",
+  disableTranslate = "disableRemove",
+  disableRemove = "disableRemove",
+  disableRotate = "disableRotate",
+  disableScale = "disableScale",
+}
+
 /**
  * Application node view model.
  */
@@ -27,6 +38,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   children: TreeNode[];
   parent: TreeNode;
   nodeName = "";
+  flags: (string | Flags)[] = [];
   tag: any;
   shape: any;
   type: string;
@@ -34,22 +46,16 @@ export class TreeNode implements ICTMProvider, IBBox {
 
   lane: TimelineRow;
   level: number;
-  transformable = true;
-  allowDelete = true;
-  allowTranslate = true;
-  allowRotate = true;
-  allowResize = true;
+
   mouseOver = false;
-  preselected = false;
   selected = false;
   private cacheClientRect: DOMRect;
-  private cacheAdorners: Adorner | null = null;
-  private ctmCache: DOMMatrix;
   private screenCTMCache: DOMMatrix;
   // tslint:disable-next-line: variable-name
   private _name = "";
   private pathDataCache: PathData;
   typeTitle = "";
+
   get name(): string {
     return this._name || this.typeTitle;
   }
@@ -58,6 +64,21 @@ export class TreeNode implements ICTMProvider, IBBox {
     this._name = value;
   }
 
+  get allowRemove(): boolean {
+    return !this.containsFlags(Flags.disableRemove);
+  }
+  get allowTransform(): boolean {
+    return !this.containsFlags(Flags.disableTransform);
+  }
+  get allowTranslate(): boolean {
+    return !this.containsFlags(Flags.disableTranslate, Flags.disableTransform);
+  }
+  get allowRotate(): boolean {
+    return !this.containsFlags(Flags.disableRotate, Flags.disableTransform);
+  }
+  get allowResize(): boolean {
+    return !this.containsFlags(Flags.disableScale, Flags.disableTransform);
+  }
   /**
    * Current node index in the virtual nodes DOM.
    * -1 when detached or virtual.
@@ -89,7 +110,17 @@ export class TreeNode implements ICTMProvider, IBBox {
   get ownerSVGElement(): SVGSVGElement | null {
     return this.getElement()?.ownerSVGElement;
   }
-
+  addFlag(flag: Flags | string) {
+    if (!this.flags.includes(flag)) {
+      this.flags.push(flag);
+    }
+  }
+  containsFlags(...params: (Flags | string)[]): boolean {
+    if (!params && params.length === 0) {
+      return false;
+    }
+    return !!this.flags.find((p) => params.includes(p));
+  }
   getElement(): SVGGraphicsElement | null {
     if (!this.tag) {
       return null;
@@ -108,7 +139,6 @@ export class TreeNode implements ICTMProvider, IBBox {
     this.screenCTMCache = null;
     this.cacheBBox = null;
     this.cacheClientRect = null;
-    this.cacheAdorners = null;
     this.pathDataCache = null;
   }
 
@@ -149,8 +179,8 @@ export class TreeNode implements ICTMProvider, IBBox {
     if (!element) {
       return;
     }
-    this.ctmCache = element.getScreenCTM();
-    return this.ctmCache;
+    this.screenCTMCache = element.getScreenCTM();
+    return this.screenCTMCache;
   }
 
   /**
