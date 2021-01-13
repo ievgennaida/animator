@@ -7,8 +7,12 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { merge } from "rxjs";
 import { takeUntil, throttleTime } from "rxjs/operators";
-import { PathDataHandleType } from "src/app/models/path-data-handle";
+import {
+  PathDataHandle,
+  PathDataHandleType,
+} from "src/app/models/path-data-handle";
 import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { Property } from "src/app/models/properties/property";
@@ -18,6 +22,8 @@ import {
   PathDataPropertyKey,
   PropertiesService,
 } from "src/app/services/properties.service";
+import { SelectionService } from "src/app/services/selection.service";
+import { ChangeStateMode } from "src/app/services/state-subject";
 import { BaseComponent } from "../../base-component";
 
 interface PathDataNode {
@@ -28,6 +34,7 @@ interface PathDataNode {
   pathData: PathData;
   values: string;
   tooltip: string;
+  selected: boolean;
 }
 
 @Component({
@@ -39,6 +46,7 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
   constructor(
     private propertiesService: PropertiesService,
     private mouseOverService: MouseOverService,
+    private selectionService: SelectionService,
     private cdRef: ChangeDetectorRef
   ) {
     super();
@@ -64,13 +72,15 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
     const mouseOverPoints = this.mouseOverService.pathDataSubject
       .getValues()
       .filter((p) => p.commandType === PathDataHandleType.Point);
-
+    const selectedPathData = this.selectionService.pathDataSubject
+      .getValues()
+      .filter((p) => p.commandType === PathDataHandleType.Point);
     this.items = data.map((p, index) => {
-      const mouseOver = !!mouseOverPoints.find(
-        (overHandle) =>
-          overHandle.commandType === PathDataHandleType.Point &&
-          overHandle.commandIndex === index &&
-          overHandle.node === this.property.node
+      const mouseOver = !!mouseOverPoints.find((overHandle) =>
+        overHandle.isHandle(this.property.node, index, PathDataHandleType.Point)
+      );
+      const isSelected = !!selectedPathData.find((overHandle) =>
+        overHandle.isHandle(this.property.node, index, PathDataHandleType.Point)
       );
       return {
         title: p.saveAsRelative ? p.type.toLocaleLowerCase() : p.type,
@@ -78,8 +88,8 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
         command: p,
         hover: mouseOver,
         active: false,
-        selected: false,
-        values: "",
+        selected: isSelected,
+        values: p.values.join(" "),
         tooltip: "",
       } as PathDataNode;
     });
@@ -92,9 +102,12 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
       .subscribe(() => {
         this.cdRef.detectChanges();
       });
-    this.mouseOverService.pathDataSubject
-      .asObservable()
-      .pipe(takeUntil(this.destroyed$), throttleTime(100))
+
+    merge(
+      this.selectionService.pathDataSubject,
+      this.mouseOverService.pathDataSubject
+    )
+      .pipe(takeUntil(this.destroyed$), throttleTime(0))
       .subscribe((state) => {
         const changed =
           state &&
@@ -127,8 +140,29 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
   }
-  onItemClick(action: PathDataNode) {}
-  mouseEnter(action: PathDataNode) {}
+  getHandle(action: PathDataNode): PathDataHandle {
+    const pathDataHandle = new PathDataHandle(
+      this.property.node,
+      action.pathData,
+      action.pathData.commands.indexOf(action.command),
+      PathDataHandleType.Point
+    );
+    return pathDataHandle;
+  }
+  onItemClick(action: PathDataNode) {
+    const handle = this.getHandle(action);
+    let mode = ChangeStateMode.Normal;
+    if (action.selected) {
+      mode = ChangeStateMode.Remove;
+    }
 
-  mouseLeave(action: PathDataNode) {}
+    this.selectionService.pathDataSubject.change(handle, mode);
+  }
+  mouseEnter(action: PathDataNode) {
+    this.mouseOverService.pathDataSubject.change(this.getHandle(action));
+  }
+
+  mouseLeave(action: PathDataNode) {
+    this.mouseOverService.pathDataSubject.setNone();
+  }
 }
