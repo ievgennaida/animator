@@ -47,6 +47,7 @@ export class SvgTreeParser implements IParser {
     svgRootNode.addFlag(Flags.disableRotate);
     svgRootNode.addFlag(Flags.disableRemove);
     svgRootNode.addFlag(Flags.disableTransform);
+    svgRootNode.addFlag(Flags.disableMouseOver);
     svgRootNode.icon = "assignment";
     svgRootNode.name = document.title;
     svgRootNode.isRoot = true;

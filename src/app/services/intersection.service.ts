@@ -44,10 +44,7 @@ export class IntersectionService {
   /**
    * get intersection by the viewport coordinates selector.
    */
-  getIntersects(
-    screenRect: DOMRect,
-    onlyFirst: boolean = false
-  ): TreeNode[] | TreeNode {
+  getIntersects(screenRect: DOMRect, onlyFirst: boolean = false): TreeNode[] {
     if (!screenRect) {
       return null;
     }
@@ -66,7 +63,7 @@ export class IntersectionService {
 
             if (Utils.rectsIntersect(bounds, screenRect)) {
               if (onlyFirst) {
-                return node;
+                return [node];
               }
               if (!selected) {
                 selected = [];
@@ -193,12 +190,7 @@ export class IntersectionService {
               }
 
               mouseOverItems.push(
-                new PathDataHandle(
-                  node,
-                  data,
-                  commandIndex,
-                  handleType
-                )
+                new PathDataHandle(node, data, commandIndex, handleType)
               );
             }
           });

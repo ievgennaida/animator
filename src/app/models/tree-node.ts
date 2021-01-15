@@ -16,6 +16,7 @@ export enum Flags {
   disableRemove = "disableRemove",
   disableRotate = "disableRotate",
   disableScale = "disableScale",
+  disableMouseOver  = "disableMouseOver"
 }
 
 /**

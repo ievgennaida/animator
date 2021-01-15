@@ -11,18 +11,18 @@ import {
 } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { CursorType } from "src/app/models/cursor-type";
-import { TreeNode } from "src/app/models/tree-node";
+import { Flags, TreeNode } from "src/app/models/tree-node";
 import { CursorService } from "src/app/services/cursor.service";
 import {
   MouseOverMode,
   MouseOverService,
 } from "src/app/services/mouse-over.service";
 import { OutlineService } from "src/app/services/outline.service";
-import { ViewService } from "src/app/services/view.service";
-import { PanTool } from "src/app/services/tools/pan.tool";
 import { GridLinesRenderer } from "src/app/services/renderers/grid-lines.renderer";
+import { PanTool } from "src/app/services/tools/pan.tool";
 import { ScrollbarsPanTool } from "src/app/services/tools/scrollbars-pan.tool";
 import { ToolsService } from "src/app/services/tools/tools.service";
+import { ViewService } from "src/app/services/view.service";
 import { BaseComponent } from "../base-component";
 
 @Component({
@@ -191,7 +191,7 @@ export class PlayerComponent
       const node = this.outlineService
         .getAllNodes()
         .find((p) => p.tag === event.target);
-      if (!node) {
+      if (!node || node.containsFlags(Flags.disableMouseOver)) {
         return;
       }
 

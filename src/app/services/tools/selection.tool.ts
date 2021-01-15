@@ -271,9 +271,9 @@ export class SelectionTool extends BaseTool {
       const toSelect = overTreeNodeHandle || mouseOverTransform;
       this.selectionService.setSelected(toSelect, mode);
     } else if (!this.startedNode) {
-      const selected = this.intersectionService.getIntersects(
-        this.selectionTracker.getScreenRect()
-      ) as TreeNode[];
+      const selected = this.intersectionService
+        .getIntersects(this.selectionTracker.getScreenRect())
+        .filter((p) => p.allowTransform);
       this.selectionService.setSelected(selected, mode);
     }
   }
