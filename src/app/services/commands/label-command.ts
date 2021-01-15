@@ -5,7 +5,7 @@ import { BaseCommand, CommandType } from "./base-command";
  */
 export class LabelCommand implements BaseCommand {
   commandType?: CommandType | string = CommandType.Label;
-  title = "";
+  constructor(public title) {}
   canExecute(): boolean {
     return false;
   }

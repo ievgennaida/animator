@@ -4,6 +4,7 @@ import { BaseTool } from "../../tools/base.tool";
 import { PathDirectSelectionTool } from "../../tools/path-direct-selection.tool";
 import { SelectionTool } from "../../tools/selection.tool";
 import { BBoxModeCommand } from "../bbox-mode-command";
+import { LabelCommand } from "../label-command";
 import { BringToFrontCommand } from "../order-commands/bring-to-front-command";
 import { SendToBottomCommand } from "../order-commands/send-to-bottom-command";
 import { StepBackwardCommand } from "../order-commands/step-backward-command";
@@ -44,6 +45,7 @@ export class ToolsCommandsService {
     }
     if (tool instanceof PathDirectSelectionTool) {
       return [
+        new LabelCommand('Mode:'),
         this.addPathNodesCommand,
         this.removePathNodesCommand,
         this.separator,
