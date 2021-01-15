@@ -4,10 +4,9 @@ import {
   Component,
   OnInit,
 } from "@angular/core";
-import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { CommandsService } from "src/app/services/commands/commands-service";
+import { ToolsCommandsService } from "src/app/services/commands/commands-services/tools-commands-service";
 import { ToolsService } from "src/app/services/tools/tools.service";
 import { BaseComponent } from "../../base-component";
 
@@ -23,7 +22,7 @@ import { BaseComponent } from "../../base-component";
 export class ToolCommandsComponent extends BaseComponent implements OnInit {
   constructor(
     private toolsService: ToolsService,
-    private commandsService: CommandsService,
+    private toolCommandsService: ToolsCommandsService,
     private cdRef: ChangeDetectorRef
   ) {
     super();
@@ -33,7 +32,7 @@ export class ToolCommandsComponent extends BaseComponent implements OnInit {
   commands: BaseCommand[] = [];
 
   ngOnInit() {
-    this.commands = this.commandsService.getToolCommands(
+    this.commands = this.toolCommandsService.getToolCommands(
       this.toolsService.getActiveTool()
     );
     this.toolsService
@@ -41,7 +40,7 @@ export class ToolCommandsComponent extends BaseComponent implements OnInit {
       .pipe(takeUntil(this.destroyed$))
       .subscribe((tool) => {
         if (tool) {
-          this.commands = this.commandsService.getToolCommands(tool);
+          this.commands = this.toolCommandsService.getToolCommands(tool);
         }
         this.cdRef.detectChanges();
       });

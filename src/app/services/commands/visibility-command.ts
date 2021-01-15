@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
-import { BaseCommand } from "src/app/services/commands/base-command";
+import { BaseCommand, CommandType } from "src/app/services/commands/base-command";
 import { VisibilityAction } from "../actions/visibility-action";
 import { PropertiesService } from "../properties.service";
 import { SelectionService } from "../selection.service";
@@ -32,6 +32,7 @@ export class VisibilityCommand implements BaseCommand {
   title = "Copy";
   icon = "visibility";
   hotkey = "";
+  commandType = CommandType.Command;
   iconSVG = false;
   resolveIconState() {
     const selected = this.selectionService.getSelected();

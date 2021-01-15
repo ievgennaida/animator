@@ -1,9 +1,9 @@
 <mat-menu #menu="matMenu">
     <div *ngFor="let command of commands">
-        <div *ngIf="command && command.commands && !command.separator">
+        <div *ngIf="command && command.commands">
             <app-dynamic-context-menu #subMenu [commands]="command.commands"></app-dynamic-context-menu>
             <button mat-menu-item [matMenuTriggerFor]="subMenu.matMenu"
-                *ngIf="subMenu && subMenu.matMenu && command && !command.separator" (mouseEnter)="render()"
+                *ngIf="subMenu && subMenu.matMenu && command && (!command.commandType || command.commandType === 'command')" (mouseEnter)="render()"
                 (mouseLeave)="render()" [disabled]="command.canExecute?!command.canExecute():false"
                 [attr.title]="command.tooltip" [class.active]="command?.active || false"
                 (click)="onActionClicked($event, command)">
@@ -13,7 +13,7 @@
                     ''}}</span>
             </button>
         </div>
-        <div *ngIf="command && !command.commands && !command.separator">
+        <div *ngIf="command && !command.commands && (!command.commandType || command.commandType === 'command')">
             <button mat-menu-item [disabled]="command.canExecute?!command.canExecute():false"
                 [attr.title]="command.tooltip" [class.active]="command?.active || false"
                 (click)="onActionClicked($event, command)">
@@ -23,6 +23,6 @@
                     ''}}</span>
             </button>
         </div>
-        <mat-divider *ngIf="command && command.separator"></mat-divider>
+        <mat-divider *ngIf="command && command.commandType === 'separator'"></mat-divider>
     </div>
 </mat-menu>

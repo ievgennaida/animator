@@ -9,7 +9,7 @@ import {
 import { MatMenuTrigger } from "@angular/material/menu";
 import { takeUntil } from "rxjs/operators";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { CommandsService } from "src/app/services/commands/commands-service";
+import { ContextMenuCommandsService } from "src/app/services/commands/commands-services/context-menu-commands-service";
 import { ContextMenuService } from "src/app/services/context-menu.service";
 import { BaseComponent } from "../base-component";
 
@@ -22,7 +22,7 @@ import { BaseComponent } from "../base-component";
 export class ContextMenuComponent extends BaseComponent implements OnInit {
   constructor(
     private contextMenu: ContextMenuService,
-    private toolCommands: CommandsService,
+    private contextMenuCommandsService: ContextMenuCommandsService,
     private cdRef: ChangeDetectorRef
   ) {
     super();
@@ -50,7 +50,7 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
     this.element = value;
   }
   ngOnInit(): void {
-    this.commands = this.toolCommands.getContextCommands();
+    this.commands = this.contextMenuCommandsService.getContextCommands();
     this.contextMenu.setTrigger(this.trigger);
     this.contextMenu.openSubject
       .pipe(takeUntil(this.destroyed$))

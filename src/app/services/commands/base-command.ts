@@ -1,7 +1,12 @@
 import { Subject } from "rxjs";
 
 export function executeCommand(command: BaseCommand): boolean {
-  if (command && command.execute && !command.separator && !command.commands) {
+  if (
+    command &&
+    command.execute &&
+    command.commandType === CommandType.Separator &&
+    !command.commands
+  ) {
     const canExecute = command.canExecute ? command.canExecute() : true;
     if (canExecute) {
       command.execute();
@@ -11,6 +16,11 @@ export function executeCommand(command: BaseCommand): boolean {
   return false;
 }
 
+export enum CommandType {
+  Command = "command",
+  Label = "label",
+  Separator = "separator",
+}
 /**
  * Base application command.
  */
@@ -29,7 +39,7 @@ export interface BaseCommand {
   active?: boolean;
   group?: string;
   hotkey?: string;
-  separator?: boolean;
+  commandType?: CommandType | string;
   commands?: BaseCommand[];
   /**
    * Call to refresh command in the UI.

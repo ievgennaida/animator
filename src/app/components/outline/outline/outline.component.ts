@@ -10,7 +10,7 @@ import {
 import { TimelineScrollEvent } from "animation-timeline-js";
 import { debounceTime, takeUntil } from "rxjs/operators";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { OutlineCommandsService } from "src/app/services/commands/outline-commands-service";
+import { OutlineCommandsService } from "src/app/services/commands/commands-services/outline-commands-service";
 import { OutlineService } from "src/app/services/outline.service";
 import { SelectionService } from "src/app/services/selection.service";
 import { StateChangedSource } from "src/app/services/state-subject";

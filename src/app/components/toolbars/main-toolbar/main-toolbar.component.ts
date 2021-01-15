@@ -14,7 +14,7 @@ import {
 } from "src/app/models/input-document";
 import { ViewMode } from "src/app/models/view-mode";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { CommandsService } from "src/app/services/commands/commands-service";
+import { CommandsService } from "src/app/services/commands/commands-services/commands-service";
 import { DocumentService } from "src/app/services/document.service";
 import { LoggerService } from "src/app/services/logger.service";
 import { MenuService } from "src/app/services/menu-service";
