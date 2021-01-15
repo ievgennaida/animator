@@ -48,14 +48,7 @@ export class PasteCommand implements BaseCommand {
     }
     if (toPasteContainer) {
       this.undoService.executeAction(PasteAction, (action) => {
-        const nodesToPaste = this.clipboardService.bufferSubject
-          .getValue()
-          .map((bufferItems) =>
-            activeDocument.parser.convertTreeNode(
-              bufferItems.getElement().cloneNode(true),
-              true
-            )
-          );
+        const nodesToPaste = this.clipboardService.bufferSubject.getValue();
         action.init(toPasteContainer, nodesToPaste);
       });
     }

@@ -9,4 +9,5 @@ export interface IParser {
    */
   convertTreeNode(el: any, deep: boolean): TreeNode;
   isContainer(node: TreeNode): boolean;
+  clone(node: TreeNode,  deep: boolean): TreeNode;
 }

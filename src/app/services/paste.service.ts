@@ -1,30 +1,26 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { TreeNode } from "../models/tree-node";
+import { DocumentService } from "./document.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class PasteService {
-  constructor() {}
+  constructor(private documentService: DocumentService) {}
   bufferSubject = new BehaviorSubject<TreeNode[]>([]);
-  cleanUp(node: Element) {
-    if (node) {
-      node.removeAttribute("id");
-      node.removeAttribute("name");
-    }
-    if (node.children) {
-      for (let i = 0; i < node.children.length; i++) {
-        const el = node.children[i] as Element;
-        this.cleanUp(el);
-      }
-    }
-  }
   cut() {}
   copy(items: TreeNode[]) {
     this.addToBuffer(items);
   }
   addToBuffer(items: TreeNode[]) {
+    const parser = this.documentService.getDocument()?.parser;
+    if (!parser) {
+      return;
+    }
+    // Clone when added to buffer to make a snapshot.
+    // Also we should clone when pasted.
+    items = items.map((p) => parser.clone(p, true));
     this.bufferSubject.next([...items]);
   }
   paste() {}

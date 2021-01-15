@@ -37,6 +37,7 @@ export class Utils {
   static multiplyByPoint(point: DOMPoint, point2: DOMPoint): DOMPoint {
     return new DOMPoint(point.x * point2.x, point.y * point2.y);
   }
+
   static multiply(point: DOMPoint, value: number): DOMPoint {
     return new DOMPoint(point.x * value, point.y * value);
   }
