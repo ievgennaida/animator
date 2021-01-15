@@ -39,8 +39,13 @@ body {
   Used to capture mouse over events for the g containers.*/
       pointer-events: bounding-box !important;
     }
+    path[style*="fill:none"],
+    path[style*="fill: none"] {
+      pointer-events: bounding-box !important;
+    }
   }
 }
+
 // Allow to mouse over only containers
 .mouse-over-only-containers {
   *:not(g):not(svg) {
