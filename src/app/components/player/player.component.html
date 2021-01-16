@@ -30,7 +30,7 @@
             </g>
         </svg>
         <div class="viewport-units" *ngIf="rulerVisible">
-            px
+            
         </div>
         <canvas #rulerH class="canvas-ruler-h" *ngIf="rulerVisible"></canvas>
         <canvas #rulerV class="canvas-ruler-v" *ngIf="rulerVisible"></canvas>
@@ -38,7 +38,7 @@
         <app-notification></app-notification>
     </div>
     <button [style.height.px]="scrollbarsSize" [style.width.px]="scrollbarsSize" mat-button #resetButton
-        class="reset-button" (click)="fitViewport()">
+        class="reset-button" (click)="fitViewportOrSelected()">
         <mat-icon>aspect_ratio</mat-icon>
     </button>
 </div>

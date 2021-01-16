@@ -192,7 +192,7 @@ export class ToolsService {
     this.activeTool.onWindowBlur(event);
   }
 
-  fitViewportToSelected() {
+  fitViewportToSelected(): boolean {
     const selectedItems = this.selectionService.getSelectedElements();
     let bounds = Utils.getBoundingClientRect(...selectedItems);
     if (bounds) {
@@ -202,7 +202,9 @@ export class ToolsService {
       );
       bounds = Utils.shrinkRectPercent(bounds, consts.fitToSelectedExtraBounds);
       this.fitViewport(bounds);
+      return true;
     }
+    return false;
   }
 
   /**

@@ -308,7 +308,12 @@ export class PlayerComponent
     this.scrollbarsPanTool.onScroll();
     this.out(() => this.toolsService.onScroll());
   }
-
+  fitViewportOrSelected() {
+    const fit = this.toolsService.fitViewportToSelected();
+    if (!fit) {
+      this.toolsService.fitViewport();
+    }
+  }
   fitViewport() {
     this.toolsService.fitViewport();
   }
