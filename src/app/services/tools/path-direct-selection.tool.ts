@@ -353,8 +353,7 @@ export class PathDirectSelectionTool extends SelectionTool {
         }
         const curve = new PathDataHandle(
           nearest.node,
-          nearest.pathData,
-          nearest.commandIndex,
+          nearest.command,
           handleMode,
           nearest.point
         );

@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import { AdornerPointType } from "../models/adorner-type";
+import { PathDataCommand } from "../models/path/path-data-command";
 import { TreeNode } from "../models/tree-node";
 import { OutlineService } from "./outline.service";
 import { PathDataSelectionSubject } from "./path-data-subject";
@@ -95,16 +96,16 @@ export class SelectionService {
    * @param node path command.
    * @param commandIndex node index.
    */
-  isPathHandlesActivated(node: TreeNode, commandIndex: number): boolean {
+  isPathHandlesActivated(node: TreeNode, command: PathDataCommand): boolean {
     if (environment.debug) {
       // Show all handles
       return true;
     }
     // check whether path command or any neighbor is selected.
     const anySelected =
-      !!this.pathDataSubject.getHandle(node, commandIndex) ||
-      !!this.pathDataSubject.getHandle(node, commandIndex - 1) ||
-      !!this.pathDataSubject.getHandle(node, commandIndex + 1);
+      !!this.pathDataSubject.getHandle(node, command) ||
+      !!this.pathDataSubject.getHandle(node, command.prev) ||
+      !!this.pathDataSubject.getHandle(node, command.next);
     return anySelected;
   }
   getSelectedElements(): SVGGraphicsElement[] {

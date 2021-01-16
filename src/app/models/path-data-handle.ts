@@ -7,35 +7,40 @@ import { TreeNode } from "./tree-node";
 export class PathDataHandle {
   constructor(
     public node: TreeNode,
-    public pathData: PathData,
-    public commandIndex: number,
+    public command: PathDataCommand,
     public commandType: PathDataHandleType = PathDataHandleType.Point,
     /**
      * Intersection point
      */
     public point: DOMPoint | null = null
   ) {}
-  get command(): PathDataCommand {
-    return this.pathData.commands[this.commandIndex];
+  get pathData(): PathData | null {
+    return this.command?.pathData || null;
+  }
+  get commandIndex(): number {
+    return this.command.index;
   }
   isHandle(
     node: TreeNode,
-    commandIndex: number,
+    command: PathDataCommand,
     commandType: PathDataHandleType
   ): boolean {
     return (
       this.node === node &&
-      this.commandIndex === commandIndex &&
-      this.commandType === commandType
+      this.commandType === commandType &&
+      (this.command === command ||
+        (this.command &&
+          command &&
+          this.command.index === command.index &&
+          command.index !== -1 &&
+          command.type === this.command.type))
     );
   }
   equals(another: PathDataHandle): boolean {
     if (!another) {
       return false;
     }
-    if (
-      this.isHandle(another.node, another.commandIndex, another.commandType)
-    ) {
+    if (this.isHandle(another.node, another.command, another.commandType)) {
       return (this.point || another.point) && this.point === another.point;
     }
     return false;

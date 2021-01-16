@@ -11,6 +11,7 @@ import {
   PropertiesService,
 } from "../../properties.service";
 import { SelectionService } from "../../selection.service";
+import { ChangeStateMode } from "../../state-subject";
 import { Utils } from "../../utils/utils";
 import { BasePropertiesStorageAction } from "../base-property-action";
 
@@ -46,22 +47,29 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
       // Perform initially action and store committed values.
       this.commit();
     } else {
-      // Restore actions were committed.
+      // Restore actions were committed, this is called from undo service.
       super.execute();
     }
   }
 
   commit() {
+    // Make a snapshot of a state
     this.saveInitialValues(this.nodes, [PathDataPropertyKey]);
 
     const items = new Map<TreeNode, PathData>();
-    this.items.forEach((p) => {
-      if (p.commandType === PathDataHandleType.Point) {
-        p.pathData.deleteCommandByIndex(p.commandIndex);
-        items.set(p.node, p.pathData);
-      }
+    const pointHandlers = this.items.filter(
+      (p) => p.commandType === PathDataHandleType.Point
+    );
+
+    pointHandlers.forEach((p) => {
+      p.pathData.deleteCommandByIndex(p.commandIndex);
+      items.set(p.node, p.pathData);
     });
 
+    this.selectionService.pathDataSubject.change(
+      pointHandlers,
+      ChangeStateMode.Remove
+    );
     items.forEach((pathData, node) => {
       this.propertiesService.setPathData(node, pathData);
       node.cleanCache();

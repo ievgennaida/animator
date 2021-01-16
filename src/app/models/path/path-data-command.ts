@@ -8,6 +8,7 @@
 import { PathType } from "src/app/models/path/path-type";
 import { PointOnPathUtils } from "src/app/models/path/utils/point-on-path";
 import { CalculatedEllipse, Utils } from "src/app/services/utils/utils";
+import { PathData } from "./path-data";
 // Should be replaced by a DOM type when available.
 export interface SVGPathSegmentEx {
   type: string;
@@ -21,9 +22,14 @@ export interface SVGPathSegmentEx {
  * relative or absolute by setting saveAsRelative.
  */
 export class PathDataCommand implements SVGPathSegmentEx {
-  constructor(public type: PathType | string, public values: number[] = []) {
+  constructor(
+    public type: PathType | string,
+    public values: number[] = [],
+    public pathData: PathData | null = null
+  ) {
     this.saveAsRelative = this.isRelative(type);
   }
+
   public _a: DOMPoint;
   public _b: DOMPoint;
   public _x = 0;
@@ -53,8 +59,41 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * This is a type of the initial command to preserve original rel or abs when saved.
    */
   saveAsRelative = false;
-  prev: PathDataCommand | null = null;
-  next: PathDataCommand | null = null;
+  get prev(): PathDataCommand | null {
+    const i = this.index - 1;
+    if (
+      this.pathData &&
+      this.pathData.commands &&
+      i >= 0 &&
+      i < this.pathData.commands.length
+    ) {
+      return this.pathData.commands[i];
+    }
+    return null;
+  }
+  get next(): PathDataCommand | null {
+    const i = this.index + 1;
+    if (
+      this.pathData &&
+      this.pathData.commands &&
+      i >= 0 &&
+      i < this.pathData.commands.length
+    ) {
+      return this.pathData.commands[i];
+    }
+    return null;
+  }
+
+  /*
+  public get node(): TreeNode | null {
+    return this.pathData?.node | null;
+  }*/
+  public get index(): number {
+    if (!this.pathData || !this.pathData.commands) {
+      return -1;
+    }
+    return this.pathData.commands.indexOf(this);
+  }
   /**
    * Cleanup cached calculations.
    */
@@ -63,7 +102,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this._length = null;
     this.pointsCache.clear();
   }
-  public clone(): PathDataCommand {
+  public cloneCommand(): PathDataCommand {
     const cloned = new PathDataCommand(this.type, [...this.values]);
     cloned.saveAsRelative = this.saveAsRelative;
     return cloned;
@@ -192,12 +231,13 @@ export class PathDataCommand implements SVGPathSegmentEx {
   /**
    * get relative command from current absolute.
    */
-  public getRelative(): PathDataCommand {
+  public getRelative(pathData: PathData | null = null): PathDataCommand {
     if (this.isAbsolute()) {
-      const relative = new PathDataCommand((this.type || "").toLowerCase(), [
-        ...this.values,
-      ]);
-      relative.prev = this.prev;
+      const relative = new PathDataCommand(
+        (this.type || "").toLowerCase(),
+        [...this.values],
+        pathData || this.pathData
+      );
       const calcRelative = this.calculateRelPoint();
       relative.p = calcRelative;
       if (relative.type !== PathType.arc) {

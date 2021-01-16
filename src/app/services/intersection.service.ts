@@ -157,7 +157,7 @@ export class IntersectionService {
               }
               const handlesActivated = this.selectionService.isPathHandlesActivated(
                 node,
-                commandIndex
+                command
               );
               if (handlesActivated) {
                 accuracy = screenPointSize * config.pathHandleSelectedSize;
@@ -190,7 +190,7 @@ export class IntersectionService {
               }
 
               mouseOverItems.push(
-                new PathDataHandle(node, data, commandIndex, handleType)
+                new PathDataHandle(node, command, handleType)
               );
             }
           });
@@ -320,7 +320,7 @@ export class IntersectionService {
                 nearest.commandIndex = index;
                 bestPositionOnFragment = i;
                 usedStep = step;
-                if (environment.debug && !nearest.allPoints) {
+                if (this.logger.isDebug() && !nearest.allPoints) {
                   nearest.allPoints = [];
                 }
               }

@@ -10,9 +10,10 @@ export class PathData {
   ): boolean {
     const set = false;
     if (element.setPathData && data && data.commands) {
+      const converted = new PathData();
       // Try to preserve original data
-      const valuesToSet = data.commands.map((command) => {
-        // Round values
+      data.commands.forEach((command) => {
+        // Round values:
         if (consts.pathDataAccuracy || consts.pathDataAccuracy === 0) {
           for (let i = 0; i < command.values.length; i++) {
             const val = command.values[i];
@@ -21,12 +22,13 @@ export class PathData {
             }
           }
         }
+        // Save as relative if it was specified to be saved like this:
         if (command.saveAsRelative && !command.isRelative()) {
-          return command.getRelative();
+          command = command.getRelative(converted);
         }
-        return command;
+        converted.commands.push(command);
       });
-      element.setPathData(valuesToSet);
+      element.setPathData(converted.commands);
       return set;
     }
     return set;
@@ -80,103 +82,83 @@ export class PathData {
    * Get path data and calculate absolute version for each point.
    * @param pathData arguments.
    */
-  public static analyze(pathData: PathData | Array<any>): PathData {
-    if (!pathData) {
-      return null;
-    }
-
-    let prev: PathDataCommand = null;
+  public static analyze(elements: Array<any> | null): PathData | null {
     let curX = 0;
     let curY = 0;
 
     let subPath = new DOMPoint();
-    const data =
-      pathData instanceof PathData
-        ? (pathData as PathData)
-        : new PathData(
-            pathData
-              .filter((p) => !!p && !!p.type)
-              .map((p) => {
-                const command = new PathDataCommand(p.type, p.values);
-                // Application is working only with absolute values, but every time original value mode is calculated as well.
-                // This is a way to preserve the original state!
-                command.prev = prev;
-                if (prev) {
-                  prev.next = command;
-                }
-                prev = command;
+    const pathData = new PathData();
+    if (!elements) {
+      return pathData;
+    }
+    pathData.commands = elements
+      .filter((p) => !!p && !!p.type)
+      .map((p) => {
+        const command = new PathDataCommand(p.type, p.values, pathData);
+        // Application is working only with absolute values, but every time original value mode is calculated as well.
+        // This is a way to preserve the original state!
+        const type = p.type as PathType;
+        const isMove = type === PathType.move || type === PathType.moveAbs;
+        if (type === PathType.arc || type === PathType.arcAbs) {
+          const absolute = type === PathType.arcAbs;
+          let x = command.x;
+          let y = command.y;
+          if (!absolute) {
+            x += curX;
+            y += curY;
+            const absoluteValues = [
+              command.values[0],
+              command.values[1],
+              command.values[2],
+              command.values[3],
+              command.values[4],
+              x,
+              y,
+            ];
+            command.values = absoluteValues;
+            command.type = PathType.arcAbs;
+          }
 
-                const type = p.type as PathType;
-                const isMove =
-                  type === PathType.move || type === PathType.moveAbs;
-                if (type === PathType.arc || type === PathType.arcAbs) {
-                  const absolute = type === PathType.arcAbs;
-                  let x = command.x;
-                  let y = command.y;
-                  if (!absolute) {
-                    x += curX;
-                    y += curY;
-                    const absoluteValues = [
-                      command.values[0],
-                      command.values[1],
-                      command.values[2],
-                      command.values[3],
-                      command.values[4],
-                      x,
-                      y,
-                    ];
-                    command.values = absoluteValues;
-                    command.type = PathType.arcAbs;
-                  }
+          curX = x;
+          curY = y;
+        } else if (type === PathType.horizontalAbs) {
+          curX = command.x;
+        } else if (type === PathType.verticalAbs) {
+          curY = command.y;
+        } else if (type === PathType.horizontal) {
+          const x = curX + command.x;
+          // Convert to absolute
+          command.values = [x];
+          curX = x;
+        } else if (type === PathType.vertical) {
+          const y = curY + command.y;
+          // Convert to absolute
+          command.values = [y];
+          curY = y;
+        } else if (type === PathType.close || type === PathType.closeAbs) {
+          curY = subPath.y;
+          curX = subPath.x;
+        } else {
+          const absolute = command.isAbsolute();
+          if (!absolute) {
+            const absoluteValues = command.values.map((commandValues, index) =>
+              !(index % 2) ? curX + commandValues : curY + commandValues
+            );
+            command.values = absoluteValues;
+          }
+          const point = command.p;
+          curX = point.x;
+          curY = point.y;
+          if (isMove) {
+            subPath = point;
+          }
+        }
 
-                  curX = x;
-                  curY = y;
-                } else if (type === PathType.horizontalAbs) {
-                  curX = command.x;
-                } else if (type === PathType.verticalAbs) {
-                  curY = command.y;
-                } else if (type === PathType.horizontal) {
-                  const x = curX + command.x;
-                  // Convert to absolute
-                  command.values = [x];
-                  curX = x;
-                } else if (type === PathType.vertical) {
-                  const y = curY + command.y;
-                  // Convert to absolute
-                  command.values = [y];
-                  curY = y;
-                } else if (
-                  type === PathType.close ||
-                  type === PathType.closeAbs
-                ) {
-                  curY = subPath.y;
-                  curX = subPath.x;
-                } else {
-                  const absolute = command.isAbsolute();
-                  if (!absolute) {
-                    const absoluteValues = command.values.map(
-                      (commandValues, index) =>
-                        !(index % 2)
-                          ? curX + commandValues
-                          : curY + commandValues
-                    );
-                    command.values = absoluteValues;
-                  }
-                  const point = command.p;
-                  curX = point.x;
-                  curY = point.y;
-                  if (isMove) {
-                    subPath = point;
-                  }
-                }
+        command.type = p.type.toUpperCase();
+        return command;
+      });
 
-                command.type = p.type.toUpperCase();
-                prev = command;
-                return command;
-              })
-          );
-
-    return data;
+    return pathData;
   }
   public toString(): string {
     let d = "";
@@ -209,34 +191,23 @@ export class PathData {
 
   public clone(): PathData {
     const cloned = new PathData();
-    this.forEach((command, index) => {
-      const clonedCommand = command.clone();
-      if (index > 0) {
-        const prev = cloned.commands[index - 1];
-        clonedCommand.prev = prev;
-        if (prev) {
-          prev.next = clonedCommand;
-        }
-      }
+    this.forEach((command) => {
+      const clonedCommand = command.cloneCommand();
+      clonedCommand.pathData = cloned;
       cloned.commands.push(clonedCommand);
     });
     return cloned;
   }
 
-  deleteCommand(command: PathDataCommand) {
+  deleteCommand(command: PathDataCommand | null): PathDataCommand | null {
+    if (!command) {
+      return null;
+    }
     this.commands = Utils.deleteElement(this.commands, command);
-    // relink chain:
-    if (command.prev) {
-      command.prev.next = command.next;
-    }
-
-    if (command.next) {
-      command.next.prev = command.prev;
-    }
   }
 
-  deleteCommandByIndex(index: number) {
-    this.deleteCommand(this.commands[index]);
+  deleteCommandByIndex(index: number): PathDataCommand | null {
+    return this.deleteCommand(this.commands[index]);
   }
 
   /**
@@ -254,12 +225,5 @@ export class PathData {
         }
       }
     });
-  }
-
-  /**
-   * recalculate self.
-   */
-  recalculate(): PathData {
-    return PathData.analyze(this);
   }
 }

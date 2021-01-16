@@ -1,4 +1,5 @@
 import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
+import { PathDataCommand } from "../models/path/path-data-command";
 import { TreeNode } from "../models/tree-node";
 import { ChangeStateMode, StateSubject } from "./state-subject";
 /**
@@ -23,16 +24,16 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     if (!handle) {
       return null;
     }
-    return this.getHandle(handle.node, handle.commandIndex, handle.commandType);
+    return this.getHandle(handle.node, handle.command, handle.commandType);
   }
 
   getHandle(
     node: TreeNode,
-    commandIndex: number,
+    command: PathDataCommand,
     commandType: PathDataHandleType = PathDataHandleType.Point
   ): PathDataHandle {
     const array = this.getValues();
-    return array.find((p) => p.isHandle(node, commandIndex, commandType));
+    return array.find((p) => p.isHandle(node, command, commandType));
   }
   getHandlesByType(pathHandleType: PathDataHandleType): Array<PathDataHandle> {
     const array = this.getValues();

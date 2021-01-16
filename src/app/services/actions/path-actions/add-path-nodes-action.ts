@@ -60,10 +60,9 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
         if (p.commandType === PathDataHandleType.Point && p.node === node) {
           // data.deleteCommand(p.command);
         }
-        p.command.smooth();
+        // p.command.smooth();
       });
 
-      // data.recalculate();
       this.propertiesService.setPathData(node, pathData);
       // node.cleanCache();
     });

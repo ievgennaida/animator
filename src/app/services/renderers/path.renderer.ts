@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { PathDataHandleType } from "src/app/models/path-data-handle";
+import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
@@ -131,7 +132,7 @@ export class PathRenderer extends BaseRenderer {
 
           const isSelected = this.selectionService.pathDataSubject.getHandle(
             node,
-            commandIndex,
+            command,
             PathDataHandleType.Point
           );
 
@@ -151,7 +152,7 @@ export class PathRenderer extends BaseRenderer {
 
           this.drawHandlesAndOutlines(
             node,
-            commandIndex,
+            command,
             ctm,
             point,
             prevPoint
@@ -161,7 +162,7 @@ export class PathRenderer extends BaseRenderer {
             let handleFill = consts.pathPointFill;
             const mouseOver = this.mouseOverService.pathDataSubject.getHandle(
               node,
-              commandIndex
+              command
             );
 
             if (mouseOver) {
@@ -196,12 +197,14 @@ export class PathRenderer extends BaseRenderer {
         return;
       }
       const ctm = this.screenCTM.multiply(matrix);
-      this.drawHandle(
-        handler.point.matrixTransform(ctm),
-        consts.pathHandleSize,
-        consts.pathHandleStroke,
-        "red"
-      );
+      if (handler.point) {
+        this.drawHandle(
+          handler.point.matrixTransform(ctm),
+          consts.pathHandleSize,
+          consts.pathHandleStroke,
+          "red"
+        );
+      }
     });
 
     this.ctx.restore();
@@ -209,17 +212,14 @@ export class PathRenderer extends BaseRenderer {
 
   drawHandlesAndOutlines(
     node: TreeNode,
-    commandIndex: number,
+    abs: PathDataCommand,
     ctm: DOMMatrix,
     point: DOMPoint,
     prevPoint: DOMPoint
   ) {
-    const data = node.getPathData();
-    const abs = data.commands[commandIndex];
-
     const isCurveSelected = !!this.mouseOverService.pathDataSubject.getHandle(
       node,
-      commandIndex,
+      abs,
       PathDataHandleType.Curve
     );
 
@@ -230,18 +230,18 @@ export class PathRenderer extends BaseRenderer {
     let isHandleBSelected = false;
     const drawHandles = this.selectionService.isPathHandlesActivated(
       node,
-      commandIndex
+      abs
     );
     if (drawHandles) {
       isHandleASelected = !!this.mouseOverService.pathDataSubject.getHandle(
         node,
-        commandIndex,
+        abs,
         PathDataHandleType.HandleA
       );
 
       isHandleBSelected = !!this.mouseOverService.pathDataSubject.getHandle(
         node,
-        commandIndex,
+        abs,
         PathDataHandleType.HandleB
       );
     }

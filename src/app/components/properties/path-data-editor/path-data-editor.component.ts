@@ -77,10 +77,10 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
       .filter((p) => p.commandType === PathDataHandleType.Point);
     this.items = data.map((p, index) => {
       const mouseOver = !!mouseOverPoints.find((overHandle) =>
-        overHandle.isHandle(this.property.node, index, PathDataHandleType.Point)
+        overHandle.isHandle(this.property.node, p, PathDataHandleType.Point)
       );
       const isSelected = !!selectedPathData.find((overHandle) =>
-        overHandle.isHandle(this.property.node, index, PathDataHandleType.Point)
+        overHandle.isHandle(this.property.node, p, PathDataHandleType.Point)
       );
       return {
         title: p.saveAsRelative ? p.type.toLocaleLowerCase() : p.type,
@@ -143,9 +143,7 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
   getHandle(action: PathDataNode): PathDataHandle {
     const pathDataHandle = new PathDataHandle(
       this.property.node,
-      action.pathData,
-      action.pathData.commands.indexOf(action.command),
-      PathDataHandleType.Point
+      action.command
     );
     return pathDataHandle;
   }

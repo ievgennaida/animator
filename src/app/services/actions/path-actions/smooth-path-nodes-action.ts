@@ -63,7 +63,6 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
         // p.command.smooth();
       });
 
-      // data.recalculate();
       this.propertiesService.setPathData(node, pathData);
       // node.cleanCache();
     });
