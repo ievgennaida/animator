@@ -3,14 +3,11 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  OnInit,
 } from "@angular/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import {
-  BaseCommand,
-  executeCommand,
-} from "src/app/services/commands/base-command";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { CommandsExecutorService } from "src/app/services/commands/commands-services/commands-executor-service";
 import { BaseComponent } from "../../base-component";
 
 @Component({
@@ -20,7 +17,10 @@ import { BaseComponent } from "../../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommandsListComponent extends BaseComponent {
-  constructor(private cdRef: ChangeDetectorRef) {
+  constructor(
+    private cdRef: ChangeDetectorRef,
+    private commandExecutor: CommandsExecutorService
+  ) {
     super();
     this.cdRef.detach();
   }
@@ -58,15 +58,8 @@ export class CommandsListComponent extends BaseComponent {
     this.cdRef.detectChanges();
   }
 
-  onActionClicked(command: BaseCommand) {
-    // Run in a next tick to make interface a bit more responsive.
-    setTimeout(() => {
-      if (command && !command.commands) {
-        executeCommand(command);
-        // TODO: make a subscription when active commands changed
-        this.render();
-      }
-    }, 10);
+  async onActionClicked(command: BaseCommand) {
+    this.commandExecutor.executeCommand(command, true, () => this.render());
     this.render();
   }
 }

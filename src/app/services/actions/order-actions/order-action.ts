@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
-import { executeCommand } from "../../commands/base-command";
+import { CommandsExecutorService } from "../../commands/commands-services/commands-executor-service";
 import { ScrollToSelected } from "../../commands/scroll-to-selected";
 import { OutlineService } from "../../outline.service";
 import { Utils } from "../../utils/utils";
@@ -21,7 +21,8 @@ export enum OrderMode {
 export class OrderAction extends BaseAction {
   constructor(
     private outlineService: OutlineService,
-    private scrollToSelectedCommand: ScrollToSelected
+    private scrollToSelectedCommand: ScrollToSelected,
+    private commandExecutor: CommandsExecutorService
   ) {
     super();
   }
@@ -106,7 +107,7 @@ export class OrderAction extends BaseAction {
     });
 
     this.outlineService.update();
-    executeCommand(this.scrollToSelectedCommand);
+    this.commandExecutor.executeCommand(this.scrollToSelectedCommand);
   }
   undo() {
     // Should be executed in reverted order:
@@ -124,7 +125,7 @@ export class OrderAction extends BaseAction {
     });
 
     this.outlineService.update();
-    executeCommand(this.scrollToSelectedCommand);
+    this.commandExecutor.executeCommand(this.scrollToSelectedCommand);
   }
 
   init(nodes: TreeNode[], mode: OrderMode) {

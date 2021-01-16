@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
-import { executeCommand } from "../commands/base-command";
+import { CommandsExecutorService } from "../commands/commands-services/commands-executor-service";
 import { ScrollToSelected } from "../commands/scroll-to-selected";
 import { DocumentService } from "../document.service";
 import { OutlineService } from "../outline.service";
@@ -18,6 +18,7 @@ export class PasteAction extends BaseAction {
   constructor(
     private viewService: ViewService,
     private outlineService: OutlineService,
+    private commandExecutor: CommandsExecutorService,
     private documentService: DocumentService,
     private scrollToSelectedCommand: ScrollToSelected
   ) {
@@ -36,14 +37,14 @@ export class PasteAction extends BaseAction {
     });
 
     this.outlineService.update();
-    executeCommand(this.scrollToSelectedCommand);
+    this.commandExecutor.executeCommand(this.scrollToSelectedCommand);
   }
   undo() {
     // Should be executed in reverted order:
     this.nodes.forEach((node) => Utils.deleteTreeNode(node, node.parentNode));
 
     this.outlineService.update();
-    executeCommand(this.scrollToSelectedCommand);
+    this.commandExecutor.executeCommand(this.scrollToSelectedCommand);
   }
   cleanupElementsBeforePaste(node: Element): Element {
     if (node) {

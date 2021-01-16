@@ -1,21 +1,5 @@
 import { Subject } from "rxjs";
 
-export function executeCommand(command: BaseCommand): boolean {
-  if (
-    command &&
-    command.execute &&
-    command.commandType === CommandType.Separator &&
-    !command.commands
-  ) {
-    const canExecute = command.canExecute ? command.canExecute() : true;
-    if (canExecute) {
-      command.execute();
-      return true;
-    }
-  }
-  return false;
-}
-
 export enum CommandType {
   Command = "command",
   Label = "label",

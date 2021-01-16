@@ -9,10 +9,8 @@ import {
 import { MatMenu } from "@angular/material/menu";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import {
-  BaseCommand,
-  executeCommand,
-} from "src/app/services/commands/base-command";
+import { BaseCommand } from "src/app/services/commands/base-command";
+import { CommandsExecutorService } from "src/app/services/commands/commands-services/commands-executor-service";
 import { BaseComponent } from "../base-component";
 
 @Component({
@@ -25,7 +23,10 @@ export class DynamicContextMenuComponent
   extends BaseComponent
   implements OnInit {
   protected commandChanged$ = new Subject<BaseCommand>();
-  constructor(private cdRef: ChangeDetectorRef) {
+  constructor(
+    private commandExecutor: CommandsExecutorService,
+    private cdRef: ChangeDetectorRef
+  ) {
     super();
   }
   @ViewChild("menu") public matMenu: MatMenu;
@@ -65,12 +66,6 @@ export class DynamicContextMenuComponent
 
   onActionClicked(event: MouseEvent, command: BaseCommand) {
     // Run in a next tick, allow for menu to be responsive.
-    setTimeout(() => {
-      if (command && !command.commands) {
-        executeCommand(command);
-        this.render();
-      }
-    }, 10);
-    this.render();
+    this.commandExecutor.executeCommand(command, true, () => this.render());
   }
 }

@@ -14,12 +14,12 @@ import { SeparatorCommand } from "../separator-command";
   providedIn: "root",
 })
 export class OutlineCommandsService {
+  separatorCommand = new SeparatorCommand();
   constructor(
     private outlineStepForwardCommand: OutlineStepForwardCommand,
     private outlineStepBackwardCommand: OutlineStepBackwardCommand,
     private expandAllCommand: ExpandAllCommand,
     private collapseAllCommand: CollapseAllCommand,
-    private separatorCommand: SeparatorCommand,
     public scrollToSelectedCommand: ScrollToSelected
   ) {}
   getCommands(): BaseCommand[] {
