@@ -90,19 +90,21 @@ export class AdornersService {
     ).filter((p) => p.commandType === PathDataHandleType.Point);
     let bbox: DOMRect | null = null;
     if (points && points.length > 1) {
-      const screenPoints = points.map((handle) => {
-        const node = handle?.node;
-        if (!node) {
-          return;
-        }
-        let p = node.getPathData()?.commands[handle.commandIndex]?.p;
-        if (!p) {
-          return;
-        }
+      const screenPoints = points
+        .map((handle) => {
+          const node = handle?.node;
+          if (!node) {
+            return null;
+          }
+          let p = node.getPathData()?.commands[handle.commandIndex]?.p;
+          if (!p) {
+            return null;
+          }
 
-        p = Utils.toScreenPoint(node, p);
-        return p;
-      });
+          p = Utils.toScreenPoint(node, p);
+          return p || null;
+        })
+        .filter((p) => !!p);
       // In screen coords
       bbox = Utils.getPointsBounds(...screenPoints);
     }
