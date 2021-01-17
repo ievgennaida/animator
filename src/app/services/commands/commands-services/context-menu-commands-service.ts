@@ -7,7 +7,7 @@ import { UnGroupCommand } from "../group-commands/ungroup-command";
 import { OrderGroupCommand } from "../order-commands/order-group-command";
 import { PasteCommand } from "../paste-command";
 import { RemovePathNodesCommand } from "../path-commands/remove-path-nodes-command";
-import { RemoveElementCommand } from "../remove-element-command";
+import { RemoveSelectedCommand } from "../remove-selected-command";
 import { SelectGroupCommand } from "../selection-commands/select-group-command";
 import { SeparatorCommand } from "../separator-command";
 
@@ -23,7 +23,7 @@ export class ContextMenuCommandsService {
     private cutCommand: CutCommand,
     private copyCommand: CopyCommand,
     private pasteCommand: PasteCommand,
-    private removeElementCommand: RemoveElementCommand,
+    private removeSelectedCommand: RemoveSelectedCommand,
     private groupCommand: GroupCommand,
     private ungroupCommand: UnGroupCommand,
     private orderGroupCommand: OrderGroupCommand,
@@ -39,7 +39,7 @@ export class ContextMenuCommandsService {
       this.cutCommand,
       this.copyCommand,
       this.pasteCommand,
-      this.removeElementCommand,
+      this.removeSelectedCommand,
       this.separator,
       this.orderGroupCommand,
       this.selectGroupCommand,

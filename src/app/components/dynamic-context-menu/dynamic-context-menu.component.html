@@ -3,9 +3,9 @@
         <div *ngIf="command && command.commands">
             <app-dynamic-context-menu #subMenu [commands]="command.commands"></app-dynamic-context-menu>
             <button mat-menu-item [matMenuTriggerFor]="subMenu.matMenu"
-                *ngIf="subMenu && subMenu.matMenu && command && (!command.commandType || command.commandType === 'command')" (mouseEnter)="render()"
-                (mouseLeave)="render()" [disabled]="command.canExecute?!command.canExecute():false"
-                [attr.title]="command.tooltip" [class.active]="command?.active || false"
+                *ngIf="subMenu && subMenu.matMenu && command && (!command.commandType || command.commandType === 'command')"
+                (mouseEnter)="render()" (mouseLeave)="render()"
+                [disabled]="command.canExecute?!command.canExecute():false" [attr.title]="command.tooltip"
                 (click)="onActionClicked($event, command)">
                 <mat-icon [svgIcon]="command.iconSVG?command.icon:null">{{command.icon?command.icon:''}}
                 </mat-icon>
@@ -15,8 +15,7 @@
         </div>
         <div *ngIf="command && !command.commands && (!command.commandType || command.commandType === 'command')">
             <button mat-menu-item [disabled]="command.canExecute?!command.canExecute():false"
-                [attr.title]="command.tooltip" [class.active]="command?.active || false"
-                (click)="onActionClicked($event, command)">
+                [attr.title]="command.tooltip" (click)="onActionClicked($event, command)">
                 <mat-icon [svgIcon]="command.iconSVG?command.icon:null">{{command.icon?command.icon:''}}
                 </mat-icon>
                 <span *ngIf="command.title">{{command.title}}</span><span class="hotkey">{{command.hotkey ||

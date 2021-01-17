@@ -12,16 +12,16 @@ import { BasePathNodesCommand } from "./base-path-node-mode-command";
 @Injectable({
   providedIn: "root",
 })
-export class AddPathNodesModeCommand extends BasePathNodesCommand {
+export class ErasePathNodesModeCommand extends BasePathNodesCommand {
   constructor(
     undoService: UndoService,
     pathDirectSelectionTool: PathDirectSelectionTool
   ) {
     super(pathDirectSelectionTool, undoService);
   }
-  expectedMode = PathDirectSelectionToolMode.Add;
-  title = "Add Path Nodes";
-  tooltip = `Add Path Nodes`;
-  icon = "add-black-18dp";
+  expectedMode = PathDirectSelectionToolMode.Erase;
+  title = "Remove Path Nodes";
+  tooltip = `Remove Path Nodes`;
+  icon = "erase";
   iconSVG = true;
 }

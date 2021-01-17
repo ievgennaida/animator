@@ -4,7 +4,7 @@ import { EventManager } from "@angular/platform-browser";
 import { CopyCommand } from "./commands/copy-command";
 import { CutCommand } from "./commands/cut-command";
 import { PasteCommand } from "./commands/paste-command";
-import { RemoveElementCommand } from "./commands/remove-element-command";
+import { RemoveSelectedCommand } from "./commands/remove-selected-command";
 import { OutlineService } from "./outline.service";
 import { SelectionService } from "./selection.service";
 import { PanTool } from "./tools/pan.tool";
@@ -31,7 +31,7 @@ export class HotkeysService {
     private cutCommand: CutCommand,
     private copyCommand: CopyCommand,
     private pasteCommand: PasteCommand,
-    private removeElementCommand: RemoveElementCommand,
+    private removeSelectedCommand: RemoveSelectedCommand,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
@@ -61,7 +61,7 @@ export class HotkeysService {
         this.pasteCommand.execute();
       }
     });
-    this.add(`keydown.delete`, () => this.removeElementCommand.execute());
+    this.add(`keydown.delete`, () => this.removeSelectedCommand.execute());
     this.add(`keydown.v`, () =>
       this.toolsService.setActiveTool(this.selectionTool)
     );

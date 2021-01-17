@@ -1,11 +1,13 @@
 <div class="center noselect nodrag" *ngFor="let command of commands">
-    <button class="center" *ngIf="command && (!command.commandType || command.commandType === 'command')" mat-button
-        [class.active]="command?.active || false" (click)="onActionClicked(command)"
-        [disabled]="command.canExecute?!command.canExecute():false" [attr.title]="command.tooltip"
-        [class.active]="command?.active || false">
-        <mat-icon  [svgIcon]="command.iconSVG?command.icon:null">{{command.icon?command.icon:''}}
+    <button class="button center" *ngIf="command && (!command.commandType || command.commandType === 'command')"
+        mat-button (click)="onActionClicked(command)" [disabled]="command.canExecute?!command.canExecute():false"
+        [attr.title]="command.tooltip" [class.active]="command?.active || false">
+        <mat-icon [svgIcon]="command.iconSVG?command.icon:null">{{command.icon?command.icon:''}}
         </mat-icon>
+        <div class="active-line" *ngIf="command?.active">
+        </div>
     </button>
     <mat-divider vertical *ngIf="command && command.commandType === 'separator'"></mat-divider>
-    <div class="label noselect nodrag" vertical *ngIf="command && command.commandType === 'label'">{{command.title}}</div>
+    <div class="label noselect nodrag" vertical *ngIf="command && command.commandType === 'label'">{{command.title}}
+    </div>
 </div>

@@ -40,7 +40,7 @@ export enum PathDirectSelectionToolMode {
   /**
    * Remove existing path data nodes.
    */
-  Remove,
+  Erase,
 }
 @Injectable({
   providedIn: "root",
@@ -332,7 +332,7 @@ export class PathDirectSelectionTool extends SelectionTool {
 
     // No handles selected, select curve if not a rectangular selection:
     if (
-      this.mode !== PathDirectSelectionToolMode.Remove &&
+      this.mode !== PathDirectSelectionToolMode.Erase &&
       overPoints.length === 0 &&
       !this.selectionTracker.isActive()
     ) {

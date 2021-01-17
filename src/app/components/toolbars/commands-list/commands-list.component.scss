@@ -3,7 +3,7 @@
   padding: 0 10px !important;
   display: flex;
   overflow: hidden;
-  gap: 5px;
+  gap: 0px;
 }
 
 button[mat-button] {
@@ -50,19 +50,28 @@ button[mat-button] {
 }
 
 mat-divider {
-  padding: 5px;
+  margin: 5px;
   height: 80%;
+}
+.button {
+  position: relative;
+}
+.label {
+  margin: 0px 2px;
+}
+.active-line {
+  width: 100%;
+  height: 2px;
+  left: 0;
+  bottom: 0;
+  position: absolute;
+  background: #adadad;
 }
 .active {
   background-color: #323232;
-  width: 2px;
-  height: 100%;
-  left: 0;
-  top: 0;
-  position: absolute;
   mat-icon {
-    color: white;
-    fill: white;
-    stroke: white;
+    color: white !important;
+    fill: white !important;
+    stroke: white !important;
   }
 }

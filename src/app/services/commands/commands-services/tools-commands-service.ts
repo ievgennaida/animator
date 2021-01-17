@@ -9,9 +9,11 @@ import { BringToFrontCommand } from "../order-commands/bring-to-front-command";
 import { SendToBottomCommand } from "../order-commands/send-to-bottom-command";
 import { StepBackwardCommand } from "../order-commands/step-backward-command";
 import { StepForwardCommand } from "../order-commands/step-forward-command";
-import { AddPathNodesCommand } from "../path-commands/add-path-nodes-mode-command";
-import { RemovePathNodesCommand } from "../path-commands/remove-path-nodes-command";
+import { AddPathNodesModeCommand } from "../path-commands/add-path-nodes-mode-command";
+import { ErasePathNodesModeCommand } from "../path-commands/erase-path-nodes-mode-command";
+import { SelectPathNodesModeCommand } from "../path-commands/select-path-nodes-mode-command";
 import { SmoothNodesCommand } from "../path-commands/smooth-path-nodes-command";
+import { RemoveSelectedCommand } from "../remove-selected-command";
 import { SelectAllCommand } from "../selection-commands/select-all-command";
 import { SelectNoneCommand } from "../selection-commands/select-none-command";
 import { SeparatorCommand } from "../separator-command";
@@ -34,9 +36,11 @@ export class ToolsCommandsService {
     private selectAllCommand: SelectAllCommand,
     private selectNoneCommand: SelectNoneCommand,
     private visibilityCommand: VisibilityCommand,
-    private removePathNodesCommand: RemovePathNodesCommand,
+    private erasePathNodesModeCommand: ErasePathNodesModeCommand,
     private smoothNodesCommand: SmoothNodesCommand,
-    private addPathNodesCommand: AddPathNodesCommand
+    private addPathNodesModeCommand: AddPathNodesModeCommand,
+    private selectPathNodesModeCommand: SelectPathNodesModeCommand,
+    private removeSelectedCommand: RemoveSelectedCommand
   ) {}
 
   getToolCommands(tool: BaseTool): BaseCommand[] {
@@ -45,10 +49,13 @@ export class ToolsCommandsService {
     }
     if (tool instanceof PathDirectSelectionTool) {
       return [
-        new LabelCommand('Mode:'),
-        this.addPathNodesCommand,
-        this.removePathNodesCommand,
+        new LabelCommand("Mode:"),
+        this.selectPathNodesModeCommand,
+        this.addPathNodesModeCommand,
+        this.erasePathNodesModeCommand,
         this.separator,
+        new LabelCommand("Actions:"),
+        this.removeSelectedCommand,
         this.smoothNodesCommand,
       ];
     } else if (tool instanceof SelectionTool) {
