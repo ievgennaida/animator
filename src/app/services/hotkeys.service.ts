@@ -35,11 +35,32 @@ export class HotkeysService {
     @Inject(DOCUMENT) private document: Document
   ) {}
 
-  add(key: string, callback) {
-    this.eventManager.addEventListener(this.document.body, key, (e: Event) => {
-      callback(e);
-      e.preventDefault();
-    });
+  add(key: string, callback: (e: KeyboardEvent) => void) {
+    const keys = key.split(".");
+    const charKey = keys[keys.length - 1].toLowerCase();
+    let invariantKeyCode = charKey;
+    if (invariantKeyCode.length === 1) {
+      invariantKeyCode = `key${keys[keys.length - 1]}`;
+    }
+    invariantKeyCode = invariantKeyCode.toLowerCase();
+    const isCtrl = !!keys.find((p) => p === "control");
+    this.eventManager.addEventListener(
+      this.document.body,
+      "keydown",
+      (e: KeyboardEvent) => {
+        const pressedKey = e.key.toLowerCase();
+        const code = pressedKey.charCodeAt(0);
+        const isLatin =
+          (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+        const keyMatch = isLatin
+          ? pressedKey === charKey
+          : e.code.toLowerCase() === invariantKeyCode;
+        if (isCtrl === e.ctrlKey && keyMatch) {
+          callback(e);
+          e.preventDefault();
+        }
+      }
+    );
   }
   initialize() {
     // TODO: make it language invariant
