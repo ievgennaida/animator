@@ -4,6 +4,8 @@ import {
   PathDataHandleType,
 } from "src/app/models/path-data-handle";
 import { PathData } from "src/app/models/path/path-data";
+import { PathDataCommand } from "src/app/models/path/path-data-command";
+import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
 import {
@@ -52,6 +54,51 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     }
   }
 
+  isSegmentEnd(command?: PathDataCommand | null): boolean {
+    return (
+      !command ||
+      command.isType(PathType.closeAbs) ||
+      //
+      command.index === command.pathData.commands.length - 1
+    );
+  }
+  removeNode(command: PathDataCommand) {
+    const pathData = command.pathData;
+    if (command.isType(PathType.moveAbs)) {
+      // In this case replace make no sense:
+      const nextNodeClose = this.isSegmentEnd(command.next);
+      if (!nextNodeClose) {
+        if (command.next.isType(PathType.closeAbs)) {
+          // Delete element
+        } else {
+          // Replace command:
+          const newCommand = new PathDataCommand(PathType.moveAbs, [
+            command.next.p.x,
+            command.next.p.y,
+          ]);
+          newCommand.isRelative = command.isRelative;
+          newCommand.pathData = command.pathData;
+          command.pathData.commands[command.next.index] = newCommand;
+        }
+      }
+      pathData.deleteCommand(command);
+      if (nextNodeClose && command.next) {
+        pathData.deleteCommand(command.next);
+      }
+    } else {
+      pathData.deleteCommand(command);
+    }
+
+    if (command.next.isType(PathType.moveAbs)) {
+      if (!command.next) {
+        return false;
+      } else if (
+        command.next.isType(PathType.moveAbs) &&
+        command.next.isType(PathType.closeAbs)
+      ) {
+      }
+    }
+  }
   commit() {
     // Make a snapshot of a state
     this.saveInitialValues(this.nodes, [PathDataPropertyKey]);
@@ -62,7 +109,7 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     );
 
     pointHandlers.forEach((p) => {
-      p.pathData.deleteCommandByIndex(p.commandIndex);
+      this.removeNode(p.command);
       items.set(p.node, p.pathData);
     });
 

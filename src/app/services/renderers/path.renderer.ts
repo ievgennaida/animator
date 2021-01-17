@@ -9,6 +9,7 @@ import { NearestCommandPoint } from "../intersection.service";
 import { LoggerService } from "../logger.service";
 import { MouseOverService } from "../mouse-over.service";
 import { SelectionService } from "../selection.service";
+import { PointOnPathUtils } from "../utils/path-utils/point-on-path";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
 import { BaseRenderer } from "./base.renderer";
@@ -105,10 +106,6 @@ export class PathRenderer extends BaseRenderer {
             return;
           }
 
-          if (abs.type === PathType.closeAbs) {
-            return;
-          }
-
           const p = abs.p;
           if (!p) {
             return;
@@ -150,14 +147,11 @@ export class PathRenderer extends BaseRenderer {
             });
           }
 
-          this.drawHandlesAndOutlines(
-            node,
-            command,
-            ctm,
-            point,
-            prevPoint
-          );
+          this.drawHandlesAndOutlines(node, command, ctm, point, prevPoint);
           if (point) {
+            if (abs.isType(PathType.closeAbs)) {
+              return;
+            }
             let handleStroke = consts.pathPointStroke;
             let handleFill = consts.pathPointFill;
             const mouseOver = this.mouseOverService.pathDataSubject.getHandle(
@@ -228,10 +222,7 @@ export class PathRenderer extends BaseRenderer {
 
     let isHandleASelected = false;
     let isHandleBSelected = false;
-    const drawHandles = this.selectionService.isPathHandlesActivated(
-      node,
-      abs
-    );
+    const drawHandles = this.selectionService.isPathHandlesActivated(node, abs);
     if (drawHandles) {
       isHandleASelected = !!this.mouseOverService.pathDataSubject.getHandle(
         node,
@@ -380,10 +371,32 @@ export class PathRenderer extends BaseRenderer {
               : consts.pathHandleFill
           );
         }
-      } else if (abs.type === PathType.arc || abs.type === PathType.arcAbs) {
+      } else if (abs.isType(PathType.arcAbs)) {
         const c = abs;
         if (drawPathOutline) {
           // TODO: draw outline for arc path data.
+          const curves = c.arcApproxCurves();
+          if (curves) {
+            let start = prevPoint;
+            curves.forEach((p) => {
+              this.ctx.moveTo(start.x, start.y);
+              const subA = new DOMPoint(p[0], p[1]).matrixTransform(ctm);
+              const subB = new DOMPoint(p[2], p[3]).matrixTransform(ctm);
+              const end = new DOMPoint(p[4], p[5]).matrixTransform(ctm);
+              this.ctx.bezierCurveTo(
+                subA.x,
+                subA.y,
+                subB.x,
+                subB.y,
+                end.x,
+                end.y
+              );
+              this.ctx.lineWidth = outlineThickness;
+              this.ctx.strokeStyle = outlineColor;
+              this.ctx.stroke();
+              start = end;
+            });
+          }
         }
         if (!drawHandles) {
           return;
@@ -448,8 +461,17 @@ export class PathRenderer extends BaseRenderer {
           consts.pathHandleStroke,
           consts.pathHandleFill
         );
-      } else {
+      } else if (!abs.isType(PathType.moveAbs)) {
         if (drawPathOutline) {
+          if (abs.isType(PathType.closeAbs)) {
+            const prevMove = PointOnPathUtils.getPrevByType(
+              abs,
+              PathType.moveAbs
+            );
+            if (prevMove) {
+              point = prevMove.p.matrixTransform(ctm);
+            }
+          }
           this.drawPath(
             this.ctx,
             outlineThickness,

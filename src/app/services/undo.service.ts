@@ -53,7 +53,7 @@ export class UndoService {
       if (this.activeIndex >= this.actions.length - 1) {
         this.activeIndex = this.actions.length - 2;
       }
-      this.actions = Utils.deleteElement(this.actions, action);
+      Utils.deleteElement(this.actions, action);
     }
   }
   getActiveAction(): BaseAction | null {

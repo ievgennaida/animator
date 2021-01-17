@@ -323,12 +323,11 @@ export class PathDirectSelectionTool extends SelectionTool {
 
     const screenPos = event.getDOMPoint();
     const nodes = this.selectionService.getSelected();
+    const selector = this.selectionTracker.selectionRectStarted()
+      ? this.selectionTracker.getScreenRect()
+      : screenPos;
     const overPoints =
-      this.intersectionService.intersectPathDataHandles(
-        nodes,
-        this.selectionTracker.getScreenRect(),
-        screenPos
-      ) || [];
+      this.intersectionService.intersectPathDataHandles(nodes, selector) || [];
 
     // No handles selected, select curve if not a rectangular selection:
     if (
@@ -347,6 +346,7 @@ export class PathDirectSelectionTool extends SelectionTool {
         accuracy
       );
       if (nearest) {
+        this.pathRenderer.debugHandle = nearest;
         let handleMode = PathDataHandleType.Curve;
         if (this.mode === PathDirectSelectionToolMode.Add) {
           handleMode = PathDataHandleType.AddPoint;
@@ -401,13 +401,13 @@ export class PathDirectSelectionTool extends SelectionTool {
       }
       return;
     }
-    const selectorRect = this.selectionTracker.click
-      ? null
-      : this.selectionTracker.getScreenRect();
+    const selector = this.selectionTracker.selectionRectStarted()
+      ? this.selectionTracker.getScreenRect()
+      : screenPos;
+
     const overPoints = this.intersectionService.intersectPathDataHandles(
       nodes,
-      selectorRect,
-      screenPos
+      selector
     );
 
     let changeStateMode = ChangeStateMode.Normal;

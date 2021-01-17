@@ -415,12 +415,13 @@ export class Utils {
     return unique;
   }
 
-  public static deleteElement<T>(array: T[], element: T): T[] {
+  public static deleteElement<T>(array: T[], element: T): boolean {
     const index: number = array.indexOf(element);
     if (index !== -1) {
       array.splice(index, 1);
+      return true;
     }
-    return array;
+    return false;
   }
 
   public static mergeRects(...rects: DOMRect[]): DOMRect | null {

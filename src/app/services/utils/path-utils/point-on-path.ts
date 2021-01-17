@@ -1,20 +1,20 @@
 // See: https://github.com/rveciana/svg-path-properties
 // The reason to calculate this 'manually' is a lack of the DOM function to get command by length.
 
-import { Utils } from "../../../services/utils/utils";
-import { PathDataCommand } from "../../path/path-data-command";
-import { PathType } from "../../path/path-type";
+import { PathDataCommand } from "../../../models/path/path-data-command";
+import { PathType } from "../../../models/path/path-type";
+import { Utils } from "../utils";
 import {
   approximateArcLengthOfCurve,
   pointOnEllipticalArc,
-  PointOnEllipticalArcResults,
+  PointOnEllipticalArcResults
 } from "./arc-functions";
 import {
   cubicPoint,
   getCubicArcLength,
   getQuadraticArcLength,
   quadraticPoint,
-  t2length,
+  t2length
 } from "./bezier-functions";
 
 const getCubicPoint = (
@@ -67,8 +67,16 @@ export class PointOnPathUtils {
       );
 
       return lengthProperties ? lengthProperties.arcLength : 0;
+    } else if (
       // C
-    } else if (command.type === PathType.cubicBezierAbs) {
+      command.type === PathType.cubicBezierAbs ||
+      // S
+      command.type === PathType.shorthandSmoothAbs
+    ) {
+      if (!prev || prev.isType(PathType.closeAbs)) {
+        return 0;
+      }
+
       const length = getCubicArcLength(
         [prevPoint.x, a.x, b.x, currentPoint.x],
         [prevPoint.y, a.y, b.y, currentPoint.y],
@@ -76,28 +84,10 @@ export class PointOnPathUtils {
       );
 
       return length;
-      // S
-    } else if (command.type === PathType.shorthandSmoothAbs) {
-      if (!prev) {
-        return 0;
-      }
-      // C, S
-      if (
-        prev.type === PathType.cubicBezierAbs ||
-        prev.type === PathType.shorthandSmoothAbs
-      ) {
-        const length = getCubicArcLength(
-          [prevPoint.x, prev.b.x, a.x, currentPoint.x],
-          [prevPoint.y, prev.b.y, a.y, currentPoint.y],
-          1
-        );
-        return length;
-      } else {
-        return 0;
-      }
-      // Q Quadratic Bezier curves (x,y ax ay)
     } else if (
+      // Q Quadratic Bezier curves (x,y ax ay)
       command.type === PathType.quadraticBezierAbs ||
+      // T
       command.type === PathType.smoothQuadraticBezierAbs
     ) {
       const isSmooth = command.type === PathType.smoothQuadraticBezierAbs;
@@ -123,7 +113,10 @@ export class PointOnPathUtils {
       command.type === PathType.closeAbs ||
       command.type === PathType.close
     ) {
-      const moveCommand = this.getPrevMoveCommand(command);
+      const moveCommand = PointOnPathUtils.getPrevByType(
+        command,
+        PathType.moveAbs
+      );
       if (!moveCommand) {
         return null;
       }
@@ -182,9 +175,10 @@ export class PointOnPathUtils {
         currentPoint,
         fractionLength / maxLength
       );
-      // C
     } else if (
+      // S
       command.type === PathType.shorthandSmoothAbs ||
+      // C
       command.type === PathType.cubicBezierAbs
     ) {
       // C, S
@@ -196,7 +190,9 @@ export class PointOnPathUtils {
       }
       // Q Quadratic Bezier curves (x,y ax ay)
     } else if (
+      // Q
       command.type === PathType.quadraticBezierAbs ||
+      // T
       command.type === PathType.smoothQuadraticBezierAbs
     ) {
       const isSmooth = command.type === PathType.smoothQuadraticBezierAbs;
@@ -215,7 +211,10 @@ export class PointOnPathUtils {
       }
       // T Shorthand/smooth quadratic Bezier curveto x,y
     } else if (command.type === PathType.closeAbs) {
-      const moveCommand = this.getPrevMoveCommand(command);
+      const moveCommand = PointOnPathUtils.getPrevByType(
+        command,
+        PathType.moveAbs
+      );
       if (!moveCommand) {
         return null;
       }
@@ -230,20 +229,19 @@ export class PointOnPathUtils {
     // L,H,V or failed Q, T
     return Utils.getPointAtLength(command.prevPoint, command.p, fractionLength);
   }
-
   /**
-   * Get prev move command.
+   * Get nearest prev command by type.
    */
-  static getPrevMoveCommand(command: PathDataCommand): PathDataCommand | null {
+  static getPrevByType(
+    command: PathDataCommand | null,
+    pathType: PathType
+  ): PathDataCommand | null {
     if (!command) {
       return null;
     }
 
     while (command != null) {
-      if (
-        command &&
-        (command.type === PathType.move || command.type === PathType.moveAbs)
-      ) {
+      if (command && command.isType(pathType)) {
         return command;
       }
       command = command.prev;

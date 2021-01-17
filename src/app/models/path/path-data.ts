@@ -199,15 +199,17 @@ export class PathData {
     return cloned;
   }
 
-  deleteCommand(command: PathDataCommand | null): PathDataCommand | null {
+  deleteCommand(command: PathDataCommand | null): boolean {
     if (!command) {
       return null;
     }
-    this.commands = Utils.deleteElement(this.commands, command);
+    const isRemoved = Utils.deleteElement(this.commands, command);
+    return isRemoved;
   }
 
-  deleteCommandByIndex(index: number): PathDataCommand | null {
-    return this.deleteCommand(this.commands[index]);
+  deleteCommandByIndex(index: number): boolean {
+    const command = this.commands[index];
+    return this.deleteCommand(command);
   }
 
   /**

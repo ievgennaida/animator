@@ -6,7 +6,8 @@
 
 // tslint:disable: variable-name
 import { PathType } from "src/app/models/path/path-type";
-import { PointOnPathUtils } from "src/app/models/path/utils/point-on-path";
+import { arcToCubicCurves } from "src/app/services/utils/path-utils/arc-functions";
+import { PointOnPathUtils } from "src/app/services/utils/path-utils/point-on-path";
 import { CalculatedEllipse, Utils } from "src/app/services/utils/utils";
 import { PathData } from "./path-data";
 // Should be replaced by a DOM type when available.
@@ -53,7 +54,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * Smaller Rx and Ry can be given for a command than the expected one.
    */
   private ellipseCache: CalculatedEllipse | null = null;
-
+  private approxCurves: number[][] | null = null;
   /*
    * Editor is working with absolute values.
    * This is a type of the initial command to preserve original rel or abs when saved.
@@ -99,6 +100,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    */
   private cleanCache() {
     this.ellipseCache = null;
+    this.approxCurves = null;
     this._length = null;
     this.pointsCache.clear();
   }
@@ -255,6 +257,12 @@ export class PathDataCommand implements SVGPathSegmentEx {
     }
 
     return this;
+  }
+  public isType(type: PathType | string) {
+    const same =
+      this.type === type ||
+      this.type.toUpperCase() === type.toString().toUpperCase();
+    return same;
   }
   public get a(): DOMPoint | null {
     // Calculate virtual
@@ -427,10 +435,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return null;
     }
 
-    if (
-      this.type === PathType.shorthandSmooth ||
-      this.type === PathType.shorthandSmoothAbs
-    ) {
+    if (this.isType(PathType.shorthandSmoothAbs)) {
       if (!this._b) {
         this._b = new DOMPoint();
       }
@@ -486,7 +491,10 @@ export class PathDataCommand implements SVGPathSegmentEx {
     }
     return calResults.center;
   }
-  public calcEllipse(): CalculatedEllipse {
+  public calcEllipse(): CalculatedEllipse | null {
+    if (!this.isType(PathType.arcAbs)) {
+      return null;
+    }
     if (this.ellipseCache) {
       return this.ellipseCache;
     }
@@ -497,13 +505,35 @@ export class PathDataCommand implements SVGPathSegmentEx {
       this.rx,
       this.ry,
       this.rotation,
-      this.large ? 0 : 1,
-      this.sweep ? 0 : 1,
+      this.large ? 1 : 0,
+      this.sweep ? 1 : 0,
       this.x,
       this.y
     );
     return this.ellipseCache;
   }
+  public arcApproxCurves(): number[][] | null {
+    if (!this.isType(PathType.arcAbs)) {
+      return null;
+    }
+    if (this.approxCurves) {
+      return this.approxCurves;
+    }
+    const prev = this.prevPoint;
+    this.approxCurves = arcToCubicCurves(
+      prev.x,
+      prev.y,
+      this.rx,
+      this.ry,
+      this.rotation,
+      this.large ? 1 : 0,
+      this.sweep ? 1 : 0,
+      this.x,
+      this.y
+    );
+    return this.approxCurves;
+  }
+
   /**
    * get segment length
    */
@@ -755,6 +785,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       Math.max(maxX - minX, 1),
       Math.max(maxY - minY, 1)
     );
-    return toReturn;
+    // TODO: implement for the optimization
+    return null;
   }
 }

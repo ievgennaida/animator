@@ -28,6 +28,7 @@ export interface NearestCommandPoint {
    */
   allPoints: DOMPoint[];
 }
+
 @Injectable({
   providedIn: "root",
 })
@@ -108,22 +109,23 @@ export class IntersectionService {
   /**
    * get path data handles under the point or rectangle.
    * @param nodes list of nodes with path data.
-   * @param selectorRect in screen coordinates.
-   * @param screenPos in screen coordinates.
+   * @param selectorRectOrPos rect or point in screen coordinates.
    */
   intersectPathDataHandles(
     nodes: TreeNode[],
-    selectorRect: DOMRect,
-    screenPos: DOMPoint
+    selectorRectOrPos: DOMRect | DOMPoint,
+    includeHandles = true
   ): Array<PathDataHandle> {
     const mouseOverItems: Array<PathDataHandle> = [];
     const config = this.configService.get();
-
+    const rectSelector = selectorRectOrPos as DOMRect;
+    const isRect = rectSelector.width || rectSelector.width === 0;
+    const screenPos = selectorRectOrPos as DOMPoint;
     if (nodes) {
       let prevBestDistance = Number.MAX_VALUE;
       nodes.forEach((node) => {
         const data = node.getPathData();
-        const p = Utils.toElementPoint(node, screenPos);
+        const p = !isRect ? Utils.toElementPoint(node, screenPos) : null;
         if (data && data.commands) {
           data.forEach((command, commandIndex) => {
             const abs = command;
@@ -132,14 +134,14 @@ export class IntersectionService {
             }
 
             let pointSelected = false;
-            if (selectorRect) {
+            if (isRect) {
               pointSelected = Utils.rectIntersectPoint(
-                selectorRect,
+                rectSelector,
                 Utils.toScreenPoint(node, abs.p)
               );
             }
             let handleType = PathDataHandleType.Point;
-            if (p && !selectorRect) {
+            if (p && !isRect) {
               // TODO: select a,b helper handles.
               const screenPointSize = Utils.getDistance(
                 Utils.toElementPoint(
@@ -155,10 +157,9 @@ export class IntersectionService {
                 prevBestDistance = l;
                 pointSelected = true;
               }
-              const handlesActivated = this.selectionService.isPathHandlesActivated(
-                node,
-                command
-              );
+              const handlesActivated =
+                includeHandles &&
+                this.selectionService.isPathHandlesActivated(node, command);
               if (handlesActivated) {
                 accuracy = screenPointSize * config.pathHandleSelectedSize;
                 const a = abs.a;
@@ -184,7 +185,7 @@ export class IntersectionService {
 
             if (pointSelected) {
               // Return only one when selected by screen point.
-              if (!selectorRect) {
+              if (!isRect) {
                 // Cleanup but keep array reference.
                 mouseOverItems.length = 0;
               }
@@ -255,13 +256,19 @@ export class IntersectionService {
     if (!node) {
       return null;
     }
-
     const nodeBounds = node.getBBox();
+    shrinkBounds = Math.max(
+      shrinkBounds,
+      accuracy,
+      nodeBounds.width / 4,
+      nodeBounds.height / 4
+    );
+
     // Optimize, skip in a case if outside of the bounds.
     if (
       !Utils.rectIntersectPoint(
-        // Shrink a bit so accuracy can also included
-        Utils.shrinkRect(nodeBounds, accuracy, accuracy),
+        // Shrink a bit so accuracy offset can also included
+        Utils.shrinkRect(nodeBounds, shrinkBounds, shrinkBounds),
         elementPoint
       )
     ) {
