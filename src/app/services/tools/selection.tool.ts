@@ -113,12 +113,14 @@ export class SelectionTool extends BaseTool {
   }
 
   onActivate() {
+    this.adornersService.showBBoxHandles = true;
     this.mouseOverRenderer.resume();
     this.notification.showFooterMessage("[Shift] - Append [CTRL] - Toggle");
   }
   onDeactivate() {
     super.onDeactivate();
     this.cleanUp();
+    this.adornersService.showBBoxHandles = true;
     this.notification.hideFooterMessage();
   }
   cleanUp() {
@@ -126,6 +128,7 @@ export class SelectionTool extends BaseTool {
     this.lastDeg = null;
     this.startedNode = null;
     this.startedHandle = null;
+    this.adornersService.showBBoxHandles = true;
     this.mouseOverRenderer.resume();
     if (this.transformsService.isActive()) {
       this.transformsService.cancel();
@@ -161,13 +164,20 @@ export class SelectionTool extends BaseTool {
         // Mouse should be released in order to avoid drag by mistake, than happens often.
         this.cursor.setCursor(CursorType.NotAllowed);
       } else {
-        const handle = this.intersectionService.getAdornerHandleIntersection(
-          event.screenPoint
-        );
-        if (!handle) {
-          this.mouseOverService.leaveHandle();
-        } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
-          this.mouseOverService.setMouseOverHandle(handle);
+        let handle: HandleData | null = null;
+        if (this.selectionTracker.selectionRectStarted()) {
+          // Don't show bbox handles when selection rect started.
+          this.adornersService.showBBoxHandles = false;
+        } else {
+          this.adornersService.showBBoxHandles = true;
+          handle = this.intersectionService.getAdornerHandleIntersection(
+            event.screenPoint
+          );
+          if (!handle) {
+            this.mouseOverService.leaveHandle();
+          } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
+            this.mouseOverService.setMouseOverHandle(handle);
+          }
         }
 
         this.cursor.setHandleCursor(handle, event.screenPoint);

@@ -41,7 +41,11 @@ export class PathDataHandle {
       return false;
     }
     if (this.isHandle(another.node, another.command, another.commandType)) {
-      return (this.point || another.point) && this.point === another.point;
+      if (!this.point && !another.point) {
+        return true;
+      } else {
+        return this.point === another.point;
+      }
     }
     return false;
   }

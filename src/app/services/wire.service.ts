@@ -65,6 +65,9 @@ export class WireService {
         pathRenderer
       );
     });
+    adornersService.showBBoxHandlesSubject.subscribe(() => {
+      boundsRenderer.invalidate();
+    });
     propertiesService.changedSubject.subscribe((prop) => {
       if (!prop || prop.key === PathDataPropertyKey) {
         pathRenderer.invalidate();

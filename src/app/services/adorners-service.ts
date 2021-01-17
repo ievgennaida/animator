@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 import { AdornerContainer } from "../models/adorner";
 import { AdornerPointType, AdornerType } from "../models/adorner-type";
 import { PathDataHandleType } from "../models/path-data-handle";
@@ -34,6 +35,15 @@ export class AdornersService {
    */
   pathDataSelectionAdorner: AdornerContainer = new AdornerContainer();
   pathDataSelectorActive = true;
+  showBBoxHandlesSubject = new BehaviorSubject<boolean>(true);
+  get showBBoxHandles(): boolean {
+    return this.showBBoxHandlesSubject.getValue();
+  }
+  set showBBoxHandles(val: boolean) {
+    if (this.showBBoxHandles !== val) {
+      this.showBBoxHandlesSubject.next(val);
+    }
+  }
   cache = new Map<TreeNode, AdornerContainer>();
   /**
    * Calculate multiple selected items bounds adorner
@@ -221,7 +231,12 @@ export class AdornersService {
     activeAdorners: AdornerContainer[],
     adornerPointType: AdornerPointType
   ): boolean {
-    if (!adorner || !activeAdorners || !adorner.showHandles) {
+    if (
+      !adorner ||
+      !activeAdorners ||
+      !adorner.showHandles ||
+      !this.showBBoxHandles
+    ) {
       return false;
     }
 

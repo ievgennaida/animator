@@ -5,6 +5,9 @@ import { MatrixUtils } from "../utils/matrix-utils";
 import { ViewService } from "../view.service";
 import { BaseRenderer } from "./base.renderer";
 
+/**
+ * Select rectangle renderer.
+ */
 @Injectable({
   providedIn: "root",
 })

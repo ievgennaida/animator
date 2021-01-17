@@ -31,17 +31,6 @@ export class BoundsRenderer extends BaseRenderer {
     super();
   }
 
-  private _drawPathDataPointsHandle = false;
-  get drawPathDataPointsHandle(): boolean {
-    return this._drawPathDataPointsHandle;
-  }
-  set drawPathDataPointsHandle(value: boolean) {
-    if (this._drawPathDataPointsHandle !== value) {
-      this._drawPathDataPointsHandle = value;
-      this.invalidate();
-    }
-  }
-
   getAdornerStroke(
     container: AdornerContainer,
     adornerType: AdornerPointType
