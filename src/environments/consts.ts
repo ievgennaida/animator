@@ -15,9 +15,9 @@ export const consts = {
   pathPointFill: "white",
   pathPointStroke: "#3399FF",
   pathMouseOverPointStroke: "red",
-  pathMouseOverPointFill: "red",
-  pathSelectedPointStroke: "#3399FF",
-  pathSelectedPointFill: "#3399FF",
+  pathMouseOverPointFill: "white",
+  pathSelectedPointStroke: "red",
+  pathSelectedPointFill: "red",
   // handle (control point)
   pathHandleSize: 3,
   pathHandleStroke: "#3399FF",
