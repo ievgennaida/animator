@@ -16,6 +16,7 @@ export class AssetsService {
       "crop_square",
       "ink_pen",
       "crop_16_9-black-18dp-transformed",
+      "erase",
       "crop_16_9-black-18dp",
       "add-black-18dp",
       "break-path-data-node",
