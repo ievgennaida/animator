@@ -49,11 +49,13 @@ export class UndoService {
   remove(action: BaseAction) {
     const indexOf = this.actions.indexOf(action);
     if (indexOf >= 0) {
-      // Check that index is not out of the bounds
-      if (this.activeIndex >= this.actions.length - 1) {
-        this.activeIndex = this.actions.length - 2;
-      }
       Utils.deleteElement(this.actions, action);
+      // Check that index is not out of the bounds
+      if (this.activeIndex >= this.actions.length) {
+        this.activeIndex = this.actions.length - 1;
+      }
+      // Update actions list:
+      this.actionsSubject.next(this.actions);
     }
   }
   getActiveAction(): BaseAction | null {
