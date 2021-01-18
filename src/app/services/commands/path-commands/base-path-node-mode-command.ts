@@ -28,13 +28,14 @@ export class BasePathNodesCommand implements BaseCommand {
   iconSVG = true;
   get active() {
     // Don't allow to change mode during the running transaction:
+    return this.pathDirectSelectionTool.mode === this.expectedMode;
+  }
+  canExecute(): boolean {
+    // No running action:
     const active = this.undoService.getLastAction();
     if (active && !active.committed) {
       return false;
     }
-    return this.pathDirectSelectionTool.mode === this.expectedMode;
-  }
-  canExecute(): boolean {
     return true;
   }
   execute() {

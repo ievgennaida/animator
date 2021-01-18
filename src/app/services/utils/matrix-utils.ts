@@ -8,6 +8,7 @@ import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
+import { PointOnPathUtils } from "./path-utils/point-on-path";
 import { Utils } from "./utils";
 
 export class MatrixUtils {
@@ -325,11 +326,7 @@ export class PathDataUtils {
           // Command point:
           const manipulateP =
             !command.changedP &&
-            PathDataUtils.allowToManipulatePoint(
-              commandIndex,
-              command,
-              filters
-            );
+            PathDataUtils.allowToManipulatePoint(command, filters);
           if (p && manipulateP) {
             changed = true;
             command.p = p.matrixTransform(matrix);
@@ -357,7 +354,7 @@ export class PathDataUtils {
             changed = true;
           }
 
-          if (command.type === PathType.arcAbs) {
+          if (manipulateP && command.type === PathType.arcAbs) {
             const center = command.center;
             const rx = new DOMPoint(
               center.x + command.rx,
@@ -418,25 +415,67 @@ export class PathDataUtils {
   }
 
   static allowToManipulatePoint(
-    commandIndex: number,
-    abs: PathDataCommand,
+    command: PathDataCommand,
     filters: PathDataHandle[]
   ): boolean {
+    if (!command) {
+      return false;
+    }
     // Allow to manipulate when no filters are specified.
     if (!filters) {
       return true;
     }
+    const commandIndex = command.index;
+    if (commandIndex === -1) {
+      console.log(`Invalid state, command is detached:${command.type}`);
+      return false;
+    }
 
-    const allowedToManipulatePoint = !!filters.find(
-      (f) =>
-        f.commandIndex === commandIndex &&
-        (f.commandType === PathDataHandleType.Point ||
-          ((abs.type === PathType.closeAbs ||
-            abs.type === PathType.lineAbs ||
-            abs.type === PathType.verticalAbs ||
-            abs.type === PathType.horizontalAbs) &&
-            f.commandType === PathDataHandleType.Curve))
-    );
+    const allowedToManipulatePoint = !!filters.find((f) => {
+      // Move exact point:
+      if (f.commandType === PathDataHandleType.Point) {
+        if (f.commandIndex === commandIndex) {
+          return true;
+        } else if (
+          // Allow to manipulate next point for the lines.
+          f.commandIndex - 1 === commandIndex &&
+          (command.type === PathType.lineAbs ||
+            command.type === PathType.arcAbs ||
+            command.type === PathType.verticalAbs ||
+            command.type === PathType.horizontalAbs)
+        ) {
+          return true;
+        }
+      } else if (f.commandType === PathDataHandleType.Curve) {
+        // check whether we can move current command by Z:
+        if (
+          command.isType(PathType.moveAbs) &&
+          f.command.isType(PathType.closeAbs)
+        ) {
+          const moveCommand = PointOnPathUtils.getPrevByType(
+            f.command,
+            PathType.moveAbs
+          );
+          if (moveCommand.index === command.index) {
+            return true;
+          }
+        } else if (f.commandIndex === commandIndex) {
+          return true;
+        } else if (
+          // Allow to manipulate next point for the lines.
+          f.commandIndex - 1 === commandIndex &&
+          (f.command.type === PathType.closeAbs ||
+            f.command.type === PathType.lineAbs ||
+            f.command.type === PathType.arcAbs ||
+            f.command.type === PathType.verticalAbs ||
+            f.command.type === PathType.horizontalAbs)
+        ) {
+          return true;
+        }
+      }
+
+      return false;
+    });
 
     return allowedToManipulatePoint;
   }
@@ -451,15 +490,20 @@ export class PathDataUtils {
     }
 
     // Manipulate prev point with a handle.
-    if (this.allowToManipulatePoint(commandIndex - 1, command, filters)) {
-      return true;
-    }
-    return !!filters.find(
-      (f) =>
-        f.commandIndex === commandIndex &&
-        (f.commandType === PathDataHandleType.HandleA ||
-          f.commandType === PathDataHandleType.Curve)
-    );
+    return !!filters.find((f) => {
+      if (f.commandType === PathDataHandleType.HandleA) {
+        return f.commandIndex === commandIndex;
+      } else if (f.commandType === PathDataHandleType.Point) {
+        if (f.commandIndex === commandIndex) {
+          if (f.command.isType(PathType.quadraticBezierAbs)) {
+            return true;
+          }
+        }
+      } else if (f.commandType === PathDataHandleType.Curve) {
+        return f.commandIndex === commandIndex;
+      }
+      return false;
+    });
   }
   static isAllowMoveHandleB(
     commandIndex: number,

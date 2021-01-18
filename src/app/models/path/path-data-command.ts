@@ -264,6 +264,37 @@ export class PathDataCommand implements SVGPathSegmentEx {
       this.type.toUpperCase() === type.toString().toUpperCase();
     return same;
   }
+
+  /**
+   * Check whether handle 'a' is belong to current command or dynamically calculated.
+   */
+  public get ownA(): boolean {
+    if (
+      this.isType(PathType.shorthandSmoothAbs) ||
+      this.isType(PathType.smoothQuadraticBezierAbs) ||
+      this.isType(PathType.arcAbs) ||
+      (this.values && this.values.length < 3)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+  /**
+   * Check whether handle 'b' is belong to current command or dynamically calculated.
+   */
+  public get ownB(): boolean {
+    if (
+      this.isType(PathType.shorthandSmoothAbs) ||
+      this.isType(PathType.arcAbs) ||
+      this.values.length >= 6
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
   public get a(): DOMPoint | null {
     // Calculate virtual
     const prev = this.prev;
@@ -423,6 +454,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   public get changedP(): boolean {
     return this._changedP;
   }
+
   /**
    * get bezier control handle point 'b'.
    */

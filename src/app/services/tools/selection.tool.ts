@@ -37,6 +37,7 @@ export class SelectionTool extends BaseTool {
   startedHandle: HandleData | null = null;
   lastDeg: number = null;
   lastUsedArgs: MouseEventArgs | null = null;
+  lastShowBBoxState: boolean | null = null;
   constructor(
     protected transformsService: TransformsService,
     protected intersectionService: IntersectionService,
@@ -128,7 +129,11 @@ export class SelectionTool extends BaseTool {
     this.lastDeg = null;
     this.startedNode = null;
     this.startedHandle = null;
-    this.adornersService.showBBoxHandles = true;
+    if (this.lastShowBBoxState !== null) {
+      this.adornersService.showBBoxHandles = this.lastShowBBoxState;
+    } else {
+      this.adornersService.showBBoxHandles = true;
+    }
     this.mouseOverRenderer.resume();
     if (this.transformsService.isActive()) {
       this.transformsService.cancel();
@@ -138,6 +143,7 @@ export class SelectionTool extends BaseTool {
     this.mouseOverService.leaveHandle();
     this.selectionService.deselectAdorner();
     this.boundsRenderer.invalidate();
+    this.lastShowBBoxState = null;
   }
 
   /**
@@ -166,10 +172,13 @@ export class SelectionTool extends BaseTool {
       } else {
         let handle: HandleData | null = null;
         if (this.selectionTracker.selectionRectStarted()) {
+          this.lastShowBBoxState = this.adornersService.showBBoxHandles;
           // Don't show bbox handles when selection rect started.
           this.adornersService.showBBoxHandles = false;
         } else {
-          this.adornersService.showBBoxHandles = true;
+          if (this.lastShowBBoxState !== null) {
+            this.adornersService.showBBoxHandles = this.lastShowBBoxState;
+          }
           handle = this.intersectionService.getAdornerHandleIntersection(
             event.screenPoint
           );
@@ -280,7 +289,7 @@ export class SelectionTool extends BaseTool {
       const mouseOverTransform = this.mouseOverService.getValue();
       const toSelect = overTreeNodeHandle || mouseOverTransform;
       this.selectionService.setSelected(toSelect, mode);
-    } else if (!this.startedNode) {
+    } else if (this.selectionTracker.selectionRectStarted()) {
       const selected = this.intersectionService
         .getIntersects(this.selectionTracker.getScreenRect())
         .filter((p) => p.allowTransform);

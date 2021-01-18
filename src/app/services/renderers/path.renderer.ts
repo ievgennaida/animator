@@ -158,22 +158,18 @@ export class PathRenderer extends BaseRenderer {
               node,
               command
             );
-
+            let size = consts.pathPointSize;
             if (mouseOver) {
               handleStroke = consts.pathMouseOverPointStroke;
               handleFill = consts.pathMouseOverPointFill;
+              size = consts.pathPointMouseOverSize;
             } else if (isSelected) {
               handleStroke = consts.pathSelectedPointStroke;
               handleFill = consts.pathSelectedPointFill;
+              size = consts.pathPointSelectedSize;
             }
 
-            this.drawPoint(
-              node,
-              point,
-              isSelected ? consts.pathPointSelectedSize : consts.pathPointSize,
-              handleStroke,
-              handleFill
-            );
+            this.drawPoint(node, point, size, handleStroke, handleFill);
           }
 
           prevPoint = point;

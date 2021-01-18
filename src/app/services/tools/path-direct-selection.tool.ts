@@ -12,6 +12,8 @@ import { AdornerType, AdornerTypeUtils } from "../../models/adorner-type";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { TransformationMode } from "../../models/transformation-mode";
 import { AdornersService } from "../adorners-service";
+import { CommandsExecutorService } from "../commands/commands-services/commands-executor-service";
+import { RemoveSelectedCommand } from "../commands/remove-selected-command";
 import { ContextMenuService } from "../context-menu.service";
 import { CursorService } from "../cursor.service";
 import { IntersectionService } from "../intersection.service";
@@ -69,8 +71,11 @@ export class PathDirectSelectionTool extends SelectionTool {
     adornersService: AdornersService,
     autoPanService: AutoPanService,
     selectionTracker: SelectionRectTracker,
-    notification: NotificationService
+    notification: NotificationService,
+    private removeSelectedCommand: RemoveSelectedCommand,
+    private commandExecutorService: CommandsExecutorService
   ) {
+    // TODO: decouple
     super(
       transformsService,
       intersectionService,
@@ -95,9 +100,18 @@ export class PathDirectSelectionTool extends SelectionTool {
     if (this.mode !== val) {
       this.modeSubject.next(val);
       this.resolveCursor();
+      this.resolveBBoxVisibilityMode();
     }
   }
-  prevMouseUpArgs: MouseEventArgs;
+  resolveBBoxVisibilityMode() {
+    if (this.mode === PathDirectSelectionToolMode.Select) {
+      // TODO: If mode to show bbox is enabled by the user settings.
+      this.adornersService.showBBoxHandles = true;
+    } else {
+      this.adornersService.showBBoxHandles = false;
+    }
+  }
+
   resolveCursor() {
     let mode = CursorType.Default;
     if (this.mode === PathDirectSelectionToolMode.Add) {
@@ -109,22 +123,22 @@ export class PathDirectSelectionTool extends SelectionTool {
    * Override
    */
   onDeactivate() {
+    super.onDeactivate();
     this.cursor.setDefaultCursor(CursorType.Default);
     this.mouseOverRenderer.enableDrawPathOutline = false;
     this.pathRenderer.suspend();
     this.pathRenderer.clear();
-    super.onDeactivate();
     this.cleanUp();
   }
   /**
    * Override
    */
   onActivate() {
+    super.onActivate();
     this.resolveCursor();
     this.mouseOverRenderer.enableDrawPathOutline = true;
     this.pathRenderer.invalidate();
     this.pathRenderer.resume();
-    super.onActivate();
     this.resolveMessage();
   }
   resolveMessage() {
@@ -163,7 +177,9 @@ export class PathDirectSelectionTool extends SelectionTool {
       this.cleanUp();
       return;
     }
-    this.selectionTracker.start(event);
+    if (this.mode === PathDirectSelectionToolMode.Select) {
+      this.selectionTracker.start(event);
+    }
     const isAltMode = event.ctrlKey || event.shiftKey;
 
     if (isAltMode) {
@@ -287,6 +303,7 @@ export class PathDirectSelectionTool extends SelectionTool {
    */
   cleanUp() {
     super.cleanUp();
+    this.resolveBBoxVisibilityMode();
   }
 
   /**
@@ -330,11 +347,7 @@ export class PathDirectSelectionTool extends SelectionTool {
       this.intersectionService.intersectPathDataHandles(nodes, selector) || [];
 
     // No handles selected, select curve if not a rectangular selection:
-    if (
-      this.mode !== PathDirectSelectionToolMode.Erase &&
-      overPoints.length === 0 &&
-      !this.selectionTracker.isActive()
-    ) {
+    if (overPoints.length === 0 && !this.selectionTracker.isActive()) {
       let accuracy = 2;
       if (this.mode !== PathDirectSelectionToolMode.Select) {
         accuracy = consts.addNewPointAccuracy;
@@ -423,12 +436,16 @@ export class PathDirectSelectionTool extends SelectionTool {
           screenPos,
           accuracy
         );
-        if (nearest && event.isDoubleClick && this.selectionTracker.click) {
-          // double click
-          // TODO: add new point
-          console.log("TODO: double click");
+        if (this.mode === PathDirectSelectionToolMode.Select) {
+          if (nearest && event.isDoubleClick && this.selectionTracker.click) {
+            // double click
+            // TODO: add new point
+            console.log("TODO: double click");
+          }
+        } else if (this.mode === PathDirectSelectionToolMode.Erase) {
+        } else if (this.mode === PathDirectSelectionToolMode.Add) {
         }
-        this.prevMouseUpArgs = event;
+
         // Select item if there is no click on curve
         if (!nearest) {
           super.selectionEnded(event);
@@ -442,7 +459,20 @@ export class PathDirectSelectionTool extends SelectionTool {
     }
     this.pathRenderer.suspend();
     this.mouseOverService.pathDataSubject.setNone();
-    this.selectionService.pathDataSubject.change(overPoints, changeStateMode);
+    if (this.mode === PathDirectSelectionToolMode.Select) {
+      this.selectionService.pathDataSubject.change(overPoints, changeStateMode);
+    } else if (this.mode === PathDirectSelectionToolMode.Erase) {
+      if (overPoints.length > 0) {
+        // Remove selected points:
+        changeStateMode = ChangeStateMode.Normal;
+        this.selectionService.pathDataSubject.change(
+          overPoints,
+          changeStateMode
+        );
+        this.commandExecutorService.executeCommand(this.removeSelectedCommand);
+      }
+    } else if (this.mode === PathDirectSelectionToolMode.Add) {
+    }
 
     this.pathRenderer.resume();
     this.cleanUp();
