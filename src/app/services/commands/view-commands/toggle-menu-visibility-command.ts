@@ -37,9 +37,10 @@ export class ToggleMenuVisibilityCommand implements BaseCommand {
   }
   
   resolveIconState() {
-    const visible = this.viewService.toggleMenu();
+    const visible = this.viewService.menuVisibleSubject.getValue();
     if (!visible) {
       this.viewService.openMenu();
+      //fix this.viewService.toggleMenu();
       this.icon = "check";
     }
     else
