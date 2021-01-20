@@ -12,7 +12,7 @@ import { ViewService } from "../../view.service";
 })
 export class ToggleMenuVisibilityCommand implements BaseCommand {
   constructor(private viewService: ViewService) {
-    this.viewService.viewModeSubject.asObservable().subscribe(() => {    
+    this.viewService.menuVisibleSubject.asObservable().subscribe(() => {
       this.resolveIconState();
       this.changed.next(this);
     });
@@ -31,21 +31,15 @@ export class ToggleMenuVisibilityCommand implements BaseCommand {
     if (!this.canExecute()) {
       return;
     }
-    
-    this.resolveIconState();
-    this.changed.next(this);
+    this.viewService.toggleMenu();
   }
-  
+
   resolveIconState() {
     const visible = this.viewService.menuVisibleSubject.getValue();
-    if (!visible) {
-      this.viewService.openMenu();
-      //fix this.viewService.toggleMenu();
+    if (visible) {
       this.icon = "check";
+    } else {
+      this.icon = null;
     }
-    else
-    {
-      this.icon = "null";
-    }   
   }
 }

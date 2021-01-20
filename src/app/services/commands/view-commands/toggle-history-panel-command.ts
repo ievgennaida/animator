@@ -13,11 +13,14 @@ import { PanelsIds } from "src/environments/consts";
   providedIn: "root",
 })
 export class ToggleHistoryPanelCommand implements BaseCommand {
-  constructor(private viewService: ViewService,  private menuService: MenuService) {
-    this.viewService.viewModeSubject.asObservable().subscribe(() => {
-      this.togglePanel(PanelsIds.History);  
+  constructor(
+    private viewService: ViewService,
+    private menuService: MenuService
+  ) {
+    this.menuService.menuChanged.asObservable().subscribe(() => {
+      this.resolveIcon(PanelsIds.History);
       this.changed.next(this);
-    });   
+    });
   }
   changed = new Subject<BaseCommand>();
 
@@ -33,20 +36,21 @@ export class ToggleHistoryPanelCommand implements BaseCommand {
     if (!this.canExecute()) {
       return;
     }
-    
+
     this.togglePanel(PanelsIds.History);
-    this.changed.next(this);
   }
-  
+  resolveIcon(panelId: PanelsIds) {
+    const visible = this.menuService.isPanelVisible(panelId);
+    if (visible) {
+      this.icon = "check";
+    } else {
+      this.icon = null;
+    }
+  }
   togglePanel(panelId: PanelsIds): boolean {
     const visible = this.menuService.isPanelVisible(panelId);
     if (!visible) {
       this.viewService.openMenu();
-      this.icon = "check";
-    }
-    else
-    {
-      this.icon = "null";
     }
     this.menuService.setPanelVisibility(panelId, !visible);
     return !visible;
