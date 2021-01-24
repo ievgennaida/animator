@@ -57,7 +57,7 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
     this.nodes.forEach((node) => {
       const pathData = node.getPathData();
       this.items.forEach((p) => {
-        if (p.commandType === PathDataHandleType.Point && p.node === node) {
+        if (p.type === PathDataHandleType.Point && p.node === node) {
           // data.deleteCommand(p.command);
         }
         // p.command.smooth();
@@ -72,7 +72,11 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
   init(items: PathDataHandle[]) {
     // Important, clone the reference to keep it for undo service
     const filtered = items.filter(
-      (p) => p.commandType === PathDataHandleType.Point
+      (p) =>
+        !(
+          p.type === PathDataHandleType.HandleA ||
+          p.type === PathDataHandleType.HandleB
+        )
     );
     this.items = [...filtered];
     this.nodes = Utils.distinctElement(items.map((p) => p.node));

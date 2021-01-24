@@ -8,12 +8,13 @@ export class PathDataHandle {
   constructor(
     public node: TreeNode,
     public command: PathDataCommand,
-    public commandType: PathDataHandleType = PathDataHandleType.Point,
+    public type: PathDataHandleType = PathDataHandleType.Point,
     /**
      * Intersection point
      */
     public point: DOMPoint | null = null
   ) {}
+
   get pathData(): PathData | null {
     return this.command?.pathData || null;
   }
@@ -23,11 +24,11 @@ export class PathDataHandle {
   isHandle(
     node: TreeNode,
     command: PathDataCommand,
-    commandType: PathDataHandleType
+    type: PathDataHandleType
   ): boolean {
     return (
       this.node === node &&
-      this.commandType === commandType &&
+      this.type === type &&
       (this.command === command ||
         (this.command &&
           command &&
@@ -40,7 +41,7 @@ export class PathDataHandle {
     if (!another) {
       return false;
     }
-    if (this.isHandle(another.node, another.command, another.commandType)) {
+    if (this.isHandle(another.node, another.command, another.type)) {
       if (!this.point && !another.point) {
         return true;
       } else {
@@ -55,10 +56,6 @@ export enum PathDataHandleType {
    * Path data point.
    */
   Point,
-  /**
-   * Not existing point to be added on a curve.
-   */
-  AddPoint,
   /**
    * Handle\Control point for a path data.
    */

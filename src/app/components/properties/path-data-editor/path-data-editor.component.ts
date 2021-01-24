@@ -71,10 +71,10 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
     const data = pathData?.commands || [];
     const mouseOverPoints = this.mouseOverService.pathDataSubject
       .getValues()
-      .filter((p) => p.commandType === PathDataHandleType.Point);
+      .filter((p) => p.type === PathDataHandleType.Point);
     const selectedPathData = this.selectionService.pathDataSubject
       .getValues()
-      .filter((p) => p.commandType === PathDataHandleType.Point);
+      .filter((p) => p.type === PathDataHandleType.Point);
     this.items = data.map((p, index) => {
       const mouseOver = !!mouseOverPoints.find((overHandle) =>
         overHandle.isHandle(this.property.node, p, PathDataHandleType.Point)

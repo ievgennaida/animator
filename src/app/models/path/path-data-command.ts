@@ -60,6 +60,23 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * This is a type of the initial command to preserve original rel or abs when saved.
    */
   saveAsRelative = false;
+  static isPathCommandType(
+    commandType: PathType | string,
+    type: PathType | string
+  ): boolean {
+    const same =
+      commandType === type ||
+      commandType.toUpperCase() === type.toString().toUpperCase();
+    return same;
+  }
+  static isAbsolutePathCommand(type: PathType | string) {
+    if (!type || type.length === 0) {
+      return true;
+    }
+    const code = type.charCodeAt(0);
+    return code >= 65 && code <= 90;
+  }
+
   get prev(): PathDataCommand | null {
     const i = this.index - 1;
     if (
@@ -116,14 +133,11 @@ export class PathDataCommand implements SVGPathSegmentEx {
 
   public get x(): number {
     if (this.values) {
-      if (
-        this.type === PathType.horizontal ||
-        this.type === PathType.horizontalAbs
-      ) {
+      if (this.isType(PathType.horizontalAbs)) {
         return this.values[0];
       } else if (
-        this.type === PathType.vertical ||
-        this.type === PathType.verticalAbs
+        this.isType(PathType.verticalAbs) ||
+        this.isType(PathType.closeAbs)
       ) {
         if (this.prev) {
           const abs = this.prev;
@@ -144,16 +158,10 @@ export class PathDataCommand implements SVGPathSegmentEx {
   public set x(val: number) {
     if (this.values) {
       this.cleanCache();
-      if (
-        this.type === PathType.horizontal ||
-        this.type === PathType.horizontalAbs
-      ) {
+      if (this.isType(PathType.horizontalAbs)) {
         this.values[0] = val;
         return;
-      } else if (
-        this.type === PathType.vertical ||
-        this.type === PathType.verticalAbs
-      ) {
+      } else if (this.isType(PathType.verticalAbs)) {
         this._x = val;
         return;
       }
@@ -165,14 +173,11 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
   public get y(): number {
     if (this.values) {
-      if (
-        this.type === PathType.vertical ||
-        this.type === PathType.verticalAbs
-      ) {
+      if (this.isType(PathType.verticalAbs)) {
         return this.values[0];
       } else if (
-        this.type === PathType.horizontal ||
-        this.type === PathType.horizontalAbs
+        this.isType(PathType.horizontalAbs) ||
+        this.isType(PathType.closeAbs)
       ) {
         if (this.prev) {
           const abs = this.prev;
@@ -190,13 +195,10 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
   public set y(val: number) {
     this.cleanCache();
-    if (this.type === PathType.vertical || this.type === PathType.verticalAbs) {
+    if (this.isType(PathType.verticalAbs)) {
       this.values[0] = val;
       return;
-    } else if (
-      this.type === PathType.horizontal ||
-      this.type === PathType.horizontalAbs
-    ) {
+    } else if (this.isType(PathType.horizontalAbs)) {
       this._y = val;
       return;
     }
@@ -209,9 +211,6 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.setPointValues(point.x, point.y);
   }
   public get p(): DOMPoint {
-    if (!this.values) {
-      return null;
-    }
     return new DOMPoint(this.x, this.y);
   }
   public setPointValues(x: number, y: number) {
@@ -224,45 +223,33 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
 
   public isAbsolute(type = this.type) {
-    if (!type || type.length === 0) {
-      return true;
-    }
-    const code = type.charCodeAt(0);
-    return code >= 65 && code <= 90;
+    return PathDataCommand.isAbsolutePathCommand(type);
   }
   /**
    * get relative command from current absolute.
    */
-  public getRelative(pathData: PathData | null = null): PathDataCommand {
+  public recalculateAsRelative(): PathDataCommand {
     if (this.isAbsolute()) {
-      const relative = new PathDataCommand(
-        (this.type || "").toLowerCase(),
-        [...this.values],
-        pathData || this.pathData
-      );
+      this.type = (this.type || "").toLowerCase();
       const calcRelative = this.calculateRelPoint();
-      relative.p = calcRelative;
-      if (relative.type !== PathType.arc) {
+      this.p = calcRelative;
+      if (this.type !== PathType.arc) {
         const relA = this.calculateRelA();
         if (relA) {
-          relative.a = relA;
+          this.a = relA;
         }
         const relB = this.calculateRelB();
         if (relB) {
-          relative.b = relB;
+          this.b = relB;
         }
       }
-
-      return relative;
     }
 
     return this;
   }
+
   public isType(type: PathType | string) {
-    const same =
-      this.type === type ||
-      this.type.toUpperCase() === type.toString().toUpperCase();
-    return same;
+    return PathDataCommand.isPathCommandType(this.type, type);
   }
 
   /**

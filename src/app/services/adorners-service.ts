@@ -3,6 +3,7 @@ import { BehaviorSubject } from "rxjs";
 import { AdornerContainer } from "../models/adorner";
 import { AdornerPointType, AdornerType } from "../models/adorner-type";
 import { PathDataHandleType } from "../models/path-data-handle";
+import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
 import { ConfigService } from "./config-service";
 import { PropertiesService } from "./properties.service";
@@ -97,7 +98,7 @@ export class AdornersService {
     this.pathDataSelectionAdorner.node = rootNode;
     const points = (
       this.selectionService.pathDataSubject.getValues() || []
-    ).filter((p) => p.commandType === PathDataHandleType.Point);
+    ).filter((p) => p.type === PathDataHandleType.Point);
     let bbox: DOMRect | null = null;
     if (points && points.length > 1) {
       const screenPoints = points
@@ -106,12 +107,11 @@ export class AdornersService {
           if (!node) {
             return null;
           }
-          let p = node.getPathData()?.commands[handle.commandIndex]?.p;
-          if (!p) {
+          const command = node.getPathData()?.commands[handle.commandIndex];
+          if (!command || !command.p || command.isType(PathType.closeAbs)) {
             return null;
           }
-
-          p = Utils.toScreenPoint(node, p);
+          const p = Utils.toScreenPoint(node, command.p);
           return p || null;
         })
         .filter((p) => !!p);

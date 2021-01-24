@@ -72,13 +72,10 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
           // Delete element
         } else {
           // Replace command:
-          const newCommand = new PathDataCommand(PathType.moveAbs, [
+          PathData.convertCommand(command, PathType.moveAbs, [
             command.next.p.x,
             command.next.p.y,
           ]);
-          newCommand.isRelative = command.isRelative;
-          newCommand.pathData = command.pathData;
-          command.pathData.commands[command.next.index] = newCommand;
         }
       }
       pathData.deleteCommand(command);
@@ -99,22 +96,82 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
       }
     }
   }
+  removeSegment(command: PathDataCommand) {
+    const pathData = command.pathData;
+    /* if(command.index === pathData.commands.length || 
+      command.next && 
+      command.next.isType(PathType.m)){
+
+    }*/
+
+    if (command.isType(PathType.moveAbs)) {
+      // In this case replace make no sense:
+      const nextNodeClose = this.isSegmentEnd(command.next);
+      if (!nextNodeClose) {
+        if (command.next.isType(PathType.closeAbs)) {
+          // Delete element
+        } else {
+          PathData.convertCommand(command, PathType.moveAbs, [
+            command.next.p.x,
+            command.next.p.y,
+          ]);
+        }
+      }
+      pathData.deleteCommand(command);
+      if (nextNodeClose && command.next) {
+        pathData.deleteCommand(command.next);
+      }
+    } else if (command.isType(PathType.closeAbs)) {
+      pathData.deleteCommand(command);
+    } else {
+      /*let toRemove = command.prev;
+      // Remove all prev commands:
+      while (toRemove && toRemove.isType(PathType.moveAbs)) {
+        pathData.deleteCommand(command);
+        toRemove = command.prev;
+      }*/
+      const nextIsLast =
+        command.next &&
+        (command.next.isType(PathType.moveAbs) ||
+          command.next.isType(PathType.closeAbs));
+      if (command.next && !nextIsLast) {
+        // PathData.convertCommand(command.prev, PathType.closeAbs);
+        PathData.convertCommand(command, PathType.moveAbs);
+      } else {
+        pathData.deleteCommand(command);
+        if (nextIsLast) {
+          pathData.deleteCommand(command.next);
+        }
+      }
+    }
+
+    if (command.next.isType(PathType.moveAbs)) {
+      if (!command.next) {
+        return false;
+      } else if (
+        command.next.isType(PathType.moveAbs) &&
+        command.next.isType(PathType.closeAbs)
+      ) {
+      }
+    }
+  }
   commit() {
     // Make a snapshot of a state
     this.saveInitialValues(this.nodes, [PathDataPropertyKey]);
 
     const items = new Map<TreeNode, PathData>();
-    const pointHandlers = this.items.filter(
-      (p) => p.commandType === PathDataHandleType.Point
-    );
+    this.items.forEach((p) => {
+      if (p.type === PathDataHandleType.Curve) {
+        this.removeSegment(p.command);
+      } else if (p.type === PathDataHandleType.Point) {
+        this.removeNode(p.command);
+      }
 
-    pointHandlers.forEach((p) => {
-      this.removeNode(p.command);
       items.set(p.node, p.pathData);
     });
 
     this.selectionService.pathDataSubject.change(
-      pointHandlers,
+      this.items,
       ChangeStateMode.Remove
     );
     items.forEach((pathData, node) => {
@@ -126,7 +183,13 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
   init(items: PathDataHandle[]) {
     // Important, clone the reference to keep it for undo service
     const filtered = items
-      .filter((p) => p.commandType === PathDataHandleType.Point)
+      .filter(
+        (p) =>
+          !(
+            p.type === PathDataHandleType.HandleA ||
+            p.type === PathDataHandleType.HandleB
+          )
+      )
       .sort((a, b) => b.commandIndex - a.commandIndex);
     this.items = [...filtered];
     this.nodes = Utils.distinctElement(items.map((p) => p.node));

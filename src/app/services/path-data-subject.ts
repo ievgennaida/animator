@@ -24,20 +24,20 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     if (!handle) {
       return null;
     }
-    return this.getHandle(handle.node, handle.command, handle.commandType);
+    return this.getHandle(handle.node, handle.command, handle.type);
   }
 
   getHandle(
     node: TreeNode,
     command: PathDataCommand,
-    commandType: PathDataHandleType = PathDataHandleType.Point
+    type: PathDataHandleType = PathDataHandleType.Point
   ): PathDataHandle {
     const array = this.getValues();
-    return array.find((p) => p.isHandle(node, command, commandType));
+    return array.find((p) => p.isHandle(node, command, type));
   }
   getHandlesByType(pathHandleType: PathDataHandleType): Array<PathDataHandle> {
     const array = this.getValues();
-    return array.filter((p) => p.commandType === pathHandleType);
+    return array.filter((p) => p.type === pathHandleType);
   }
 
   getHandles(nodeFilter: TreeNode = null): Array<PathDataHandle> {

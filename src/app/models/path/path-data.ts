@@ -9,8 +9,8 @@ export class PathData {
     element: any | SVGGraphicsElement
   ): boolean {
     const set = false;
-    if (element.setPathData && data && data.commands) {
-      const converted = new PathData();
+    if (element.setPathData && data) {
+      const converted = data.clone();
       // Try to preserve original data
       data.commands.forEach((command) => {
         // Round values:
@@ -24,9 +24,8 @@ export class PathData {
         }
         // Save as relative if it was specified to be saved like this:
         if (command.saveAsRelative && !command.isRelative()) {
-          command = command.getRelative(converted);
+          command.recalculateAsRelative();
         }
-        converted.commands.push(command);
       });
       element.setPathData(converted.commands);
       return set;
@@ -49,21 +48,50 @@ export class PathData {
 
   public static convertCommand(
     command: PathDataCommand,
-    destinationType: string
+    destinationType: PathType | string,
+    values: number[] | null = null
   ) {
-    if (
-      command.type === PathType.horizontal ||
-      command.type === PathType.horizontalAbs
-    ) {
-      command.values[1] = command.y;
-    } else if (
-      command.type === PathType.vertical ||
-      command.type === PathType.verticalAbs
-    ) {
-      const y = command.y;
-      command.values[0] = command.x;
-      command.values[1] = y;
+    if (PathDataCommand.isPathCommandType(command.type, destinationType)) {
+      command.saveAsRelative = !PathDataCommand.isAbsolutePathCommand(
+        destinationType
+      );
+      return;
     }
+
+    if (PathDataCommand.isPathCommandType(destinationType, PathType.lineAbs)) {
+      if (
+        command.type === PathType.horizontal ||
+        command.type === PathType.horizontalAbs
+      ) {
+        command.values[1] = command.y;
+      } else if (
+        command.type === PathType.vertical ||
+        command.type === PathType.verticalAbs
+      ) {
+        const y = command.y;
+        command.values[0] = command.x;
+        command.values[1] = y;
+      }
+    } else if (
+      PathDataCommand.isPathCommandType(destinationType, PathType.moveAbs)
+    ) {
+      if (values) {
+        command.values = values;
+      } else {
+        command.values = [command.p.x, command.p.y];
+      }
+    } else if (
+      PathDataCommand.isPathCommandType(destinationType, PathType.closeAbs)
+    ) {
+      if (values) {
+        command.values = values;
+      } else {
+        command.values = [];
+      }
+    }
+    command.saveAsRelative = !PathDataCommand.isAbsolutePathCommand(
+      destinationType
+    );
     command.type = destinationType;
   }
 

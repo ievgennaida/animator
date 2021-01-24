@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { PathDataHandleType } from "src/app/models/path-data-handle";
+import { PathDirectSelectionToolMode } from "src/app/models/path-direct-selection-tool-mode";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
@@ -29,7 +30,16 @@ export class PathRenderer extends BaseRenderer {
   }
 
   debugHandle: NearestCommandPoint = null;
-
+  private mode = PathDirectSelectionToolMode.Select;
+  set drawMode(value: PathDirectSelectionToolMode) {
+    if (value !== this.mode) {
+      this.mode = value;
+      this.invalidate();
+    }
+  }
+  get drawMode(): PathDirectSelectionToolMode {
+    return this.mode;
+  }
   onWindowMouseMove(event: MouseEventArgs) {}
 
   drawPoint(
@@ -102,15 +112,11 @@ export class PathRenderer extends BaseRenderer {
         data.forEach((command, commandIndex) => {
           // const prev = index > 0 ? data.commands[index - 1] : null;
           const abs = command;
-          if (!abs) {
+          if (!abs || !abs.p) {
             return;
           }
 
-          const p = abs.p;
-          if (!p) {
-            return;
-          }
-          const point = p.matrixTransform(ctm);
+          const point = abs.p.matrixTransform(ctm);
           if (!point) {
             return;
           }
@@ -180,7 +186,11 @@ export class PathRenderer extends BaseRenderer {
     // Draw new point to be added
     const values = this.mouseOverService.pathDataSubject
       .getValues()
-      .filter((p) => p.commandType === PathDataHandleType.AddPoint);
+      .filter(
+        (p) =>
+          p.type === PathDataHandleType.Curve &&
+          this.drawMode === PathDirectSelectionToolMode.Add
+      );
     values.forEach((handler) => {
       const matrix = handler?.node?.getScreenCTM();
       if (!matrix) {

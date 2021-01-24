@@ -21,7 +21,9 @@ export class SelectionRectTracker {
   ) {
     this.viewService.resized.subscribe(() => {
       this.trackMousePos(this.args);
-      this.selectorRenderer.setRect(this.rect);
+      if (this.allowRectSelection) {
+        this.selectorRenderer.setRect(this.rect);
+      }
     });
   }
   /**
@@ -29,6 +31,7 @@ export class SelectionRectTracker {
    */
   rect: DOMRect | null = null;
   protected startPos: DOMPoint | null = null;
+  protected allowRectSelection = true;
   /**
    * Last used event args.
    */
@@ -50,7 +53,7 @@ export class SelectionRectTracker {
     );
   }
   selectionRectStarted(): boolean {
-    const active = this.isActive() && !this.click;
+    const active = this.allowRectSelection && this.isActive() && !this.click;
     return active;
   }
   isActive(): boolean {
@@ -60,6 +63,12 @@ export class SelectionRectTracker {
     if (!this.isActive()) {
       return false;
     }
+    if (!this.selectionRectStarted()) {
+      this.args = e;
+      this.trackMousePos(e);
+      return true;
+    }
+
     this.selectorRenderer.runSuspended(() => {
       this.selectorRenderer.setRect(this.rect);
       this.args = e;
@@ -67,7 +76,8 @@ export class SelectionRectTracker {
     }, false);
     return true;
   }
-  start(e: MouseEventArgs) {
+  start(e: MouseEventArgs, allowRectSelection = true) {
+    this.allowRectSelection = allowRectSelection;
     this.startPos = this.trackMousePos(e);
     this.click = true;
   }
@@ -76,6 +86,7 @@ export class SelectionRectTracker {
     this.startPos = null;
     this.args = null;
     this.click = false;
+    this.allowRectSelection = true;
     this.selectorRenderer.clear();
   }
 

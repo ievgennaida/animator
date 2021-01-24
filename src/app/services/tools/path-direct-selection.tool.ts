@@ -4,8 +4,9 @@ import { CursorType } from "src/app/models/cursor-type";
 import { HandleData } from "src/app/models/handle-data";
 import {
   PathDataHandle,
-  PathDataHandleType,
+  PathDataHandleType
 } from "src/app/models/path-data-handle";
+import { PathDirectSelectionToolMode } from "src/app/models/path-direct-selection-tool-mode";
 import { TreeNode } from "src/app/models/tree-node";
 import { consts } from "src/environments/consts";
 import { AdornerType, AdornerTypeUtils } from "../../models/adorner-type";
@@ -30,20 +31,6 @@ import { SelectionRectTracker } from "./selection-rect-tracker";
 import { SelectionTool } from "./selection.tool";
 import { TransformsService } from "./transforms.service";
 
-export enum PathDirectSelectionToolMode {
-  /**
-   * Select and manipulate nodes.
-   */
-  Select,
-  /**
-   * Add new path data nodes.
-   */
-  Add,
-  /**
-   * Remove existing path data nodes.
-   */
-  Erase,
-}
 @Injectable({
   providedIn: "root",
 })
@@ -102,6 +89,7 @@ export class PathDirectSelectionTool extends SelectionTool {
       this.resolveCursor();
       this.resolveBBoxVisibilityMode();
     }
+    this.pathRenderer.drawMode = val;
   }
   resolveBBoxVisibilityMode() {
     if (this.mode === PathDirectSelectionToolMode.Select) {
@@ -177,9 +165,8 @@ export class PathDirectSelectionTool extends SelectionTool {
       this.cleanUp();
       return;
     }
-    if (this.mode === PathDirectSelectionToolMode.Select) {
-      this.selectionTracker.start(event);
-    }
+    const allowRectSelect = this.mode === PathDirectSelectionToolMode.Select;
+    this.selectionTracker.start(event, allowRectSelect);
     const isAltMode = event.ctrlKey || event.shiftKey;
 
     if (isAltMode) {
@@ -225,7 +212,7 @@ export class PathDirectSelectionTool extends SelectionTool {
           // Transform one handle
           if (handles && handles.length > 0) {
             const pointHandles = handles.filter(
-              (p) => p.commandType === PathDataHandleType.Point
+              (p) => p.type === PathDataHandleType.Point
             );
             if (pointHandles.length > 0) {
               // Ensure that returned points are selected:
@@ -274,7 +261,7 @@ export class PathDirectSelectionTool extends SelectionTool {
     // Mouse over handles
     const overHandles = this.mouseOverService.pathDataSubject.getHandles();
     const transformHandle = overHandles.find(
-      (p) => p.commandType !== PathDataHandleType.Point
+      (p) => p.type !== PathDataHandleType.Point
     );
     // Mouse over special handle. not a point, allow to transform by non point handles:
     if (transformHandle) {
@@ -283,7 +270,7 @@ export class PathDirectSelectionTool extends SelectionTool {
 
     // Move over point, find all selected point and move together.
     const mouseOverPoints = overHandles.filter(
-      (p) => p.commandType === PathDataHandleType.Point
+      (p) => p.type === PathDataHandleType.Point
     );
 
     const selectedPoints = this.selectionService.pathDataSubject.getValues();
@@ -339,15 +326,34 @@ export class PathDirectSelectionTool extends SelectionTool {
     }
 
     const screenPos = event.getDOMPoint();
+    const overPoints = this.getMouseOverHandles(screenPos);
+
+    this.mouseOverService.pathDataSubject.change(
+      overPoints,
+      ChangeStateMode.Normal
+    );
+
+    this.resolveMessage();
+  }
+  getMouseOverHandles(screenPos: DOMPoint): PathDataHandle[] {
     const nodes = this.selectionService.getSelected();
     const selector = this.selectionTracker.selectionRectStarted()
       ? this.selectionTracker.getScreenRect()
       : screenPos;
+
+    const includeHandles = this.mode === PathDirectSelectionToolMode.Select;
     const overPoints =
-      this.intersectionService.intersectPathDataHandles(nodes, selector) || [];
+      this.intersectionService.intersectPathDataHandles(
+        nodes,
+        selector,
+        includeHandles
+      ) || [];
 
     // No handles selected, select curve if not a rectangular selection:
-    if (overPoints.length === 0 && !this.selectionTracker.isActive()) {
+    if (
+      overPoints.length === 0 &&
+      !this.selectionTracker.selectionRectStarted()
+    ) {
       let accuracy = 2;
       if (this.mode !== PathDirectSelectionToolMode.Select) {
         accuracy = consts.addNewPointAccuracy;
@@ -360,10 +366,7 @@ export class PathDirectSelectionTool extends SelectionTool {
       );
       if (nearest) {
         this.pathRenderer.debugHandle = nearest;
-        let handleMode = PathDataHandleType.Curve;
-        if (this.mode === PathDirectSelectionToolMode.Add) {
-          handleMode = PathDataHandleType.AddPoint;
-        }
+        const handleMode = PathDataHandleType.Curve;
         const curve = new PathDataHandle(
           nearest.node,
           nearest.command,
@@ -373,14 +376,9 @@ export class PathDirectSelectionTool extends SelectionTool {
         overPoints.push(curve);
       }
     }
-    this.mouseOverService.pathDataSubject.change(
-      overPoints,
-      ChangeStateMode.Normal
-    );
 
-    this.resolveMessage();
+    return overPoints;
   }
-
   /**
    * Override
    */
@@ -406,50 +404,29 @@ export class PathDirectSelectionTool extends SelectionTool {
       super.selectionEnded(event);
       return;
     }
-    if (this.mode === PathDirectSelectionToolMode.Add) {
-      const addNewIcon = this.mouseOverService.pathDataSubject
-        .getValues()
-        .filter((p) => p.commandType === PathDataHandleType.AddPoint);
-      if (addNewIcon && addNewIcon.length > 0) {
-      }
-      return;
-    }
-    const selector = this.selectionTracker.selectionRectStarted()
-      ? this.selectionTracker.getScreenRect()
-      : screenPos;
-
-    const overPoints = this.intersectionService.intersectPathDataHandles(
-      nodes,
-      selector
-    );
-
+    const overPoints = this.getMouseOverHandles(screenPos);
     let changeStateMode = ChangeStateMode.Normal;
     if (this.selectionTracker.click) {
-      if (!overPoints || overPoints.length === 0) {
-        let accuracy = 2;
-        if (this.mode !== PathDirectSelectionToolMode.Select) {
-          accuracy = consts.addNewPointAccuracy;
-        }
-
-        const nearest = this.intersectionService.getMouseOverPathCurve(
-          nodes,
-          screenPos,
-          accuracy
-        );
+      if (overPoints.length !== 0) {
         if (this.mode === PathDirectSelectionToolMode.Select) {
-          if (nearest && event.isDoubleClick && this.selectionTracker.click) {
+          if (event.isDoubleClick && this.selectionTracker.click) {
             // double click
             // TODO: add new point
             console.log("TODO: double click");
           }
         } else if (this.mode === PathDirectSelectionToolMode.Erase) {
-        } else if (this.mode === PathDirectSelectionToolMode.Add) {
+          // Remove selected points:
+          changeStateMode = ChangeStateMode.Normal;
+          this.selectionService.pathDataSubject.change(
+            overPoints,
+            changeStateMode
+          );
+          this.commandExecutorService.executeCommand(
+            this.removeSelectedCommand
+          );
         }
-
-        // Select item if there is no click on curve
-        if (!nearest) {
-          super.selectionEnded(event);
-        }
+      } else {
+        super.selectionEnded(event);
       }
       if (event.shiftKey || event.ctrlKey) {
         changeStateMode = ChangeStateMode.Revert;
@@ -457,24 +434,15 @@ export class PathDirectSelectionTool extends SelectionTool {
     } else {
       changeStateMode = ChangeStateMode.Append;
     }
-    this.pathRenderer.suspend();
-    this.mouseOverService.pathDataSubject.setNone();
-    if (this.mode === PathDirectSelectionToolMode.Select) {
-      this.selectionService.pathDataSubject.change(overPoints, changeStateMode);
-    } else if (this.mode === PathDirectSelectionToolMode.Erase) {
-      if (overPoints.length > 0) {
-        // Remove selected points:
-        changeStateMode = ChangeStateMode.Normal;
+    this.pathRenderer.runSuspended(() => {
+      this.mouseOverService.pathDataSubject.setNone();
+      if (this.mode === PathDirectSelectionToolMode.Select) {
         this.selectionService.pathDataSubject.change(
           overPoints,
           changeStateMode
         );
-        this.commandExecutorService.executeCommand(this.removeSelectedCommand);
       }
-    } else if (this.mode === PathDirectSelectionToolMode.Add) {
-    }
-
-    this.pathRenderer.resume();
-    this.cleanUp();
+      this.cleanUp();
+    }, true);
   }
 }
