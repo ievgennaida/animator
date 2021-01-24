@@ -124,37 +124,53 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     } else if (command.isType(PathType.closeAbs)) {
       pathData.deleteCommand(command);
     } else {
-      /*let toRemove = command.prev;
-      // Remove all prev commands:
-      while (toRemove && toRemove.isType(PathType.moveAbs)) {
-        pathData.deleteCommand(command);
-        toRemove = command.prev;
-      }*/
-      const nextIsLast =
+      const nextCommands = command.getAllNextCommands();
+      const nextIsClose =
         command.next &&
-        (command.next.isType(PathType.moveAbs) ||
-          command.next.isType(PathType.closeAbs));
-      if (command.next && !nextIsLast) {
-        // PathData.convertCommand(command.prev, PathType.closeAbs);
-        PathData.convertCommand(command, PathType.moveAbs);
-      } else {
-        pathData.deleteCommand(command);
-        if (nextIsLast) {
-          pathData.deleteCommand(command.next);
+        command.next.isType(PathType.closeAbs, PathType.moveAbs);
+
+      if (command.next && nextIsClose) {
+        // Remove next commands:
+        const terminalExists = !!nextCommands.find(
+          (p) => !p.isType(PathType.closeAbs) && !p.isType(PathType.moveAbs)
+        );
+        if (terminalExists) {
+          for (const nextCommand of nextCommands) {
+            if (!nextCommand) {
+              break;
+            }
+
+            if (
+              nextCommand.isType(PathType.closeAbs) ||
+              (nextCommand.isType(PathType.moveAbs) &&
+                nextCommand.next &&
+                nextCommand.next.isType(PathType.closeAbs, PathType.moveAbs))
+            ) {
+              pathData.deleteCommand(nextCommand);
+            } else {
+              break;
+            }
+          }
+        } else {
+          nextCommands.forEach((p) => pathData.deleteCommand(p));
         }
       }
-    }
+      if (!command.next || nextIsClose) {
+        let prevToAnalyze = command.prev;
+        // Remove prev commands:
+        while (prevToAnalyze && prevToAnalyze.isType(PathType.moveAbs)) {
+          pathData.deleteCommand(prevToAnalyze);
+          prevToAnalyze = command.prev;
+        }
+        pathData.deleteCommand(command);
+      }
 
-    if (command.next.isType(PathType.moveAbs)) {
-      if (!command.next) {
-        return false;
-      } else if (
-        command.next.isType(PathType.moveAbs) &&
-        command.next.isType(PathType.closeAbs)
-      ) {
+      if (command.next && !nextIsClose) {
+        PathData.convertCommand(command, PathType.moveAbs);
       }
     }
   }
+
   commit() {
     // Make a snapshot of a state
     this.saveInitialValues(this.nodes, [PathDataPropertyKey]);

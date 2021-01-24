@@ -102,6 +102,25 @@ export class PathDataCommand implements SVGPathSegmentEx {
     return null;
   }
 
+  getAllPrevCommands(): PathDataCommand[] {
+    const toReturn: PathDataCommand[] = [];
+    let value = this.prev;
+    while (value) {
+      toReturn.push(value);
+      value = value.prev;
+    }
+    return toReturn;
+  }
+
+  getAllNextCommands(): PathDataCommand[] {
+    const toReturn: PathDataCommand[] = [];
+    let value = this.next;
+    while (value) {
+      toReturn.push(value);
+      value = value.next;
+    }
+    return toReturn;
+  }
   /*
   public get node(): TreeNode | null {
     return this.pathData?.node | null;
@@ -248,8 +267,10 @@ export class PathDataCommand implements SVGPathSegmentEx {
     return this;
   }
 
-  public isType(type: PathType | string) {
-    return PathDataCommand.isPathCommandType(this.type, type);
+  public isType(...params: (PathType | string)[]): boolean {
+    return !!params.find((p) =>
+      PathDataCommand.isPathCommandType(this.type, p)
+    );
   }
 
   /**
