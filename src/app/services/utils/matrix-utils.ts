@@ -459,6 +459,7 @@ export class PathDataUtils {
         ) {
           const moveCommand = PointOnPathUtils.getPrevByType(
             f.command,
+            true,
             PathType.moveAbs
           );
           if (moveCommand.index === command.index) {

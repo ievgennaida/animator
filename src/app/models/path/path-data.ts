@@ -51,26 +51,27 @@ export class PathData {
     destinationType: PathType | string,
     values: number[] | null = null
   ) {
+    const isAbsolute = PathDataCommand.isAbsolutePathCommand(destinationType);
     if (PathDataCommand.isPathCommandType(command.type, destinationType)) {
-      command.saveAsRelative = !PathDataCommand.isAbsolutePathCommand(
-        destinationType
-      );
+      // Already the same
+      command.saveAsRelative = !isAbsolute;
       return;
     }
 
     if (PathDataCommand.isPathCommandType(destinationType, PathType.lineAbs)) {
       if (
-        command.type === PathType.horizontal ||
-        command.type === PathType.horizontalAbs
+        PathDataCommand.isPathCommandType(command.type, PathType.horizontalAbs)
       ) {
         command.values[1] = command.y;
       } else if (
-        command.type === PathType.vertical ||
-        command.type === PathType.verticalAbs
+        PathDataCommand.isPathCommandType(command.type, PathType.verticalAbs)
       ) {
         const y = command.y;
         command.values[0] = command.x;
         command.values[1] = y;
+      } else {
+        // Convert any type to line
+        command.values = [command.p.x, command.p.y];
       }
     } else if (
       PathDataCommand.isPathCommandType(destinationType, PathType.moveAbs)
@@ -89,9 +90,8 @@ export class PathData {
         command.values = [];
       }
     }
-    command.saveAsRelative = !PathDataCommand.isAbsolutePathCommand(
-      destinationType
-    );
+
+    command.saveAsRelative = !isAbsolute;
     command.type = destinationType;
   }
 

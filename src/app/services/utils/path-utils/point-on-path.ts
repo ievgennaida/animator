@@ -7,14 +7,14 @@ import { Utils } from "../utils";
 import {
   approximateArcLengthOfCurve,
   pointOnEllipticalArc,
-  PointOnEllipticalArcResults
+  PointOnEllipticalArcResults,
 } from "./arc-functions";
 import {
   cubicPoint,
   getCubicArcLength,
   getQuadraticArcLength,
   quadraticPoint,
-  t2length
+  t2length,
 } from "./bezier-functions";
 
 const getCubicPoint = (
@@ -115,6 +115,7 @@ export class PointOnPathUtils {
     ) {
       const moveCommand = PointOnPathUtils.getPrevByType(
         command,
+        true,
         PathType.moveAbs
       );
       if (!moveCommand) {
@@ -213,6 +214,7 @@ export class PointOnPathUtils {
     } else if (command.type === PathType.closeAbs) {
       const moveCommand = PointOnPathUtils.getPrevByType(
         command,
+        true,
         PathType.moveAbs
       );
       if (!moveCommand) {
@@ -230,18 +232,45 @@ export class PointOnPathUtils {
     return Utils.getPointAtLength(command.prevPoint, command.p, fractionLength);
   }
   /**
-   * Get nearest prev command by type.
+   * Get nearest next command by type.
    */
-  static getPrevByType(
+  static getNextByType(
     command: PathDataCommand | null,
-    pathType: PathType
+    includeSelf: boolean,
+    ...params: (PathType | string)[]
   ): PathDataCommand | null {
     if (!command) {
       return null;
     }
+    if (!includeSelf) {
+      command = command.next;
+    }
+    while (command) {
+      if (command && command.isType(...params)) {
+        return command;
+      }
+      command = command.next;
+    }
 
-    while (command != null) {
-      if (command && command.isType(pathType)) {
+    return null;
+  }
+
+  /**
+   * Get nearest prev command by type.
+   */
+  static getPrevByType(
+    command: PathDataCommand | null,
+    includeSelf: boolean,
+    ...params: (PathType | string)[]
+  ): PathDataCommand | null {
+    if (!command) {
+      return null;
+    }
+    if (!includeSelf) {
+      command = command.prev;
+    }
+    while (command) {
+      if (command && command.isType(...params)) {
         return command;
       }
       command = command.prev;

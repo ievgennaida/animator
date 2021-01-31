@@ -472,6 +472,7 @@ export class PathRenderer extends BaseRenderer {
           if (abs.isType(PathType.closeAbs)) {
             const prevMove = PointOnPathUtils.getPrevByType(
               abs,
+              true,
               PathType.moveAbs
             );
             if (prevMove) {

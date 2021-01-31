@@ -18,8 +18,8 @@ export class ErasePathNodesModeCommand extends BasePathNodesCommand {
     super(pathDirectSelectionTool, undoService);
   }
   expectedMode = PathDirectSelectionToolMode.Erase;
-  title = "Remove Path Nodes";
-  tooltip = `Remove Path Nodes`;
+  title = "Eraser - Remove Path Nodes";
+  tooltip = this.title;
   icon = "erase";
   iconSVG = true;
 }

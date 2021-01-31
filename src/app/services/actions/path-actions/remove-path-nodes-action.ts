@@ -14,6 +14,7 @@ import {
 } from "../../properties.service";
 import { SelectionService } from "../../selection.service";
 import { ChangeStateMode } from "../../state-subject";
+import { PointOnPathUtils } from "../../utils/path-utils/point-on-path";
 import { Utils } from "../../utils/utils";
 import { BasePropertiesStorageAction } from "../base-property-action";
 
@@ -72,7 +73,7 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
           // Delete element
         } else {
           // Replace command:
-          PathData.convertCommand(command, PathType.moveAbs, [
+          PathData.convertCommand(command.next, PathType.moveAbs, [
             command.next.p.x,
             command.next.p.y,
           ]);
@@ -98,14 +99,8 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
   }
   removeSegment(command: PathDataCommand) {
     const pathData = command.pathData;
-    /* if(command.index === pathData.commands.length || 
-      command.next && 
-      command.next.isType(PathType.m)){
-
-    }*/
 
     if (command.isType(PathType.moveAbs)) {
-      // In this case replace make no sense:
       const nextNodeClose = this.isSegmentEnd(command.next);
       if (!nextNodeClose) {
         if (command.next.isType(PathType.closeAbs)) {
@@ -124,50 +119,65 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     } else if (command.isType(PathType.closeAbs)) {
       pathData.deleteCommand(command);
     } else {
-      const nextCommands = command.getAllNextCommands();
-      const nextIsClose =
-        command.next &&
-        command.next.isType(PathType.closeAbs, PathType.moveAbs);
+      const headOfTheFigure = PointOnPathUtils.getPrevByType(
+        command,
+        false,
+        PathType.moveAbs,
+        PathType.closeAbs
+      );
+      const closeCommandOfFigure = PointOnPathUtils.getNextByType(
+        headOfTheFigure,
+        false,
+        PathType.closeAbs,
+        PathType.moveAbs
+      );
+      const isClosed =
+        headOfTheFigure &&
+        closeCommandOfFigure &&
+        headOfTheFigure.isType(PathType.moveAbs) &&
+        closeCommandOfFigure.isType(PathType.closeAbs);
+      // Current element becomes close element:
+      PathData.convertCommand(command, PathType.moveAbs);
+      // We should close Z with line and make current element closing element.
+      if (isClosed) {
+        const allCommands = command.pathData.commands;
 
-      if (command.next && nextIsClose) {
-        // Remove next commands:
-        const terminalExists = !!nextCommands.find(
-          (p) => !p.isType(PathType.closeAbs) && !p.isType(PathType.moveAbs)
-        );
-        if (terminalExists) {
-          for (const nextCommand of nextCommands) {
-            if (!nextCommand) {
-              break;
-            }
+        // Close current element element with the line
+        PathData.convertCommand(headOfTheFigure, PathType.lineAbs);
 
-            if (
-              nextCommand.isType(PathType.closeAbs) ||
-              (nextCommand.isType(PathType.moveAbs) &&
-                nextCommand.next &&
-                nextCommand.next.isType(PathType.closeAbs, PathType.moveAbs))
-            ) {
-              pathData.deleteCommand(nextCommand);
-            } else {
-              break;
-            }
+        // Reorder path data to keep z closed -> (z will become a line) and current element will be a closing one.
+        // It means that current node will become the first node in the collection.
+        for (let i = command.index; i <= closeCommandOfFigure.index; i++) {
+          const isClose = closeCommandOfFigure.index === i;
+          const toMove = allCommands[i];
+          pathData.deleteCommand(toMove);
+          if (!isClose) {
+            const headIndex = allCommands.indexOf(headOfTheFigure);
+            Utils.insertElement(allCommands, toMove, headIndex);
           }
-        } else {
-          nextCommands.forEach((p) => pathData.deleteCommand(p));
         }
       }
-      if (!command.next || nextIsClose) {
-        let prevToAnalyze = command.prev;
-        // Remove prev commands:
-        while (prevToAnalyze && prevToAnalyze.isType(PathType.moveAbs)) {
-          pathData.deleteCommand(prevToAnalyze);
-          prevToAnalyze = command.prev;
-        }
+
+      let toAnalyze = command.prev;
+      // Remove prev commands if necessary.
+      while (toAnalyze && toAnalyze.isType(PathType.moveAbs)) {
+        pathData.deleteCommand(toAnalyze);
+        toAnalyze = command.prev;
+      }
+
+      toAnalyze = command.next;
+      if (
+        !command.next ||
+        command.next.isType(PathType.moveAbs, PathType.closeAbs)
+      ) {
         pathData.deleteCommand(command);
       }
-
-      if (command.next && !nextIsClose) {
-        PathData.convertCommand(command, PathType.moveAbs);
-      }
+      /*
+      // Remove next commands if necessary.
+      while (toAnalyze && toAnalyze.isType(PathType.moveAbs)) {
+        pathData.deleteCommand(toAnalyze);
+        toAnalyze = command.next;
+      }*/
     }
   }
 
