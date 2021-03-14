@@ -60,6 +60,7 @@ export class PasteAction extends BaseAction {
       }
     }
     if (node.children) {
+      // tslint:disable-next-line: prefer-for-of
       for (let i = 0; i < node.children.length; i++) {
         const el = node.children[i] as Element;
         this.cleanupElementsBeforePaste(el);

@@ -52,6 +52,7 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
     super();
     cdRef.detach();
   }
+  private static prevSelected: PathDataNode = null;
   @ViewChild("virtual", { static: true, read: ElementRef })
   virtualElementRef: ElementRef<HTMLElement>;
   nextTickTimeout = 10;
@@ -75,6 +76,9 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
     const selectedPathData = this.selectionService.pathDataSubject
       .getValues()
       .filter((p) => p.type === PathDataHandleType.Point);
+    if (this.items?.length !== data?.length) {
+      PathDataEditorComponent.prevSelected = null;
+    }
     this.items = data.map((p, index) => {
       const mouseOver = !!mouseOverPoints.find((overHandle) =>
         overHandle.isHandle(this.property.node, p, PathDataHandleType.Point)
@@ -99,8 +103,10 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
   ngOnInit(): void {
     this.virtual?.renderedRangeStream
       ?.pipe(takeUntil(this.destroyed$))
-      .subscribe(() => {
-        this.cdRef.detectChanges();
+      .subscribe({
+        next: () => {
+          this.cdRef.detectChanges();
+        },
       });
 
     merge(
@@ -108,15 +114,17 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
       this.mouseOverService.pathDataSubject
     )
       .pipe(takeUntil(this.destroyed$), throttleTime(0))
-      .subscribe((state) => {
-        const changed =
-          state &&
-          state.changed.find(
-            (changedNode) => changedNode.node === this.property?.node
-          );
-        if (changed) {
-          this.updateView();
-        }
+      .subscribe({
+        next: (state) => {
+          const changed =
+            state &&
+            state.changed.find(
+              (changedNode) => changedNode.node === this.property?.node
+            );
+          if (changed) {
+            this.updateView();
+          }
+        },
       });
 
     this.propertiesService.changedSubject
@@ -136,7 +144,12 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
   onScrolled() {
     this.cdRef.detectChanges();
   }
-  onRightClick(event: MouseEvent) {
+  onRightClick(node: PathDataNode, event: MouseEvent) {
+    // Select one if not selected
+    if (node && !node.selected) {
+      this.setSelected(node, event.ctrlKey, event.shiftKey);
+    }
+
     event.preventDefault();
     event.stopPropagation();
   }
@@ -147,20 +160,52 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
     );
     return pathDataHandle;
   }
-  onItemClick(action: PathDataNode) {
-    const handle = this.getHandle(action);
+  setSelected(node: PathDataNode, ctrlKey = false, shiftKey = false): void {
     let mode = ChangeStateMode.Normal;
-    if (action.selected) {
-      mode = ChangeStateMode.Remove;
+    const nodes: PathDataNode[] = [];
+    if (ctrlKey) {
+      nodes.push(node);
+      mode = ChangeStateMode.Revert;
+      PathDataEditorComponent.prevSelected = node;
+    } else if (shiftKey) {
+      const selected = PathDataEditorComponent.prevSelected;
+      const a = this.items.indexOf(
+        this.items.find(
+          (p) => selected && p?.command?.index === selected?.command?.index
+        )
+      );
+      const b = this.items.indexOf(
+        this.items.find((p) => p?.command?.index === node?.command?.index)
+      );
+      const from = Math.min(a, b);
+      const to = Math.max(a, b);
+      if (from !== -1 && to !== -1) {
+        for (let i = from; i <= to; i++) {
+          nodes.push(this.items[i]);
+        }
+      }
+      if (!nodes.length) {
+        PathDataEditorComponent.prevSelected = node;
+        nodes.push(node);
+      }
+    } else {
+      nodes.push(node);
+      PathDataEditorComponent.prevSelected = node;
     }
-
-    this.selectionService.pathDataSubject.change(handle, mode);
+    this.selectionService.pathDataSubject.change(
+      nodes.map((p) => this.getHandle(p)),
+      mode
+    );
   }
-  mouseEnter(action: PathDataNode) {
+  mouseEnter(action: PathDataNode): void {
     this.mouseOverService.pathDataSubject.change(this.getHandle(action));
   }
 
-  mouseLeave(action: PathDataNode) {
+  mouseLeave(action: PathDataNode): void {
     this.mouseOverService.pathDataSubject.setNone();
+  }
+  ngOnDestroy(): void {
+    super.ngOnDestroy();
+    PathDataEditorComponent.prevSelected = null;
   }
 }

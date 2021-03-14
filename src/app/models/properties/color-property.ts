@@ -16,8 +16,8 @@ export class ColorProperty extends Property {
     this.dataType = PropertyDataType.number;
   }
 
-  rgbToHex(rgb) {
-    var hex = Number(rgb).toString(16);
+  rgbToHex(rgb: string | number): string {
+    let hex = Number(rgb).toString(16);
     if (hex.length < 2) {
       hex = "0" + hex;
     }
@@ -25,20 +25,20 @@ export class ColorProperty extends Property {
   }
 
   toHex(r, g, b) {
-    var red = this.rgbToHex(r);
-    var green = this.rgbToHex(g);
-    var blue = this.rgbToHex(b);
+    const red = this.rgbToHex(r);
+    const green = this.rgbToHex(g);
+    const blue = this.rgbToHex(b);
     return red + green + blue;
   }
 
   getValue(): number | undefined | string {
     if (this.data && this.key) {
-      let data = this.data[this.key];
+      const data = this.data[this.key];
       if (data && data.k) {
-        let k = data.k;
+        const k = data.k;
 
         if (Array.isArray(k) && k.length >= 4) {
-          let toReturn = `rgba(${k[0]}, ${k[1]}, ${k[2]}, ${k[3]})`;
+          const toReturn = `rgba(${k[0]}, ${k[1]}, ${k[2]}, ${k[3]})`;
           return toReturn;
         }
       }

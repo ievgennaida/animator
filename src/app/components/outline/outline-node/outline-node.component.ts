@@ -12,12 +12,12 @@ import { TreeNode } from "src/app/models/tree-node";
 import { ContextMenuService } from "src/app/services/context-menu.service";
 import { MouseOverService } from "src/app/services/mouse-over.service";
 import { OutlineService } from "src/app/services/outline.service";
+import { MouseOverRenderer } from "src/app/services/renderers/mouse-over.renderer";
 import { SelectionService } from "src/app/services/selection.service";
 import {
   ChangeStateMode,
   StateChangedSource,
 } from "src/app/services/state-subject";
-import { MouseOverRenderer } from "src/app/services/renderers/mouse-over.renderer";
 import { BaseComponent } from "../../base-component";
 
 @Component({
@@ -29,7 +29,7 @@ import { BaseComponent } from "../../base-component";
 export class OutlineNodeComponent
   extends BaseComponent
   implements OnInit, OnDestroy {
-  private static lastSelected: TreeNode = null;
+  private static prevSelected: TreeNode = null;
   node: TreeNode;
   @Input("node") set setNode(node: TreeNode) {
     if (this.node !== node) {
@@ -67,6 +67,7 @@ export class OutlineNodeComponent
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         // When nodes list changed.
+        OutlineNodeComponent.prevSelected = null;
         this.cdRef.detectChanges();
       });
     this.selectionService.selected
@@ -96,15 +97,15 @@ export class OutlineNodeComponent
     event.stopPropagation();
   }
 
-  setSelected(event: MouseEvent, node: TreeNode) {
+  setSelected(node: TreeNode, ctrlKey = false, shiftKey = false): void {
     let mode = ChangeStateMode.Normal;
     const nodes = [];
-    if (event && event.ctrlKey) {
+    if (ctrlKey) {
       nodes.push(node);
       mode = ChangeStateMode.Revert;
-      OutlineNodeComponent.lastSelected = node;
-    } else if (event && event.shiftKey) {
-      const selected = OutlineNodeComponent.lastSelected;
+      OutlineNodeComponent.prevSelected = node;
+    } else if (shiftKey) {
+      const selected = OutlineNodeComponent.prevSelected;
       if (
         selected &&
         selected.parent &&
@@ -125,12 +126,12 @@ export class OutlineNodeComponent
       }
 
       if (!nodes.length) {
-        OutlineNodeComponent.lastSelected = node;
+        OutlineNodeComponent.prevSelected = node;
         nodes.push(node);
       }
     } else {
       nodes.push(node);
-      OutlineNodeComponent.lastSelected = node;
+      OutlineNodeComponent.prevSelected = node;
     }
 
     this.ngZone.runOutsideAngular(() => {
@@ -157,13 +158,13 @@ export class OutlineNodeComponent
   onRightClick(event: MouseEvent) {
     // Select one if not selected
     if (this.node && !this.node.selected) {
-      this.setSelected(event, this.node);
+      this.setSelected(this.node, event.ctrlKey, event.shiftKey);
     }
 
     this.contextMenu.open(event, this.node);
   }
   ngOnDestroy() {
     super.ngOnDestroy();
-    OutlineNodeComponent.lastSelected = null;
+    OutlineNodeComponent.prevSelected = null;
   }
 }

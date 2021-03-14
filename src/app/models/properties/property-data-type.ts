@@ -1,14 +1,13 @@
 export enum PropertyDataType {
-    number = "number",
-    /**
-     * valueKeyframed
-     */
-    value = "value",
+  number = "number",
+  /**
+   * valueKeyframed
+   */
+  value = "value",
 
-    /**
-     * multiDimensional
-     */
-    multi = "multidimensional",
-    string = "string"
-  }
-  
+  /**
+   * multiDimensional
+   */
+  multi = "multidimensional",
+  string = "string",
+}

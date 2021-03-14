@@ -11,7 +11,7 @@ export abstract class BaseTransformAction extends BasePropertiesStorageAction {
   committed = false;
   node: TreeNode | null = null;
   handle: HandleData | null = null;
-  
+
   /**
    * Set points to be displayed.
    */

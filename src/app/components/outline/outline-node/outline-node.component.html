@@ -1,6 +1,6 @@
 <div *ngIf="node" (contextmenu)="onRightClick($event)" matTreeNodePadding [matTreeNodePaddingIndent]="5"
     class="container" (mouseenter)="mouseEnter(node)" (mouseleave)="mouseLeave(node)"
-    (click)="setSelected($event, node)"
+    (click)="setSelected(node, $event.ctrlKey,  $event.shiftKey)"
     [ngClass]="{ 'selected': node.selected, 'hover': node.mouseOver, 'noselect': true}">
     <button [disabled]="!node.expandable" mat-icon-button (click)="toggle($event, node)">
         <mat-icon *ngIf="node.expandable">

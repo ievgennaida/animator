@@ -129,7 +129,7 @@ export class SvgProperties {
 
     properties.push(textProperty);
 
-    //Value type: <length>|<percentage> ; Default value: none; Animatable: yes
+    // Value type: <length>|<percentage> ; Default value: none; Animatable: yes
     const numberProperty = new NumberProperty(
       node,
       "textLength",
