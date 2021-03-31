@@ -7,12 +7,13 @@
 </div>
 <cdk-virtual-scroll-viewport [itemSize]="30" [style.minHeight.px]="items.length*30" #virtual scrolled="onScrolled()"
     class="list">
-    <div *cdkVirtualFor="let item of items" (contextmenu)="onRightClick(item, $event)"
+    <div *cdkVirtualFor="let item of items" (contextmenu)="onRightClick($event, item)"
         (click)="setSelected(item, $event.ctrlKey,  $event.shiftKey)" class="container" (mouseenter)="mouseEnter(item)"
-        (mouseleave)="mouseLeave(item)" [title]="item.tooltip || ''"
+        (mouseleave)="mouseLeave()" [title]="item.tooltip || ''"
         [ngClass]="{'deactivated':!item.active, 'hover':item.hover, 'selected':item.selected}">
         <div class="content text">
-            <button mat-button class="button center command-button">{{item.title}}</button>
+            <button mat-button class="button center command-button"
+                (click)="onCommandTypeClick($event, item)">{{item.title}}</button>
             <div class="flex-center">{{item.values}}</div>
         </div>
     </div>

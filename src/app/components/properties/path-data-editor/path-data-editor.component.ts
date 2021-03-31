@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   Input,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -42,7 +43,9 @@ interface PathDataNode {
   templateUrl: "./path-data-editor.component.html",
   styleUrls: ["./path-data-editor.component.scss"],
 })
-export class PathDataEditorComponent extends BaseComponent implements OnInit {
+export class PathDataEditorComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy {
   constructor(
     private propertiesService: PropertiesService,
     private mouseOverService: MouseOverService,
@@ -79,7 +82,7 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
     if (this.items?.length !== data?.length) {
       PathDataEditorComponent.prevSelected = null;
     }
-    this.items = data.map((p, index) => {
+    this.items = data.map((p) => {
       const mouseOver = !!mouseOverPoints.find((overHandle) =>
         overHandle.isHandle(this.property.node, p, PathDataHandleType.Point)
       );
@@ -144,7 +147,7 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
   onScrolled() {
     this.cdRef.detectChanges();
   }
-  onRightClick(node: PathDataNode, event: MouseEvent) {
+  onRightClick(event: MouseEvent, node: PathDataNode): void {
     // Select one if not selected
     if (node && !node.selected) {
       this.setSelected(node, event.ctrlKey, event.shiftKey);
@@ -197,11 +200,15 @@ export class PathDataEditorComponent extends BaseComponent implements OnInit {
       mode
     );
   }
+  onCommandTypeClick(event: MouseEvent, node: PathDataNode): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   mouseEnter(action: PathDataNode): void {
     this.mouseOverService.pathDataSubject.change(this.getHandle(action));
   }
 
-  mouseLeave(action: PathDataNode): void {
+  mouseLeave(): void {
     this.mouseOverService.pathDataSubject.setNone();
   }
   ngOnDestroy(): void {
