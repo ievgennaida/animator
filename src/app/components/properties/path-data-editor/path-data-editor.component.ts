@@ -65,6 +65,9 @@ export class PathDataEditorComponent
   @Input()
   property: Property = null;
   updateView() {
+    if (!this.property) {
+      return;
+    }
     const node = this.property.node;
     if (!node) {
       this.items = [];

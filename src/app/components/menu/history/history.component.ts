@@ -114,7 +114,8 @@ export class HistoryComponent extends BaseComponent implements OnInit {
    */
   scrollToSelectedIndex(index: number): void {
     const container = this.virtualElementRef?.nativeElement;
-    if (!this.virtual || !container) {
+    if (!this.virtual || !container || !this.virtual.scrollToIndex) {
+      // Can happens during the tests.
       console.log("Error: virtual list is not defined.");
       return;
     }

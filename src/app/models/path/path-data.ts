@@ -12,20 +12,25 @@ export class PathData {
     if (element.setPathData && data) {
       const converted = data.clone();
       // Try to preserve original data
-      data.commands.forEach((command) => {
+      data.commands.forEach((command, index) => {
         // Round values:
+        let clonedCommand = converted.commands[index];
         if (consts.pathDataAccuracy || consts.pathDataAccuracy === 0) {
-          for (let i = 0; i < command.values.length; i++) {
-            const val = command.values[i];
+          for (let i = 0; i < clonedCommand.values.length; i++) {
+            const val = clonedCommand.values[i];
             if (typeof val === "number" && !Number.isNaN(val)) {
-              command.values[i] = Utils.round(val, consts.pathDataAccuracy);
+              clonedCommand.values[i] = Utils.round(
+                val,
+                consts.pathDataAccuracy
+              );
             }
           }
         }
         // Save as relative if it was specified to be saved like this:
-        if (command.saveAsRelative && !command.isRelative()) {
-          command.recalculateAsRelative();
+        if (clonedCommand.saveAsRelative && !clonedCommand.isRelative()) {
+          clonedCommand = command.getRelative();
         }
+        converted.commands[index] = clonedCommand;
       });
       element.setPathData(converted.commands);
       return set;

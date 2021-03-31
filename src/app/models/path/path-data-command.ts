@@ -247,21 +247,23 @@ export class PathDataCommand implements SVGPathSegmentEx {
   /**
    * get relative command from current absolute.
    */
-  public recalculateAsRelative(): PathDataCommand {
+  public getRelative(): PathDataCommand {
     if (this.isAbsolute()) {
-      this.type = (this.type || "").toLowerCase();
+      const relCloned = this.cloneCommand();
+      relCloned.type = (relCloned.type || "").toLowerCase();
       const calcRelative = this.calculateRelPoint();
-      this.p = calcRelative;
-      if (this.type !== PathType.arc) {
+      relCloned.p = calcRelative;
+      if (relCloned.type !== PathType.arc) {
         const relA = this.calculateRelA();
         if (relA) {
-          this.a = relA;
+          relCloned.a = relA;
         }
         const relB = this.calculateRelB();
         if (relB) {
-          this.b = relB;
+          relCloned.b = relB;
         }
       }
+      return relCloned;
     }
 
     return this;
