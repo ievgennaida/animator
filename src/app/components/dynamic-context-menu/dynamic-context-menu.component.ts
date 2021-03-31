@@ -36,7 +36,7 @@ export class DynamicContextMenuComponent
     this.subscribeCommands(commands);
   }
 
-  render() {
+  render(): void {
     this.cdRef.markForCheck();
   }
   subscribeCommands(commands: Array<BaseCommand>) {
@@ -64,7 +64,7 @@ export class DynamicContextMenuComponent
 
   ngOnInit(): void {}
 
-  onActionClicked(event: MouseEvent, command: BaseCommand) {
+  onActionClicked(event: MouseEvent, command: BaseCommand): void {
     // Run in a next tick, allow for menu to be responsive.
     this.commandExecutor.executeCommand(command, true, () => this.render());
   }

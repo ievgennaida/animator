@@ -22,20 +22,20 @@ export class SelectorRenderer extends BaseRenderer {
     super();
   }
 
-  init(element: HTMLElement) {
+  init(element: HTMLElement): void {
     this.selectionRectElement = element;
     this.invalidate();
   }
 
-  clear() {
+  clear(): void {
     this.setRect(null);
   }
-  setRect(rect: DOMRect | null) {
+  setRect(rect: DOMRect | null): void {
     this.rect = rect;
     this.invalidate();
   }
 
-  redraw() {
+  redraw(): void {
     if (!this.ctx) {
       return;
     }

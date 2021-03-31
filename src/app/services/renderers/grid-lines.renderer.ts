@@ -24,28 +24,28 @@ export class GridLinesRenderer extends BaseRenderer {
   rulerHCTX: CanvasRenderingContext2D = null;
 
   denominators = [1, 2, 5, 10];
-  toggleShowGridLines() {
+  toggleShowGridLines(): void {
     this.gridLinesVisibleSubject.next(!this.gridLinesVisibleSubject.getValue());
     this.invalidate();
   }
 
-  toggleRuler() {
+  toggleRuler(): void {
     this.rulerVisibleSubject.next(!this.rulerVisibleSubject.getValue());
     this.invalidate();
   }
-  gridLinesVisible() {
+  gridLinesVisible(): boolean {
     return this.gridLinesVisibleSubject.getValue();
   }
   setRulers(
     rulerHElement: HTMLCanvasElement,
     rulerVElement: HTMLCanvasElement
-  ) {
+  ): void {
     this.rulerVCTX = this.initContext(rulerVElement);
     this.rulerHCTX = this.initContext(rulerHElement);
     this.invalidateSizeChanged();
   }
 
-  public invalidateSizeChanged() {
+  public invalidateSizeChanged(): void {
     this.suspend();
     super.invalidateSizeChanged();
     if (
@@ -58,7 +58,7 @@ export class GridLinesRenderer extends BaseRenderer {
     this.resume();
   }
 
-  valToPx(min, max, val, displaySize) {
+  valToPx(min: number, max: number, val: number, displaySize: number): number {
     const distance = Utils.getABDistance(min, max);
     let distanceOnLine = Utils.getABDistance(min, val);
     if (val <= min) {
@@ -79,7 +79,7 @@ export class GridLinesRenderer extends BaseRenderer {
     to: number,
     horizontal: boolean,
     drawGridLines: boolean
-  ) {
+  ): void {
     if (isNaN(from) || isNaN(to) || from === to) {
       return;
     }
@@ -247,7 +247,7 @@ export class GridLinesRenderer extends BaseRenderer {
     gridLineWidth: number,
     horizontal: boolean,
     bigLine: boolean
-  ) {
+  ): void {
     if (
       !ctx ||
       !ctx.canvas ||
@@ -271,7 +271,7 @@ export class GridLinesRenderer extends BaseRenderer {
     ctx.stroke();
   }
 
-  redraw() {
+  redraw(): void {
     // two rulers OR one ctx should be active.
     if ((!this.rulerVCTX || !this.rulerHCTX) && !this.ctx) {
       return;
@@ -314,7 +314,7 @@ export class GridLinesRenderer extends BaseRenderer {
     return ms + postfix;
   }
 
-  getPowArgument(toCheck) {
+  getPowArgument(toCheck: number): number {
     if (!toCheck || toCheck === 0 || !Number.isFinite(toCheck)) {
       return 1;
     }

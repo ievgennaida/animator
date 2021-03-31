@@ -23,13 +23,13 @@ export class MouseOverRenderer extends BaseRenderer {
    */
   enableDrawPathOutline = false;
   node: TreeNode;
-  setMouseOver(node: TreeNode) {
+  setMouseOver(node: TreeNode): void {
     if (this.node !== node) {
       this.node = node;
       this.invalidate();
     }
   }
-  redraw() {
+  redraw(): void {
     this.invalidated = false;
     this.clear();
     if (

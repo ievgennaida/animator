@@ -35,7 +35,7 @@ export class AdornersRenderer extends BaseRenderer {
     this.startDrawLoop();
   }
 
-  startDrawLoop() {
+  startDrawLoop(): void {
     this.ngZone.runOutsideAngular(() => {
       const draw = () => {
         try {
@@ -53,7 +53,7 @@ export class AdornersRenderer extends BaseRenderer {
     });
   }
 
-  invalidateSizeChanged() {
+  invalidateSizeChanged(): void {
     if (!this.viewService.viewport) {
       return;
     }
@@ -66,17 +66,17 @@ export class AdornersRenderer extends BaseRenderer {
       renderer.invalidateSizeChanged();
     });
   }
-  public suspend() {
+  public suspend(): void {
     this.renderers.forEach((renderer) => renderer.suspend());
   }
-  public resume() {
+  public resume(): void {
     this.renderers.forEach((renderer) => renderer.resume());
   }
-  public invalidate() {
+  public invalidate(): void {
     this.renderers.forEach((renderer) => renderer.invalidate());
   }
 
-  public redraw() {
+  public redraw(): void {
     this.renderers.forEach((renderer) => {
       // Method should be instant, avoid heavy operations:
       renderer.invalidateSizeChanged();

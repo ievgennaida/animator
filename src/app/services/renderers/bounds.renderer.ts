@@ -50,7 +50,7 @@ export class BoundsRenderer extends BaseRenderer {
     ctx: CanvasRenderingContext2D,
     container: AdornerContainer,
     adorner: Adorner
-  ) {
+  ): void {
     const alongH = Utils.getVector(adorner.topLeft, adorner.topRight, true);
     const alongW = Utils.getVector(adorner.topLeft, adorner.bottomLeft, true);
     const alongHR = Utils.reverseVector(alongH);
@@ -148,7 +148,7 @@ export class BoundsRenderer extends BaseRenderer {
     center = false,
     strokeColor = consts.handleStrokeColor,
     fillColor = consts.handleFillColor
-  ) {
+  ): void {
     const boxSize = consts.handleSize;
     const halfSize = boxSize / 2;
     const oppositeX = handlePoint.x + vectorA.x * boxSize;
@@ -184,7 +184,7 @@ export class BoundsRenderer extends BaseRenderer {
     l1: DOMPoint,
     l2: DOMPoint,
     oppositeSidePoint: DOMPoint
-  ) {
+  ): void {
     const textHeight = 10;
     ctx.save();
 
@@ -211,7 +211,7 @@ export class BoundsRenderer extends BaseRenderer {
     ctx.restore();
   }
 
-  redraw() {
+  redraw(): void {
     if (!this.ctx) {
       return;
     }
@@ -300,7 +300,7 @@ export class BoundsRenderer extends BaseRenderer {
     ctx: CanvasRenderingContext2D,
     container: AdornerContainer,
     adorner: Adorner
-  ) {
+  ): void {
     const config = this.configService.get();
     const centerSize = config.translateHandleSize;
     if (!centerSize) {
@@ -332,7 +332,7 @@ export class BoundsRenderer extends BaseRenderer {
     );
     this.drawCross(ctx, p, centerSize / 2 - 1, strokeColor, thickness);
   }
-  showDebugPoints() {
+  showDebugPoints(): void {
     const ctx = this.ctx;
     const trans = this.transform?.activeAction?.transformations || [];
     trans.forEach((p) => {

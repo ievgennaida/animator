@@ -40,7 +40,7 @@ export class PathRenderer extends BaseRenderer {
   get drawMode(): PathDirectSelectionToolMode {
     return this.mode;
   }
-  onWindowMouseMove(event: MouseEventArgs) {}
+  onWindowMouseMove(event: MouseEventArgs): void {}
 
   drawPoint(
     node: TreeNode,
@@ -48,7 +48,7 @@ export class PathRenderer extends BaseRenderer {
     size: number,
     stroke: string = "black",
     fill: string = null
-  ) {
+  ): void {
     const half = size / 2;
     this.ctx.beginPath();
     this.ctx.lineWidth = 1;
@@ -65,7 +65,7 @@ export class PathRenderer extends BaseRenderer {
     size: number,
     stroke: string = "black",
     fill: string = null
-  ) {
+  ): void {
     if (!point) {
       return;
     }
@@ -83,7 +83,7 @@ export class PathRenderer extends BaseRenderer {
     }
   }
 
-  redraw() {
+  redraw(): void  {
     if (!this.ctx || !this.screenCTM) {
       return;
     }
@@ -216,7 +216,7 @@ export class PathRenderer extends BaseRenderer {
     ctm: DOMMatrix,
     point: DOMPoint,
     prevPoint: DOMPoint
-  ) {
+  ): void {
     const isCurveSelected = !!this.mouseOverService.pathDataSubject.getHandle(
       node,
       abs,

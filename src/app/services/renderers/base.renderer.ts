@@ -57,7 +57,7 @@ export class BaseRenderer {
       });
     }
   }
-  public setCanvas(canvas: HTMLCanvasElement) {
+  public setCanvas(canvas: HTMLCanvasElement): void {
     this.ctx = this.initContext(canvas);
     this.invalidateSizeChanged();
   }
@@ -70,14 +70,14 @@ export class BaseRenderer {
     return ctx;
   }
 
-  public invalidateSizeChanged() {
+  public invalidateSizeChanged(): void {
     const changed = this.rescaleCanvas(this.ctx);
     if (changed) {
       this.invalidate();
     }
   }
 
-  public suspend(clean = false) {
+  public suspend(clean = false): void {
     if (!this.suspended) {
       this.suspended = true;
       if (clean) {
@@ -86,21 +86,21 @@ export class BaseRenderer {
     }
   }
 
-  public clear() {
+  public clear(): void {
     if (this.ctx) {
       this.clearBackground(this.ctx);
     }
   }
 
-  public resume() {
+  public resume(): void {
     this.suspended = false;
   }
 
-  public invalidate() {
+  public invalidate(): void {
     this.invalidated = true;
   }
 
-  public redrawRequired() {
+  public redrawRequired(): boolean {
     // TODO: check canvas size
 
     return this.invalidated && !this.suspended;
@@ -112,7 +112,7 @@ export class BaseRenderer {
    * @param callback action to execute.
    * @param invalidate whether invalidation is required.
    */
-  runSuspended(callback: () => void, invalidate = true) {
+  runSuspended(callback: () => void, invalidate = true): void {
     const wasSuspended = this.suspended;
     this.suspend();
     try {
@@ -154,7 +154,7 @@ export class BaseRenderer {
     return changed;
   }
 
-  public redraw() {
+  public redraw(): void {
     if (!this.ctx) {
       return;
     }
@@ -168,12 +168,12 @@ export class BaseRenderer {
     y1: number,
     x2: number,
     y2: number
-  ) {
+  ): void {
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
   }
 
-  clearBackground(ctx: CanvasRenderingContext2D) {
+  clearBackground(ctx: CanvasRenderingContext2D): void {
     if (ctx) {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
@@ -211,7 +211,7 @@ export class BaseRenderer {
 
     return false;
   }
-  getSharpPos(point: DOMPoint, thickness = 1) {
+  getSharpPos(point: DOMPoint, thickness = 1): DOMPoint {
     point.x = this.getSharp(point.x, thickness);
     point.y = this.getSharp(point.y, thickness);
     return point;
@@ -229,7 +229,7 @@ export class BaseRenderer {
     thickness: number = 1,
     stroke: string = "black",
     fillStyle: string = null
-  ) {
+  ): void {
     if (!rect) {
       return;
     }
@@ -252,7 +252,7 @@ export class BaseRenderer {
     fillStyle: string,
     closed: boolean,
     ...points: Array<DOMPoint>
-  ) {
+  ): void {
     if (!ctx || !points || points.length === 0) {
       return;
     }
