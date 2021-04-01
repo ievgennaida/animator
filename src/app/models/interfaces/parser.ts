@@ -5,6 +5,7 @@ export interface IParser {
   parse(document: InputDocument): TreeNode[];
   /**
    * Convert element to tree node.
+   *
    * @param el element to be converted.
    */
   convertTreeNode(el: any, deep: boolean): TreeNode;

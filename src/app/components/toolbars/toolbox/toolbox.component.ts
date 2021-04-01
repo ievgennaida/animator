@@ -16,6 +16,8 @@ import { BaseComponent } from "../../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolboxComponent extends BaseComponent implements OnInit {
+  tools: Array<BaseTool> = [];
+  activeTool: BaseTool | null = null;
   constructor(
     private toolsService: ToolsService,
     private cdRef: ChangeDetectorRef
@@ -23,10 +25,7 @@ export class ToolboxComponent extends BaseComponent implements OnInit {
     super();
     this.cdRef.detach();
   }
-
-  tools: Array<BaseTool> = [];
-  activeTool: BaseTool = null;
-  ngOnInit() {
+  ngOnInit(): void {
     this.tools = this.toolsService.tools;
     this.activeTool = this.toolsService.getActiveTool();
     this.toolsService
@@ -38,7 +37,7 @@ export class ToolboxComponent extends BaseComponent implements OnInit {
       });
   }
 
-  onToolSelected(activeTool: BaseTool) {
+  onToolSelected(activeTool: BaseTool): void {
     this.toolsService.setActiveTool(activeTool);
   }
 }

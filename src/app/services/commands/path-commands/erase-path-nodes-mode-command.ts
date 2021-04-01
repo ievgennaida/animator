@@ -11,15 +11,15 @@ import { BasePathNodesCommand } from "./base-path-node-mode-command";
   providedIn: "root",
 })
 export class ErasePathNodesModeCommand extends BasePathNodesCommand {
+  expectedMode = PathDirectSelectionToolMode.erase;
+  title = "Eraser - Remove Path Nodes";
+  tooltip = this.title;
+  icon = "erase";
+  iconSVG = true;
   constructor(
     undoService: UndoService,
     pathDirectSelectionTool: PathDirectSelectionTool
   ) {
     super(pathDirectSelectionTool, undoService);
   }
-  expectedMode = PathDirectSelectionToolMode.Erase;
-  title = "Eraser - Remove Path Nodes";
-  tooltip = this.title;
-  icon = "erase";
-  iconSVG = true;
 }

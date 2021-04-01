@@ -7,8 +7,8 @@ import { DocumentService } from "./document.service";
   providedIn: "root",
 })
 export class PasteService {
-  constructor(private documentService: DocumentService) {}
   bufferSubject = new BehaviorSubject<TreeNode[]>([]);
+  constructor(private documentService: DocumentService) {}
   cut() {}
   copy(items: TreeNode[]) {
     this.addToBuffer(items);

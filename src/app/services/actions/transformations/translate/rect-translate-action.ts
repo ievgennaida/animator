@@ -13,11 +13,8 @@ import { TransformationModeIcon } from "../../../../models/transformation-mode";
   providedIn: "root",
 })
 export class RectTranslateAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
   title = "Move";
-  icon = TransformationModeIcon.Move;
+  icon = TransformationModeIcon.move;
   propX = "x";
   propY = "y";
   changed = false;
@@ -28,7 +25,9 @@ export class RectTranslateAction extends BaseTransformAction {
   start: DOMPoint = null;
 
   committed = false;
-
+  constructor(propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
     // Store mouse position

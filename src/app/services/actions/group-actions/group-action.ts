@@ -4,11 +4,8 @@ import { ScrollToSelected } from "../../commands/scroll-to-selected";
 import { OutlineService } from "../../outline.service";
 import { Utils } from "../../utils/utils";
 import { BaseAction } from "../base-action";
+import { GroupMode } from "./group-mode";
 
-export enum GroupMode {
-  Group = "Group",
-  UnGroup = "Ungroup",
-}
 /**
  * Order elements action
  */
@@ -16,16 +13,11 @@ export enum GroupMode {
   providedIn: "root",
 })
 export class GroupAction extends BaseAction {
-  constructor(
-    private outlineService: OutlineService,
-    private scrollToSelectedCommand: ScrollToSelected
-  ) {
-    super();
-  }
+
   icon = "remove";
   nodes: TreeNode[] | null = null;
   containers: TreeNode[] = [];
-  mode: GroupMode;
+  mode: GroupMode = GroupMode.group;
   committed = true;
   /**
    * Store virtual dom indexes.
@@ -36,7 +28,12 @@ export class GroupAction extends BaseAction {
    * Real elements indexes (can be different from virtual dom)
    */
   indexes: number[] = [];
-
+  constructor(
+    private outlineService: OutlineService,
+    private scrollToSelectedCommand: ScrollToSelected
+  ) {
+    super();
+  }
   execute() {}
   undo() {}
 

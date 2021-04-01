@@ -29,6 +29,7 @@ export class BaseRenderer {
 
   /**
    * Force suspend renderers and render once when some 'heavy' command executed that can call render multiple times.
+   *
    * @param callback execute command.
    * @param params list of renderers to update after the command executed.
    */
@@ -109,6 +110,7 @@ export class BaseRenderer {
   /**
    * Run operation in suspended mode and than resume original state.
    * Operation can be used to run multiple update renderer operation and update once.
+   *
    * @param callback action to execute.
    * @param invalidate whether invalidation is required.
    */

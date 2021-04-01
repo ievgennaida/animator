@@ -7,30 +7,30 @@ export enum ChangeStateMode {
   /**
    * Select new items. deselect changed.
    */
-  Normal = 1,
+  normal = 1,
   /**
    * Append current selection.
    */
-  Append = 2,
+  append = 2,
   /**
    * Revert selected items state.
    */
-  Revert = 3,
+  revert = 3,
   /**
    * Remove
    */
-  Remove = 4,
+  remove = 4,
 }
 
 export enum StateChangedSource {
   /**
    * Source of the event not set.
    */
-  NotSet = "NotSet",
+  notSet = "NotSet",
   /**
    * Selection by the outline.
    */
-  Outline = "Outline",
+  outline = "Outline",
 }
 
 type StateChangeCallback<T> = (node: T, value: boolean) => boolean;
@@ -40,7 +40,12 @@ export class State<T> {
   public added: Array<T> = [];
   public removed: Array<T> = [];
   public source: StateChangedSource | string;
-  public any() {
+  /**
+   * Check whether value is set.
+   *
+   * @returns has any value set
+   */
+  public hasAny(): boolean {
     return this.values && this.values.length > 0;
   }
 }
@@ -52,34 +57,17 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     super(new State<T>());
   }
 
-  protected equals(first: T, second: T) {
-    return first === second;
-  }
-  protected changeState(state: State<T>, node: T, value: boolean): boolean {
-    const isChanged = this.changeStateCallback
-      ? this.changeStateCallback(node, value)
-      : true;
-    if (isChanged) {
-      state.changed.push(node);
-      if (value) {
-        state.added.push(node);
-      } else {
-        state.removed.push(node);
-      }
-    }
-    return isChanged;
-  }
   public getValues(): Array<T> {
     const state = this.getValue();
     return state ? state.values || [] : [];
   }
-  public setNone() {
-    this.change([], ChangeStateMode.Normal);
+  public setNone(): void {
+    this.change([], ChangeStateMode.normal);
   }
   public change(
     values: T[] | T,
-    mode: ChangeStateMode = ChangeStateMode.Normal,
-    source: StateChangedSource | string = StateChangedSource.NotSet
+    mode: ChangeStateMode = ChangeStateMode.normal,
+    source: StateChangedSource | string = StateChangedSource.notSet
   ): boolean {
     if (!values) {
       values = [];
@@ -95,7 +83,7 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     state.added.length = 0;
     state.removed.length = 0;
 
-    if (converted && mode === ChangeStateMode.Append) {
+    if (converted && mode === ChangeStateMode.append) {
       converted.forEach((node) => {
         if (!state.values.find((p) => this.equals(p, node))) {
           const changed = this.changeState(state, node, true);
@@ -104,7 +92,7 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
           }
         }
       });
-    } else if (converted && mode === ChangeStateMode.Remove) {
+    } else if (converted && mode === ChangeStateMode.remove) {
       converted.forEach((node) => {
         const foundEqualItem = state.values.find((p) => this.equals(p, node));
         if (foundEqualItem) {
@@ -112,7 +100,7 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
           Utils.deleteElement<T>(state.values, foundEqualItem);
         }
       });
-    } else if (converted && mode === ChangeStateMode.Revert) {
+    } else if (converted && mode === ChangeStateMode.revert) {
       converted.forEach((node) => {
         const foundEqualItem = state.values.find((p) => this.equals(p, node));
         if (foundEqualItem) {
@@ -123,7 +111,7 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
           state.values.push(node);
         }
       });
-    } else if (mode === ChangeStateMode.Normal) {
+    } else if (mode === ChangeStateMode.normal) {
       if (converted) {
         converted.forEach((node) => {
           if (!state.values.find((p) => this.equals(p, node))) {
@@ -156,5 +144,22 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     }
 
     return false;
+  }
+  protected equals(first: T, second: T): boolean {
+    return first === second;
+  }
+  protected changeState(state: State<T>, node: T, value: boolean): boolean {
+    const isChanged = this.changeStateCallback
+      ? this.changeStateCallback(node, value)
+      : true;
+    if (isChanged) {
+      state.changed.push(node);
+      if (value) {
+        state.added.push(node);
+      } else {
+        state.removed.push(node);
+      }
+    }
+    return isChanged;
   }
 }

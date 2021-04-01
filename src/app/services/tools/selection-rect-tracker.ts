@@ -2,10 +2,10 @@ import { Injectable } from "@angular/core";
 import { MouseEventArgs } from "src/app/models/mouse-event-args";
 import { consts } from "src/environments/consts";
 import { LoggerService } from "../logger.service";
+import { SelectorRenderer } from "../renderers/selector.renderer";
 import { MatrixUtils } from "../utils/matrix-utils";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
-import { SelectorRenderer } from "../renderers/selector.renderer";
 
 /**
  * Track selection rectangle size.
@@ -14,6 +14,21 @@ import { SelectorRenderer } from "../renderers/selector.renderer";
   providedIn: "root",
 })
 export class SelectionRectTracker {
+  /**
+   * Current selection rectangle
+   */
+  rect: DOMRect | null = null;
+  /**
+   * Last used event args.
+   */
+  public args: MouseEventArgs | null = null;
+
+  /**
+   * Whether current react is a click actually.
+   */
+  click = false;
+  protected startPos: DOMPoint | null = null;
+  protected allowRectSelection = true;
   constructor(
     protected logger: LoggerService,
     protected viewService: ViewService,
@@ -26,22 +41,6 @@ export class SelectionRectTracker {
       }
     });
   }
-  /**
-   * Current selection rectangle
-   */
-  rect: DOMRect | null = null;
-  protected startPos: DOMPoint | null = null;
-  protected allowRectSelection = true;
-  /**
-   * Last used event args.
-   */
-  public args: MouseEventArgs | null = null;
-
-  /**
-   * Whether current react is a click actually.
-   */
-  click = false;
-
   getScreenRect(): DOMRect | null {
     if (!this.rect) {
       return;

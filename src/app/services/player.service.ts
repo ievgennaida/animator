@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Timeline, TimelineInteractionMode } from "animation-timeline-js";
-import { BehaviorSubject, Observable } from "rxjs";
-import { TimeData } from "../models/timedata";
+import { BehaviorSubject } from "rxjs";
 import { IPlayer } from "../models/interfaces/player";
+import { TimeData } from "../models/timedata";
 
 @Injectable({
   providedIn: "root"
@@ -10,12 +10,12 @@ import { IPlayer } from "../models/interfaces/player";
 export class PlayerService {
   // Current active animation player in the app.
   player: IPlayer = null;
-  constructor() {}
 
   timeline: Timeline;
   playSubject = new BehaviorSubject<boolean>(false);
   // Current frame subject
   timeSubject = new BehaviorSubject<TimeData>(new TimeData());
+  constructor() {}
 
   setTimeline(timeline: Timeline | any) {
     this.timeline = timeline;
@@ -59,14 +59,6 @@ export class PlayerService {
       this.timeline.redraw();
       this.emitTimeChanged(time);
     }
-  }
-
-  private emitTimeChanged(time: number) {
-    const timeData = this.timeSubject.value;
-    timeData.ms = time;
-    timeData.frame = time / 1000;
-    timeData.globalFrame = this.msToFrame(time);
-    this.timeSubject.next(this.timeSubject.value);
   }
 
   isReady(): boolean {
@@ -224,5 +216,12 @@ export class PlayerService {
     }
 
     this.timeline.setInteractionMode(TimelineInteractionMode.Selection);
+  }
+  private emitTimeChanged(time: number) {
+    const timeData = this.timeSubject.value;
+    timeData.ms = time;
+    timeData.frame = time / 1000;
+    timeData.globalFrame = this.msToFrame(time);
+    this.timeSubject.next(this.timeSubject.value);
   }
 }

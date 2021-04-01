@@ -5,7 +5,7 @@ import {
   PropertiesService,
   TransformPropertyKey,
 } from "src/app/services/properties.service";
-import { AdornerPointType } from "src/app/models/adorner-type";
+import { AdornerPointType } from "src/app/models/adorner-point-type";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
 
@@ -13,9 +13,7 @@ import { BaseTransformAction } from "../base-transform-action";
   providedIn: "root",
 })
 export class MatrixSkewAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
+
   title = "Skew";
   /**
    * Start click position in anchor coordinates.
@@ -33,10 +31,13 @@ export class MatrixSkewAction extends BaseTransformAction {
   initTransformMatrix: DOMMatrix = null;
   startOffset = 0;
   centerTransform: DOMPoint | null = null;
+  constructor(propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.handle = handle;
-    this.vertical = handle.handle === AdornerPointType.BottomLeft;
+    this.vertical = handle.handle === AdornerPointType.bottomLeft;
     const centerBox = this.propertiesService.getCenterTransform(node);
 
     const element = node.getElement();

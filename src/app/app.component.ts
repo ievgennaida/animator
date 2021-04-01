@@ -27,14 +27,32 @@ import { MouseEventArgs } from "./models/mouse-event-args";
   styleUrls: ["./app.component.scss"],
 })
 export class AppComponent extends BaseComponent implements OnInit {
+  @ViewChild("footer", { static: true, read: ElementRef })
+  footer: ElementRef;
+
+  @ViewChild("outline", { read: ElementRef })
+  outline: ElementRef<HTMLElement>;
+
+  @ViewChild("menu", { static: true, read: ElementRef })
+  menu: ElementRef;
+
+  @ViewChild("player", { static: true, read: ElementRef })
+  player: ElementRef;
+
+  @ViewChild("drawerContent", { static: true })
+  drawerContent: ElementRef;
   outlineW: number | string = null;
   footerH: number | string = null;
   lastMenuW = 0;
   mode: ViewMode = consts.appearance.defaultMode;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   ViewMode = ViewMode;
   menuVisible = this.viewService.menuVisibleSubject.getValue();
   codeVisible = this.viewService.codeVisibleSubject.getValue();
   breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
+
+  prevMouseUpArgs: MouseEventArgs | null = null;
+
   constructor(
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef,
@@ -50,38 +68,6 @@ export class AppComponent extends BaseComponent implements OnInit {
     assetsService.registerIcons();
     wire.init();
   }
-  prevMouseUpArgs: MouseEventArgs | null = null;
-  @ViewChild("footer", { static: true, read: ElementRef })
-  footer: ElementRef;
-
-  @ViewChild("outline", { read: ElementRef })
-  outline: ElementRef<HTMLElement>;
-
-  @ViewChild("menu", { static: true, read: ElementRef })
-  menu: ElementRef;
-
-  @ViewChild("player", { static: true, read: ElementRef })
-  player: ElementRef;
-
-  @ViewChild("drawerContent", { static: true })
-  drawerContent: ElementRef;
-
-  onResizeOutline(event: ResizeEvent): void {
-    this.outlineW = Utils.keepInBounds(
-      event.rectangle.width,
-      this.self.nativeElement.clientWidth
-    );
-    this.viewService.emitViewportResized();
-  }
-
-  onResizeFooter(event: ResizeEvent): void {
-    this.footerH = Utils.keepInBounds(
-      event.rectangle.height,
-      this.self.nativeElement.clientHeight
-    );
-    this.viewService.emitViewportResized();
-  }
-
   @HostListener("window:resize", [])
   onWindowResize() {
     if (this.outline && this.outline.nativeElement) {
@@ -128,6 +114,22 @@ export class AppComponent extends BaseComponent implements OnInit {
     this.out(() => {
       this.toolsService.onWindowBlur(event);
     });
+  }
+
+  onResizeOutline(event: ResizeEvent): void {
+    this.outlineW = Utils.keepInBounds(
+      event.rectangle.width,
+      this.self.nativeElement.clientWidth
+    );
+    this.viewService.emitViewportResized();
+  }
+
+  onResizeFooter(event: ResizeEvent): void {
+    this.footerH = Utils.keepInBounds(
+      event.rectangle.height,
+      this.self.nativeElement.clientHeight
+    );
+    this.viewService.emitViewportResized();
   }
 
   onWindowMouseWheel(event: WheelEvent) {

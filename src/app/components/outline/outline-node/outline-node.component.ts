@@ -29,8 +29,9 @@ import { BaseComponent } from "../../base-component";
 export class OutlineNodeComponent
   extends BaseComponent
   implements OnInit, OnDestroy {
-  private static prevSelected: TreeNode = null;
-  node: TreeNode;
+  private static prevSelected: TreeNode | null = null;
+  node: TreeNode | null = null;
+  // eslint-disable-next-line @angular-eslint/no-input-rename
   @Input("node") set setNode(node: TreeNode) {
     if (this.node !== node) {
       this.node = node;
@@ -98,11 +99,11 @@ export class OutlineNodeComponent
   }
 
   setSelected(node: TreeNode, ctrlKey = false, shiftKey = false): void {
-    let mode = ChangeStateMode.Normal;
+    let mode = ChangeStateMode.normal;
     const nodes = [];
     if (ctrlKey) {
       nodes.push(node);
-      mode = ChangeStateMode.Revert;
+      mode = ChangeStateMode.revert;
       OutlineNodeComponent.prevSelected = node;
     } else if (shiftKey) {
       const selected = OutlineNodeComponent.prevSelected;
@@ -138,7 +139,7 @@ export class OutlineNodeComponent
       this.selectionService.setSelected(
         nodes,
         mode,
-        StateChangedSource.Outline
+        StateChangedSource.outline
       );
     });
   }

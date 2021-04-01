@@ -17,13 +17,14 @@ import { BaseComponent } from 'src/app/components/base-component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerAdornerComponent extends BaseComponent implements OnInit {
-  @Input() renderer: BaseRenderer;
+  @Input() renderer: BaseRenderer | null = null;
+
+  @ViewChild("canvas", { static: true })
+  canvas: ElementRef<HTMLCanvasElement>;
   constructor(private cdRef: ChangeDetectorRef) {
     super();
     cdRef.detach();
   }
-  @ViewChild("canvas", { static: true })
-  canvas: ElementRef<HTMLCanvasElement>;
   ngOnInit(): void {
     if (this.renderer) {
       this.renderer.setCanvas(this.canvas.nativeElement);

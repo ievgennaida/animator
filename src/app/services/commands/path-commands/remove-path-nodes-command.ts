@@ -13,15 +13,6 @@ import { BaseCommand } from "../base-command";
   providedIn: "root",
 })
 export class RemovePathNodesCommand implements BaseCommand {
-  constructor(
-    private selectionService: SelectionService,
-    private undoService: UndoService
-  ) {
-    merge(
-      this.selectionService.pathDataSubject,
-      this.selectionService.selected
-    ).subscribe(() => this.changed.next(this));
-  }
   title = "Delete";
   icon = "clear";
   hotkey = "Del";
@@ -31,6 +22,15 @@ export class RemovePathNodesCommand implements BaseCommand {
   // Store previous indexes of the elements
   indexes: number[] = [];
   changed = new Subject<BaseCommand>();
+  constructor(
+    private selectionService: SelectionService,
+    private undoService: UndoService
+  ) {
+    merge(
+      this.selectionService.pathDataSubject,
+      this.selectionService.selected
+    ).subscribe(() => this.changed.next(this));
+  }
   canExecute(): boolean {
     const selected = this.selectionService.pathDataSubject.getValues();
     if (selected && selected.length > 0) {

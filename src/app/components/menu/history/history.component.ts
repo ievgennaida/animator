@@ -28,6 +28,12 @@ interface HistoryItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistoryComponent extends BaseComponent implements OnInit {
+  @ViewChild("virtual", { static: true, read: ElementRef })
+  virtualElementRef: ElementRef<HTMLElement>;
+  @ViewChild("virtual", { static: true }) virtual: CdkVirtualScrollViewport;
+  nextTickTimeout = 10;
+
+  items: HistoryItem[] = [];
   constructor(
     private undoService: UndoService,
     private cdRef: ChangeDetectorRef,
@@ -36,11 +42,6 @@ export class HistoryComponent extends BaseComponent implements OnInit {
     super();
     this.cdRef.detach();
   }
-  @ViewChild("virtual", { static: true, read: ElementRef })
-  virtualElementRef: ElementRef<HTMLElement>;
-  nextTickTimeout = 10;
-  @ViewChild("virtual", { static: true }) virtual: CdkVirtualScrollViewport;
-  items: HistoryItem[] = [];
   ngOnInit(): void {
     this.virtual?.renderedRangeStream
       ?.pipe(takeUntil(this.destroyed$))
@@ -72,14 +73,15 @@ export class HistoryComponent extends BaseComponent implements OnInit {
   updateItems() {
     const itemsCountChanged =
       this.items.length !== this.undoService.actions.length;
-    this.items = this.undoService.actions.map((p, index) => {
-      return {
-        command: p,
-        active: this.undoService.activeIndex >= index,
-        hover: false,
-        selected: this.undoService.activeIndex === index,
-      } as HistoryItem;
-    });
+    this.items = this.undoService.actions.map(
+      (p, index) =>
+        ({
+          command: p,
+          active: this.undoService.activeIndex >= index,
+          hover: false,
+          selected: this.undoService.activeIndex === index,
+        } as HistoryItem)
+    );
     if (itemsCountChanged) {
       this.scrollToEnd();
     }

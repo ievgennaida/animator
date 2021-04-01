@@ -1,5 +1,5 @@
 import { Injectable, Type } from "@angular/core";
-import { AdornerPointType, AdornerType } from "src/app/models/adorner-type";
+import { AdornerType } from "src/app/models/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { UndoService } from "../../undo.service";
@@ -24,6 +24,7 @@ import {
 import { CenterElementTranslateAction } from "./translate/center-element-translate-action";
 import { CenterSelectionTranslateAction } from "./translate/center-selection-translate-action";
 import { MatrixTranslateAction } from "./translate/matrix-translate-action";
+import { AdornerPointType } from "src/app/models/adorner-point-type";
 
 /**
  * Transform multiple nodes and store state for the undo service.
@@ -34,40 +35,41 @@ import { MatrixTranslateAction } from "./translate/matrix-translate-action";
   providedIn: "root",
 })
 export class TransformAction extends BaseAction {
-  constructor(private undoService: UndoService) {
-    super();
-  }
-  mode: TransformationMode = TransformationMode.None;
+
+  mode: TransformationMode = TransformationMode.none;
   transformations: Array<BaseTransformAction> = [];
   handle: HandleData | null = null;
   changed = false;
   committed = false;
+  constructor(private undoService: UndoService) {
+    super();
+  }
   /**
    * Get transform action for the node by type.
    */
   getTransform(
     node: TreeNode,
     mode: TransformationMode,
-    adornerMode: AdornerType = AdornerType.TransformedElement,
-    adornerType: AdornerPointType = AdornerPointType.None
+    adornerMode: AdornerType = AdornerType.transformedElement,
+    adornerType: AdornerPointType = AdornerPointType.none
   ): BaseTransformAction {
     let actionType: Type<BaseTransformAction> | null = null;
-    if (mode === TransformationMode.Translate) {
-      if (adornerType === AdornerPointType.CenterTransform) {
+    if (mode === TransformationMode.translate) {
+      if (adornerType === AdornerPointType.centerTransform) {
         if (
-          adornerMode === AdornerType.Selection ||
-          adornerMode === AdornerType.PathDataSelection
+          adornerMode === AdornerType.selection ||
+          adornerMode === AdornerType.pathDataSelection
         ) {
           actionType = CenterSelectionTranslateAction;
         } else {
           actionType = CenterElementTranslateAction;
         }
       }
-    } else if (mode === TransformationMode.Scale) {
-      if (adornerType === AdornerPointType.CenterTransform) {
+    } else if (mode === TransformationMode.scale) {
+      if (adornerType === AdornerPointType.centerTransform) {
         if (
-          adornerMode === AdornerType.Selection ||
-          adornerMode === AdornerType.PathDataSelection
+          adornerMode === AdornerType.selection ||
+          adornerMode === AdornerType.pathDataSelection
         ) {
           actionType = CenterSelectionScaleAction;
         } else {
@@ -77,29 +79,29 @@ export class TransformAction extends BaseAction {
     }
 
     if (node && !actionType) {
-      if (mode === TransformationMode.Translate) {
+      if (mode === TransformationMode.translate) {
         if (!node.allowTranslate) {
           return null;
         }
         actionType = translateActions.get(node.type) || MatrixTranslateAction;
-      } else if (mode === TransformationMode.Rotate) {
+      } else if (mode === TransformationMode.rotate) {
         if (!node.allowRotate) {
           return null;
         }
         actionType = rotateActions.get(node.type) || MatrixRotateAction;
-      } else if (mode === TransformationMode.Scale) {
+      } else if (mode === TransformationMode.scale) {
         if (!node.allowResize) {
           return null;
         }
         if (
-          adornerMode === AdornerType.TransformedElement ||
-          adornerMode === AdornerType.PathDataSelection
+          adornerMode === AdornerType.transformedElement ||
+          adornerMode === AdornerType.pathDataSelection
         ) {
           actionType = scaleElementActions.get(node.type) || MatrixScaleAction;
         } else {
           actionType = scaleActions.get(node.type) || MatrixScaleAction;
         }
-      } else if (mode === TransformationMode.Skew) {
+      } else if (mode === TransformationMode.skew) {
         actionType = skewActions.get(node.type) || MatrixSkewAction;
       }
     }
@@ -172,9 +174,9 @@ export class TransformAction extends BaseAction {
       return;
     }
 
-    const multipleSelected = handle?.adorner?.type === AdornerType.Selection;
+    const multipleSelected = handle?.adorner?.type === AdornerType.selection;
     const centerTransformApplied =
-      multipleSelected && handle?.handle === AdornerPointType.CenterTransform;
+      multipleSelected && handle?.handle === AdornerPointType.centerTransform;
     if (centerTransformApplied) {
       // No need to repeat the same action, limit the array by one.
       nodes.length = 1;
@@ -210,25 +212,25 @@ export class TransformAction extends BaseAction {
       this.title = `${mode}: ${Utils.getTreeNodesTitle(nodes)}`;
     }
     if (!this.icon) {
-      if (this.mode === TransformationMode.Rotate) {
-        this.icon = TransformationModeIcon.Rotate;
-      } else if (this.mode === TransformationMode.Scale) {
-        this.icon = TransformationModeIcon.Scale;
-      } else if (this.mode === TransformationMode.Translate) {
-        this.icon = TransformationModeIcon.Move;
+      if (this.mode === TransformationMode.rotate) {
+        this.icon = TransformationModeIcon.rotate;
+      } else if (this.mode === TransformationMode.scale) {
+        this.icon = TransformationModeIcon.scale;
+      } else if (this.mode === TransformationMode.translate) {
+        this.icon = TransformationModeIcon.move;
       }
     }
     // When multiple items are transformed we need also to transform central point if was changed:
     if (
       multipleSelected &&
-      handle?.handle !== AdornerPointType.CenterTransform &&
+      handle?.handle !== AdornerPointType.centerTransform &&
       handle?.adorner?.screen?.centerTransform
     ) {
       const actionInstance = this.getTransform(
         null,
         mode,
         handle.adorner?.type,
-        AdornerPointType.CenterTransform
+        AdornerPointType.centerTransform
       );
       if (actionInstance) {
         actionInstance.init(handle.adorner?.node, screenPos, handle);

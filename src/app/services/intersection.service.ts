@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
-import { environment } from "src/environments/environment";
 import { AdornerContainer } from "../models/adorner";
-import { AdornerPointType, AdornerTypeUtils } from "../models/adorner-type";
+import { AdornerPointType } from "../models/adorner-point-type";
+import { AdornerTypeUtils } from "../models/adorner-type-utils";
 import { HandleData } from "../models/handle-data";
-import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
+import { PathDataHandle } from "../models/path-data-handle";
+import { PathDataHandleType } from "../models/path-data-handle-type";
 import { PathData } from "../models/path/path-data";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { PathType } from "../models/path/path-type";
@@ -92,7 +93,7 @@ export class IntersectionService {
       }
 
       const intersects = this.intersectAdorner(adorner, adorners, screenPoint);
-      if (intersects !== AdornerPointType.None) {
+      if (intersects !== AdornerPointType.none) {
         if (!results) {
           results = new HandleData();
         }
@@ -108,6 +109,7 @@ export class IntersectionService {
   }
   /**
    * get path data handles under the point or rectangle.
+   *
    * @param nodes list of nodes with path data.
    * @param selectorRectOrPos rect or point in screen coordinates.
    */
@@ -140,7 +142,7 @@ export class IntersectionService {
                 Utils.toScreenPoint(node, abs.p)
               );
             }
-            let handleType = PathDataHandleType.Point;
+            let handleType = PathDataHandleType.point;
             if (p && !isRect) {
               // TODO: select a,b helper handles.
               const screenPointSize = Utils.getDistance(
@@ -166,7 +168,7 @@ export class IntersectionService {
                 if (a) {
                   l = Utils.getDistance(p, a);
                   if (l <= accuracy && prevBestDistance > l) {
-                    handleType = PathDataHandleType.HandleA;
+                    handleType = PathDataHandleType.handleA;
                     prevBestDistance = l;
                     pointSelected = true;
                   }
@@ -175,7 +177,7 @@ export class IntersectionService {
                 if (b) {
                   l = Utils.getDistance(p, b);
                   if (l <= accuracy && prevBestDistance > l) {
-                    handleType = PathDataHandleType.HandleB;
+                    handleType = PathDataHandleType.handleB;
                     prevBestDistance = l;
                     pointSelected = true;
                   }
@@ -421,7 +423,7 @@ export class IntersectionService {
     adorners: AdornerContainer[],
     point: DOMPoint
   ): AdornerPointType {
-    let toReturn = AdornerPointType.None;
+    let toReturn = AdornerPointType.none;
     if (!point || !adornerContainer) {
       return toReturn;
     }
@@ -432,7 +434,7 @@ export class IntersectionService {
     // Find nearest point:
     adorner.points.forEach((adornerPoint, key) => {
       let minDistance =
-        key === AdornerPointType.Translate
+        key === AdornerPointType.translate
           ? config.translateHandleSize
           : config.handleSize;
 
@@ -443,8 +445,8 @@ export class IntersectionService {
         return;
       }
 
-      const isCenterTransform = key === AdornerPointType.CenterTransform;
-      const isTranslate = key === AdornerPointType.Translate;
+      const isCenterTransform = key === AdornerPointType.centerTransform;
+      const isTranslate = key === AdornerPointType.translate;
       if (!adornerPoint && isCenterTransform) {
         adornerPoint = adorner.center;
       }

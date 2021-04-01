@@ -7,22 +7,19 @@ import {
   CenterTransformX,
   CenterTransformY,
   PathDataPropertyKey,
-  PropertiesService,
+  PropertiesService
 } from "src/app/services/properties.service";
+import { PathDataUtils } from "src/app/services/utils/path-data-utils";
 import { Utils } from "src/app/services/utils/utils";
-import { PathDataUtils } from "../../../utils/matrix-utils";
-import { BaseTransformAction } from "../base-transform-action";
 import { TransformationModeIcon } from "../../../../models/transformation-mode";
+import { BaseTransformAction } from "../base-transform-action";
 
 @Injectable({
   providedIn: "root",
 })
 export class PathRotateAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
   title = "Rotate";
-  icon = TransformationModeIcon.Rotate;
+  icon = TransformationModeIcon.rotate;
   prevAngle = 0;
   transformOrigin: DOMPoint = null;
   startOffset = 0;
@@ -32,6 +29,9 @@ export class PathRotateAction extends BaseTransformAction {
    */
   public pathHandles: PathDataHandle[] | null = null;
   start: DOMPoint = null;
+  constructor(propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.centerTransform = this.propertiesService.getCenterTransform(
@@ -54,6 +54,7 @@ export class PathRotateAction extends BaseTransformAction {
 
   /**
    * Rotate by mouse.
+   *
    * @param screenPos mouse current move position point.
    */
   transformByMouse(screenPos: DOMPoint): boolean {

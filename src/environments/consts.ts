@@ -35,7 +35,7 @@ export const consts = {
   },
   breadcrumbVisible: false,
   appearance: {
-    defaultMode: ViewMode.Editor,
+    defaultMode: ViewMode.editor,
     menuOpened: false,
     menuPanelSize: 250,
   },
@@ -127,13 +127,13 @@ export const consts = {
 };
 
 export const enum PanelsIds {
-  History = "history",
-  Properties = "properties",
-  Outline = "outline",
+  history = "history",
+  properties = "properties",
+  outline = "outline",
 }
 export const panelsConfig = [
   {
-    id: PanelsIds.History,
+    id: PanelsIds.history,
     expanded: true,
     visible: false,
     title: "History",
@@ -141,14 +141,14 @@ export const panelsConfig = [
     allowClose: true,
   },
   {
-    id: PanelsIds.Properties,
+    id: PanelsIds.properties,
     expanded: true,
     visible: true,
     title: "Properties",
     height: 100,
   },
   {
-    id: PanelsIds.Outline,
+    id: PanelsIds.outline,
     expanded: true,
     visible: true,
     title: "Outline",

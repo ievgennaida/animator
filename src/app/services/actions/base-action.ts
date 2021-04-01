@@ -13,12 +13,23 @@ export abstract class BaseAction {
    */
   iconSVG?: boolean;
   committed = false;
-  abstract execute();
+
+  /**
+   * Virtual. Check whether can execute.
+   *
+   * @returns whether can be executed.
+   */
   canExecute(): boolean {
     return this.committed;
   }
-  abstract undo();
+  /**
+   * Virtual. Check whether can undo.
+   *
+   * @returns whether can be executed.
+   */
   canUndo(): boolean {
     return this.committed;
   }
+  abstract execute();
+  abstract undo();
 }

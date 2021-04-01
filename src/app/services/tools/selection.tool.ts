@@ -1,12 +1,10 @@
 import { Injectable } from "@angular/core";
+import { AdornerTypeUtils } from "src/app/models/adorner-type-utils";
 import { CursorType } from "src/app/models/cursor-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
-import {
-  AdornerPointType,
-  AdornerType,
-  AdornerTypeUtils,
-} from "../../models/adorner-type";
+import { AdornerPointType } from "../../models/adorner-point-type";
+import { AdornerType } from "../../models/adorner-type";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { AdornersService } from "../adorners-service";
 import { ContextMenuService } from "../context-menu.service";
@@ -35,7 +33,7 @@ export class SelectionTool extends BaseTool {
 
   startedNode: TreeNode | null = null;
   startedHandle: HandleData | null = null;
-  lastDeg: number = null;
+  lastDeg: number | null = null;
   lastUsedArgs: MouseEventArgs | null = null;
   lastShowBBoxState: boolean | null = null;
   constructor(
@@ -84,12 +82,12 @@ export class SelectionTool extends BaseTool {
         // Move selection data
         handle = new HandleData();
         handle.adorner = this.adornersService?.selectionAdorner;
-        handle.handle = AdornerPointType.None;
+        handle.handle = AdornerPointType.none;
       }
 
       this.startedHandle = handle;
       if (handle) {
-        if (handle?.adorner?.type !== AdornerType.Selection) {
+        if (handle?.adorner?.type !== AdornerType.selection) {
           this.startedNode = handle.adorner.node;
         }
       } else {
@@ -168,7 +166,7 @@ export class SelectionTool extends BaseTool {
       if (this.startedNode) {
         // Not allowed to click on a new node and drag.
         // Mouse should be released in order to avoid drag by mistake, than happens often.
-        this.cursor.setCursor(CursorType.NotAllowed);
+        this.cursor.setCursor(CursorType.notAllowed);
       } else {
         let handle: HandleData | null = null;
         if (this.selectionTracker.selectionRectStarted()) {
@@ -270,14 +268,14 @@ export class SelectionTool extends BaseTool {
       this.transformsService.cancel();
     }
 
-    let mode = ChangeStateMode.Normal;
+    let mode = ChangeStateMode.normal;
     if (event.ctrlKey) {
-      mode = ChangeStateMode.Revert;
+      mode = ChangeStateMode.revert;
     } else if (event.shiftKey) {
-      mode = ChangeStateMode.Append;
+      mode = ChangeStateMode.append;
     }
 
-    if (this.selectionService.selectedAdorner !== AdornerPointType.None) {
+    if (this.selectionService.selectedAdorner !== AdornerPointType.none) {
       this.selectionService.deselectAdorner();
       return;
     }

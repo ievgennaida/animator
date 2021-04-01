@@ -8,12 +8,13 @@ import { BaseAction } from "./base-action";
   providedIn: "root",
 })
 export class DocumentLoadedAction extends BaseAction {
-  constructor() {
-    super();
-  }
+
   title = "Document";
   icon = "assignment";
   committed = true;
+  constructor() {
+    super();
+  }
   execute() {}
   canUndo(): boolean {
     // Document cannot be unloaded.

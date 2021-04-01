@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import {
-  PathDataHandle,
-  PathDataHandleType,
+  PathDataHandle
 } from "src/app/models/path-data-handle";
+import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
 import {
@@ -20,13 +20,6 @@ import { BasePropertiesStorageAction } from "../base-property-action";
   providedIn: "root",
 })
 export class AddPathNodesAction extends BasePropertiesStorageAction {
-  constructor(
-    private outlineService: OutlineService,
-    private selectionService: SelectionService,
-    propertiesService: PropertiesService
-  ) {
-    super(propertiesService);
-  }
   icon = "add-black-18dp.svg";
   iconSVG = true;
   nodes: TreeNode[] | null = null;
@@ -41,6 +34,13 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
    * Real elements indexes (can be different from virtual dom)
    */
   indexes: number[] = [];
+  constructor(
+    private outlineService: OutlineService,
+    private selectionService: SelectionService,
+    propertiesService: PropertiesService
+  ) {
+    super(propertiesService);
+  }
   execute() {
     if (!this.committed) {
       // Perform initially action and store committed values.
@@ -57,7 +57,7 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
     this.nodes.forEach((node) => {
       const pathData = node.getPathData();
       this.items.forEach((p) => {
-        if (p.commandType === PathDataHandleType.Point && p.node === node) {
+        if (p.type === PathDataHandleType.point && p.node === node) {
           // data.deleteCommand(p.command);
         }
         // p.command.smooth();
@@ -72,7 +72,7 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
   init(items: PathDataHandle[]) {
     // Important, clone the reference to keep it for undo service
     const filtered = items.filter(
-      (p) => p.commandType === PathDataHandleType.Point
+      (p) => p.type === PathDataHandleType.point
     );
     this.items = [...filtered];
     this.nodes = Utils.distinctElement(items.map((p) => p.node));

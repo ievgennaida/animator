@@ -13,19 +13,17 @@ import {
 import { Utils } from "src/app/services/utils/utils";
 import { ViewService } from "src/app/services/view.service";
 import { AdornerType } from "src/app/models/adorner-type";
-import { MatrixUtils, PathDataUtils } from "../../../utils/matrix-utils";
+import { MatrixUtils } from "../../../utils/matrix-utils";
 import { TransformationModeIcon } from "../../../../models/transformation-mode";
 import { MatrixScaleAction } from "./matrix-scale-action";
+import { PathDataUtils } from "src/app/services/utils/path-data-utils";
 
 @Injectable({
   providedIn: "root",
 })
 export class PathScaleAction extends MatrixScaleAction {
-  constructor(propertiesService: PropertiesService, viewService: ViewService) {
-    super(propertiesService, viewService);
-  }
   title = "Scale";
-  icon = TransformationModeIcon.Scale;
+  icon = TransformationModeIcon.scale;
   started: DOMPoint | null = null;
   centerTransform: DOMPoint | null = null;
   /**
@@ -36,14 +34,17 @@ export class PathScaleAction extends MatrixScaleAction {
   attributesToStore = [PathDataPropertyKey, TransformPropertyKey];
   initialized = false;
   untransformOnStart = false;
-  init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
+  constructor(propertiesService: PropertiesService, viewService: ViewService) {
+    super(propertiesService, viewService);
+  }
+  init(node: TreeNode, screenPos: DOMPoint, handle: HandleData): void {
     this.node = node;
     this.handle = handle;
     this.pathHandles = handle?.getHandlesByNode(node);
     this.started = Utils.toElementPoint(this.node.getElement(), screenPos);
 
     this.untransformOnStart =
-      this.handle.adorner.type === AdornerType.TransformedElement;
+      this.handle.adorner.type === AdornerType.transformedElement;
     if (this.propertiesService.isCenterTransformSet(node)) {
       this.attributesToStore.push(CenterTransformX);
       this.attributesToStore.push(CenterTransformY);
@@ -74,6 +75,7 @@ export class PathScaleAction extends MatrixScaleAction {
   /**
    * Scale element by a matrix in screen coordinates and convert it back to the element coordinates.
    * Usage: element is transformed by itself, you can compose screen matrix and apply it to the element directly.
+   *
    * @param screenScaleMatrix screen coordinates matrix.
    */
   scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {
@@ -113,6 +115,7 @@ export class PathScaleAction extends MatrixScaleAction {
   }
   /**
    * Apply matrix to originally stored path data.
+   *
    * @param matrix to be applied.
    */
   transformInitialPathByMatrix(
@@ -138,7 +141,7 @@ export class PathScaleAction extends MatrixScaleAction {
   /**
    * Override. Remove transformations, keep current path data points at the same places.
    */
-  untransform() {
+  untransform(): void {
     const element = this.node.getElement();
     const currentTransform = MatrixUtils.getMatrix(this.node);
     // Remove current transformation from the node.

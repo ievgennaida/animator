@@ -13,6 +13,10 @@ import { SelectionService } from "./selection.service";
   providedIn: "root",
 })
 export class DocumentService {
+  /**
+   * Active document subject
+   */
+  documentSubject = new BehaviorSubject<InputDocument>(null);
   constructor(
     private appFactory: AppFactory,
     private propertiesService: PropertiesService,
@@ -27,11 +31,6 @@ export class DocumentService {
       this.onDocumentChanged(doc, true);
     });
   }
-
-  /**
-   * Active document subject
-   */
-  documentSubject = new BehaviorSubject<InputDocument>(null);
   public get document(): Observable<InputDocument> {
     return this.documentSubject.asObservable();
   }

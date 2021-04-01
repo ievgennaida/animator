@@ -25,6 +25,15 @@ import { BaseComponent } from "../../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OutlineComponent extends BaseComponent implements OnInit {
+  @ViewChild("treeScroll", { static: true, read: ElementRef })
+  treeScroll: ElementRef<HTMLElement>;
+  @Input() allowScroll = false;
+  scrollTop: any = 0;
+  smallDebounce = 10;
+  height: any = "";
+  dataSource = this.outlineService.flatDataSource;
+  treeControl = this.outlineService.treeControl;
+  commands: BaseCommand[] = [];
   constructor(
     private outlineService: OutlineService,
     private selectionService: SelectionService,
@@ -35,16 +44,6 @@ export class OutlineComponent extends BaseComponent implements OnInit {
     super();
     this.cdRef.detach();
   }
-
-  @ViewChild("treeScroll", { static: true, read: ElementRef })
-  treeScroll: ElementRef<HTMLElement>;
-  @Input() allowScroll = false;
-  scrollTop: any = 0;
-  smallDebounce = 10;
-  height: any = "";
-  dataSource = this.outlineService.flatDataSource;
-  treeControl = this.outlineService.treeControl;
-  commands: BaseCommand[] = [];
   ngOnInit(): void {
     this.commands = this.outlineCommandsService.getCommands();
     this.outlineCommandsService.scrollToSelectedCommand.executed
@@ -73,7 +72,7 @@ export class OutlineComponent extends BaseComponent implements OnInit {
         this.cdRef.detectChanges();
         if (
           consts.outlineAutoScrollToSelected &&
-          data.source !== StateChangedSource.Outline
+          data.source !== StateChangedSource.outline
         ) {
           this.scrollToSelected();
         }

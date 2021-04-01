@@ -1,14 +1,15 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { AdornerContainer } from "../models/adorner";
-import { AdornerPointType, AdornerType } from "../models/adorner-type";
+import { AdornerType } from "../models/adorner-type";
+import { AdornerPointType } from "../models/adorner-point-type";
 import { HandleData } from "../models/handle-data";
 import { TreeNode } from "../models/tree-node";
 import { PathDataSelectionSubject } from "./path-data-subject";
 
 export enum MouseOverMode {
-  Elements,
-  Containers,
+  elements,
+  containers,
 }
 export class MouseOverContainer {
   node: TreeNode | null = null;
@@ -17,12 +18,11 @@ export class MouseOverContainer {
   providedIn: "root",
 })
 export class MouseOverService {
-  constructor() {}
   /**
    * Mouse over mode.
    */
   mouseOverModeSubject = new BehaviorSubject<MouseOverMode>(
-    MouseOverMode.Elements
+    MouseOverMode.elements
   );
 
   /**
@@ -38,7 +38,7 @@ export class MouseOverService {
    * Mouse over path data handle
    */
   pathDataSubject = new PathDataSelectionSubject();
-
+  constructor() {}
   setMouseOverHandle(data: HandleData): boolean {
     if (data !== this.mouseOverHandle) {
       this.mouseOverHandleSubject.next(data);
@@ -89,7 +89,7 @@ export class MouseOverService {
       (adorner &&
         currentHandle.adorner &&
         currentHandle.adorner.node === adorner.node) ||
-      (currentHandle.adorner.type === AdornerType.Selection &&
+      (currentHandle.adorner.type === AdornerType.selection &&
         currentHandle.adorner.type === adorner.type)
     ) {
       return currentHandle.handle === data;
@@ -103,6 +103,7 @@ export class MouseOverService {
 
   /**
    * Selection mode list.
+   *
    * @param mode mouse over mode.
    */
   setMode(mode: MouseOverMode): void {

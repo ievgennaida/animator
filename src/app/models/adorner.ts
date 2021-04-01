@@ -1,11 +1,9 @@
 import { TreeNode } from "src/app/models/tree-node";
-import { IBBox } from "./interfaces/bbox";
 import { Utils } from "../services/utils/utils";
-import {
-  AdornerPointType,
-  AdornerType,
-  AdornerTypeUtils,
-} from "./adorner-type";
+import { AdornerPointType } from "./adorner-point-type";
+import { AdornerType } from "./adorner-type";
+import { AdornerTypeUtils } from "./adorner-type-utils";
+import { IBBox } from "./interfaces/bbox";
 
 /**
  * Adorner is a control points container.
@@ -16,25 +14,25 @@ export class Adorner implements IBBox {
     DOMPoint
   >();
   get topCenter(): DOMPoint | null {
-    return this.get(AdornerPointType.TopCenter);
+    return this.get(AdornerPointType.topCenter);
   }
   get bottomCenter(): DOMPoint | null {
-    return this.get(AdornerPointType.BottomCenter);
+    return this.get(AdornerPointType.bottomCenter);
   }
   get leftCenter(): DOMPoint | null {
-    return this.get(AdornerPointType.LeftCenter);
+    return this.get(AdornerPointType.leftCenter);
   }
   get rightCenter(): DOMPoint | null {
-    return this.get(AdornerPointType.RightCenter);
+    return this.get(AdornerPointType.rightCenter);
   }
   get bottomLeft(): DOMPoint | null {
-    return this.get(AdornerPointType.BottomLeft);
+    return this.get(AdornerPointType.bottomLeft);
   }
   get bottomRight(): DOMPoint | null {
-    return this.get(AdornerPointType.BottomRight);
+    return this.get(AdornerPointType.bottomRight);
   }
   get topLeft(): DOMPoint | null {
-    return this.get(AdornerPointType.TopLeft);
+    return this.get(AdornerPointType.topLeft);
   }
   get width(): number {
     if (!this.topLeft || !this.topRight) {
@@ -49,24 +47,25 @@ export class Adorner implements IBBox {
     return Utils.getDistance(this.topLeft, this.bottomLeft);
   }
   get topRight(): DOMPoint | null {
-    return this.get(AdornerPointType.TopRight);
+    return this.get(AdornerPointType.topRight);
   }
 
   get translate(): DOMPoint | null {
-    return this.get(AdornerPointType.Translate);
+    return this.get(AdornerPointType.translate);
   }
   /**
    * Center transform can be null, in this case it's means that it was unchanged.
    */
   get centerTransform(): DOMPoint | null {
-    return this.get(AdornerPointType.CenterTransform);
+    return this.get(AdornerPointType.centerTransform);
   }
   get center(): DOMPoint | null {
-    return this.get(AdornerPointType.Center);
+    return this.get(AdornerPointType.center);
   }
 
   /**
    * Initialize adorner from rect
+   *
    * @param bounds rectangle to decompose.
    */
   static fromDOMRect(rect: DOMRect): Adorner {
@@ -124,49 +123,50 @@ export class Adorner implements IBBox {
   }
   /**
    * Set new bounds to the rect.
+   *
    * @param bounds new rect bounds.
    */
   setRect(bounds: DOMRect): Adorner {
     if (!bounds) {
       return this;
     }
-    this.points.set(AdornerPointType.TopLeft, new DOMPoint(bounds.x, bounds.y));
+    this.points.set(AdornerPointType.topLeft, new DOMPoint(bounds.x, bounds.y));
     this.points.set(
-      AdornerPointType.TopRight,
+      AdornerPointType.topRight,
       new DOMPoint(bounds.x + bounds.width, bounds.y)
     );
     this.points.set(
-      AdornerPointType.BottomRight,
+      AdornerPointType.bottomRight,
       new DOMPoint(bounds.x + bounds.width, bounds.y + bounds.height)
     );
     this.points.set(
-      AdornerPointType.BottomLeft,
+      AdornerPointType.bottomLeft,
       new DOMPoint(bounds.x, bounds.y + bounds.height)
     );
 
     this.points.set(
-      AdornerPointType.TopCenter,
+      AdornerPointType.topCenter,
       new DOMPoint(bounds.x + bounds.width / 2, bounds.y)
     );
     this.points.set(
-      AdornerPointType.BottomCenter,
+      AdornerPointType.bottomCenter,
       new DOMPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height)
     );
     this.points.set(
-      AdornerPointType.LeftCenter,
+      AdornerPointType.leftCenter,
       new DOMPoint(bounds.x, bounds.y + bounds.height / 2)
     );
     this.points.set(
-      AdornerPointType.RightCenter,
+      AdornerPointType.rightCenter,
       new DOMPoint(bounds.x + bounds.width, bounds.y + bounds.height / 2)
     );
     const center = Utils.getRectCenter(bounds);
-    this.points.set(AdornerPointType.Center, center);
+    this.points.set(AdornerPointType.center, center);
     return this;
   }
 
-  setCenterTransform(center: DOMPoint | null) {
-    this.points.set(AdornerPointType.CenterTransform, center);
+  setCenterTransform(center: DOMPoint | null): void {
+    this.points.set(AdornerPointType.centerTransform, center);
   }
   /**
    * Compose rect back
@@ -225,12 +225,10 @@ export class AdornerContainer {
 
   enabled = true;
   element: Adorner = new Adorner();
-  private screenCache: Adorner;
-
   elementAdorner: Adorner;
   showHandles = true;
   showBounds = true;
-  type = AdornerType.TransformedElement;
+  type = AdornerType.transformedElement;
   node: TreeNode | null = null;
 
   get screen(): Adorner | null {
@@ -244,7 +242,9 @@ export class AdornerContainer {
     this.screenCache.setPoints(this.element.points, this.node.getScreenCTM());
     return this.screenCache;
   }
-  resetCache() {
+  private screenCache: Adorner;
+
+  resetCache(): void {
     this.screenCache = null;
   }
   /**
@@ -258,18 +258,18 @@ export class AdornerContainer {
   /**
    * Calculate translate handler point position
    */
-  calculateTranslatePosition(offsetX: number = 0, offsetY: number = 0) {
+  calculateTranslatePosition(offsetX: number = 0, offsetY: number = 0): void {
     const translate = this.screen.calculateTranslatePosition(
       offsetX || 0,
       offsetY || 0
     );
-    this.screen.set(AdornerPointType.Translate, translate);
+    this.screen.set(AdornerPointType.translate, translate);
     this.element.set(
-      AdornerPointType.Translate,
+      AdornerPointType.translate,
       Utils.toElementPoint(this.node, translate)
     );
   }
-  setCenterTransform(center: DOMPoint | null) {
+  setCenterTransform(center: DOMPoint | null): void {
     this.element.setCenterTransform(center);
     if (this.screenCache && center && this.node) {
       this.screenCache.setCenterTransform(
@@ -278,7 +278,7 @@ export class AdornerContainer {
     }
   }
 
-  setSelected(adornerType: AdornerPointType, selectedState = true) {
+  setSelected(adornerType: AdornerPointType, selectedState = true): void {
     this.selected.set(adornerType, selectedState);
   }
   isSelected(adornerType: AdornerPointType): boolean {

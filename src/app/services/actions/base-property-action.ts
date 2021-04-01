@@ -6,13 +6,12 @@ import { BaseAction } from "./base-action";
  * Base action that can used to store properties for the undo service.
  */
 export abstract class BasePropertiesStorageAction extends BaseAction {
-  constructor(protected propertiesService: PropertiesService) {
-    super();
-  }
-
   committed = false;
   initialValues = new Map<TreeNode, Map<string, any>>();
   committedValues = new Map<TreeNode, Map<string, any>>();
+  constructor(protected propertiesService: PropertiesService) {
+    super();
+  }
   saveInitialValues(nodes: TreeNode[], attributesToStore: string[]) {
     if (
       !this.initialValues ||

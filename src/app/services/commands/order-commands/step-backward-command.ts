@@ -1,10 +1,8 @@
 import { Injectable } from "@angular/core";
 import { merge, Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import {
-  OrderAction,
-  OrderMode,
-} from "../../actions/order-actions/order-action";
+import { OrderAction } from "../../actions/order-actions/order-action";
+import { OrderMode } from "../../actions/order-actions/order-mode";
 import { OutlineService } from "../../outline.service";
 import { SelectionService } from "../../selection.service";
 import { UndoService } from "../../undo.service";
@@ -16,6 +14,12 @@ import { UndoService } from "../../undo.service";
   providedIn: "root",
 })
 export class StepBackwardCommand implements BaseCommand {
+  changed = new Subject<BaseCommand>();
+  tooltip = "Send selected items one step back.";
+  title = "Step Backward";
+  icon = "vertical_align_bottom";
+  hotkey = "Page Down";
+  iconSVG = false;
   constructor(
     private selectionService: SelectionService,
     private outlineService: OutlineService,
@@ -26,12 +30,6 @@ export class StepBackwardCommand implements BaseCommand {
       this.outlineService.nodes
     ).subscribe(() => this.changed.next(this));
   }
-  changed = new Subject<BaseCommand>();
-  tooltip = "Send selected items one step back.";
-  title = "Step Backward";
-  icon = "vertical_align_bottom";
-  hotkey = "Page Down";
-  iconSVG = false;
   canExecute(): boolean {
     const selected = this.selectionService.getSelected();
     return OrderAction.canSendToBottom(selected);
@@ -44,7 +42,7 @@ export class StepBackwardCommand implements BaseCommand {
     const selected = this.selectionService.getSelected();
     action.icon = this.icon;
     action.iconSVG = this.iconSVG;
-    action.init(selected, OrderMode.OneStepBackwards);
+    action.init(selected, OrderMode.oneStepBackwards);
     this.undoService.startAction(action, true);
   }
 }

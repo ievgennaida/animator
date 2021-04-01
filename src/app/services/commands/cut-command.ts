@@ -15,14 +15,6 @@ import { RemoveElementCommand } from "./remove-element-command";
   providedIn: "root",
 })
 export class CutCommand extends RemoveElementCommand implements BaseCommand {
-  constructor(
-    selectionService: SelectionService,
-    undoService: UndoService,
-    logger: LoggerService,
-    private clipboardService: PasteService
-  ) {
-    super(selectionService, undoService, logger);
-  }
   nodes: TreeNode[];
   indexes: number[];
   changed: Subject<BaseCommand>;
@@ -32,6 +24,14 @@ export class CutCommand extends RemoveElementCommand implements BaseCommand {
   hotkey = "Ctrl+X";
   tooltip = `Cut selected items (${this.hotkey})`;
   iconSVG = false;
+  constructor(
+    selectionService: SelectionService,
+    undoService: UndoService,
+    logger: LoggerService,
+    private clipboardService: PasteService
+  ) {
+    super(selectionService, undoService, logger);
+  }
   canExecute(): boolean {
     return super.canExecute();
   }

@@ -20,6 +20,7 @@ import { BaseComponent } from "../../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolCommandsComponent extends BaseComponent implements OnInit {
+  commands: BaseCommand[] = [];
   constructor(
     private toolsService: ToolsService,
     private toolCommandsService: ToolsCommandsService,
@@ -28,10 +29,7 @@ export class ToolCommandsComponent extends BaseComponent implements OnInit {
     super();
     this.cdRef.detach();
   }
-
-  commands: BaseCommand[] = [];
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.commands = this.toolCommandsService.getToolCommands(
       this.toolsService.getActiveTool()
     );

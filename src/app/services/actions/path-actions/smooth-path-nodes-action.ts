@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 import {
-  PathDataHandle,
-  PathDataHandleType,
+  PathDataHandle
 } from "src/app/models/path-data-handle";
+import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
 import {
   PathDataPropertyKey,
-  PropertiesService,
+  PropertiesService
 } from "../../properties.service";
 import { SelectionService } from "../../selection.service";
 import { Utils } from "../../utils/utils";
@@ -20,13 +20,6 @@ import { BasePropertiesStorageAction } from "../base-property-action";
   providedIn: "root",
 })
 export class SmoothPathNodesAction extends BasePropertiesStorageAction {
-  constructor(
-    private outlineService: OutlineService,
-    private selectionService: SelectionService,
-    propertiesService: PropertiesService
-  ) {
-    super(propertiesService);
-  }
   icon = "smooth-path";
   iconSVG = true;
   nodes: TreeNode[] | null = null;
@@ -41,6 +34,13 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
    * Real elements indexes (can be different from virtual dom)
    */
   indexes: number[] = [];
+  constructor(
+    private outlineService: OutlineService,
+    private selectionService: SelectionService,
+    propertiesService: PropertiesService
+  ) {
+    super(propertiesService);
+  }
   execute() {
     if (!this.committed) {
       // Perform initially action and store committed values.
@@ -57,7 +57,7 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
     this.nodes.forEach((node) => {
       const pathData = node.getPathData();
       this.items.forEach((p) => {
-        if (p.type === PathDataHandleType.Point && p.node === node) {
+        if (p.type === PathDataHandleType.point && p.node === node) {
           // data.deleteCommand(p.command);
         }
         // p.command.smooth();
@@ -74,8 +74,8 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
     const filtered = items.filter(
       (p) =>
         !(
-          p.type === PathDataHandleType.HandleA ||
-          p.type === PathDataHandleType.HandleB
+          p.type === PathDataHandleType.handleA ||
+          p.type === PathDataHandleType.handleB
         )
     );
     this.items = [...filtered];

@@ -13,16 +13,6 @@ import { RemoveElementCommand } from "./remove-element-command";
   providedIn: "root",
 })
 export class RemoveSelectedCommand implements BaseCommand {
-  constructor(
-    protected removeElementCommand: RemoveElementCommand,
-    protected removePathNodesCommand: RemovePathNodesCommand
-  ) {
-    merge(
-      removeElementCommand.changed,
-      removePathNodesCommand.changed
-    ).subscribe(() => this.changed.next(this));
-  }
-
   title = "Delete";
   icon = "clear";
   hotkey = "Del";
@@ -32,7 +22,15 @@ export class RemoveSelectedCommand implements BaseCommand {
   // Store previous indexes of the elements
   indexes: number[] = [];
   changed = new Subject<BaseCommand>();
-
+  constructor(
+    protected removeElementCommand: RemoveElementCommand,
+    protected removePathNodesCommand: RemovePathNodesCommand
+  ) {
+    merge(
+      removeElementCommand.changed,
+      removePathNodesCommand.changed
+    ).subscribe(() => this.changed.next(this));
+  }
   canExecute(): boolean {
     if (
       this.removePathNodesCommand.canExecute() ||

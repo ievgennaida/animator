@@ -4,7 +4,7 @@ import { BaseCommand } from "src/app/services/commands/base-command";
 import { OutlineService } from "../../outline.service";
 import { ViewService } from "../../view.service";
 
-const WireframeClassName = "wireframe";
+const WIREFRAME_CLASS = "wireframe";
 /**
  * Command to remove matrix transform.
  * Untransform matrix and preserve position of all path data points.
@@ -13,6 +13,26 @@ const WireframeClassName = "wireframe";
   providedIn: "root",
 })
 export class WireframeCommand implements BaseCommand {
+
+  changed = new Subject<BaseCommand>();
+  get active(): boolean {
+    return this.viewService.playerHost.classList.contains(WIREFRAME_CLASS);
+  }
+  set active(val: boolean) {
+    if (this.active === val) {
+      return;
+    }
+    if (!val) {
+      this.viewService.playerHost.classList.remove(WIREFRAME_CLASS);
+    } else {
+      this.viewService.playerHost.classList.add(WIREFRAME_CLASS);
+    }
+  }
+  tooltip = "Show current svg in wireframe mode.";
+  title = "Wireframe";
+  align = "right";
+  icon: string | null = null;
+  iconSVG = false;
   constructor(
     private outline: OutlineService,
     private viewService: ViewService
@@ -21,25 +41,6 @@ export class WireframeCommand implements BaseCommand {
       .asObservable()
       .subscribe(() => this.changed.next(this));
   }
-  changed = new Subject<BaseCommand>();
-  get active(): boolean {
-    return this.viewService.playerHost.classList.contains(WireframeClassName);
-  }
-  set active(val: boolean) {
-    if (this.active === val) {
-      return;
-    }
-    if (!val) {
-      this.viewService.playerHost.classList.remove(WireframeClassName);
-    } else {
-      this.viewService.playerHost.classList.add(WireframeClassName);
-    }
-  }
-  tooltip = "Show current svg in wireframe mode.";
-  title = "Wireframe";
-  align = "right";
-  icon: string | null = null;
-  iconSVG = false;
   canExecute(): boolean {
     return this.outline.rootNode != null && this.viewService.playerHost != null;
   }

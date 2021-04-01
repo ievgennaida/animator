@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { PathDataHandleType } from "src/app/models/path-data-handle";
+import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { PathDirectSelectionToolMode } from "src/app/models/path-direct-selection-tool-mode";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
@@ -19,6 +19,8 @@ import { BaseRenderer } from "./base.renderer";
   providedIn: "root",
 })
 export class PathRenderer extends BaseRenderer {
+  debugHandle: NearestCommandPoint = null;
+  private mode = PathDirectSelectionToolMode.select;
   constructor(
     protected viewService: ViewService,
     protected logger: LoggerService,
@@ -28,9 +30,6 @@ export class PathRenderer extends BaseRenderer {
     super();
     this.suspend();
   }
-
-  debugHandle: NearestCommandPoint = null;
-  private mode = PathDirectSelectionToolMode.Select;
   set drawMode(value: PathDirectSelectionToolMode) {
     if (value !== this.mode) {
       this.mode = value;
@@ -136,7 +135,7 @@ export class PathRenderer extends BaseRenderer {
           const isSelected = this.selectionService.pathDataSubject.getHandle(
             node,
             command,
-            PathDataHandleType.Point
+            PathDataHandleType.point
           );
 
           if (this.logger.isDebug() && this.debugHandle) {
@@ -188,8 +187,8 @@ export class PathRenderer extends BaseRenderer {
       .getValues()
       .filter(
         (p) =>
-          p.type === PathDataHandleType.Curve &&
-          this.drawMode === PathDirectSelectionToolMode.Add
+          p.type === PathDataHandleType.curve &&
+          this.drawMode === PathDirectSelectionToolMode.add
       );
     values.forEach((handler) => {
       const matrix = handler?.node?.getScreenCTM();
@@ -220,7 +219,7 @@ export class PathRenderer extends BaseRenderer {
     const isCurveSelected = !!this.mouseOverService.pathDataSubject.getHandle(
       node,
       abs,
-      PathDataHandleType.Curve
+      PathDataHandleType.curve
     );
 
     const outlineColor = consts.outlineSelectedStrokeColor;
@@ -233,13 +232,13 @@ export class PathRenderer extends BaseRenderer {
       isHandleASelected = !!this.mouseOverService.pathDataSubject.getHandle(
         node,
         abs,
-        PathDataHandleType.HandleA
+        PathDataHandleType.handleA
       );
 
       isHandleBSelected = !!this.mouseOverService.pathDataSubject.getHandle(
         node,
         abs,
-        PathDataHandleType.HandleB
+        PathDataHandleType.handleB
       );
     }
 

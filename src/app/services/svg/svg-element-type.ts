@@ -34,7 +34,7 @@ export enum SVGElementType {
   glyphRef = "glyphref",
   linearGradient = "lineargradient",
   radialGradient = "radialgradient",
-  Mask = "mask",
+  mask = "mask",
   none = "none",
   doc = "doc",
 }

@@ -1,19 +1,19 @@
 import {
-  Component,
-  OnInit,
-  OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
 } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
-import { TreeNode } from "src/app/models/tree-node";
-import { PropertiesService } from "src/app/services/properties.service";
 import { Properties } from "src/app/models/properties/properties";
 import { Property } from "src/app/models/properties/property";
+import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "src/app/services/outline.service";
+import { PropertiesService } from "src/app/services/properties.service";
 import { SelectionService } from "src/app/services/selection.service";
+import { State } from "src/app/services/state-subject";
 import { BaseComponent } from "../base-component";
-import { State } from 'src/app/services/state-subject';
 
 @Component({
   selector: "app-properties",
@@ -21,8 +21,16 @@ import { State } from 'src/app/services/state-subject';
   styleUrls: ["./properties.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PropertiesComponent extends BaseComponent
+export class PropertiesComponent
+  extends BaseComponent
   implements OnInit, OnDestroy {
+  node: TreeNode | null = null;
+  icon: string | null = null;
+  properties: Properties | null = null;
+  nameProperty: Property | null = null;
+  name: string | null = null;
+  type: string | null = null;
+  namePropertiesVisible = false;
   constructor(
     private propertiesService: PropertiesService,
     private outlineService: OutlineService,
@@ -33,14 +41,7 @@ export class PropertiesComponent extends BaseComponent
     this.cdRef.detach();
   }
 
-  node: TreeNode = null;
-  icon: string = null;
-  properties: Properties = null;
-  nameProperty: Property = null;
-  name: string = null;
-  type: string = null;
-  namePropertiesVisible = false;
-  ngOnInit() {
+  ngOnInit(): void {
     this.selectionService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p: State<TreeNode>) => {
@@ -90,7 +91,7 @@ export class PropertiesComponent extends BaseComponent
       });
   }
 
-  onNameFocusOut(event) {
+  onNameFocusOut(event): void {
     if (this.node && this.node.nameProperty) {
       this.node.nameProperty.setValue(event.target.value);
       this.propertiesService.emitPropertyChanged(this.node.nameProperty);

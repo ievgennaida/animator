@@ -11,10 +11,11 @@ export class ContextEventArgs {
   providedIn: "root",
 })
 export class ContextMenuService {
-  constructor() {}
-  private trigger: MatMenuTrigger = null;
-  private container: HTMLElement = null;
   openSubject = new Subject<ContextEventArgs>();
+  private trigger: MatMenuTrigger | null = null;
+  private container: HTMLElement | null = null;
+
+  constructor() {}
   setElement(container: HTMLElement) {
     this.container = container;
   }

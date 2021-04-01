@@ -17,11 +17,8 @@ import { TransformationModeIcon } from "../../../../models/transformation-mode";
   providedIn: "root",
 })
 export class CenterElementTranslateAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
   title = "Center Transform";
-  icon = TransformationModeIcon.Move;
+  icon = TransformationModeIcon.move;
 
   /**
    * Start mouse click position in element coordinates.
@@ -29,6 +26,9 @@ export class CenterElementTranslateAction extends BaseTransformAction {
   offset: DOMPoint | null = null;
   committed = false;
   moveSelectionHandle = false;
+  constructor(propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
     this.handle = handle;

@@ -1,14 +1,14 @@
 export enum TransformationMode {
-  None = "None",
-  Skew = "Skew",
-  Translate = "Move",
-  Scale = "Scale",
-  Rotate = "Rotate",
+  none = "None",
+  skew = "Skew",
+  translate = "Move",
+  scale = "Scale",
+  rotate = "Rotate",
 }
 
 export enum TransformationModeIcon {
-  None = "None",
-  Move = "open_with",
-  Scale = "aspect_ratio",
-  Rotate = "loop",
+  none = "None",
+  move = "open_with",
+  scale = "aspect_ratio",
+  rotate = "loop",
 }

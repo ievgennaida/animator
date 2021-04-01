@@ -10,10 +10,8 @@ import {
 } from "@angular/core";
 import { merge } from "rxjs";
 import { takeUntil, throttleTime } from "rxjs/operators";
-import {
-  PathDataHandle,
-  PathDataHandleType,
-} from "src/app/models/path-data-handle";
+import { PathDataHandle } from "src/app/models/path-data-handle";
+import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { Property } from "src/app/models/properties/property";
@@ -46,6 +44,18 @@ interface PathDataNode {
 export class PathDataEditorComponent
   extends BaseComponent
   implements OnInit, OnDestroy {
+  private static prevSelected: PathDataNode | null = null;
+  @ViewChild("virtual", { static: true, read: ElementRef })
+  virtualElementRef: ElementRef<HTMLElement> | null = null;
+  @ViewChild("virtual", { static: true })
+  virtual: CdkVirtualScrollViewport | null = null;
+  @Input()
+  property: Property | null = null;
+  nextTickTimeout = 10;
+
+  items: PathDataNode[] = [];
+  commands: BaseCommand[] = [];
+
   constructor(
     private propertiesService: PropertiesService,
     private mouseOverService: MouseOverService,
@@ -55,16 +65,8 @@ export class PathDataEditorComponent
     super();
     cdRef.detach();
   }
-  private static prevSelected: PathDataNode = null;
-  @ViewChild("virtual", { static: true, read: ElementRef })
-  virtualElementRef: ElementRef<HTMLElement>;
-  nextTickTimeout = 10;
-  @ViewChild("virtual", { static: true }) virtual: CdkVirtualScrollViewport;
-  items: PathDataNode[] = [];
-  commands: BaseCommand[] = [];
-  @Input()
-  property: Property = null;
-  updateView() {
+
+  updateView(): void {
     if (!this.property) {
       return;
     }
@@ -78,19 +80,19 @@ export class PathDataEditorComponent
     const data = pathData?.commands || [];
     const mouseOverPoints = this.mouseOverService.pathDataSubject
       .getValues()
-      .filter((p) => p.type === PathDataHandleType.Point);
+      .filter((p) => p.type === PathDataHandleType.point);
     const selectedPathData = this.selectionService.pathDataSubject
       .getValues()
-      .filter((p) => p.type === PathDataHandleType.Point);
+      .filter((p) => p.type === PathDataHandleType.point);
     if (this.items?.length !== data?.length) {
       PathDataEditorComponent.prevSelected = null;
     }
     this.items = data.map((p) => {
       const mouseOver = !!mouseOverPoints.find((overHandle) =>
-        overHandle.isHandle(this.property.node, p, PathDataHandleType.Point)
+        overHandle.isHandle(this.property.node, p, PathDataHandleType.point)
       );
       const isSelected = !!selectedPathData.find((overHandle) =>
-        overHandle.isHandle(this.property.node, p, PathDataHandleType.Point)
+        overHandle.isHandle(this.property.node, p, PathDataHandleType.point)
       );
       return {
         title: p.saveAsRelative ? p.type.toLocaleLowerCase() : p.type,
@@ -147,7 +149,7 @@ export class PathDataEditorComponent
     }, this.nextTickTimeout);
   }
 
-  onScrolled() {
+  onScrolled(): void {
     this.cdRef.detectChanges();
   }
   onRightClick(event: MouseEvent, node: PathDataNode): void {
@@ -167,11 +169,11 @@ export class PathDataEditorComponent
     return pathDataHandle;
   }
   setSelected(node: PathDataNode, ctrlKey = false, shiftKey = false): void {
-    let mode = ChangeStateMode.Normal;
+    let mode = ChangeStateMode.normal;
     const nodes: PathDataNode[] = [];
     if (ctrlKey) {
       nodes.push(node);
-      mode = ChangeStateMode.Revert;
+      mode = ChangeStateMode.revert;
       PathDataEditorComponent.prevSelected = node;
     } else if (shiftKey) {
       const selected = PathDataEditorComponent.prevSelected;

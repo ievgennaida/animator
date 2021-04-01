@@ -12,12 +12,6 @@ import { StepForwardCommand } from "./step-forward-command";
   providedIn: "root",
 })
 export class OrderGroupCommand implements BaseCommand {
-  constructor(
-    private bringToFrontCommand: BringToFrontCommand,
-    private stepForwardCommand: StepForwardCommand,
-    private stepBackwardCommand: StepBackwardCommand,
-    private sendToBottomCommand: SendToBottomCommand
-  ) {}
   title = "Order";
   commands: BaseCommand[] = [
     this.bringToFrontCommand,
@@ -25,4 +19,10 @@ export class OrderGroupCommand implements BaseCommand {
     this.stepBackwardCommand,
     this.sendToBottomCommand,
   ];
+  constructor(
+    private bringToFrontCommand: BringToFrontCommand,
+    private stepForwardCommand: StepForwardCommand,
+    private stepBackwardCommand: StepBackwardCommand,
+    private sendToBottomCommand: SendToBottomCommand
+  ) {}
 }

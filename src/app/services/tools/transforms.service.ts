@@ -14,9 +14,9 @@ import { Utils } from "../utils/utils";
   providedIn: "root",
 })
 export class TransformsService {
-  constructor(private undoService: UndoService) {}
   transformedSubject = new Subject();
   activeAction: TransformAction | null = null;
+  constructor(private undoService: UndoService) {}
   /*
    * Transformed observable.
    */
@@ -32,7 +32,7 @@ export class TransformsService {
    * Get current active transform mode.
    */
   get activeMode(): TransformationMode {
-    return this.activeAction?.mode || TransformationMode.None;
+    return this.activeAction?.mode || TransformationMode.none;
   }
   /**
    * Is transformation transaction running

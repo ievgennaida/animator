@@ -25,7 +25,7 @@ export class PanTool extends BaseTool {
   }
   onActivate() {
     this.mouseOverRenderer.suspend(true);
-    this.cursor.setCursor(CursorType.Grab);
+    this.cursor.setCursor(CursorType.grab);
   }
   onDeactivate() {
     this.mouseOverRenderer.resume();
@@ -48,11 +48,11 @@ export class PanTool extends BaseTool {
     this.mouseDownPos = event.screenPoint.matrixTransform(
       this.svgMatrix.inverse()
     );
-    this.cursor.setCursor(CursorType.Grabbing);
+    this.cursor.setCursor(CursorType.grabbing);
   }
 
   cleanUp() {
-    this.cursor.setCursor(CursorType.Grab);
+    this.cursor.setCursor(CursorType.grab);
     this.mouseDownPos = null;
   }
   onWindowMouseMove(event: MouseEventArgs) {
@@ -102,6 +102,7 @@ export class PanTool extends BaseTool {
 
   /**
    * fit the pan to the scene.
+   *
    * @param rect rectangle to fit view for. use player svg if null.
    */
   fit(rect: DOMRect = null) {

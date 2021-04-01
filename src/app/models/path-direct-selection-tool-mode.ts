@@ -2,13 +2,13 @@ export enum PathDirectSelectionToolMode {
   /**
    * Select and manipulate nodes.
    */
-  Select,
+  select,
   /**
    * Add new path data nodes.
    */
-  Add,
+  add,
   /**
    * Remove existing path data nodes.
    */
-  Erase,
+  erase,
 }

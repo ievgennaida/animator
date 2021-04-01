@@ -12,17 +12,17 @@ import { BaseRenderer } from "./base.renderer";
   providedIn: "root",
 })
 export class MouseOverRenderer extends BaseRenderer {
+  /**
+   * Draw path outline on mouse over when possible.
+   */
+  enableDrawPathOutline = false;
+  node: TreeNode;
   constructor(
     private mouseOverService: MouseOverService,
     private adornersService: AdornersService
   ) {
     super();
   }
-  /**
-   * Draw path outline on mouse over when possible.
-   */
-  enableDrawPathOutline = false;
-  node: TreeNode;
   setMouseOver(node: TreeNode): void {
     if (this.node !== node) {
       this.node = node;

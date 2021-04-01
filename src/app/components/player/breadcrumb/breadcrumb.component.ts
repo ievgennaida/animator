@@ -1,17 +1,16 @@
 import {
-  Component,
-  OnInit,
   ChangeDetectionStrategy,
-  OnDestroy,
   ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
 } from "@angular/core";
-
-import { SelectionService } from "src/app/services/selection.service";
 import { takeUntil } from "rxjs/operators";
-import { Breadcrumb } from "./breadcrumb-item/breadcrumb-item.component";
 import { TreeNode } from "src/app/models/tree-node";
-import { BaseComponent } from '../../base-component';
-import { State } from 'src/app/services/state-subject';
+import { SelectionService } from "src/app/services/selection.service";
+import { State } from "src/app/services/state-subject";
+import { BaseComponent } from "../../base-component";
+import { Breadcrumb } from "./breadcrumb-item/breadcrumb-item.component";
 
 @Component({
   selector: "app-breadcrumb",
@@ -19,7 +18,12 @@ import { State } from 'src/app/services/state-subject';
   styleUrls: ["./breadcrumb.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbComponent extends BaseComponent implements OnInit, OnDestroy {
+export class BreadcrumbComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy {
+  empty = new Breadcrumb();
+
+  items: Breadcrumb[] = [];
   constructor(
     private selectionService: SelectionService,
     private cdRef: ChangeDetectorRef
@@ -27,15 +31,12 @@ export class BreadcrumbComponent extends BaseComponent implements OnInit, OnDest
     super();
     this.cdRef.detach();
   }
-  empty = new Breadcrumb();
-
-  items: Breadcrumb[] = [];
   ngOnInit(): void {
     this.empty.title = "None";
     this.selectionService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((event: State<TreeNode>) => {
-        if (event.any()) {
+        if (event.hasAny()) {
           if (event.values.length === 1) {
             this.items.length = 0;
             const selected = event.values[0];

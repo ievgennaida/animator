@@ -2,9 +2,9 @@ import { Injectable } from "@angular/core";
 import { merge, Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import {
-  OrderAction,
-  OrderMode,
+  OrderAction
 } from "../../actions/order-actions/order-action";
+import { OrderMode } from "../../actions/order-actions/order-mode";
 import { OutlineService } from "../../outline.service";
 import { SelectionService } from "../../selection.service";
 import { UndoService } from "../../undo.service";
@@ -15,6 +15,12 @@ import { UndoService } from "../../undo.service";
   providedIn: "root",
 })
 export class SendToBottomCommand implements BaseCommand {
+  changed = new Subject<BaseCommand>();
+  tooltip = "Send selected items to bottom.";
+  title = "Send To Back";
+  icon = "flip_to_back";
+  hotkey = "End";
+  iconSVG = false;
   constructor(
     private selectionService: SelectionService,
     private outlineService: OutlineService,
@@ -25,13 +31,6 @@ export class SendToBottomCommand implements BaseCommand {
       this.outlineService.nodes
     ).subscribe(() => this.changed.next(this));
   }
-  changed = new Subject<BaseCommand>();
-  tooltip = "Send selected items to bottom.";
-  title = "Send To Back";
-  icon = "flip_to_back";
-  hotkey = "End";
-  iconSVG = false;
-
   canExecute(): boolean {
     const selected = this.selectionService.getSelected();
     return OrderAction.canSendToBottom(selected);
@@ -44,7 +43,7 @@ export class SendToBottomCommand implements BaseCommand {
     const selected = this.selectionService.getSelected();
     action.icon = this.icon;
     action.iconSVG = this.iconSVG;
-    action.init(selected, OrderMode.Back);
+    action.init(selected, OrderMode.back);
     this.undoService.startAction(action, true);
   }
 }

@@ -15,6 +15,7 @@ import { BaseComponent } from "../../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationComponent extends BaseComponent implements OnInit {
+  message: string | null = null;
   constructor(
     private notificationService: NotificationService,
     private cdRef: ChangeDetectorRef
@@ -23,7 +24,6 @@ export class NotificationComponent extends BaseComponent implements OnInit {
     this.cdRef.detach();
   }
 
-  message: string | null = null;
   ngOnInit(): void {
     this.notificationService.notificationSubject
       .asObservable()

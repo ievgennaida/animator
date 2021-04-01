@@ -1,9 +1,5 @@
 import { Injectable } from "@angular/core";
-import {
-  AdornerPointType,
-  AdornerType,
-  AdornerTypeUtils,
-} from "src/app/models/adorner-type";
+import { AdornerType } from "src/app/models/adorner-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import {
@@ -16,6 +12,8 @@ import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
 import { TransformationModeIcon } from "../../../../models/transformation-mode";
+import { AdornerTypeUtils } from "src/app/models/adorner-type-utils";
+import { AdornerPointType } from "src/app/models/adorner-point-type";
 
 /**
  * Matrix scale in screen rectangle coordinates.
@@ -24,37 +22,37 @@ import { TransformationModeIcon } from "../../../../models/transformation-mode";
   providedIn: "root",
 })
 export class MatrixScaleAction extends BaseTransformAction {
+  title = "Scale";
+  icon = TransformationModeIcon.scale;
+
+  /**
+   * Start click position in anchor coordinates.
+   */
+  start: DOMPoint | null = null;
+
+  /**
+   * Transformation coordinates anchor.
+   */
+  anchor: SVGGraphicsElement | null = null;
+  transformElementCoordinates = false;
+  /**
+   * Transform origin.
+   */
+  transformOrigin: DOMPoint | null = null;
+
+  initTransformMatrix: DOMMatrix | null = null;
   constructor(
     propertiesService: PropertiesService,
     protected viewService: ViewService
   ) {
     super(propertiesService);
   }
-  title = "Scale";
-  icon = TransformationModeIcon.Scale;
-
-  /**
-   * Start click position in anchor coordinates.
-   */
-  start: DOMPoint = null;
-
-  /**
-   * Transformation coordinates anchor.
-   */
-  anchor: SVGGraphicsElement = null;
-  transformElementCoordinates = false;
-  /**
-   * Transform origin.
-   */
-  transformOrigin: DOMPoint = null;
-
-  initTransformMatrix: DOMMatrix = null;
-  init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
+  init(node: TreeNode, screenPos: DOMPoint, handle: HandleData): void {
     this.handle = handle;
     this.start = screenPos;
     this.node = node;
     this.transformElementCoordinates =
-      this.handle.type === AdornerType.TransformedElement;
+      this.handle.type === AdornerType.transformedElement;
 
     const screenAdorner = this.handle?.adorner?.screen;
     if (this.transformElementCoordinates) {
@@ -121,6 +119,7 @@ export class MatrixScaleAction extends BaseTransformAction {
   /**
    * Scale in screen coordinates.
    * Used to scale groups and element by bounds adorners.
+   *
    * @param screenPos new screen position.
    */
   scaleByMouse(screenPos: DOMPoint): boolean {
@@ -166,13 +165,13 @@ export class MatrixScaleAction extends BaseTransformAction {
     let scaleY = newHeight / initialHeight;
     let scaleX = newWidth / initialWidth;
     if (
-      adornerPoint === AdornerPointType.TopCenter ||
-      adornerPoint === AdornerPointType.BottomCenter
+      adornerPoint === AdornerPointType.topCenter ||
+      adornerPoint === AdornerPointType.bottomCenter
     ) {
       scaleX = null;
     } else if (
-      adornerPoint === AdornerPointType.RightCenter ||
-      adornerPoint === AdornerPointType.LeftCenter
+      adornerPoint === AdornerPointType.rightCenter ||
+      adornerPoint === AdornerPointType.leftCenter
     ) {
       scaleY = null;
     }
@@ -183,6 +182,7 @@ export class MatrixScaleAction extends BaseTransformAction {
   /**
    * Scale element by a matrix in screen coordinates and convert it back to the element coordinates.
    * Usage: element is transformed by itself, you can compose screen matrix and apply it to the element directly.
+   *
    * @param screenScaleMatrix screen coordinates matrix.
    */
   scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {

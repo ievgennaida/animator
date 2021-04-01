@@ -1,4 +1,4 @@
-<mat-menu #menu="matMenu">
+<mat-menu #matMenu="matMenu">
     <div *ngFor="let command of commands">
         <div *ngIf="command && command.commands">
             <app-dynamic-context-menu #subMenu [commands]="command.commands"></app-dynamic-context-menu>

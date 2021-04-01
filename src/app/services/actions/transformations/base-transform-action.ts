@@ -4,10 +4,6 @@ import { PropertiesService } from "../../properties.service";
 import { BasePropertiesStorageAction } from "../base-property-action";
 
 export abstract class BaseTransformAction extends BasePropertiesStorageAction {
-  constructor(protected propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
-
   committed = false;
   node: TreeNode | null = null;
   handle: HandleData | null = null;
@@ -16,6 +12,9 @@ export abstract class BaseTransformAction extends BasePropertiesStorageAction {
    * Set points to be displayed.
    */
   debugPoints: DOMPoint[] = [];
+  constructor(protected propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
   getScreenTransformOrigin(): DOMPoint | null {
     const screen = this.handle?.adorner?.screen;
     return screen.centerTransform || screen.center;

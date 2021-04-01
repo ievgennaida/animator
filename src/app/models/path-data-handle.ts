@@ -1,3 +1,4 @@
+import { PathDataHandleType } from "./path-data-handle-type";
 import { PathData } from "./path/path-data";
 import { PathDataCommand } from "./path/path-data-command";
 import { TreeNode } from "./tree-node";
@@ -8,7 +9,7 @@ export class PathDataHandle {
   constructor(
     public node: TreeNode,
     public command: PathDataCommand,
-    public type: PathDataHandleType = PathDataHandleType.Point,
+    public type: PathDataHandleType = PathDataHandleType.point,
     /**
      * Intersection point
      */
@@ -50,22 +51,4 @@ export class PathDataHandle {
     }
     return false;
   }
-}
-export enum PathDataHandleType {
-  /**
-   * Path data point.
-   */
-  Point,
-  /**
-   * Handle\Control point for a path data.
-   */
-  HandleA,
-  /**
-   * Handle\Control point for a path data.
-   */
-  HandleB,
-  /**
-   * Selected bezier curve or a line between two path data commands.
-   */
-  Curve,
 }

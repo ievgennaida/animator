@@ -9,13 +9,14 @@ import { BaseCommand } from "./base-command";
   providedIn: "root",
 })
 export class CollapseAllCommand implements BaseCommand {
-  constructor(private outlineService: OutlineService) {}
 
   tooltip = "Collapse all tree nodes.";
   title = "Collapse all";
   icon = "remove";
   hotkey = "";
   iconSVG = false;
+  constructor(private outlineService: OutlineService) {}
+
   canExecute(): boolean {
     return true;
   }

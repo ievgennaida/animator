@@ -13,17 +13,16 @@ import { TransformationModeIcon } from "../../../../models/transformation-mode";
   providedIn: "root",
 })
 export class MatrixTranslateAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
   title = "Move";
-  icon = TransformationModeIcon.Move;
+  icon = TransformationModeIcon.move;
   /**
    * Start click position in anchor coordinates.
    */
   start: DOMPoint = null;
   node: TreeNode = null;
-
+  constructor(propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     const element = node.getElement();

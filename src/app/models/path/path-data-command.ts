@@ -4,7 +4,7 @@
  * https://www.w3.org/TR/SVG/paths.html
  */
 
-// tslint:disable: variable-name
+/* eslint-disable @typescript-eslint/naming-convention, no-underscore-dangle, id-blacklist, id-match */
 import { PathType } from "src/app/models/path/path-type";
 import { arcToCubicCurves } from "src/app/services/utils/path-utils/arc-functions";
 import { PointOnPathUtils } from "src/app/services/utils/path-utils/point-on-path";
@@ -23,6 +23,34 @@ export interface SVGPathSegmentEx {
  * relative or absolute by setting saveAsRelative.
  */
 export class PathDataCommand implements SVGPathSegmentEx {
+  public _a: DOMPoint;
+  public _b: DOMPoint;
+  public _x = 0;
+  public _y = 0;
+
+  /**
+   * Cached segment length.
+   */
+  public _length: number | null = null;
+  /*
+   * Editor is working with absolute values.
+   * This is a type of the initial command to preserve original rel or abs when saved.
+   */
+  saveAsRelative = false;
+  /**
+   * Cached calculated arc center and rx, ry.
+   * Smaller Rx and Ry can be given for a command than the expected one.
+   */
+  private ellipseCache: CalculatedEllipse | null = null;
+  private approxCurves: number[][] | null = null;
+  private pointsCache = new Map<number, DOMPoint>();
+  /**
+   * Indication whether control point A is changed.
+   * Used for changes tracking.
+   */
+  private _changedA = false;
+  private _changedB = false;
+  private _changedP = false;
   constructor(
     public type: PathType | string,
     public values: number[] = [],
@@ -31,35 +59,6 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.saveAsRelative = this.isRelative(type);
   }
 
-  public _a: DOMPoint;
-  public _b: DOMPoint;
-  public _x = 0;
-  public _y = 0;
-
-  /**
-   * Indication whether control point A is changed.
-   * Used for changes tracking.
-   */
-  private _changedA = false;
-  private _changedB = false;
-  private _changedP = false;
-
-  private pointsCache = new Map<number, DOMPoint>();
-  /**
-   * Cached segment length.
-   */
-  public _length: number | null = null;
-  /**
-   * Cached calculated arc center and rx, ry.
-   * Smaller Rx and Ry can be given for a command than the expected one.
-   */
-  private ellipseCache: CalculatedEllipse | null = null;
-  private approxCurves: number[][] | null = null;
-  /*
-   * Editor is working with absolute values.
-   * This is a type of the initial command to preserve original rel or abs when saved.
-   */
-  saveAsRelative = false;
   static isPathCommandType(
     commandType: PathType | string,
     type: PathType | string
@@ -69,7 +68,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       commandType.toUpperCase() === type.toString().toUpperCase();
     return same;
   }
-  static isAbsolutePathCommand(type: PathType | string) {
+  static isAbsolutePathCommand(type: PathType | string): boolean {
     if (!type || type.length === 0) {
       return true;
     }
@@ -131,15 +130,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     }
     return this.pathData.commands.indexOf(this);
   }
-  /**
-   * Cleanup cached calculations.
-   */
-  private cleanCache() {
-    this.ellipseCache = null;
-    this.approxCurves = null;
-    this._length = null;
-    this.pointsCache.clear();
-  }
+
   public cloneCommand(): PathDataCommand {
     const cloned = new PathDataCommand(this.type, [...this.values]);
     cloned.saveAsRelative = this.saveAsRelative;
@@ -829,5 +820,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
     );
     // TODO: implement for the optimization
     return null;
+  }
+  /**
+   * Cleanup cached calculations.
+   */
+  private cleanCache() {
+    this.ellipseCache = null;
+    this.approxCurves = null;
+    this._length = null;
+    this.pointsCache.clear();
   }
 }

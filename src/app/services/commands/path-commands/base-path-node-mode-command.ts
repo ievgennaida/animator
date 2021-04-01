@@ -12,6 +12,13 @@ import { UndoService } from "../../undo.service";
   providedIn: "root",
 })
 export class BasePathNodesCommand implements BaseCommand {
+  expectedMode = PathDirectSelectionToolMode.add;
+  changed = new Subject<BaseCommand>();
+  iconSVG = true;
+  get active() {
+    // Don't allow to change mode during the running transaction:
+    return this.pathDirectSelectionTool.mode === this.expectedMode;
+  }
   constructor(
     private pathDirectSelectionTool: PathDirectSelectionTool,
     private undoService: UndoService
@@ -20,13 +27,6 @@ export class BasePathNodesCommand implements BaseCommand {
       this.undoService.actionIndexSubject,
       pathDirectSelectionTool.modeSubject
     ).subscribe(() => this.changed.next(this));
-  }
-  expectedMode = PathDirectSelectionToolMode.Add;
-  changed = new Subject<BaseCommand>();
-  iconSVG = true;
-  get active() {
-    // Don't allow to change mode during the running transaction:
-    return this.pathDirectSelectionTool.mode === this.expectedMode;
   }
   canExecute(): boolean {
     // No running action:

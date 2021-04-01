@@ -22,24 +22,25 @@ import { BaseComponent } from "../base-component";
 export class DynamicContextMenuComponent
   extends BaseComponent
   implements OnInit {
+  @ViewChild("matMenu") public matMenu: MatMenu;
+
+  public commands: BaseCommand[] | null = [];
+  // eslint-disable-next-line @angular-eslint/no-input-rename
+  @Input("commands") set setCommand(commands: BaseCommand[]) {
+    this.subscribeCommands(commands);
+  }
   protected commandChanged$ = new Subject<BaseCommand>();
+
   constructor(
     private commandExecutor: CommandsExecutorService,
     private cdRef: ChangeDetectorRef
   ) {
     super();
   }
-  @ViewChild("menu") public matMenu: MatMenu;
-
-  public commands: BaseCommand[] | null = [];
-  @Input("commands") set setCommand(commands: BaseCommand[]) {
-    this.subscribeCommands(commands);
-  }
-
   render(): void {
     this.cdRef.markForCheck();
   }
-  subscribeCommands(commands: Array<BaseCommand>) {
+  subscribeCommands(commands: Array<BaseCommand>): void {
     // Notify to unsubscribe current subscribed list if any:
     this.commandChanged$.next();
 

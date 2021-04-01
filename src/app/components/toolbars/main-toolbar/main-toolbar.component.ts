@@ -8,10 +8,8 @@ import {
   OnInit,
 } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
-import {
-  InputDocument,
-  InputDocumentType,
-} from "src/app/models/input-document";
+import { InputDocument } from "src/app/models/input-document";
+import { InputDocumentType } from "src/app/models/input-document-type";
 import { ViewMode } from "src/app/models/view-mode";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { CommandsService } from "src/app/services/commands/commands-services/commands-service";
@@ -19,13 +17,13 @@ import { DocumentService } from "src/app/services/document.service";
 import { LoggerService } from "src/app/services/logger.service";
 import { MenuService } from "src/app/services/menu-service";
 import { PasteService } from "src/app/services/paste.service";
-import { SelectionService } from "src/app/services/selection.service";
-import { UndoService } from "src/app/services/undo.service";
-import { ViewService } from "src/app/services/view.service";
-import { PanTool } from "src/app/services/tools/pan.tool";
 import { GridLinesRenderer } from "src/app/services/renderers/grid-lines.renderer";
+import { SelectionService } from "src/app/services/selection.service";
+import { PanTool } from "src/app/services/tools/pan.tool";
 import { ToolsService } from "src/app/services/tools/tools.service";
 import { ZoomTool } from "src/app/services/tools/zoom.tool";
+import { UndoService } from "src/app/services/undo.service";
+import { ViewService } from "src/app/services/view.service";
 import { consts, PanelsIds } from "src/environments/consts";
 import { BaseComponent } from "../../base-component";
 @Component({
@@ -43,14 +41,15 @@ export class MainToolbarComponent
   recentItems = [];
   showGridLines = this.gridLinesRenderer.gridLinesVisible();
   showMenu = this.viewService.menuVisibleSubject.getValue();
-  showHistory = this.menuService.isPanelVisible(PanelsIds.History);
-  showOutline = this.menuService.isPanelVisible(PanelsIds.Outline);
-  showProperties = this.menuService.isPanelVisible(PanelsIds.Properties);
+  showHistory = this.menuService.isPanelVisible(PanelsIds.history);
+  showOutline = this.menuService.isPanelVisible(PanelsIds.outline);
+  showProperties = this.menuService.isPanelVisible(PanelsIds.properties);
   codeVisible = this.viewService.codeVisibleSubject.getValue();
   breadcrumbsVisible = this.viewService.breadcrumbsVisibleSubject.getValue();
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
   editMenuCommands: BaseCommand[] = [];
   mode: ViewMode = consts.appearance.defaultMode;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   ViewMode = ViewMode;
   constructor(
     private viewService: ViewService,
@@ -71,7 +70,7 @@ export class MainToolbarComponent
     super();
   }
 
-  updateUndoState() {
+  updateUndoState(): void {
     this.undoDisabled = !this.undoService.canUndo();
     this.redoDisabled = !this.undoService.canRedo();
     this.cdRef.markForCheck();
@@ -106,17 +105,17 @@ export class MainToolbarComponent
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         let changed = true;
-        let visible = this.menuService.isPanelVisible(PanelsIds.History);
+        let visible = this.menuService.isPanelVisible(PanelsIds.history);
         if (this.showHistory !== visible) {
           this.showHistory = visible;
           changed = true;
         }
-        visible = this.menuService.isPanelVisible(PanelsIds.Outline);
+        visible = this.menuService.isPanelVisible(PanelsIds.outline);
         if (this.showOutline !== visible) {
           this.showOutline = visible;
           changed = true;
         }
-        visible = this.menuService.isPanelVisible(PanelsIds.Properties);
+        visible = this.menuService.isPanelVisible(PanelsIds.properties);
         if (this.showProperties !== visible) {
           this.showProperties = visible;
           changed = true;
@@ -190,14 +189,14 @@ export class MainToolbarComponent
         }
       });
   }
-  ngAfterContentChecked() {
+  ngAfterContentChecked(): void {
     // Fixed bug with material menu that menu trigger cannot be part of the custom component during the lifecycle.
     this.cdRef.markForCheck();
   }
-  setMode(mode: ViewMode) {
+  setMode(mode: ViewMode): void {
     this.viewService.setMode(mode);
   }
-  newFile() {
+  newFile(): void {
     const fileName = `default.svg`;
     const folder = `assets/documents/${fileName}`;
     this.http.get(folder, { responseType: "text" }).subscribe(
@@ -210,7 +209,7 @@ export class MainToolbarComponent
       }
     );
   }
-  fileSelected(event) {
+  fileSelected(event): void {
     const files = event.target.files;
     if (!files || event.target.files.length === 0) {
       return;
@@ -233,7 +232,7 @@ export class MainToolbarComponent
     // after here 'file' can be accessed and used for further process
   }
 
-  setRecent(newRecentItem: any) {
+  setRecent(newRecentItem: any): void {
     const stored = localStorage.getItem("recent");
     let parsed = null;
 
@@ -264,7 +263,7 @@ export class MainToolbarComponent
       localStorage.setItem("recent", JSON.stringify(this.recentItems));
     }
   }
-  loadData(data, title: string) {
+  loadData(data, title: string): void {
     title = title || "";
 
     let parsed: InputDocument = null;
@@ -277,14 +276,14 @@ export class MainToolbarComponent
         parsed.data = data;
         parsed.title = title;
         parsed.parsedData = document;
-        parsed.type = InputDocumentType.SVG;
+        parsed.type = InputDocumentType.svg;
       } else if (lower.endsWith("json")) {
         const parsedJson = JSON.parse(data);
         parsed = new InputDocument();
         parsed.data = data;
         parsed.title = title;
         parsed.parsedData = parsedJson;
-        parsed.type = InputDocumentType.JSON;
+        parsed.type = InputDocumentType.json;
       }
     } catch (err) {
       // TODO: popup
@@ -302,20 +301,20 @@ export class MainToolbarComponent
       this.setRecent(newData);
     }
   }
-  redo() {
+  redo(): void {
     this.undoService.redo();
   }
-  toggleMenu() {
+  toggleMenu(): void {
     this.viewService.toggleMenu();
   }
-  toggleHistory() {
-    this.showHistory = this.togglePanel(PanelsIds.History);
+  toggleHistory(): void {
+    this.showHistory = this.togglePanel(PanelsIds.history);
   }
-  toggleProperties() {
-    this.showProperties = this.togglePanel(PanelsIds.Properties);
+  toggleProperties(): void {
+    this.showProperties = this.togglePanel(PanelsIds.properties);
   }
-  toggleOutline() {
-    this.showOutline = this.togglePanel(PanelsIds.Outline);
+  toggleOutline(): void {
+    this.showOutline = this.togglePanel(PanelsIds.outline);
   }
   togglePanel(panelId: PanelsIds): boolean {
     const visible = this.menuService.isPanelVisible(panelId);
@@ -325,34 +324,34 @@ export class MainToolbarComponent
     this.menuService.setPanelVisibility(panelId, !visible);
     return !visible;
   }
-  undo() {
+  undo(): void {
     this.undoService.undo();
   }
-  zoomIn() {
+  zoomIn(): void {
     this.zoomTool.zoomIn();
   }
-  zoomOut() {
+  zoomOut(): void {
     this.zoomTool.zoomOut();
   }
-  center() {
+  center(): void {
     this.panTool.fit();
   }
-  fitViewport() {
+  fitViewport(): void {
     this.toolsService.fitViewport();
   }
-  toggleGridLines() {
+  toggleGridLines(): void {
     this.gridLinesRenderer.toggleShowGridLines();
   }
-  toggleRuler() {
+  toggleRuler(): void {
     this.gridLinesRenderer.toggleRuler();
   }
-  toggleBreadcrumbs() {
+  toggleBreadcrumbs(): void {
     this.viewService.toggleBreadcrumbs();
   }
-  toggleCode() {
+  toggleCode(): void {
     this.viewService.toggleCode();
   }
-  fitViewportSelected() {
+  fitViewportSelected(): void {
     this.toolsService.fitViewportToSelected();
   }
 }

@@ -7,22 +7,19 @@ import { consts } from "src/environments/consts";
 import { Utils } from "../utils/utils";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class ScrollbarsPanTool extends BaseTool {
-  constructor(
-    private viewService: ViewService,
-    private panTool: PanTool
-  ) {
-    super();
-  }
-
+  scrollBarElement: HTMLElement | null = null;
+  scrollContentElement: HTMLElement | null = null;
   private scrollData: any = {};
   private panChangedProgrammatically = false;
   private scrollChangedProgrammatically = false;
   private recalcScrollRef = null;
-  scrollBarElement: HTMLElement;
-  scrollContentElement: HTMLElement;
+
+  constructor(private viewService: ViewService, private panTool: PanTool) {
+    super();
+  }
 
   onViewportMouseWheel(event: MouseEventArgs) {
     event.preventDefault();
@@ -49,15 +46,14 @@ export class ScrollbarsPanTool extends BaseTool {
   ) {
     this.scrollBarElement = scrollBarElement;
     this.scrollContentElement = scrollContentElement;
-    this.viewService.transformed
-      .subscribe(() => {
-        if (this.panChangedProgrammatically) {
-          this.panChangedProgrammatically = false;
-          return;
-        }
+    this.viewService.transformed.subscribe(() => {
+      if (this.panChangedProgrammatically) {
+        this.panChangedProgrammatically = false;
+        return;
+      }
 
-        this.rescaleScrollbars();
-      });
+      this.rescaleScrollbars();
+    });
     // Initialize after panZoom load
     this.rescaleScrollbars();
   }
@@ -74,13 +70,11 @@ export class ScrollbarsPanTool extends BaseTool {
     }
 
     // Update scrollbars size when scrolling is finished.
-    this.recalcScrollRef = setTimeout(function() {
+    this.recalcScrollRef = setTimeout(() => {
       if (this.recalcScrollRef) {
         clearTimeout(this.recalcScrollRef);
         this.recalcScrollRef = null;
-        if (this.panZoom) {
-          this.rescaleScrollbars(this.panZoom.getPan());
-        }
+        this.rescaleScrollbars();
       }
     }, 1000);
 
@@ -111,7 +105,7 @@ export class ScrollbarsPanTool extends BaseTool {
       width: viewPortRect.width,
       height: viewPortRect.height,
       top: viewPortRect.top - parentPos.top,
-      left: viewPortRect.left - parentPos.left
+      left: viewPortRect.left - parentPos.left,
     };
     // Get position relative to a parent:
 

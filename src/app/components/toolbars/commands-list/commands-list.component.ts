@@ -17,6 +17,13 @@ import { BaseComponent } from "../../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommandsListComponent extends BaseComponent {
+  // eslint-disable-next-line @angular-eslint/no-input-rename
+  @Input("commands") set setCommand(commands: BaseCommand[]) {
+    this.subscribeCommands(commands);
+  }
+  public commands: BaseCommand[] = [];
+
+  protected commandChanged$ = new Subject();
   constructor(
     private cdRef: ChangeDetectorRef,
     private commandExecutor: CommandsExecutorService
@@ -24,13 +31,7 @@ export class CommandsListComponent extends BaseComponent {
     super();
     this.cdRef.detach();
   }
-  public commands: BaseCommand[] | null = [];
-  @Input("commands") set setCommand(commands: BaseCommand[]) {
-    this.subscribeCommands(commands);
-  }
-  protected commandChanged$ = new Subject();
-
-  subscribeCommands(commands: BaseCommand[]) {
+  subscribeCommands(commands: BaseCommand[]): void {
     // Notify to unsubscribe current subscribed list if any:
     this.commandChanged$.next();
 
@@ -54,7 +55,7 @@ export class CommandsListComponent extends BaseComponent {
   /**
    * Call mark for check or detect changes depends on strategy.
    */
-  render() {
+  render(): void {
     this.cdRef.detectChanges();
   }
 

@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { AdornerContainer } from "../models/adorner";
-import { AdornerPointType, AdornerType } from "../models/adorner-type";
-import { PathDataHandleType } from "../models/path-data-handle";
+import { AdornerPointType } from "../models/adorner-point-type";
+import { AdornerType } from "../models/adorner-type";
+import { PathDataHandleType } from "../models/path-data-handle-type";
 import { PathType } from "../models/path/path-type";
 import { TreeNode } from "../models/tree-node";
 import { ConfigService } from "./config-service";
@@ -17,15 +18,6 @@ import { Utils } from "./utils/utils";
   providedIn: "root",
 })
 export class AdornersService {
-  constructor(
-    private selectionService: SelectionService,
-    private configService: ConfigService,
-    private propertiesService: PropertiesService
-  ) {
-    this.selectionAdorner.type = AdornerType.Selection;
-    this.pathDataSelectionAdorner.type = AdornerType.PathDataSelection;
-  }
-
   /**
    * Adorner that represents multiple items selected.
    */
@@ -37,6 +29,7 @@ export class AdornersService {
   pathDataSelectionAdorner: AdornerContainer = new AdornerContainer();
   pathDataSelectorActive = true;
   showBBoxHandlesSubject = new BehaviorSubject<boolean>(true);
+
   get showBBoxHandles(): boolean {
     return this.showBBoxHandlesSubject.getValue();
   }
@@ -46,6 +39,14 @@ export class AdornersService {
     }
   }
   cache = new Map<TreeNode, AdornerContainer>();
+  constructor(
+    private selectionService: SelectionService,
+    private configService: ConfigService,
+    private propertiesService: PropertiesService
+  ) {
+    this.selectionAdorner.type = AdornerType.selection;
+    this.pathDataSelectionAdorner.type = AdornerType.pathDataSelection;
+  }
   /**
    * Calculate multiple selected items bounds adorner
    */
@@ -94,11 +95,11 @@ export class AdornersService {
   buildPathDataSelectionAdorner(
     rootNode: TreeNode,
     resetCenterTransform = false
-  ) {
+  ): void {
     this.pathDataSelectionAdorner.node = rootNode;
     const points = (
       this.selectionService.pathDataSubject.getValues() || []
-    ).filter((p) => p.type === PathDataHandleType.Point);
+    ).filter((p) => p.type === PathDataHandleType.point);
     let bbox: DOMRect | null = null;
     if (points && points.length > 1) {
       const screenPoints = points
@@ -137,34 +138,6 @@ export class AdornersService {
     this.selectionAdorner.showBounds = !this.pathDataSelectionAdorner.enabled;
   }
 
-  private setBBoxToAdorner(
-    container: AdornerContainer,
-    rectElementCoords: DOMRect,
-    resetCenterTransform = false
-  ) {
-    if (
-      rectElementCoords &&
-      rectElementCoords.height > 0 &&
-      rectElementCoords.width > 0
-    ) {
-      const center = container.element.centerTransform;
-      const config = this.configService.get();
-      container.setBBox(rectElementCoords);
-      if (center && !resetCenterTransform) {
-        container.setCenterTransform(center);
-      }
-      container.calculateTranslatePosition(
-        config.translateHandleOffsetX,
-        config.translateHandleOffsetY
-      );
-
-      container.enabled = true;
-    } else {
-      container.setCenterTransform(null);
-      container.enabled = false;
-    }
-  }
-
   getActiveAdorners(): AdornerContainer[] {
     const adorners = this.selectionService
       .getSelected()
@@ -184,7 +157,7 @@ export class AdornersService {
     return adorners;
   }
 
-  cleanCache(onlyScreenCache = false) {
+  cleanCache(onlyScreenCache = false): void {
     // Reset only screen coordinates cache.(ex: viewport scaled, no need to recalc elements)
     if (onlyScreenCache) {
       this.cache.forEach((p) => p.resetCache());
@@ -203,11 +176,11 @@ export class AdornersService {
 
     const adorner = new AdornerContainer();
     adorner.node = node;
-    adorner.type = AdornerType.TransformedElement;
+    adorner.type = AdornerType.transformedElement;
     const elementAdorner = adorner.setBBox(node.getBBox());
     const config = this.configService.get();
     if (!config.showTransformedBBoxes) {
-      adorner.type = AdornerType.ElementsBounds;
+      adorner.type = AdornerType.elementsBounds;
       elementAdorner.matrixTransformSelf(node.getScreenCTM());
       elementAdorner.untransformSelf();
       elementAdorner.matrixTransformSelf(node.getScreenCTM().inverse());
@@ -240,24 +213,24 @@ export class AdornersService {
       return false;
     }
 
-    if (adornerPointType === AdornerPointType.Center) {
+    if (adornerPointType === AdornerPointType.center) {
       return false;
     }
     const config = this.configService.get();
 
     const multipleSelected = activeAdorners.find(
-      (p) => p.type === AdornerType.Selection
+      (p) => p.type === AdornerType.selection
     );
     if (multipleSelected && multipleSelected.enabled) {
       // Not a main selection:
-      if (adorner.type !== AdornerType.Selection) {
+      if (adorner.type !== AdornerType.selection) {
         // Don't show translate adorners when multiple are selected:
         return false;
       }
     }
     // When translate handle is disabled:
     if (
-      adornerPointType === AdornerPointType.Translate &&
+      adornerPointType === AdornerPointType.translate &&
       !config.translateHandleEnabled
     ) {
       return false;
@@ -275,12 +248,39 @@ export class AdornersService {
       }
 
       return true;
-    } else if (adorner.type === AdornerType.Selection) {
+    } else if (adorner.type === AdornerType.selection) {
       return true;
-    } else if (adorner.type === AdornerType.PathDataSelection) {
+    } else if (adorner.type === AdornerType.pathDataSelection) {
       return true;
     }
 
     return false;
+  }
+  private setBBoxToAdorner(
+    container: AdornerContainer,
+    rectElementCoords: DOMRect,
+    resetCenterTransform = false
+  ): void {
+    if (
+      rectElementCoords &&
+      rectElementCoords.height > 0 &&
+      rectElementCoords.width > 0
+    ) {
+      const center = container.element.centerTransform;
+      const config = this.configService.get();
+      container.setBBox(rectElementCoords);
+      if (center && !resetCenterTransform) {
+        container.setCenterTransform(center);
+      }
+      container.calculateTranslatePosition(
+        config.translateHandleOffsetX,
+        config.translateHandleOffsetY
+      );
+
+      container.enabled = true;
+    } else {
+      container.setCenterTransform(null);
+      container.enabled = false;
+    }
   }
 }

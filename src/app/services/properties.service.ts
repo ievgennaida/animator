@@ -6,9 +6,16 @@ import { Property } from "../models/properties/property";
 import { TreeNode } from "../models/tree-node";
 import { Utils } from "./utils/utils";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const CenterTransformX = "transform-center-x";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const CenterTransformY = "transform-center-y";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const TransformPropertyKey = "transform";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const PathDataPropertyKey = "d";
 @Injectable({
   providedIn: "root",
@@ -141,6 +148,7 @@ export class PropertiesService {
   }
   /**
    * get stored center transform.
+   *
    * @param relative whether coordinates should be global or relative to the element position (in element coordinates system)
    */
   getCenterTransform(node: TreeNode, relative = false): DOMPoint | null {
@@ -217,6 +225,7 @@ export class PropertiesService {
 
   /**
    * Get list of the attributes.
+   *
    * @param node node to get attributes from.
    * @param keys list of the attributes properties.
    */

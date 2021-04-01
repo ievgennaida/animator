@@ -5,21 +5,7 @@ import { PropertyType } from "./property-type";
 
 // Property view model.
 export class Property {
-  constructor(
-    node: TreeNode,
-    key: string,
-    name: string,
-    data,
-    description: string
-  ) {
-    this.key = key;
-    this.name = name;
-    this.data = data;
-    this.description = description;
-    this.node = node;
-  }
-
-  public node: TreeNode;
+  public node: TreeNode | null = null;
   public readonly = false;
   public key: string;
   public name: string;
@@ -37,6 +23,20 @@ export class Property {
    * Displayed value.
    */
   public value: any;
+  constructor(
+    node: TreeNode,
+    key: string,
+    name: string,
+    data,
+    description: string
+  ) {
+    this.key = key;
+    this.name = name;
+    this.data = data;
+    this.description = description;
+    this.node = node;
+  }
+
   getKeyframes(): Keyframe[] {
     return [];
   }
@@ -44,7 +44,7 @@ export class Property {
   /**
    * Get interpolated value at the specific time.
    */
-  getValueAtTime(frame: number) {
+  getValueAtTime(frame: number): any {
     if (this.dynamicProperty && this.dynamicProperty.getValueAtTime) {
       if (this.key) {
         const subProperty = this.dynamicProperty[this.key];
@@ -61,7 +61,7 @@ export class Property {
     }
   }
 
-  setValueAtTime(frame: number) {
+  setValueAtTime(frame: number): void {
     this.value = this.getValueAtTime(frame);
   }
 

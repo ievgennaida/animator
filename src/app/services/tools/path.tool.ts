@@ -3,8 +3,8 @@ import { BaseTool } from "./base.tool";
 import { CursorService } from "../cursor.service";
 import { LoggerService } from "../logger.service";
 import { SelectionService } from "../selection.service";
-import { PathRenderer } from '../renderers/path.renderer';
-import { MouseOverRenderer } from '../renderers/mouse-over.renderer';
+import { PathRenderer } from "../renderers/path.renderer";
+import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
 
 @Injectable({
   providedIn: "root",
@@ -13,8 +13,8 @@ import { MouseOverRenderer } from '../renderers/mouse-over.renderer';
  * Create path tool
  */
 export class PathTool extends BaseTool {
-  svgMatrix: DOMMatrix = null;
-  mouseDownPos: DOMPoint = null;
+  svgMatrix: DOMMatrix | null = null;
+  mouseDownPos: DOMPoint | null = null;
   iconName = "ink_pen";
   constructor(
     private selectionService: SelectionService,
@@ -27,13 +27,13 @@ export class PathTool extends BaseTool {
     // this.pathRenderer.suspend();
   }
 
-  onDeactivate() {
+  onDeactivate(): void {
     this.pathRenderer.suspend();
     this.pathRenderer.clear();
     this.mouseOverRenderer.resume();
     super.onDeactivate();
   }
-  onActivate() {
+  onActivate(): void {
     this.mouseOverRenderer.suspend();
     this.pathRenderer.invalidate();
     this.pathRenderer.resume();

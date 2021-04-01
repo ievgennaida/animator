@@ -2,9 +2,9 @@ import { Injectable } from "@angular/core";
 import { merge, Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import {
-  OrderAction,
-  OrderMode,
+  OrderAction
 } from "../../actions/order-actions/order-action";
+import { OrderMode } from "../../actions/order-actions/order-mode";
 import { OutlineService } from "../../outline.service";
 import { SelectionService } from "../../selection.service";
 import { UndoService } from "../../undo.service";
@@ -15,6 +15,12 @@ import { UndoService } from "../../undo.service";
   providedIn: "root",
 })
 export class StepForwardCommand implements BaseCommand {
+  changed = new Subject<BaseCommand>();
+  tooltip = "Bring selected items one step to front.";
+  title = "Step Forward";
+  icon = "vertical_align_top";
+  hotkey = "Page Up";
+  iconSVG = false;
   constructor(
     private selectionService: SelectionService,
     private outlineService: OutlineService,
@@ -25,12 +31,6 @@ export class StepForwardCommand implements BaseCommand {
       this.outlineService.nodes
     ).subscribe(() => this.changed.next(this));
   }
-  changed = new Subject<BaseCommand>();
-  tooltip = "Bring selected items one step to front.";
-  title = "Step Forward";
-  icon = "vertical_align_top";
-  hotkey = "Page Up";
-  iconSVG = false;
   canExecute(): boolean {
     const selected = this.selectionService.getSelected();
     return OrderAction.canSendToFront(selected);
@@ -43,7 +43,7 @@ export class StepForwardCommand implements BaseCommand {
     const selected = this.selectionService.getSelected();
     action.icon = this.icon;
     action.iconSVG = this.iconSVG;
-    action.init(selected, OrderMode.OneStepForwards);
+    action.init(selected, OrderMode.oneStepForwards);
     this.undoService.startAction(action, true);
   }
 }

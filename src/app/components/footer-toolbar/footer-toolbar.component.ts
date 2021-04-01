@@ -19,6 +19,12 @@ import { BaseComponent } from "../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterToolbarComponent extends BaseComponent implements OnInit {
+  mode: ViewMode = consts.appearance.defaultMode;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  ViewMode = ViewMode;
+  isPlaying = true;
+  message = "";
+  isPan = false;
   constructor(
     private playerService: PlayerService,
     private cdRef: ChangeDetectorRef,
@@ -28,12 +34,6 @@ export class FooterToolbarComponent extends BaseComponent implements OnInit {
     super();
     this.cdRef.detach();
   }
-  mode: ViewMode = consts.appearance.defaultMode;
-  ViewMode = ViewMode;
-  isPlaying = true;
-  message = "";
-  isPan = false;
-
   ngOnInit() {
     this.notification.footerMessageSubject
       .pipe(takeUntil(this.destroyed$))

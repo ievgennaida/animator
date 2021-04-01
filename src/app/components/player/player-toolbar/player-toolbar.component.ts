@@ -11,7 +11,7 @@ import { ToolsService } from "src/app/services/tools/tools.service";
 import { PanTool } from "src/app/services/tools/pan.tool";
 import { ViewService } from "src/app/services/view.service";
 import { GridLinesRenderer } from "src/app/services/renderers/grid-lines.renderer";
-import { BaseComponent } from '../../base-component';
+import { BaseComponent } from "../../base-component";
 
 @Component({
   selector: "app-player-toolbar",
@@ -19,9 +19,12 @@ import { BaseComponent } from '../../base-component';
   styleUrls: ["./player-toolbar.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerToolbarComponent extends BaseComponent implements OnInit, OnDestroy {
+export class PlayerToolbarComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy {
   showGridLines = this.gridLinesRenderer.gridLinesVisible();
   rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
+  scrollbarsInputValue = "100";
   constructor(
     private viewService: ViewService,
     private zoomTool: ZoomTool,
@@ -32,9 +35,6 @@ export class PlayerToolbarComponent extends BaseComponent implements OnInit, OnD
   ) {
     super();
   }
-
-  scrollbarsInputValue = "100";
-
   ngOnInit(): void {
     this.gridLinesRenderer.gridLinesVisibleSubject
       .asObservable()
@@ -65,11 +65,11 @@ export class PlayerToolbarComponent extends BaseComponent implements OnInit, OnD
       });
   }
 
-  toggleGridLines() {
+  toggleGridLines(): void {
     this.gridLinesRenderer.toggleShowGridLines();
   }
 
-  setZoomLevel(zoom: any, direction = 0) {
+  setZoomLevel(zoom: any, direction = 0): void {
     let newValue = parseFloat(zoom);
     if (isNaN(newValue)) {
       return;
@@ -80,22 +80,22 @@ export class PlayerToolbarComponent extends BaseComponent implements OnInit, OnD
     this.zoomTool.setDirectZoom(newValue);
     this.centerViewport();
   }
-  centerViewport() {
+  centerViewport(): void {
     this.panTool.fit();
   }
 
-  fitViewportSelected() {
+  fitViewportSelected(): void {
     this.toolsService.fitViewportToSelected();
   }
 
-  fitViewport() {
+  fitViewport(): void {
     this.toolsService.fitViewport();
   }
-  zoomIn() {
+  zoomIn(): void {
     this.zoomTool.zoomIn();
   }
 
-  zoomOut() {
+  zoomOut(): void {
     this.zoomTool.zoomOut();
   }
 }

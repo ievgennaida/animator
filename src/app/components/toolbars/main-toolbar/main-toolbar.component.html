@@ -31,11 +31,11 @@
     <button mat-button *ngIf="edit && edit.matMenu" [matMenuTriggerFor]="edit.matMenu">Edit</button>
     <button mat-button [matMenuTriggerFor]="view">View</button>
     <mat-menu #view>
-        <button mat-menu-item disabled (click)="setMode(ViewMode.Animator)">
-            <mat-icon><span *ngIf="mode === ViewMode.Animator">check</span></mat-icon>Animator
+        <button mat-menu-item disabled (click)="setMode(ViewMode.animator)">
+            <mat-icon><span *ngIf="mode === ViewMode.animator">check</span></mat-icon>Animator
         </button>
-        <button mat-menu-item disabled (click)="setMode(ViewMode.Editor)">
-            <mat-icon><span *ngIf="mode === ViewMode.Editor">check</span></mat-icon>Editor
+        <button mat-menu-item disabled (click)="setMode(ViewMode.editor)">
+            <mat-icon><span *ngIf="mode === ViewMode.editor">check</span></mat-icon>Editor
         </button>
         <mat-divider></mat-divider>
         <button mat-menu-item [matMenuTriggerFor]="appearance">

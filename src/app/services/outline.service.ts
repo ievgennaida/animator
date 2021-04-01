@@ -2,7 +2,7 @@ import { FlatTreeControl } from "@angular/cdk/tree";
 import { Injectable } from "@angular/core";
 import {
   MatTreeFlatDataSource,
-  MatTreeFlattener,
+  MatTreeFlattener
 } from "@angular/material/tree";
 import { BehaviorSubject, Observable } from "rxjs";
 import { InputDocument } from "../models/input-document";
@@ -12,40 +12,18 @@ import { AppFactory } from "./app-factory";
 import { LoggerService } from "./logger.service";
 
 export enum InteractionSource {
-  Outline,
-  Adorners,
+  outline,
+  adorners,
 }
 
 @Injectable({
   providedIn: "root",
 })
 export class OutlineService {
-  constructor(private appFactory: AppFactory, private logger: LoggerService) {
-    this.treeControl.expansionModel.changed.subscribe((state) => {
-      state.added.forEach((p) => {
-        p.expanded = true;
-      });
-      state.removed.forEach((p) => {
-        p.expanded = false;
-      });
-    });
-
-    this.nodesSubject.subscribe((nodes) => {
-      // Sync expanded state with the tree node properties when changed
-      if (nodes) {
-        nodes.forEach((node) => {
-          if (node.expandable && node.expanded) {
-            this.treeControl.expand(node);
-          } else {
-            this.treeControl.collapse(node);
-          }
-        });
-      }
-    });
-  }
-
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
   rootNodeSubject = new BehaviorSubject<TreeNode | null>(null);
+
+
   get rootNode(): TreeNode | null {
     return this.rootNodeSubject.getValue();
   }
@@ -76,12 +54,36 @@ export class OutlineService {
   get flatList() {
     return this.flatDataSource._flattenedData.asObservable();
   }
+  constructor(private appFactory: AppFactory, private logger: LoggerService) {
+    this.treeControl.expansionModel.changed.subscribe((state) => {
+      state.added.forEach((p) => {
+        p.expanded = true;
+      });
+      state.removed.forEach((p) => {
+        p.expanded = false;
+      });
+    });
+
+    this.nodesSubject.subscribe((nodes) => {
+      // Sync expanded state with the tree node properties when changed
+      if (nodes) {
+        nodes.forEach((node) => {
+          if (node.expandable && node.expanded) {
+            this.treeControl.expand(node);
+          } else {
+            this.treeControl.collapse(node);
+          }
+        });
+      }
+    });
+  }
   clear() {
     // Remove outline expanded cache
     this.treeControl.expansionModel.clear();
   }
   /**
    * Expand all items from current node to top
+   *
    * @param node Node to start top-search from.
    */
   expandToTop(node: TreeNode, includeSelf = false): boolean {

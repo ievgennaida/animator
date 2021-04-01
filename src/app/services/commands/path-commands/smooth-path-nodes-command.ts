@@ -12,6 +12,11 @@ import { UndoService } from "../../undo.service";
   providedIn: "root",
 })
 export class SmoothNodesCommand implements BaseCommand {
+  changed = new Subject<BaseCommand>();
+  title = "Smooth";
+  tooltip = `Make smooth selected path data nodes`;
+  icon = "smooth-path";
+  iconSVG = true;
   constructor(
     private selectionService: SelectionService,
     private undoService: UndoService
@@ -21,11 +26,6 @@ export class SmoothNodesCommand implements BaseCommand {
       this.selectionService.selected
     ).subscribe(() => this.changed.next(this));
   }
-  changed = new Subject<BaseCommand>();
-  title = "Smooth";
-  tooltip = `Make smooth selected path data nodes`;
-  icon = "smooth-path";
-  iconSVG = true;
   canExecute(): boolean {
     const selected = this.selectionService.pathDataSubject.getValues();
     if (selected && selected.length > 0) {

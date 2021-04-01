@@ -10,10 +10,11 @@ export class DecomposedMatrix {
   skewY = 0;
   translateX = 0;
   translateY = 0;
-  matrix: DOMMatrix;
+  matrix: DOMMatrix | null = null;
 
   /**
    * https://www.w3.org/TR/css-transforms-1/
+   *
    * @param m matrix to be decomposed.
    */
   static decomposeMatrix(m: DOMMatrix): DecomposedMatrix {

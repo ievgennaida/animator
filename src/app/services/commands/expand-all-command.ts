@@ -9,13 +9,13 @@ import { BaseCommand } from "./base-command";
   providedIn: "root",
 })
 export class ExpandAllCommand implements BaseCommand {
-  constructor(private outlineService: OutlineService) {}
-
   tooltip = "Expand All Tree Nodes";
   title = "Expand All";
   icon = "add";
   hotkey = "";
   iconSVG = false;
+  constructor(private outlineService: OutlineService) {}
+
   canExecute(): boolean {
     return true;
   }

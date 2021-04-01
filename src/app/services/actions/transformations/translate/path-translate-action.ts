@@ -4,27 +4,26 @@ import { PathDataHandle } from "src/app/models/path-data-handle";
 import { TreeNode } from "src/app/models/tree-node";
 import {
   PathDataPropertyKey,
-  PropertiesService,
+  PropertiesService
 } from "src/app/services/properties.service";
+import { PathDataUtils } from "src/app/services/utils/path-data-utils";
 import { Utils } from "src/app/services/utils/utils";
-import { PathDataUtils } from "../../../utils/matrix-utils";
-import { BaseTransformAction } from "../base-transform-action";
 import { TransformationModeIcon } from "../../../../models/transformation-mode";
+import { BaseTransformAction } from "../base-transform-action";
 @Injectable({
   providedIn: "root",
 })
 export class PathTranslateAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
-
   title = "Move";
-  icon = TransformationModeIcon.Move;
+  icon = TransformationModeIcon.move;
   /**
    * List of a particular path handles to be transformed. (filter)
    */
   public pathHandles: PathDataHandle[] | null = null;
   start: DOMPoint = null;
+  constructor(propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
 
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;

@@ -1,4 +1,4 @@
-import { AdornerPointType } from "src/app/models/adorner-type";
+import { AdornerPointType } from "src/app/models/adorner-point-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 
@@ -44,6 +44,7 @@ export class Utils {
 
   /**
    * find point along vector.
+   *
    * @param point point.
    * @param vector normalized vector
    * @param steps steps along vector
@@ -86,6 +87,7 @@ export class Utils {
 
   /**
    * Convert deg to radians.
+   *
    * @param angle in deg.
    */
   static rad(deg: number): number {
@@ -93,6 +95,7 @@ export class Utils {
   }
   /**
    * Convert radians to degrees.
+   *
    * @param angle in rad.
    */
   static deg(rad: number): number {
@@ -332,6 +335,7 @@ export class Utils {
 
   /**
    * Get Rect bounds from a list of points.
+   *
    * @param points List of points to analyze.
    */
   public static getPointsBounds(...points: DOMPoint[]): DOMRect | null {
@@ -371,7 +375,7 @@ export class Utils {
   public static getDOMPoint(x: number, y: number): DOMPoint {
     return new DOMPoint(x, y);
   }
-  public static round(num: number, factor = 2) {
+  public static round(num: number, factor = 2): number {
     let mult = 10;
     if (factor === 2) {
       mult = 100;
@@ -384,8 +388,11 @@ export class Utils {
     return Math.round(num * mult) / mult;
   }
 
-  public static bitwiseEquals(a: AdornerPointType, b: AdornerPointType) {
-    // tslint:disable-next-line: no-bitwise
+  public static bitwiseEquals(
+    a: AdornerPointType,
+    b: AdornerPointType
+  ): boolean {
+    // eslint-disable-next-line no-bitwise
     return (a & b) === b;
   }
   /**
@@ -529,7 +536,7 @@ export class Utils {
     );
     return leng;
   }
-  static getABDistance(a: number, b: number) {
+  static getABDistance(a: number, b: number): number {
     return Math.abs(a - b);
   }
   static getRectCenter(rect: DOMRect, relative = false): DOMPoint | null {
@@ -546,22 +553,25 @@ export class Utils {
   /**
    * Check whether element is visible vertically.
    */
-  public static isVisibleVertically(el: HTMLElement, container: HTMLElement) {
+  public static isVisibleVertically(
+    el: HTMLElement,
+    container: HTMLElement
+  ): boolean {
     if (
       !el ||
       !el.getBoundingClientRect ||
       !container ||
       !container.getBoundingClientRect
     ) {
-      return;
+      return false;
     }
     const rect = el.getBoundingClientRect();
     if (!rect) {
-      return;
+      return false;
     }
     const parentRect = container.getBoundingClientRect();
     if (!parentRect) {
-      return;
+      return false;
     }
     // Contains fully or partially:
     if (

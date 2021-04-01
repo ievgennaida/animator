@@ -1,9 +1,9 @@
 import { Subject } from "rxjs";
 
 export enum CommandType {
-  Command = "command",
-  Label = "label",
-  Separator = "separator",
+  command = "command",
+  label = "label",
+  separator = "separator",
 }
 /**
  * Base application command.

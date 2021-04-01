@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { AdornerPointType } from "src/app/models/adorner-type";
+import { AdornerPointType } from "src/app/models/adorner-point-type";
 import { CursorType } from "src/app/models/cursor-type";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
@@ -53,9 +53,9 @@ export class ShapeTool extends BaseTool {
     super();
   }
   onActivate() {
-    this.mouseOverService.setMode(MouseOverMode.Containers);
+    this.mouseOverService.setMode(MouseOverMode.containers);
     this.mouseOverRenderer.clear();
-    this.cursor.setDefaultCursor(CursorType.Default);
+    this.cursor.setDefaultCursor(CursorType.default);
     super.onActivate();
 
     // Update current when nodes are changed and container is not there anymore.
@@ -95,7 +95,7 @@ export class ShapeTool extends BaseTool {
     this.updateCurrentContainer();
   }
   onDeactivate() {
-    this.mouseOverService.setMode(MouseOverMode.Elements);
+    this.mouseOverService.setMode(MouseOverMode.elements);
     this.destroyed$.next();
     super.onDeactivate();
     this.cleanUp();
@@ -173,9 +173,9 @@ export class ShapeTool extends BaseTool {
     const adorner = this.adornerService.getAdorner(newTreeNode);
     const handle = new HandleData();
     handle.adorner = adorner;
-    handle.handle = AdornerPointType.BottomRight;
+    handle.handle = AdornerPointType.bottomRight;
     this.transformsService.start(
-      TransformationMode.Scale,
+      TransformationMode.scale,
       [newTreeNode],
       screenPoint,
       handle

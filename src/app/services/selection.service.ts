@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
-import { AdornerPointType } from "../models/adorner-type";
+import { AdornerPointType } from "../models/adorner-point-type";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { TreeNode } from "../models/tree-node";
 import { OutlineService } from "./outline.service";
@@ -17,7 +17,6 @@ import {
   providedIn: "root",
 })
 export class SelectionService {
-  constructor(private outlineService: OutlineService) {}
   selectedSubject = new StateSubject<TreeNode>(
     // On selected changed:
     (node: TreeNode, value: boolean) => {
@@ -31,10 +30,10 @@ export class SelectionService {
     }
   );
   pathDataSubject = new PathDataSelectionSubject();
-  selectedAdorner: AdornerPointType = AdornerPointType.None;
-
+  selectedAdorner: AdornerPointType = AdornerPointType.none;
+  constructor(private outlineService: OutlineService) {}
   deselectAdorner() {
-    this.setSelectedAdorner(AdornerPointType.None);
+    this.setSelectedAdorner(AdornerPointType.none);
   }
   setSelectedAdorner(value: AdornerPointType) {
     this.selectedAdorner = value;
@@ -45,6 +44,7 @@ export class SelectionService {
 
   /**
    * Get top most selected node from current.
+   *
    * @param node Node to start top-search from.
    */
   getTopSelectedNode(node: TreeNode): TreeNode | null {
@@ -88,11 +88,12 @@ export class SelectionService {
   }
 
   selectAll() {
-    this.setSelected(this.outlineService.getAllNodes(), ChangeStateMode.Append);
+    this.setSelected(this.outlineService.getAllNodes(), ChangeStateMode.append);
   }
 
   /**
    * Check whether node command is selected and handles are active.
+   *
    * @param node path command.
    * @param commandIndex node index.
    */
@@ -134,26 +135,26 @@ export class SelectionService {
     const toSelect = this.outlineService
       .getAllNodes()
       .filter((p) => p && p.type && types.find((n) => n === p.type));
-    this.setSelected(toSelect, ChangeStateMode.Normal);
+    this.setSelected(toSelect, ChangeStateMode.normal);
     return toSelect;
   }
   inverseSelection() {
     const toSelect = this.outlineService
       .getAllNodes()
       .filter((p) => p && !p.selected);
-    this.setSelected(toSelect, ChangeStateMode.Normal);
+    this.setSelected(toSelect, ChangeStateMode.normal);
   }
 
   deselect(
     nodes: TreeNode[] | TreeNode,
-    source: StateChangedSource = StateChangedSource.NotSet
+    source: StateChangedSource = StateChangedSource.notSet
   ) {
-    this.setSelected(nodes, ChangeStateMode.Remove, source);
+    this.setSelected(nodes, ChangeStateMode.remove, source);
   }
   setSelected(
     nodes: TreeNode[] | TreeNode,
-    mode: ChangeStateMode = ChangeStateMode.Normal,
-    source: StateChangedSource = StateChangedSource.NotSet
+    mode: ChangeStateMode = ChangeStateMode.normal,
+    source: StateChangedSource = StateChangedSource.notSet
   ) {
     this.selectedSubject.change(nodes, mode, source);
   }

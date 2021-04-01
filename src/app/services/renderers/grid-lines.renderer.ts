@@ -11,19 +11,18 @@ import { BaseRenderer } from "./base.renderer";
   providedIn: "root",
 })
 export class GridLinesRenderer extends BaseRenderer {
-  constructor(
-    protected viewService: ViewService,
-    protected logger: LoggerService
-  ) {
-    super();
-  }
-
   gridLinesVisibleSubject = new BehaviorSubject<boolean>(consts.showGridLines);
   rulerVisibleSubject = new BehaviorSubject<boolean>(consts.showRuler);
   rulerVCTX: CanvasRenderingContext2D = null;
   rulerHCTX: CanvasRenderingContext2D = null;
 
   denominators = [1, 2, 5, 10];
+  constructor(
+    protected viewService: ViewService,
+    protected logger: LoggerService
+  ) {
+    super();
+  }
   toggleShowGridLines(): void {
     this.gridLinesVisibleSubject.next(!this.gridLinesVisibleSubject.getValue());
     this.invalidate();

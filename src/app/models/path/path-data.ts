@@ -113,6 +113,7 @@ export class PathData {
   }
   /**
    * Get path data and calculate absolute version for each point.
+   *
    * @param pathData arguments.
    */
   public static analyze(elements: Array<any> | null): PathData | null {

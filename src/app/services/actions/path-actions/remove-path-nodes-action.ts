@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import {
-  PathDataHandle,
-  PathDataHandleType,
+  PathDataHandle
 } from "src/app/models/path-data-handle";
+import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
@@ -10,7 +10,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
 import {
   PathDataPropertyKey,
-  PropertiesService,
+  PropertiesService
 } from "../../properties.service";
 import { SelectionService } from "../../selection.service";
 import { ChangeStateMode } from "../../state-subject";
@@ -25,13 +25,6 @@ import { BasePropertiesStorageAction } from "../base-property-action";
   providedIn: "root",
 })
 export class RemovePathNodesAction extends BasePropertiesStorageAction {
-  constructor(
-    private outlineService: OutlineService,
-    private selectionService: SelectionService,
-    propertiesService: PropertiesService
-  ) {
-    super(propertiesService);
-  }
   icon = "clear";
   nodes: TreeNode[] | null = null;
   items: PathDataHandle[] | null = null;
@@ -45,6 +38,13 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
    * Real elements indexes (can be different from virtual dom)
    */
   indexes: number[] = [];
+  constructor(
+    private outlineService: OutlineService,
+    private selectionService: SelectionService,
+    propertiesService: PropertiesService
+  ) {
+    super(propertiesService);
+  }
   execute() {
     if (!this.committed) {
       // Perform initially action and store committed values.
@@ -187,9 +187,9 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
 
     const items = new Map<TreeNode, PathData>();
     this.items.forEach((p) => {
-      if (p.type === PathDataHandleType.Curve) {
+      if (p.type === PathDataHandleType.curve) {
         this.removeSegment(p.command);
-      } else if (p.type === PathDataHandleType.Point) {
+      } else if (p.type === PathDataHandleType.point) {
         this.removeNode(p.command);
       }
 
@@ -198,7 +198,7 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
 
     this.selectionService.pathDataSubject.change(
       this.items,
-      ChangeStateMode.Remove
+      ChangeStateMode.remove
     );
     items.forEach((pathData, node) => {
       this.propertiesService.setPathData(node, pathData);
@@ -212,8 +212,8 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
       .filter(
         (p) =>
           !(
-            p.type === PathDataHandleType.HandleA ||
-            p.type === PathDataHandleType.HandleB
+            p.type === PathDataHandleType.handleA ||
+            p.type === PathDataHandleType.handleB
           )
       )
       .sort((a, b) => b.commandIndex - a.commandIndex);

@@ -38,6 +38,14 @@ import { BaseComponent } from "../base-component";
 export class TimelineComponent
   extends BaseComponent
   implements OnInit, OnDestroy {
+  @Output()
+  public timelineScroll: EventEmitter<any> = new EventEmitter();
+
+  options: TimelineOptions | null = null;
+  model: TimelineModel = { rows: [] as Array<TimelineRow> };
+  scrollTop = 0;
+  timeline: Timeline | null = null;
+
   constructor(
     private propertiesService: PropertiesService,
     private outlineService: OutlineService,
@@ -50,14 +58,7 @@ export class TimelineComponent
     this.cdRef.detach();
   }
 
-  options: TimelineOptions;
-  model: TimelineModel = { rows: [] as Array<TimelineRow> };
-  scrollTop = 0;
-  timeline: Timeline;
-
-  @Output()
-  public timelineScroll: EventEmitter<any> = new EventEmitter();
-  ngOnInit() {
+  ngOnInit(): void {
     this.ngZone.runOutsideAngular(() => {
       this.init();
     });
@@ -70,7 +71,7 @@ export class TimelineComponent
     }
   }
 
-  init() {
+  init(): void {
     const onDraw = () => {
       this.playerService.synchronizeTimelineWithPlayer();
       window.requestAnimationFrame(onDraw);
@@ -145,14 +146,14 @@ export class TimelineComponent
     });
   }
 
-  public onWheel(event: WheelEvent) {
+  public onWheel(event: WheelEvent): void {
     // Wire wheel events with other divs over the app.
     if (this.timeline) {
       this.timeline._handleWheelEvent(event);
     }
   }
 
-  resolveRowsVisibility(tc: any, node: TreeNode, hidden: boolean) {
+  resolveRowsVisibility(tc: any, node: TreeNode, hidden: boolean): void {
     node.lane.hidden = hidden;
     if (!hidden) {
       if (tc.isExpandable(node)) {
@@ -166,7 +167,7 @@ export class TimelineComponent
     }
   }
 
-  redraw() {
+  redraw(): void {
     if (!this.timeline) {
       return;
     }

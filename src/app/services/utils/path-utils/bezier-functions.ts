@@ -1,7 +1,9 @@
+// Linter is disabled to allow easy merge.
+/* eslint-disable*/
+
 // See: https://github.com/rveciana/svg-path-properties
 // The reason to calculate this 'manually' is a lack of the DOM function to get command by length.
 
-// tslint:disable: variable-name
 import { tValues, cValues, binomialCoefficients } from "./bezier-values";
 
 export const cubicPoint = (xs: number[], ys: number[], t: number): DOMPoint => {
@@ -107,12 +109,11 @@ export const quadraticDerivative = (
   xs: number[],
   ys: number[],
   t: number
-): DOMPoint => {
-  return new DOMPoint(
+): DOMPoint =>
+  new DOMPoint(
     (1 - t) * 2 * (xs[1] - xs[0]) + t * 2 * (xs[2] - xs[1]),
     (1 - t) * 2 * (ys[1] - ys[0]) + t * 2 * (ys[2] - ys[1])
   );
-};
 
 function BFunc(xs: number[], ys: number[], t: number): number {
   const xbase = getDerivative(1, t, xs);
@@ -177,8 +178,7 @@ export const t2length = (
       t += step;
     } else {
       const decreasedTLength = func(t - step);
-      const decreasedTError =
-        Math.abs(length - decreasedTLength) / totalLength;
+      const decreasedTError = Math.abs(length - decreasedTLength) / totalLength;
       if (decreasedTError < error) {
         error = decreasedTError;
         t -= step;

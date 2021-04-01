@@ -23,9 +23,7 @@ const getCubicPoint = (
   xs: number[],
   ys: number[]
 ): DOMPoint => {
-  const t = t2length(fractionLength, fullLength, (i) => {
-    return getCubicArcLength(xs, ys, i);
-  });
+  const t = t2length(fractionLength, fullLength, (i) => getCubicArcLength(xs, ys, i));
 
   return cubicPoint(xs, ys, t);
 };
@@ -35,9 +33,7 @@ const getQuadraticPoint = (
   xs: number[],
   ys: number[]
 ) => {
-  const t = t2length(fractionLength, fullLength, (i) => {
-    return getQuadraticArcLength(xs, ys, i);
-  });
+  const t = t2length(fractionLength, fullLength, (i) => getQuadraticArcLength(xs, ys, i));
 
   return quadraticPoint(xs, ys, t);
 };
@@ -52,8 +48,7 @@ export class PointOnPathUtils {
     if (command.type === PathType.arcAbs) {
       const lengthProperties = approximateArcLengthOfCurve(
         300,
-        (t: number): PointOnEllipticalArcResults => {
-          return pointOnEllipticalArc(
+        (t: number): PointOnEllipticalArcResults => pointOnEllipticalArc(
             command.prevPoint,
             command.rx,
             command.ry,
@@ -62,8 +57,7 @@ export class PointOnPathUtils {
             command.sweep,
             currentPoint,
             t
-          );
-        }
+          )
       );
 
       return lengthProperties ? lengthProperties.arcLength : 0;

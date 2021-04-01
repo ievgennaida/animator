@@ -15,11 +15,8 @@ import { MatrixScaleAction } from "./matrix-scale-action";
   providedIn: "root",
 })
 export class CenterSelectionScaleAction extends MatrixScaleAction {
-  constructor(propertiesService: PropertiesService, viewService: ViewService) {
-    super(propertiesService, viewService);
-  }
   title = "Center Transform";
-  icon = TransformationModeIcon.Scale;
+  icon = TransformationModeIcon.scale;
   changed = false;
 
   /**
@@ -30,11 +27,14 @@ export class CenterSelectionScaleAction extends MatrixScaleAction {
   committed = false;
 
   moveSelectionHandle = false;
+  constructor(propertiesService: PropertiesService, viewService: ViewService) {
+    super(propertiesService, viewService);
+  }
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
     this.handle = handle;
     this.moveSelectionHandle =
-      this.handle?.adorner?.type === AdornerType.Selection;
+      this.handle?.adorner?.type === AdornerType.selection;
 
     this.transformOriginInitial = this.handle?.adorner?.element?.centerTransform;
     super.init(node, screenPos, handle);
@@ -56,6 +56,7 @@ export class CenterSelectionScaleAction extends MatrixScaleAction {
   /**
    * Scale element by a matrix in screen coordinates and convert it back to the element coordinates.
    * Usage: element is transformed by itself, you can compose screen matrix and apply it to the element directly.
+   *
    * @param screenScaleMatrix screen coordinates matrix.
    */
   scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {

@@ -12,6 +12,12 @@ import { SelectionService } from "../selection.service";
   providedIn: "root",
 })
 export class CopyCommand implements BaseCommand {
+  changed = new Subject<BaseCommand>();
+  title = "Copy";
+  icon = "file_copy";
+  hotkey = "Ctrl+C";
+  tooltip = `Copy selected items (${this.hotkey})`;
+  iconSVG = false;
   constructor(
     private selectionService: SelectionService,
     private clipboardService: PasteService,
@@ -19,12 +25,6 @@ export class CopyCommand implements BaseCommand {
   ) {
     this.selectionService.selected.subscribe(() => this.changed.next(this));
   }
-  changed = new Subject<BaseCommand>();
-  title = "Copy";
-  icon = "file_copy";
-  hotkey = "Ctrl+C";
-  tooltip = `Copy selected items (${this.hotkey})`;
-  iconSVG = false;
   canExecute(): boolean {
     const selected = this.selectionService.getTopSelectedNodes();
     if (selected && selected.length > 0) {

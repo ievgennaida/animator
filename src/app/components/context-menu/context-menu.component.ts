@@ -20,13 +20,6 @@ import { BaseComponent } from "../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContextMenuComponent extends BaseComponent implements OnInit {
-  constructor(
-    private contextMenu: ContextMenuService,
-    private contextMenuCommandsService: ContextMenuCommandsService,
-    private cdRef: ChangeDetectorRef
-  ) {
-    super();
-  }
   commands: Array<BaseCommand> = [];
   trigger: MatMenuTrigger;
   @ViewChild("trigger")
@@ -48,6 +41,13 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
   @ViewChild("element", { read: ElementRef })
   set setElement(value: ElementRef<HTMLElement>) {
     this.element = value;
+  }
+  constructor(
+    private contextMenu: ContextMenuService,
+    private contextMenuCommandsService: ContextMenuCommandsService,
+    private cdRef: ChangeDetectorRef
+  ) {
+    super();
   }
   ngOnInit(): void {
     this.commands = this.contextMenuCommandsService.getContextCommands();
@@ -82,7 +82,7 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
     return false;
   }
 
-  globalMouseDown(event: MouseEvent) {
+  globalMouseDown(event: MouseEvent): void {
     event.preventDefault();
   }
 }

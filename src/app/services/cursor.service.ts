@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { AdornerPointType, AdornerTypeUtils } from "../models/adorner-type";
+import { AdornerPointType } from "../models/adorner-point-type";
+import { AdornerTypeUtils } from "../models/adorner-type-utils";
 import { CursorType } from "../models/cursor-type";
 import { HandleData } from "../models/handle-data";
 import { Utils } from "./utils/utils";
@@ -12,7 +13,7 @@ export class CursorService {
   /**
    * Default cursor.
    */
-  defaultCursorSubject = new BehaviorSubject<CursorType>(CursorType.Default);
+  defaultCursorSubject = new BehaviorSubject<CursorType>(CursorType.default);
   /**
    * Current active cursor.
    */
@@ -45,48 +46,22 @@ export class CursorService {
   public getCursorRotate(deg: number | null): CursorType {
     return this.getHandleCursor(deg, true);
   }
-  private getHandleCursor(deg: number | null, rotate = false) {
-    if (deg === null) {
-      return this.defaultCursorSubject.getValue();
-    }
-    const tolerance = 15;
-    if (
-      (deg >= 0 && deg <= 0 + tolerance) ||
-      (deg >= 360 - tolerance && deg <= 360)
-    ) {
-      return rotate ? CursorType.RotateRC : CursorType.WResize;
-    } else if (deg >= 0 + tolerance && deg <= 90 - tolerance) {
-      return rotate ? CursorType.RotateTR : CursorType.SWResize;
-    } else if (deg >= 90 - tolerance && deg <= 90 + tolerance) {
-      return rotate ? CursorType.RotateTC : CursorType.NResize;
-    } else if (deg >= 90 + tolerance && deg <= 180 - tolerance) {
-      return rotate ? CursorType.RotateTL : CursorType.SEResize;
-    } else if (deg >= 180 - tolerance && deg <= 180 + tolerance) {
-      return rotate ? CursorType.RotateLC : CursorType.EResize;
-    } else if (deg >= 180 + tolerance && deg <= 270 - tolerance) {
-      return rotate ? CursorType.RotateBL : CursorType.NEResize;
-    } else if (deg >= 270 - tolerance && deg <= 270 + tolerance) {
-      return rotate ? CursorType.RotateBC : CursorType.SResize;
-    } else if (deg >= 270 + tolerance && deg <= 360 - tolerance) {
-      return rotate ? CursorType.RotateBR : CursorType.NWResize;
-    }
-  }
 
-  setHandleCursor(handle: HandleData, screenPoint: DOMPoint) {
+  setHandleCursor(handle: HandleData, screenPoint: DOMPoint): void {
     const defaultCursor = this.defaultCursorSubject.getValue();
     if (
       !handle ||
       !screenPoint ||
-      handle.handle === AdornerPointType.None ||
-      handle.handle === AdornerPointType.Center
+      handle.handle === AdornerPointType.none ||
+      handle.handle === AdornerPointType.center
     ) {
       this.setCursor(defaultCursor);
     } else {
       let cursor = defaultCursor;
-      if (handle && handle.handle === AdornerPointType.CenterTransform) {
-        cursor = CursorType.Move;
-      } else if (handle && handle.handle === AdornerPointType.Translate) {
-        cursor = CursorType.Move;
+      if (handle && handle.handle === AdornerPointType.centerTransform) {
+        cursor = CursorType.move;
+      } else if (handle && handle.handle === AdornerPointType.translate) {
+        cursor = CursorType.move;
       } else {
         const screen = handle?.adorner?.screen;
         if (AdornerTypeUtils.isRotateAdornerType(handle.handle)) {
@@ -117,5 +92,31 @@ export class CursorService {
     }
     const deg = Utils.angle(screenPoint, centerTransform) + 180;
     return deg;
+  }
+  private getHandleCursor(deg: number | null, rotate = false): CursorType {
+    if (deg === null) {
+      return this.defaultCursorSubject.getValue();
+    }
+    const tolerance = 15;
+    if (
+      (deg >= 0 && deg <= 0 + tolerance) ||
+      (deg >= 360 - tolerance && deg <= 360)
+    ) {
+      return rotate ? CursorType.rotateRC : CursorType.wResize;
+    } else if (deg >= 0 + tolerance && deg <= 90 - tolerance) {
+      return rotate ? CursorType.rotateTR : CursorType.sWResize;
+    } else if (deg >= 90 - tolerance && deg <= 90 + tolerance) {
+      return rotate ? CursorType.rotateTC : CursorType.nResize;
+    } else if (deg >= 90 + tolerance && deg <= 180 - tolerance) {
+      return rotate ? CursorType.rotateTL : CursorType.sEResize;
+    } else if (deg >= 180 - tolerance && deg <= 180 + tolerance) {
+      return rotate ? CursorType.rotateLC : CursorType.eResize;
+    } else if (deg >= 180 + tolerance && deg <= 270 - tolerance) {
+      return rotate ? CursorType.rotateBL : CursorType.nEResize;
+    } else if (deg >= 270 - tolerance && deg <= 270 + tolerance) {
+      return rotate ? CursorType.rotateBC : CursorType.sResize;
+    } else if (deg >= 270 + tolerance && deg <= 360 - tolerance) {
+      return rotate ? CursorType.rotateBR : CursorType.nWResize;
+    }
   }
 }

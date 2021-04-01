@@ -77,8 +77,14 @@ export class PlayerComponent
       this.updateRulers();
     }
   }
+
+  rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
+  workAreaSize = this.viewService.viewportSizeSubject.getValue();
+  shadowAreaSize = this.workAreaSize;
+  scrollbarsSize = 17;
   private cachedMouseOver: TreeNode | null = null;
   private readonly defaultBrowserScrollSize = 17;
+
   constructor(
     private viewService: ViewService,
     private toolsService: ToolsService,
@@ -94,11 +100,6 @@ export class PlayerComponent
     super();
     // this.cdRef.detach();
   }
-  rulerVisible = this.gridLinesRenderer.rulerVisibleSubject.getValue();
-  workAreaSize = this.viewService.viewportSizeSubject.getValue();
-  shadowAreaSize = this.workAreaSize;
-  scrollbarsSize = 17;
-
   calcRealScrollBarSize() {
     const scrollBars = this.scrollBarsRef.nativeElement;
     const offsetElement = this.svgContainer.nativeElement;
@@ -257,7 +258,7 @@ export class PlayerComponent
         if (this.playerRef && this.playerRef.nativeElement) {
           const classList = this.playerRef.nativeElement.classList;
           const onlyContainersMode = ".mouse-over-only-containers";
-          if (mode === MouseOverMode.Containers) {
+          if (mode === MouseOverMode.containers) {
             classList.remove(onlyContainersMode);
           } else {
             classList.add(onlyContainersMode);

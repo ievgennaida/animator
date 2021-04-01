@@ -11,15 +11,15 @@ import { BasePathNodesCommand } from "./base-path-node-mode-command";
   providedIn: "root",
 })
 export class SelectPathNodesModeCommand extends BasePathNodesCommand {
+  expectedMode = PathDirectSelectionToolMode.select;
+  title = "Select Path Nodes";
+  tooltip = `Select and manipulate Path Nodes`;
+  icon = "navigation_outline";
+  iconSVG = true;
   constructor(
     undoService: UndoService,
     pathDirectSelectionTool: PathDirectSelectionTool
   ) {
     super(pathDirectSelectionTool, undoService);
   }
-  expectedMode = PathDirectSelectionToolMode.Select;
-  title = "Select Path Nodes";
-  tooltip = `Select and manipulate Path Nodes`;
-  icon = "navigation_outline";
-  iconSVG = true;
 }

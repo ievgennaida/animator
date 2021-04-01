@@ -29,25 +29,25 @@ export class ZoomTool extends BaseTool {
 
   onActivate() {
     this.mouseOverRenderer.suspend(true);
-    this.cursor.setCursor(CursorType.ZoomIn);
+    this.cursor.setCursor(CursorType.zoomIn);
     super.onActivate();
   }
 
   onDeactivate() {
     this.mouseOverRenderer.resume();
-    this.cursor.setCursor(CursorType.Default);
+    this.cursor.setCursor(CursorType.default);
     this.cleanUp();
     super.onDeactivate();
   }
 
   onWindowKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey) {
-      this.cursor.setCursor(CursorType.ZoomOut);
+      this.cursor.setCursor(CursorType.zoomOut);
     }
   }
 
   onWindowKeyUp(event: KeyboardEvent) {
-    this.cursor.setCursor(CursorType.ZoomIn);
+    this.cursor.setCursor(CursorType.zoomIn);
   }
 
   onViewportMouseWheel(event: MouseEventArgs) {
@@ -61,7 +61,7 @@ export class ZoomTool extends BaseTool {
   }
   onViewportMouseDown(event: MouseEventArgs) {
     if (event.rightClicked()) {
-      this.cursor.setCursor(CursorType.ZoomOut);
+      this.cursor.setCursor(CursorType.zoomOut);
     } else {
       this.selectionTracker.start(event);
     }
@@ -93,7 +93,7 @@ export class ZoomTool extends BaseTool {
   cleanUp() {
     this.selectionTracker.stop();
     this.autoPanService.stop();
-    this.cursor.setCursor(CursorType.ZoomIn);
+    this.cursor.setCursor(CursorType.zoomIn);
   }
   /**
    * Override base method.

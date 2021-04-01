@@ -13,19 +13,18 @@ import { TransformsService } from "../tools/transforms.service";
   providedIn: "root",
 })
 export class UntransformCommand implements BaseCommand {
-  constructor(
-    private selectionService: SelectionService,
-    private transformService: TransformsService,
-    private adornersRenderer: AdornersRenderer,
-    private adornersService: AdornersService
-  ) {}
-
   active = false;
   tooltip = "Untransform matrix and preserve position of all path data points.";
   title = "Untransform";
   icon = "crop_16_9-black-18dp";
   align = "right";
   iconSVG = true;
+  constructor(
+    private selectionService: SelectionService,
+    private transformService: TransformsService,
+    private adornersRenderer: AdornersRenderer,
+    private adornersService: AdornersService
+  ) {}
   canExecute() {
     const nodes = this.selectionService.getSelected();
     return nodes && nodes.length > 0;

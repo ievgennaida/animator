@@ -6,7 +6,7 @@ import {
 } from "@angular/core";
 import { AdornersRenderer } from "src/app/services/renderers/adorners.renderer";
 import { BaseRenderer } from "src/app/services/renderers/base.renderer";
-import { BaseComponent } from '../../base-component';
+import { BaseComponent } from "../../base-component";
 
 @Component({
   selector: "app-player-adorners",
@@ -25,7 +25,7 @@ export class PlayerAdornersComponent extends BaseComponent implements OnInit {
     cdRef.detach();
   }
 
-  trackElement(index: number) {
+  trackElement(index: number): number {
     return index;
   }
 

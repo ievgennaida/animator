@@ -12,6 +12,12 @@ import { AdornersRenderer } from "../renderers/adorners.renderer";
   providedIn: "root",
 })
 export class BBoxModeCommand implements BaseCommand {
+  changed = new Subject<BaseCommand>();
+  tooltip?: string;
+  title?: string;
+  icon: string;
+  align = "right";
+  iconSVG = true;
   constructor(
     private adornersRenderer: AdornersRenderer,
     private adornersService: AdornersService,
@@ -19,12 +25,6 @@ export class BBoxModeCommand implements BaseCommand {
   ) {
     this.resolveState();
   }
-  changed = new Subject<BaseCommand>();
-  tooltip?: string;
-  title?: string;
-  icon: string;
-  align = "right";
-  iconSVG = true;
   execute() {
     const config = this.configService.get();
     config.showTransformedBBoxes = !config.showTransformedBBoxes;

@@ -10,18 +10,18 @@ import { UndoService } from "../undo.service";
   providedIn: "root",
 })
 export class RedoCommand implements BaseCommand {
-  constructor(private undoService: UndoService) {
-    // Command is singleton, no need to unsubscribe.
-    this.undoService.actionIndexSubject
-      .asObservable()
-      .subscribe(() => this.changed.next(this));
-  }
   changed = new Subject<BaseCommand>();
   title = "Redo";
   icon = "redo";
   hotkey = "Ctrl+Y";
   tooltip = `Redo Operation (${this.hotkey})`;
   iconSVG = false;
+  constructor(private undoService: UndoService) {
+    // Command is singleton, no need to unsubscribe.
+    this.undoService.actionIndexSubject
+      .asObservable()
+      .subscribe(() => this.changed.next(this));
+  }
   canExecute(): boolean {
     return this.undoService.canRedo();
   }

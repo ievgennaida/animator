@@ -3,9 +3,9 @@ import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "src/app/services/outline.service";
 import { Utils } from "src/app/services/utils/utils";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 import { PropertiesService } from "../../../properties.service";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 /**
  * Translate center transformation point for the virtual selection rectangle.
@@ -15,15 +15,10 @@ import { TransformationModeIcon } from "../../../../models/transformation-mode";
   providedIn: "root",
 })
 export class CenterSelectionTranslateAction extends BaseTransformAction {
-  constructor(
-    propertiesService: PropertiesService,
-    private outlineService: OutlineService
-  ) {
-    super(propertiesService);
-  }
+
   title = "Center Transform";
   changed = false;
-  icon = TransformationModeIcon.Move;
+  icon = TransformationModeIcon.move;
   /**
    * Original value for the undo service
    */
@@ -36,6 +31,12 @@ export class CenterSelectionTranslateAction extends BaseTransformAction {
   committedOrigin: DOMPoint | null = null;
   committed = false;
   anchor: TreeNode | null = null;
+  constructor(
+    propertiesService: PropertiesService,
+    private outlineService: OutlineService
+  ) {
+    super(propertiesService);
+  }
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
     this.node = node;
     this.handle = handle;

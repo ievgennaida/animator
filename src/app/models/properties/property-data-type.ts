@@ -1,7 +1,8 @@
+/* eslint-disable id-blacklist */
 export enum PropertyDataType {
   number = "number",
   /**
-   * valueKeyframed
+   * value
    */
   value = "value",
 

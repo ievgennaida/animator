@@ -10,14 +10,14 @@ import { BaseCommand } from "./base-command";
   providedIn: "root",
 })
 export class ScrollToSelected implements BaseCommand {
-  constructor() {}
+
   executed = new Subject<BaseCommand>();
   tooltip = "Scroll To Selected";
   title = "Scroll To Selected";
   icon = "anchor";
   hotkey = "";
   iconSVG = false;
-
+  constructor() {}
   execute() {
     this.executed.next(this);
   }

@@ -1,4 +1,5 @@
-import { PathDataHandle, PathDataHandleType } from "../models/path-data-handle";
+import { PathDataHandle } from "../models/path-data-handle";
+import { PathDataHandleType } from "../models/path-data-handle-type";
 import { PathDataCommand } from "../models/path/path-data-command";
 import { TreeNode } from "../models/tree-node";
 import { ChangeStateMode, StateSubject } from "./state-subject";
@@ -6,20 +7,6 @@ import { ChangeStateMode, StateSubject } from "./state-subject";
  * Subject to track selected/mouse over path data handles.
  */
 export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
-  /**
-   * Override.
-   * Check path data on equality comparison
-   */
-  protected equals(first: PathDataHandle, second: PathDataHandle) {
-    if (!first && !second) {
-      return false;
-    }
-    if (!first || !second) {
-      return false;
-    }
-    return first.equals(second);
-  }
-
   findByHandle(handle: PathDataHandle) {
     if (!handle) {
       return null;
@@ -30,7 +17,7 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
   getHandle(
     node: TreeNode,
     command: PathDataCommand,
-    type: PathDataHandleType = PathDataHandleType.Point
+    type: PathDataHandleType = PathDataHandleType.point
   ): PathDataHandle {
     const array = this.getValues();
     return array.find((p) => p.isHandle(node, command, type));
@@ -58,6 +45,19 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     const toLeave = this.getValues().find((p) =>
       nodes.find((node) => node === p.node)
     );
-    return this.change(toLeave, ChangeStateMode.Remove);
+    return this.change(toLeave, ChangeStateMode.remove);
+  }
+  /**
+   * Override.
+   * Check path data on equality comparison
+   */
+  protected equals(first: PathDataHandle, second: PathDataHandle) {
+    if (!first && !second) {
+      return false;
+    }
+    if (!first || !second) {
+      return false;
+    }
+    return first.equals(second);
   }
 }

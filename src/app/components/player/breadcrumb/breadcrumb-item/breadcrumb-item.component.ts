@@ -7,12 +7,10 @@ import {
   NgZone,
 } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
-import {
-  SelectionService
-} from "src/app/services/selection.service";
-import { BaseComponent } from 'src/app/components/base-component';
-import { MouseOverService } from 'src/app/services/mouse-over.service';
-import { ChangeStateMode } from 'src/app/services/state-subject';
+import { SelectionService } from "src/app/services/selection.service";
+import { BaseComponent } from "src/app/components/base-component";
+import { MouseOverService } from "src/app/services/mouse-over.service";
+import { ChangeStateMode } from "src/app/services/state-subject";
 export class Breadcrumb {
   node: TreeNode;
   title: string;
@@ -25,6 +23,8 @@ export class Breadcrumb {
 })
 export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
   showNext = true;
+  item: Breadcrumb | null = null;
+  // eslint-disable-next-line @angular-eslint/no-input-rename
   @Input("showNext")
   set setShowNext(value: boolean) {
     if (this.showNext !== value) {
@@ -32,8 +32,8 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
       this.cdRef.detectChanges();
     }
   }
-  item: Breadcrumb;
 
+  // eslint-disable-next-line @angular-eslint/no-input-rename
   @Input("item") set setNode(value: Breadcrumb) {
     if (this.item !== value) {
       this.item = value;
@@ -55,7 +55,7 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
     if (!this.item || !this.item.node) {
       return;
     }
-    const mode = ChangeStateMode.Normal;
+    const mode = ChangeStateMode.normal;
     this.ngZone.runOutsideAngular(() => {
       this.selectionService.setSelected(this.item.node, mode);
     });

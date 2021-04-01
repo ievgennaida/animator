@@ -5,18 +5,16 @@ import { PropertyDataType } from "./property-data-type";
 import { PropertyType } from "./property-type";
 
 export class NumberProperty extends Property {
-  constructor(node: TreeNode, key, name, data, description) {
-    super(node, key, name, data, description);
-    this.type = PropertyType.number;
-    this.dataType = PropertyDataType.number;
-  }
-
   public index: number | null = null;
 
   public min?: number;
   public step = 0.5;
   public max?: number;
-
+  constructor(node: TreeNode, key, name, data, description) {
+    super(node, key, name, data, description);
+    this.type = PropertyType.number;
+    this.dataType = PropertyDataType.number;
+  }
   setValueAtTime(frame: number) {
     const value = this.getValueAtTime(frame);
     if (this.index !== null && value) {

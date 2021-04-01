@@ -16,47 +16,48 @@ export enum Flags {
   disableRemove = "disableRemove",
   disableRotate = "disableRotate",
   disableScale = "disableScale",
-  disableMouseOver  = "disableMouseOver"
+  disableMouseOver = "disableMouseOver",
 }
 
 /**
  * Application node view model.
  */
 export class TreeNode implements ICTMProvider, IBBox {
-  constructor() {
-    this.lane = {} as TimelineRow;
-    this.children = [];
-  }
-  private cacheBBox: DOMRect = null;
-
   icon = "folder";
   /**
    * Root document element node.
    */
   isRoot = false;
-  nameProperty: Property;
+  nameProperty: Property | null = null;
   properties: Properties = new Properties();
-  children: TreeNode[];
-  parent: TreeNode;
+  children: TreeNode[] | null = null;
+  parent: TreeNode | null = null;
   nodeName = "";
   flags: (string | Flags)[] = [];
   tag: any;
   shape: any;
-  type: string;
+  type = "";
   data: any;
 
-  lane: TimelineRow;
-  level: number;
+  lane: TimelineRow | null = null;
+  level = 0;
 
   mouseOver = false;
   selected = false;
-  private cacheClientRect: DOMRect;
-  private screenCTMCache: DOMMatrix;
-  // tslint:disable-next-line: variable-name
-  private _name = "";
-  private pathDataCache: PathData;
   typeTitle = "";
+  // Note: flag is not cause screen refresh. Should be handled by the tree view control.
+  expanded = false;
+  private cacheClientRect: DOMRect | null = null;
+  private screenCTMCache: DOMMatrix | null = null;
+  private cacheBBox: DOMRect | null = null;
 
+  private _name = "";
+  private pathDataCache: PathData | null = null;
+
+  constructor() {
+    this.lane = {} as TimelineRow;
+    this.children = [];
+  }
   get name(): string {
     return this._name || this.typeTitle;
   }
@@ -99,8 +100,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     const element = this.getElement();
     return Utils.getElementIndex(element);
   }
-  // Note: flag is not cause screen refresh. Should be handled by the tree view control.
-  expanded = false;
+
   get expandable(): boolean {
     return !!this.children && this.children.length > 0;
   }
@@ -111,7 +111,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   get ownerSVGElement(): SVGSVGElement | null {
     return this.getElement()?.ownerSVGElement;
   }
-  addFlag(flag: Flags | string) {
+  addFlag(flag: Flags | string): void {
     if (!this.flags.includes(flag)) {
       this.flags.push(flag);
     }
@@ -136,7 +136,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     return null;
   }
 
-  cleanCache() {
+  cleanCache(): void {
     this.screenCTMCache = null;
     this.cacheBBox = null;
     this.cacheClientRect = null;
@@ -171,7 +171,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     return null;
   }
 
-  getScreenCTM() {
+  getScreenCTM(): DOMMatrix {
     if (this.screenCTMCache) {
       return this.screenCTMCache;
     }

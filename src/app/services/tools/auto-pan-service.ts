@@ -11,12 +11,6 @@ import { PanTool } from "./pan.tool";
   providedIn: "root",
 })
 export class AutoPanService {
-  constructor(
-    protected logger: LoggerService,
-    protected panTool: PanTool,
-    protected viewService: ViewService
-  ) {}
-
   private autoPanSpeed = 0;
   private autoPanIntervalRef = null;
   private clientX = 0;
@@ -24,8 +18,52 @@ export class AutoPanService {
   private autoPanInterval = 50;
   private containerRect: DOMRect | null = null;
   private active = true;
+  constructor(
+    protected logger: LoggerService,
+    protected panTool: PanTool,
+    protected viewService: ViewService
+  ) {}
   public isActive(): boolean {
     return this.active;
+  }
+
+  stop(): void {
+    this.containerRect = null;
+    this.active = false;
+    if (this.autoPanIntervalRef) {
+      clearInterval(this.autoPanIntervalRef);
+      this.autoPanIntervalRef = null;
+    }
+  }
+
+  update(clientX: number, clientY: number): void {
+    this.clientX = clientX;
+    this.clientY = clientY;
+
+    if (!this.containerRect) {
+      this.containerRect = this.viewService.getContainerClientRect();
+    }
+
+    const bounds = this.viewService.getDisplayedBounds();
+    if (bounds) {
+      const zoom = this.viewService.getZoom();
+      this.autoPanSpeed = consts.autoPanSpeed * zoom * Math.abs(bounds.width);
+    }
+
+    const performed = this.autoPanAction(
+      this.clientX,
+      this.clientY,
+      this.containerRect
+    );
+    if (performed) {
+      this.active = true;
+      if (!this.autoPanIntervalRef) {
+        // Repeat move calls to
+        this.autoPanIntervalRef = setInterval(() => {
+          this.autoPanAction(this.clientX, this.clientY, this.containerRect);
+        }, this.autoPanInterval);
+      }
+    }
   }
   private autoPanAction(x: number, y: number, containerSize: DOMRect): boolean {
     // Pan by scroll
@@ -58,43 +96,5 @@ export class AutoPanService {
     }
 
     return done;
-  }
-  stop() {
-    this.containerRect = null;
-    this.active = false;
-    if (this.autoPanIntervalRef) {
-      clearInterval(this.autoPanIntervalRef);
-      this.autoPanIntervalRef = null;
-    }
-  }
-
-  update(clientX: number, clientY: number) {
-    this.clientX = clientX;
-    this.clientY = clientY;
-
-    if (!this.containerRect) {
-      this.containerRect = this.viewService.getContainerClientRect();
-    }
-
-    const bounds = this.viewService.getDisplayedBounds();
-    if (bounds) {
-      const zoom = this.viewService.getZoom();
-      this.autoPanSpeed = consts.autoPanSpeed * zoom * Math.abs(bounds.width);
-    }
-
-    const performed = this.autoPanAction(
-      this.clientX,
-      this.clientY,
-      this.containerRect
-    );
-    if (performed) {
-      this.active = true;
-      if (!this.autoPanIntervalRef) {
-        // Repeat move calls to
-        this.autoPanIntervalRef = setInterval(() => {
-          this.autoPanAction(this.clientX, this.clientY, this.containerRect);
-        }, this.autoPanInterval);
-      }
-    }
   }
 }

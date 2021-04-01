@@ -1,3 +1,4 @@
+/* eslint-disable id-blacklist */
 export enum PropertyType {
   text = "text",
   combo = "combo",

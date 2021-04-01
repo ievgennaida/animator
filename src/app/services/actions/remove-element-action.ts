@@ -11,9 +11,6 @@ import { BaseAction } from "./base-action";
   providedIn: "root",
 })
 export class RemoveElementAction extends BaseAction {
-  constructor(private outlineService: OutlineService) {
-    super();
-  }
   icon = "clear";
   nodes: TreeNode[] | null = null;
   containers: TreeNode[] = [];
@@ -26,7 +23,9 @@ export class RemoveElementAction extends BaseAction {
    * Real elements indexes (can be different from virtual dom)
    */
   indexes: number[] = [];
-
+  constructor(private outlineService: OutlineService) {
+    super();
+  }
   execute() {
     this.nodes.forEach((node, index) => {
       const container = this.containers[index];

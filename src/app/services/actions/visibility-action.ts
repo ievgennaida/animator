@@ -11,13 +11,13 @@ import { BaseAction } from "./base-action";
   providedIn: "root",
 })
 export class VisibilityAction extends BaseAction {
-  constructor(private propertiesService: PropertiesService) {
-    super();
-  }
+
   items: TreeNode[];
   initialStates: string[];
   committed = true;
-
+  constructor(private propertiesService: PropertiesService) {
+    super();
+  }
   execute() {
     this.items.forEach((p) =>
       this.propertiesService.setDisplay(p, !this.propertiesService.isVisible(p))

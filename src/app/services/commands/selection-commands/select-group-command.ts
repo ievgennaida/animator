@@ -13,13 +13,6 @@ import { SelectSameCommand } from "./select-same-type-command";
   providedIn: "root",
 })
 export class SelectGroupCommand implements BaseCommand {
-  constructor(
-    private selectAllCommand: SelectAllCommand,
-    private selectNoneCommand: SelectNoneCommand,
-    private selectSameTypeCommand: SelectSameCommand,
-    private selectInverseCommand: SelectInverseCommand,
-    private selectAllGroupsCommand: SelectAllGroupsCommand
-  ) {}
   title = "Select";
   commands: BaseCommand[] = [
     this.selectAllCommand,
@@ -28,4 +21,11 @@ export class SelectGroupCommand implements BaseCommand {
     this.selectAllGroupsCommand,
     this.selectInverseCommand,
   ];
+  constructor(
+    private selectAllCommand: SelectAllCommand,
+    private selectNoneCommand: SelectNoneCommand,
+    private selectSameTypeCommand: SelectSameCommand,
+    private selectInverseCommand: SelectInverseCommand,
+    private selectAllGroupsCommand: SelectAllGroupsCommand
+  ) {}
 }

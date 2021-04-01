@@ -11,12 +11,12 @@ import { BaseAction } from "./base-action";
   providedIn: "root",
 })
 export class AddElementAction extends BaseAction {
+  container: TreeNode | null = null;
+  element: TreeNode | null = null;
+  committed = true;
   constructor(private outlineService: OutlineService) {
     super();
   }
-  container: TreeNode;
-  element: TreeNode;
-  committed = true;
   execute() {
     Utils.addTreeNodeToContainer(this.element, this.container);
     this.outlineService.update();

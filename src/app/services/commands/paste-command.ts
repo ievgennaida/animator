@@ -14,6 +14,12 @@ import { UndoService } from "../undo.service";
   providedIn: "root",
 })
 export class PasteCommand implements BaseCommand {
+  changed = new Subject<BaseCommand>();
+  title = "Paste";
+  icon = "content_paste";
+  hotkey = "Ctrl+V";
+  tooltip = `Paste selected items (${this.hotkey})`;
+  iconSVG = false;
   constructor(
     private clipboardService: PasteService,
     private selectionService: SelectionService,
@@ -24,12 +30,6 @@ export class PasteCommand implements BaseCommand {
       this.changed.next(this)
     );
   }
-  changed = new Subject<BaseCommand>();
-  title = "Paste";
-  icon = "content_paste";
-  hotkey = "Ctrl+V";
-  tooltip = `Paste selected items (${this.hotkey})`;
-  iconSVG = false;
   canExecute(): boolean {
     return this.clipboardService.bufferSubject.getValue().length > 0;
   }

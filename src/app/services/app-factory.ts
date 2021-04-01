@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { InputDocumentType } from "../models/input-document";
+import { InputDocumentType } from "../models/input-document-type";
 import { IInitializer } from "../models/interfaces/initializer";
 import { IParser } from "../models/interfaces/parser";
 import { SvgInitializer } from "./svg/svg-initializer";
@@ -13,7 +13,7 @@ export class AppFactory {
   constructor() {}
 
   getParser(type: InputDocumentType): IParser {
-    if (type === InputDocumentType.JSON) {
+    if (type === InputDocumentType.json) {
       return null;
     } else {
       return new SvgTreeParser();
@@ -24,7 +24,7 @@ export class AppFactory {
    * Viewport initializer.
    */
   getViewportInitializer(type: InputDocumentType): IInitializer {
-    if (type === InputDocumentType.JSON) {
+    if (type === InputDocumentType.json) {
       return null;
     } else {
       return new SvgInitializer();

@@ -1,8 +1,9 @@
-// tslint:disable: variable-name
+/* eslint-disable @typescript-eslint/naming-convention, no-underscore-dangle, id-blacklist, id-match */
 import { Injectable } from "@angular/core";
+import { AdornerPointType } from "src/app/models/adorner-point-type";
 import { consts } from "src/environments/consts";
 import { Adorner, AdornerContainer } from "../../models/adorner";
-import { AdornerPointType, AdornerType } from "../../models/adorner-type";
+import { AdornerType } from "../../models/adorner-type";
 import { TransformationMode } from "../../models/transformation-mode";
 import { AdornersService } from "../adorners-service";
 import { ConfigService } from "../config-service";
@@ -65,7 +66,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       false,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.TopLeft)
+      this.getAdornerStroke(container, AdornerPointType.topLeft)
     );
     // top right
     this.drawAdornerHandle(
@@ -75,7 +76,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       false,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.TopRight)
+      this.getAdornerStroke(container, AdornerPointType.topRight)
     );
     // bottom left
     this.drawAdornerHandle(
@@ -85,7 +86,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       false,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.BottomLeft)
+      this.getAdornerStroke(container, AdornerPointType.bottomLeft)
     );
     // bottom right
     this.drawAdornerHandle(
@@ -95,7 +96,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongHR,
       false,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.BottomRight)
+      this.getAdornerStroke(container, AdornerPointType.bottomRight)
     );
 
     // top center
@@ -106,7 +107,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       true,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.TopCenter)
+      this.getAdornerStroke(container, AdornerPointType.topCenter)
     );
     // bottom center
     this.drawAdornerHandle(
@@ -116,7 +117,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongH,
       true,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.BottomCenter)
+      this.getAdornerStroke(container, AdornerPointType.bottomCenter)
     );
     // left center
     this.drawAdornerHandle(
@@ -126,7 +127,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       true,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.LeftCenter)
+      this.getAdornerStroke(container, AdornerPointType.leftCenter)
     );
     // right center
     this.drawAdornerHandle(
@@ -136,7 +137,7 @@ export class BoundsRenderer extends BaseRenderer {
       alongW,
       true,
       handleStroke,
-      this.getAdornerStroke(container, AdornerPointType.RightCenter)
+      this.getAdornerStroke(container, AdornerPointType.rightCenter)
     );
   }
 
@@ -221,10 +222,10 @@ export class BoundsRenderer extends BaseRenderer {
 
     const adorners = this.adornersService.getActiveAdorners();
     const selectorAdorner = adorners.find(
-      (p) => p.type === AdornerType.Selection
+      (p) => p.type === AdornerType.selection
     );
     const pathDataSelector = adorners.find(
-      (p) => p.type === AdornerType.PathDataSelection
+      (p) => p.type === AdornerType.pathDataSelection
     );
     const activeTransformTransaction = this.transform.activeMode;
     adorners.forEach((adorner) => {
@@ -238,8 +239,8 @@ export class BoundsRenderer extends BaseRenderer {
         return;
       }
       const main =
-        adorner.type === AdornerType.Selection ||
-        adorner.type === AdornerType.PathDataSelection;
+        adorner.type === AdornerType.selection ||
+        adorner.type === AdornerType.pathDataSelection;
       const isAlt = selectorAdorner && selectorAdorner.enabled && !main;
       const elementsColor = isAlt
         ? consts.altSelectionStroke
@@ -256,10 +257,10 @@ export class BoundsRenderer extends BaseRenderer {
         this.adornersService.isAdornerActive(
           adorner,
           adorners,
-          AdornerPointType.TopLeft
+          AdornerPointType.topLeft
         ) &&
         // Don't show scale adorner during the transformation
-        activeTransformTransaction === TransformationMode.None
+        activeTransformTransaction === TransformationMode.none
       ) {
         this.drawAdornersHandles(ctx, adorner, converted);
       }
@@ -268,13 +269,13 @@ export class BoundsRenderer extends BaseRenderer {
         this.adornersService.isAdornerActive(
           adorner,
           adorners,
-          AdornerPointType.CenterTransform
+          AdornerPointType.centerTransform
         )
       ) {
         const transformOrigin = converted.centerTransform || converted.center;
         if (
           transformOrigin &&
-          activeTransformTransaction !== TransformationMode.Scale
+          activeTransformTransaction !== TransformationMode.scale
         ) {
           // Don't show center during the transaction:
           this.drawCross(ctx, transformOrigin);
@@ -284,7 +285,7 @@ export class BoundsRenderer extends BaseRenderer {
         this.adornersService.isAdornerActive(
           adorner,
           adorners,
-          AdornerPointType.Translate
+          AdornerPointType.translate
         )
       ) {
         this.drawMoveHandle(ctx, adorner, converted);
@@ -308,7 +309,7 @@ export class BoundsRenderer extends BaseRenderer {
     }
     const isMouseOver = this.mouseOverService.isMouseOverAdornerHandle(
       container,
-      AdornerPointType.Translate
+      AdornerPointType.translate
     );
     const p = adorner.translate;
     const thickness = config.translateHandleThickness;

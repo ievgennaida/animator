@@ -17,11 +17,8 @@ import { MatrixScaleAction } from "./matrix-scale-action";
   providedIn: "root",
 })
 export class RectScaleAction extends MatrixScaleAction {
-  constructor(propertiesService: PropertiesService, viewService: ViewService) {
-    super(propertiesService, viewService);
-  }
   title = "Scale";
-  icon = TransformationModeIcon.Scale;
+  icon = TransformationModeIcon.scale;
 
   propX = "x";
   propY = "y";
@@ -30,6 +27,9 @@ export class RectScaleAction extends MatrixScaleAction {
 
   startRect: DOMRect = null;
   centerTransform: DOMPoint | null = null;
+  constructor(propertiesService: PropertiesService, viewService: ViewService) {
+    super(propertiesService, viewService);
+  }
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     this.node = node;
     this.handle = handle;

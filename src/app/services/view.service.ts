@@ -15,18 +15,7 @@ export class ClientSize {
   providedIn: "root",
 })
 export class ViewService implements ICTMProvider {
-  constructor() {
-    this.transformed.subscribe(() => {
-      if (this.viewport) {
-        // update self ctm cache
-        this.ctm = Utils.getCTM(this.viewport);
-        this.screenCTM = this.viewport.getScreenCTM();
-      } else {
-        this.ctm = null;
-        this.screenCTM = null;
-      }
-    });
-  }
+
   ctm: DOMMatrix;
   screenCTM: DOMMatrix;
   viewModeSubject = new BehaviorSubject<ViewMode>(
@@ -60,6 +49,18 @@ export class ViewService implements ICTMProvider {
    * On elements count of the svg is changed. deleted, added etc.
    */
   elementsChangedSubject = new Subject();
+  constructor() {
+    this.transformed.subscribe(() => {
+      if (this.viewport) {
+        // update self ctm cache
+        this.ctm = Utils.getCTM(this.viewport);
+        this.screenCTM = this.viewport.getScreenCTM();
+      } else {
+        this.ctm = null;
+        this.screenCTM = null;
+      }
+    });
+  }
   setMode(mode: ViewMode) {
     if (this.viewModeSubject.getValue() !== mode) {
       this.viewModeSubject.next(mode);
@@ -242,6 +243,7 @@ export class ViewService implements ICTMProvider {
 
   /**
    * Called once on the application start.
+   *
    * @param viewport svg application viewport.
    */
   init(viewport: SVGGraphicsElement, host: SVGElement) {

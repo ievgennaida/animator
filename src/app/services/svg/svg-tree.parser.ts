@@ -5,7 +5,6 @@ import { SVGElementType } from "./svg-element-type";
 import { SvgProperties } from "./svg-properties";
 
 export class SvgTreeParser implements IParser {
-  constructor(private svgPropertiesProvider = new SvgProperties()) {}
 
   allowed: string[] = [
     SVGElementType.a,
@@ -31,6 +30,8 @@ export class SvgTreeParser implements IParser {
     SVGElementType.use,
     // "defs" // The <defs> element is used to store content that will not be directly displayed.
   ];
+  constructor(private svgPropertiesProvider = new SvgProperties()) {}
+
   clone(node: TreeNode, deep = true): TreeNode {
     const clonedNode = node?.getElement()?.cloneNode(deep) as Element;
     const cloned = this.convertTreeNode(clonedNode, deep);
@@ -70,6 +71,7 @@ export class SvgTreeParser implements IParser {
 
   /**
    * Convert element to treeNode.
+   *
    * @param el element to be converted.
    */
   convertTreeNode(elArgs: any, deep = true): TreeNode {

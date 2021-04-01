@@ -3,6 +3,8 @@ import { PropertyType } from "./property-type";
 import { TreeNode } from "src/app/models/tree-node";
 
 export class ComboProperty extends Property {
+  items: any[];
+  defaultItem: any;
   constructor(
     node: TreeNode,
     key: string,
@@ -15,7 +17,4 @@ export class ComboProperty extends Property {
     super(node, key, name, data, description);
     this.type = PropertyType.combo;
   }
-
-  items: any[];
-  defaultItem: any;
 }

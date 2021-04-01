@@ -15,6 +15,12 @@ import { BaseAction } from "./base-action";
   providedIn: "root",
 })
 export class PasteAction extends BaseAction {
+  title = "Paste";
+  icon = "content_paste";
+  tooltip = `Paste selected items`;
+  committed = true;
+  nodes: TreeNode[] | null = null;
+  container: TreeNode | null = null;
   constructor(
     private viewService: ViewService,
     private outlineService: OutlineService,
@@ -24,13 +30,6 @@ export class PasteAction extends BaseAction {
   ) {
     super();
   }
-  title = "Paste";
-  icon = "content_paste";
-  tooltip = `Paste selected items`;
-  committed = true;
-  nodes: TreeNode[] | null = null;
-  container: TreeNode | null = null;
-
   execute() {
     this.nodes.forEach((node) => {
       Utils.addTreeNodeToContainer(node, this.container);
@@ -60,7 +59,7 @@ export class PasteAction extends BaseAction {
       }
     }
     if (node.children) {
-      // tslint:disable-next-line: prefer-for-of
+      // eslint-disable-next-line @typescript-eslint/prefer-for-of
       for (let i = 0; i < node.children.length; i++) {
         const el = node.children[i] as Element;
         this.cleanupElementsBeforePaste(el);

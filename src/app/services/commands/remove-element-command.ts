@@ -14,13 +14,7 @@ import { BaseCommand } from "./base-command";
   providedIn: "root",
 })
 export class RemoveElementCommand implements BaseCommand {
-  constructor(
-    protected selectionService: SelectionService,
-    protected undoService: UndoService,
-    protected logger: LoggerService
-  ) {
-    this.selectionService.selected.subscribe(() => this.changed.next(this));
-  }
+
 
   title = "Delete";
   icon = "clear";
@@ -31,6 +25,13 @@ export class RemoveElementCommand implements BaseCommand {
   // Store previous indexes of the elements
   indexes: number[] = [];
   changed = new Subject<BaseCommand>();
+  constructor(
+    protected selectionService: SelectionService,
+    protected undoService: UndoService,
+    protected logger: LoggerService
+  ) {
+    this.selectionService.selected.subscribe(() => this.changed.next(this));
+  }
   canRemove(nodes: TreeNode[]): boolean {
     const selected = nodes.filter((p) => p.allowRemove);
     if (selected && selected.length > 0) {

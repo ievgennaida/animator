@@ -5,13 +5,8 @@ import { ScrollToSelected } from "../../commands/scroll-to-selected";
 import { OutlineService } from "../../outline.service";
 import { Utils } from "../../utils/utils";
 import { BaseAction } from "../base-action";
+import { OrderMode } from "./order-mode";
 
-export enum OrderMode {
-  Front = "To Front",
-  Back = "To Back",
-  OneStepForwards = "Step Forward",
-  OneStepBackwards = "Step Backward",
-}
 /**
  * Order elements action
  */
@@ -19,17 +14,10 @@ export enum OrderMode {
   providedIn: "root",
 })
 export class OrderAction extends BaseAction {
-  constructor(
-    private outlineService: OutlineService,
-    private scrollToSelectedCommand: ScrollToSelected,
-    private commandExecutor: CommandsExecutorService
-  ) {
-    super();
-  }
   icon = "import_export";
   nodes: TreeNode[] | null = null;
   containers: TreeNode[] = [];
-  mode: OrderMode;
+  mode: OrderMode = OrderMode.front;
   committed = true;
   /**
    * Store virtual dom indexes.
@@ -39,7 +27,13 @@ export class OrderAction extends BaseAction {
    * Real elements indexes (can be different from virtual dom)
    */
   indexes: number[] = [];
-
+  constructor(
+    private outlineService: OutlineService,
+    private scrollToSelectedCommand: ScrollToSelected,
+    private commandExecutor: CommandsExecutorService
+  ) {
+    super();
+  }
   static canSendToBottom(nodes: TreeNode[]): boolean {
     if (!nodes || nodes.length <= 0) {
       return false;
@@ -90,13 +84,13 @@ export class OrderAction extends BaseAction {
     this.nodes.forEach((node, index) => {
       const container = node.parentNode;
       let expectedIndex = node.index;
-      if (this.mode === OrderMode.OneStepBackwards) {
+      if (this.mode === OrderMode.oneStepBackwards) {
         expectedIndex--;
-      } else if (this.mode === OrderMode.OneStepForwards) {
+      } else if (this.mode === OrderMode.oneStepForwards) {
         expectedIndex++;
-      } else if (this.mode === OrderMode.Front) {
+      } else if (this.mode === OrderMode.front) {
         expectedIndex = container.children.length - 1;
-      } else if (this.mode === OrderMode.Back) {
+      } else if (this.mode === OrderMode.back) {
         expectedIndex = 0;
       }
 
@@ -132,7 +126,7 @@ export class OrderAction extends BaseAction {
     nodes = [...nodes];
     this.mode = mode;
     // Should be sorted by index, to move multiple items
-    if (mode === OrderMode.Front || mode === OrderMode.OneStepForwards) {
+    if (mode === OrderMode.front || mode === OrderMode.oneStepForwards) {
       nodes = nodes.sort((a, b) => b.index - a.index);
     } else {
       nodes = nodes.sort((a, b) => a.index - b.index);

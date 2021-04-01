@@ -21,11 +21,13 @@ export interface MenuPanel {
   providedIn: "root",
 })
 export class MenuService {
+  menuChanged = new BehaviorSubject<MenuPanel[]>(this.config.getPanelsConfig());
+
   constructor(private config: ConfigService, private viewService: ViewService) {
     this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
-      const animator = mode === ViewMode.Animator;
+      const animator = mode === ViewMode.animator;
       const menu = this.getMenu();
-      const outline = menu.find((p) => p.id === PanelsIds.Outline);
+      const outline = menu.find((p) => p.id === PanelsIds.outline);
       if (outline) {
         outline.visible = !animator;
         this.menuChanged.next(menu);
@@ -33,7 +35,6 @@ export class MenuService {
     });
   }
 
-  menuChanged = new BehaviorSubject<MenuPanel[]>(this.config.getPanelsConfig());
 
   getPanel(panelId: string | PanelsIds): MenuPanel | null {
     return this.getMenu().find((p) => p.id === panelId);

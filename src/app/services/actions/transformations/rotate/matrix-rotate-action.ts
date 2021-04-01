@@ -15,12 +15,8 @@ import { TransformationModeIcon } from "../../../../models/transformation-mode";
   providedIn: "root",
 })
 export class MatrixRotateAction extends BaseTransformAction {
-  constructor(propertiesService: PropertiesService) {
-    super(propertiesService);
-  }
-
   title = "Rotate";
-  icon = TransformationModeIcon.Rotate;
+  icon = TransformationModeIcon.rotate;
 
   /**
    * Start click position in anchor coordinates.
@@ -30,7 +26,9 @@ export class MatrixRotateAction extends BaseTransformAction {
   node: TreeNode = null;
   startAngle = 0;
   changed = false;
-
+  constructor(propertiesService: PropertiesService) {
+    super(propertiesService);
+  }
   init(
     node: TreeNode,
     screenPos: DOMPoint | null = null,
@@ -72,6 +70,7 @@ export class MatrixRotateAction extends BaseTransformAction {
 
   /**
    * Set direct angle value.
+   *
    * @param angle rotation angle.
    * @param transformPoint transform center.
    */

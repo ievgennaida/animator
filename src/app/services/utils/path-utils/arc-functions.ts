@@ -214,9 +214,7 @@ export const arcToCubicCurves = (
   y2: number,
   recursive: number[] | null = null
 ): number[][] => {
-  const degToRad = (degrees: number) => {
-    return (Math.PI * degrees) / 180;
-  };
+  const degToRad = (degrees: number) => (Math.PI * degrees) / 180;
 
   const rotate = (x: number, y: number, rotateAngleRad: number) => {
     const X = x * Math.cos(rotateAngleRad) - y * Math.sin(rotateAngleRad);

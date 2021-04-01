@@ -6,7 +6,7 @@ import {
   OnDestroy,
   OnInit,
   QueryList,
-  ViewChildren,
+  ViewChildren
 } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { ViewMode } from "src/app/models/view-mode";
@@ -23,16 +23,6 @@ import { BaseComponent } from "../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
-  constructor(
-    private viewService: ViewService,
-    private cdRef: ChangeDetectorRef,
-    private hostElementRef: ElementRef,
-    private menuService: MenuService,
-    private config: ConfigService
-  ) {
-    super();
-    this.cdRef.detach();
-  }
 
   panelsRef: QueryList<ElementRef>;
 
@@ -50,13 +40,24 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   panels: MenuPanel[] = [];
   resizeMenuPanel = false;
   resizeCursorPrecision = 6;
-  mode: ViewMode = ViewMode.Editor;
-  toggleMenu(item: MenuPanel) {
+  mode: ViewMode = ViewMode.editor;
+  constructor(
+    private viewService: ViewService,
+    private cdRef: ChangeDetectorRef,
+    private hostElementRef: ElementRef,
+    private menuService: MenuService,
+    private config: ConfigService
+  ) {
+    super();
+    this.cdRef.detach();
+  }
+
+  toggleMenu(item: MenuPanel): void {
     item.expanded = !item.expanded;
     this.checkExpandedState();
     this.cdRef.detectChanges();
   }
-  checkExpandedState() {
+  checkExpandedState(): void {
     if (!this.panels) {
       this.lastExpandedIndex = null;
     } else {
@@ -91,10 +92,10 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  closePanel(panel: MenuPanel) {
+  closePanel(panel: MenuPanel): void {
     this.menuService.closePanel(panel.id);
   }
-  dragMove(event: MouseEvent) {
+  dragMove(event: MouseEvent): void {
     if (!this.dragStartedArgs) {
       return;
     }
@@ -130,7 +131,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
       }
     }
   }
-  dragStartedNode(event: MouseEvent, index: any) {
+  dragStartedNode(event: MouseEvent, index: any): void {
     event.preventDefault();
     if (!this.panelsRef) {
       return;
@@ -145,7 +146,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     }
   }
 
-  dragStartedPanel(event: MouseEvent) {
+  dragStartedPanel(event: MouseEvent): void {
     event.preventDefault();
     this.resizeMenuPanel = true;
     this.dragStartedArgs = event;
@@ -157,7 +158,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   /**
    * Drag menu bounds, resize panel.
    */
-  dragFinished(event: MouseEvent) {
+  dragFinished(event: MouseEvent): void {
     if (this.dragStartedArgs) {
       this.panelIndex = null;
       this.dragStartedArgs = null;
@@ -169,6 +170,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   }
   /**
    * Set the right panel proportional size.
+   *
    * @param size new panel size.
    */
   setPanelSize(size: number = 0): number {

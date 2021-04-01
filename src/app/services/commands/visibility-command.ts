@@ -13,6 +13,17 @@ import { UndoService } from "../undo.service";
   providedIn: "root",
 })
 export class VisibilityCommand implements BaseCommand {
+  /**
+   * Call to refresh command in the UI.
+   * You should manually rise when can execute is changed.
+   */
+  changed = new Subject<BaseCommand>();
+  tooltip = "Change visibility of the selected nodes";
+  title = "Copy";
+  icon = "visibility";
+  hotkey = "";
+  commandType = CommandType.command;
+  iconSVG = false;
   constructor(
     private selectionService: SelectionService,
     private undoService: UndoService,
@@ -23,17 +34,6 @@ export class VisibilityCommand implements BaseCommand {
       this.changed.next(this);
     });
   }
-  /**
-   * Call to refresh command in the UI.
-   * You should manually rise when can execute is changed.
-   */
-  changed = new Subject<BaseCommand>();
-  tooltip = "Change visibility of the selected nodes";
-  title = "Copy";
-  icon = "visibility";
-  hotkey = "";
-  commandType = CommandType.Command;
-  iconSVG = false;
   resolveIconState() {
     const selected = this.selectionService.getSelected();
     const visible = selected.find((p) => this.propertiesService.isVisible(p));
