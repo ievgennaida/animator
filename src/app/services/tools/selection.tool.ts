@@ -33,6 +33,7 @@ export class SelectionTool extends BaseTool {
 
   startedNode: TreeNode | null = null;
   startedHandle: HandleData | null = null;
+  blocked = false;
   lastDeg: number | null = null;
   lastUsedArgs: MouseEventArgs | null = null;
   lastShowBBoxState: boolean | null = null;
@@ -76,38 +77,25 @@ export class SelectionTool extends BaseTool {
     }
     this.selectionTracker.start(event);
     const startedNode = this.mouseOverService.getValue();
-    let handle = this.mouseOverService.mouseOverHandle;
-    if (startedNode || handle) {
-      if (!handle && this.adornersService?.selectionAdorner?.enabled) {
+    this.startedHandle = this.mouseOverService.mouseOverHandle;
+    if (startedNode || this.startedHandle) {
+      if (
+        !this.startedHandle &&
+        this.adornersService.selectionAdorner?.enabled
+      ) {
         // Move selection data
-        handle = new HandleData();
-        handle.adorner = this.adornersService?.selectionAdorner;
-        handle.handle = AdornerPointType.none;
+        this.startedHandle = new HandleData();
+        this.startedHandle.adorner = this.adornersService.selectionAdorner;
+        this.startedHandle.handle = AdornerPointType.none;
       }
-
-      this.startedHandle = handle;
-      if (handle && handle.adorner) {
-        if (handle?.adorner?.type !== AdornerType.selection) {
-          this.startedNode = handle.adorner.node;
-        }
+      if (
+        this.startedHandle &&
+        this.startedHandle.adorner?.type !== AdornerType.selection
+      ) {
+        this.startedNode = this.startedHandle?.adorner?.node || null;
       } else {
         this.startedNode = startedNode;
       }
-
-      if (this.startedNode && !this.startedNode.selected) {
-        return;
-      }
-
-      const nodesToSelect = this.selectionService
-        .getTopSelectedNodes()
-        .filter((p) => p.allowTransform);
-      const transformMode = AdornerTypeUtils.getTransformationMode(handle);
-      this.transformsService.start(
-        transformMode,
-        nodesToSelect,
-        event.getDOMPoint(),
-        handle
-      );
     }
   }
 
@@ -127,6 +115,7 @@ export class SelectionTool extends BaseTool {
     this.lastDeg = null;
     this.startedNode = null;
     this.startedHandle = null;
+    this.blocked = false;
     if (this.lastShowBBoxState !== null) {
       this.adornersService.showBBoxHandles = this.lastShowBBoxState;
     } else {
@@ -149,6 +138,7 @@ export class SelectionTool extends BaseTool {
    */
   onWindowMouseMove(event: MouseEventArgs) {
     this.lastUsedArgs = event;
+
     if (this.transformsService.isActive()) {
       // Don't allow to move when left was released.
       // this is missed blur event:
@@ -156,44 +146,66 @@ export class SelectionTool extends BaseTool {
         this.cleanUp();
         return;
       }
-      if (this.startedHandle) {
-        // Start transformation of the element by mouse
-        this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
-        // Don't draw mouse over when transformation is started:
-        this.mouseOverRenderer.suspend(true);
-        this.applyTransformationByMouseMove(event);
+      // Start transformation of the element by mouse
+      this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
+      // Don't draw mouse over when transformation is started:
+      this.mouseOverRenderer.suspend(true);
+      this.applyTransformationByMouseMove(event);
+    } // Start element is defined, click was performed:
+    else if (this.startedHandle || this.startedNode) {
+      if (!this.selectionTracker.moved) {
+        if (
+          (!this.startedHandle ||
+            this.startedHandle.handle === AdornerPointType.none) &&
+          this.startedNode &&
+          !this.startedNode.selected
+        ) {
+          this.blocked = true;
+          // Not allowed to click on a new node and drag.
+          // Mouse should be released in order to avoid drag by mistake, than happens often.
+          this.cursor.setCursor(CursorType.notAllowed);
+          return;
+        }
+        const nodesToSelect = this.selectionService
+          .getTopSelectedNodes()
+          .filter((p) => p.allowTransform);
+        const transformMode = AdornerTypeUtils.getTransformationMode(
+          this.startedHandle
+        );
+        this.transformsService.start(
+          transformMode,
+          nodesToSelect,
+          this.selectionTracker.startScreenPos,
+          this.startedHandle
+        );
       }
+      this.selectionTracker.allowRectSelection = false;
+      this.selectionTracker.update(event);
     } else {
-      // Start element or adorner selection.
-      if (this.startedNode) {
-        // Not allowed to click on a new node and drag.
-        // Mouse should be released in order to avoid drag by mistake, than happens often.
-        this.cursor.setCursor(CursorType.notAllowed);
+      // Just a mouse over or a selection rectangle
+      let handle: HandleData | null = null;
+      if (this.selectionTracker.selectionRectStarted()) {
+        this.lastShowBBoxState = this.adornersService.showBBoxHandles;
+        // Don't show bbox handles when selection rect started.
+        this.adornersService.showBBoxHandles = false;
       } else {
-        let handle: HandleData | null = null;
-        if (this.selectionTracker.selectionRectStarted()) {
-          this.lastShowBBoxState = this.adornersService.showBBoxHandles;
-          // Don't show bbox handles when selection rect started.
-          this.adornersService.showBBoxHandles = false;
-        } else {
-          if (this.lastShowBBoxState !== null) {
-            this.adornersService.showBBoxHandles = this.lastShowBBoxState;
-          }
-          handle = this.intersectionService.getAdornerHandleIntersection(
-            event.screenPoint
-          );
-          if (!handle) {
-            this.mouseOverService.leaveHandle();
-          } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
-            this.mouseOverService.setMouseOverHandle(handle);
-          }
+        if (this.lastShowBBoxState !== null) {
+          this.adornersService.showBBoxHandles = this.lastShowBBoxState;
         }
-
-        this.cursor.setHandleCursor(handle, event.screenPoint);
+        handle = this.intersectionService.getAdornerHandleIntersection(
+          event.screenPoint
+        );
         if (!handle) {
-          this.selectionTracker.update(event);
-          event.preventDefault();
+          this.mouseOverService.leaveHandle();
+        } else if (!this.mouseOverService.isMouseOverHandle(handle)) {
+          this.mouseOverService.setMouseOverHandle(handle);
         }
+      }
+
+      this.cursor.setHandleCursor(handle, event.screenPoint);
+      if (!handle) {
+        this.selectionTracker.update(event);
+        event.preventDefault();
       }
     }
     const selectionRectVisible =
@@ -256,20 +268,23 @@ export class SelectionTool extends BaseTool {
     if (!this.selectionTracker.isActive()) {
       return;
     }
+    if (this.blocked) {
+      this.cleanUp();
+      return;
+    }
     // Update rect with current pos
     this.selectionTracker.update(event);
     // No action if transform transaction was running.
     // Transformation was applied, no need to do selection
-    if (
-      this.transformsService.isActive() &&
-      this.transformsService.isChanged()
-    ) {
-      this.transformsService.commit();
+    if (this.transformsService.isActive()) {
+      if (this.transformsService.isChanged()) {
+        this.transformsService.commit();
+      } else {
+        this.transformsService.cancel();
+      }
       return;
-    } else {
-      this.transformsService.cancel();
     }
-
+    this.transformsService.cancel();
     let mode = ChangeStateMode.normal;
     if (event.ctrlKey) {
       mode = ChangeStateMode.revert;

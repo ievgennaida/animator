@@ -4,6 +4,7 @@ import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
 import { TransformationMode } from "../../models/transformation-mode";
 import { TransformAction } from "../actions/transformations/transform-action";
+import { LoggerService } from "../logger.service";
 import { UndoService } from "../undo.service";
 
 /**
@@ -15,7 +16,10 @@ import { UndoService } from "../undo.service";
 export class TransformsService {
   transformedSubject = new Subject();
   activeAction: TransformAction | null = null;
-  constructor(private undoService: UndoService) {}
+  constructor(
+    private undoService: UndoService,
+    private logger: LoggerService
+  ) {}
   /*
    * Transformed observable.
    */
@@ -85,13 +89,22 @@ export class TransformsService {
   start(
     mode: TransformationMode,
     nodes: TreeNode[],
-    screenPos: DOMPoint,
+    screenPos: DOMPoint | null,
     handle: HandleData | null
   ) {
+    if (!screenPos) {
+      return;
+    }
     if (!nodes || nodes.length === 0) {
+      this.logger.debug(
+        `Cannot start transform transaction. At least one node should be set.`
+      );
       return;
     }
     this.activeAction = this.undoService.getAction(TransformAction);
+    if (this.logger.isDebug()) {
+      this.logger.debug(`Transform transaction is started: ${nodes.length}`);
+    }
     this.activeAction.init(mode, nodes, screenPos, handle);
     this.undoService.startAction(this.activeAction, false);
   }

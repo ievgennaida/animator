@@ -26,9 +26,12 @@ export class SelectionRectTracker {
   /**
    * Whether current react is a click actually.
    */
-  click = false;
+  public click = false;
+  public moved = false;
+  public startScreenPos: DOMPoint | null = null;
+  public allowRectSelection = true;
+
   protected startPos: DOMPoint | null = null;
-  protected allowRectSelection = true;
   constructor(
     protected logger: LoggerService,
     protected viewService: ViewService,
@@ -77,14 +80,18 @@ export class SelectionRectTracker {
   }
   start(e: MouseEventArgs, allowRectSelection = true) {
     this.allowRectSelection = allowRectSelection;
+    this.startScreenPos = e.getDOMPoint();
     this.startPos = this.trackMousePos(e);
     this.click = true;
+    this.moved = false;
   }
   stop() {
     this.rect = null;
     this.startPos = null;
+    this.startScreenPos = null;
     this.args = null;
     this.click = false;
+    this.moved = false;
     this.allowRectSelection = true;
     this.selectorRenderer.clear();
   }
@@ -108,6 +115,7 @@ export class SelectionRectTracker {
       this.rect.y = Math.min(this.startPos.y, pos.y);
       this.rect.width = Math.max(this.startPos.x, pos.x) - this.rect.x;
       this.rect.height = Math.max(this.startPos.y, pos.y) - this.rect.y;
+      this.moved = this.rect.width > 0 || this.rect.height > 0;
       if (this.click) {
         this.click =
           this.rect.width <= consts.clickThreshold &&

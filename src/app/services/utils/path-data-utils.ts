@@ -130,7 +130,7 @@ export class PathDataUtils {
     }
 
     // Allow to manipulate when no filters are specified.
-    if (!filters) {
+    if (!filters || filters.length === 0) {
       return true;
     }
 
@@ -199,7 +199,7 @@ export class PathDataUtils {
     filters: PathDataHandle[] | null = null
   ): boolean {
     // Allow to manipulate when no filters are specified.
-    if (!filters) {
+    if (!filters || filters.length === 0) {
       return true;
     }
 
@@ -225,7 +225,7 @@ export class PathDataUtils {
     filters: PathDataHandle[] | null = null
   ): boolean {
     // Allow to manipulate when no filters are specified.
-    if (!filters) {
+    if (!filters || filters.length === 0) {
       return true;
     }
 
