@@ -479,7 +479,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
     ) {
       return null;
     }
-
+    // S
     if (this.isType(PathType.shorthandSmoothAbs)) {
       if (!this._b) {
         this._b = new DOMPoint();
@@ -626,10 +626,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
     if (toReturn) {
       return toReturn;
     }
+    let maxLength = this.length;
+    if (maxLength === null) {
+      maxLength = PointOnPathUtils.getSegmentLength(this);
+    }
     const point = PointOnPathUtils.getPointOnPath(
       this,
       fractionLength,
-      this.length
+      maxLength
     );
     // Cache only first and last commonly used points.
     if (point && fractionLength < 1 && fractionLength > this.length - 1) {

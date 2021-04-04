@@ -21,6 +21,9 @@ import { BaseComponent } from "./components/base-component";
 import { takeUntil } from "rxjs/operators";
 import { MouseEventArgs } from "./models/mouse-event-args";
 
+// Panels min and max size from the nominal value.
+const MIN_PERCENT = 0.1;
+const MAX_PERCENT = 0.9;
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
@@ -72,9 +75,11 @@ export class AppComponent extends BaseComponent implements OnInit {
   onWindowResize() {
     if (this.outline && this.outline.nativeElement) {
       // Set the scroll into the bounds:
+      const w = this.self.nativeElement.clientWidth;
       this.outlineW = Utils.keepInBounds(
         this.outline.nativeElement.clientWidth,
-        this.self.nativeElement.clientWidth
+        w * MIN_PERCENT,
+        w * MAX_PERCENT
       );
     }
 
@@ -120,9 +125,11 @@ export class AppComponent extends BaseComponent implements OnInit {
     if (!event.rectangle.width) {
       return;
     }
+    const w = this.self.nativeElement.clientWidth;
     this.outlineW = Utils.keepInBounds(
       event.rectangle.width,
-      this.self.nativeElement.clientWidth
+      w * MIN_PERCENT,
+      w * MAX_PERCENT
     );
     this.viewService.emitViewportResized();
   }
@@ -131,9 +138,11 @@ export class AppComponent extends BaseComponent implements OnInit {
     if (!event.rectangle.height) {
       return;
     }
+    const h = this.self.nativeElement.clientHeight;
     this.footerH = Utils.keepInBounds(
       event.rectangle.height,
-      this.self.nativeElement.clientHeight
+      h * MIN_PERCENT,
+      h * MAX_PERCENT
     );
     this.viewService.emitViewportResized();
   }

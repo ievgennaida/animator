@@ -31,7 +31,10 @@ export class Utils {
     return vector;
   }
   static subtract(point: DOMPoint, point2: DOMPoint): DOMPoint {
-    return new DOMPoint(point.x - point2.x, point.y + point2.y);
+    return new DOMPoint(point.x - point2.x, point.y - point2.y);
+  }
+  static plus(point: DOMPoint, point2: DOMPoint): DOMPoint {
+    return new DOMPoint(point.x + point2.x, point.y + point2.y);
   }
   static multiplyByPoint(point: DOMPoint, point2: DOMPoint): DOMPoint {
     return new DOMPoint(point.x * point2.x, point.y * point2.y);
@@ -212,23 +215,8 @@ export class Utils {
       rect.height + offsetY
     );
   }
-  static keepInBounds(
-    size: number,
-    maxSize: number,
-    minPercent = 0.1,
-    maxPercent = 0.9
-  ): number {
-    const min = maxSize * minPercent;
-    const max = maxSize * maxPercent;
-    if (size <= min) {
-      size = min;
-    }
-
-    if (size >= max) {
-      size = max;
-    }
-
-    return size;
+  static keepInBounds(t: number, min: number, max: number): number {
+    return Math.min(Math.max(t, min), max);
   }
   static toScreenPoint(
     el: SVGGraphicsElement | ICTMProvider | null,

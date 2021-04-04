@@ -170,14 +170,16 @@ export class BaseRenderer {
   }
 
   drawLine(
-    ctx: CanvasRenderingContext2D,
+    ctx: CanvasRenderingContext2D | null,
     x1: number,
     y1: number,
     x2: number,
     y2: number
   ): void {
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    if (ctx) {
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    }
   }
 
   clearBackground(ctx: CanvasRenderingContext2D | null): void {

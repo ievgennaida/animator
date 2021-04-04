@@ -136,7 +136,7 @@ export class PointOnPathUtils {
   static getPointOnPath(
     command: PathDataCommand,
     fractionLength: number,
-    maxLengthCache: number | null = null
+    maxLength: number
   ): DOMPoint | null {
     if (!command) {
       return null;
@@ -147,20 +147,10 @@ export class PointOnPathUtils {
       );
     }
 
-    if (fractionLength < 0) {
-      fractionLength = 0;
-    }
     if (command.type === PathType.moveAbs) {
       return null;
     }
-    const maxLength =
-      maxLengthCache === null
-        ? PointOnPathUtils.getSegmentLength(command)
-        : maxLengthCache;
-    if (fractionLength > maxLength) {
-      fractionLength = maxLength;
-    }
-
+    fractionLength = Utils.keepInBounds(fractionLength, 0, maxLength);
     const currentPoint = command.p;
     const a = command.a;
     const b = command.b;

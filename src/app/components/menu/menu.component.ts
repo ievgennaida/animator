@@ -15,7 +15,9 @@ import { MenuPanel, MenuService } from "src/app/services/menu-service";
 import { Utils } from "src/app/services/utils/utils";
 import { ViewService } from "src/app/services/view.service";
 import { BaseComponent } from "../base-component";
-
+// Panels min and max size from the nominal value.
+const MIN_PERCENT = 0.1;
+const MAX_PERCENT = 0.9;
 @Component({
   selector: "app-menu",
   templateUrl: "./menu.component.html",
@@ -181,9 +183,11 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     if (!size) {
       size = el.offsetWidth;
     }
+    const w = el.parentElement.offsetWidth;
     const validatedNumber = Utils.keepInBounds(
       size,
-      el.parentElement.offsetWidth
+      w * MIN_PERCENT,
+      w * MAX_PERCENT
     );
     const num = validatedNumber + "px";
     if (el.style.width !== num) {
