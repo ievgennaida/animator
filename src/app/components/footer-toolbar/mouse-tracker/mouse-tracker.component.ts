@@ -24,9 +24,9 @@ export class MouseTrackerComponent
   extends BaseComponent
   implements OnInit, OnDestroy {
   @ViewChild("outputX", { read: ElementRef, static: true })
-  outputX: ElementRef<HTMLElement>;
+  outputX: ElementRef<HTMLElement> | null = null;
   @ViewChild("outputY", { read: ElementRef, static: true })
-  outputY: ElementRef<HTMLElement>;
+  outputY: ElementRef<HTMLElement> | null = null;
   constructor(
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef,

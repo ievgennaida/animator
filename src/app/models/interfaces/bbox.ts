@@ -1,3 +1,3 @@
 export interface IBBox {
-  getBBox(): DOMRect;
+  getBBox(): DOMRect | null;
 }

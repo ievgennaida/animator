@@ -43,7 +43,7 @@ export class SelectionRectTracker {
   }
   getScreenRect(): DOMRect | null {
     if (!this.rect) {
-      return;
+      return null;
     }
 
     return MatrixUtils.matrixRectTransform(
@@ -89,12 +89,15 @@ export class SelectionRectTracker {
     this.selectorRenderer.clear();
   }
 
-  trackMousePos(event: MouseEventArgs) {
+  trackMousePos(event: MouseEventArgs | null): DOMPoint | null {
     if (!event) {
-      return;
+      return null;
     }
 
     const pos = Utils.toElementPoint(this.viewService, event.screenPoint);
+    if (!pos) {
+      return null;
+    }
     if (this.startPos) {
       if (!this.rect) {
         this.rect = new DOMRect();
@@ -111,7 +114,7 @@ export class SelectionRectTracker {
           this.rect.height <= consts.clickThreshold;
       }
     } else {
-      if (!this.rect) {
+      if (!this.rect && pos) {
         this.rect = new DOMRect(pos.x, pos.y, 1, 1);
       }
     }

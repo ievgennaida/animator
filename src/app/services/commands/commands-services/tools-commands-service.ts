@@ -43,7 +43,7 @@ export class ToolsCommandsService {
     private removeSelectedCommand: RemoveSelectedCommand
   ) {}
 
-  getToolCommands(tool: BaseTool): BaseCommand[] {
+  getToolCommands(tool: BaseTool | null): BaseCommand[] {
     if (!tool) {
       return [];
     }

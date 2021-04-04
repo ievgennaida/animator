@@ -41,27 +41,27 @@ export class PlayerComponent
   }
 
   @ViewChild("player", { static: true })
-  playerRef: ElementRef<SVGElement>;
+  playerRef: ElementRef<SVGElement> | null = null;
 
   @ViewChild("scrollContent", { static: true })
-  scrollContentRef: ElementRef<HTMLElement>;
+  scrollContentRef: ElementRef<HTMLElement> | null = null;
 
   @ViewChild("svgContainer", { static: true })
-  svgContainer: ElementRef<HTMLElement>;
+  svgContainer: ElementRef<HTMLElement> | null = null;
 
   @ViewChild("scrollContainer", { static: true })
-  scrollBarsRef: ElementRef<HTMLElement>;
+  scrollBarsRef: ElementRef<HTMLElement> | null = null;
 
   @ViewChild("svgViewport", { static: true })
-  svgViewPortRef: ElementRef<SVGGraphicsElement>;
+  svgViewPortRef: ElementRef<SVGGraphicsElement> | null = null;
 
   @ViewChild("svg", { static: true })
-  svgRef: ElementRef<SVGSVGElement>;
+  svgRef: ElementRef<SVGSVGElement> | null = null;
 
   @ViewChild("resetButton", { static: true })
-  resetButton: ElementRef;
+  resetButton: ElementRef | null = null;
 
-  rulerHRef: ElementRef<HTMLCanvasElement>;
+  rulerHRef: ElementRef<HTMLCanvasElement> | null = null;
   @ViewChild("rulerH", { read: ElementRef })
   set setRulerH(node: ElementRef<HTMLCanvasElement>) {
     if (this.rulerHRef !== node) {
@@ -69,7 +69,7 @@ export class PlayerComponent
       this.updateRulers();
     }
   }
-  rulerVRef: ElementRef<HTMLCanvasElement>;
+  rulerVRef: ElementRef<HTMLCanvasElement> | null = null;
   @ViewChild("rulerV", { read: ElementRef })
   set setRulerV(node: ElementRef<HTMLCanvasElement>) {
     if (this.rulerVRef !== node) {
@@ -100,7 +100,14 @@ export class PlayerComponent
     super();
     // this.cdRef.detach();
   }
-  calcRealScrollBarSize() {
+  calcRealScrollBarSize(): void {
+    if (
+      !this.scrollBarsRef ||
+      !this.svgContainer ||
+      !this.svgContainer.nativeElement
+    ) {
+      return;
+    }
     const scrollBars = this.scrollBarsRef.nativeElement;
     const offsetElement = this.svgContainer.nativeElement;
     // add the real scrollbars offset size as style.
@@ -116,51 +123,51 @@ export class PlayerComponent
     }
   }
 
-  onViewportTouchStart(event: TouchEvent) {
+  onViewportTouchStart(event: TouchEvent): void {
     this.out(() => this.toolsService.onViewportTouchStart(event));
   }
-  onViewportTouchEnd(event: TouchEvent) {
+  onViewportTouchEnd(event: TouchEvent): void {
     this.out(() => this.toolsService.onViewportTouchEnd(event));
   }
-  onViewportMouseMove(event: MouseEvent) {
+  onViewportMouseMove(event: MouseEvent): void {
     this.out(() => this.toolsService.onViewportMouseMove(event));
   }
-  onViewportTouchMove(event: TouchEvent) {
+  onViewportTouchMove(event: TouchEvent): void {
     this.out(() => this.toolsService.onViewportMouseMove(event));
   }
-  onViewportTouchLeave(event: TouchEvent) {
+  onViewportTouchLeave(event: TouchEvent): void {
     this.out(() => this.toolsService.onViewportTouchLeave(event));
   }
-  onViewportTouchCancel(event: TouchEvent) {
+  onViewportTouchCancel(event: TouchEvent): void {
     this.out(() => this.toolsService.onViewportTouchCancel(event));
   }
-  onViewportMouseLeave(event: MouseEvent) {
+  onViewportMouseLeave(event: MouseEvent): void {
     this.out(() => {
       this.toolsService.onViewportMouseLeave(event);
     });
   }
-  onViewportMouseDown(event: MouseEvent) {
+  onViewportMouseDown(event: MouseEvent): void {
     this.out(() => {
       this.toolsService.onViewportMouseDown(event);
     });
   }
 
-  onViewportContextMenu(event: MouseEvent) {
+  onViewportContextMenu(event: MouseEvent): void {
     this.out(() => {
       this.toolsService.onViewportContextMenu(event);
     });
   }
-  onViewportMouseUp(event: MouseEvent) {
+  onViewportMouseUp(event: MouseEvent): void {
     this.out(() => {
       this.toolsService.onViewportMouseUp(event);
     });
   }
-  onViewportMouseWheel(event: WheelEvent) {
+  onViewportMouseWheel(event: WheelEvent): void {
     this.out(() => {
       this.toolsService.onViewportMouseWheel(event);
     });
   }
-  onViewportBlur(event: Event) {
+  onViewportBlur(event: Event): void {
     this.out(() => {
       this.toolsService.onViewportBlur(event);
     });
@@ -169,12 +176,12 @@ export class PlayerComponent
   /**
    * Track over node event by mouse move args.
    */
-  onPlayerMouseOut(event: MouseEvent) {
+  onPlayerMouseOut(event: MouseEvent): void {
     if (this.cachedMouseOver && this.cachedMouseOver.tag !== event.target) {
       const node = this.outlineService
         .getAllNodes()
         .find((p) => p.tag === event.target);
-      this.mouseOverService.setMouseLeave(node);
+      this.mouseOverService.setMouseLeave(node || null);
     } else {
       this.mouseOverService.setMouseLeave(this.cachedMouseOver);
       this.cachedMouseOver = null;
@@ -185,7 +192,7 @@ export class PlayerComponent
     });
   }
 
-  onPlayerMouseOver(event: MouseEvent) {
+  onPlayerMouseOver(event: MouseEvent): void {
     try {
       // Mouse over the node
       // Only selectable nodes
@@ -205,11 +212,11 @@ export class PlayerComponent
     }
   }
 
-  out(callback) {
-    this.ngZone.runOutsideAngular(callback);
+  out<T>(fn: (...args: any[]) => T): T {
+    return this.ngZone.runOutsideAngular(fn);
   }
 
-  adjustPan() {
+  adjustPan(): void {
     // TODO: Automatically adjust pan when viewport is resized.
     this.viewService.resized
       .pipe(takeUntil(this.destroyed$))
@@ -235,13 +242,13 @@ export class PlayerComponent
       });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.out(() => {
       this.calcRealScrollBarSize();
       this.cursor.changed
         .pipe(takeUntil(this.destroyed$))
         .subscribe((cursor: CursorType) => {
-          const el = this.svgContainer.nativeElement;
+          const el = this.svgContainer?.nativeElement;
           if (el && el.style.cursor !== cursor) {
             el.style.cursor = cursor;
           }
@@ -276,12 +283,12 @@ export class PlayerComponent
         }
       });
     this.viewService.init(
-      this.svgViewPortRef.nativeElement,
-      this.playerRef.nativeElement
+      this.svgViewPortRef?.nativeElement || null,
+      this.playerRef?.nativeElement || null
     );
     this.scrollbarsPanTool.init(
-      this.scrollBarsRef.nativeElement,
-      this.scrollContentRef.nativeElement
+      this.scrollBarsRef?.nativeElement || null,
+      this.scrollContentRef?.nativeElement || null
     );
 
     this.viewService.viewportSizeSubject
@@ -298,24 +305,24 @@ export class PlayerComponent
     this.updateRulers();
   }
 
-  updateRulers() {
+  updateRulers(): void {
     this.gridLinesRenderer.setRulers(
       this.rulerHRef ? this.rulerHRef.nativeElement : null,
       this.rulerVRef ? this.rulerVRef.nativeElement : null
     );
   }
 
-  onScroll(event: MouseEvent) {
+  onScroll(event: Event): void {
     this.scrollbarsPanTool.onScroll();
     this.out(() => this.toolsService.onScroll());
   }
-  fitViewportOrSelected() {
+  fitViewportOrSelected(): void {
     const fit = this.toolsService.fitViewportToSelected();
     if (!fit) {
       this.toolsService.fitViewport();
     }
   }
-  fitViewport() {
+  fitViewport(): void {
     this.toolsService.fitViewport();
   }
 }

@@ -12,7 +12,11 @@ export class EllipseTransformAction extends RectTranslateAction {
   propY = "cy";
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
     super.init(node, screenPos, handle);
-    const bbox = this.node.getBBox();
+    const bbox = this.node?.getBBox();
+    if (!bbox || !this.start) {
+      console.log("Cannot initialize when bbox or start point is empty");
+      return;
+    }
     this.start.x -= bbox.width / 2;
     this.start.y -= bbox.height / 2;
   }

@@ -1,6 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
+import { LoggerService } from "src/app/services/logger.service";
+import { TransformationModeIcon } from "../../../../models/transformation-mode";
 import {
   CenterTransformX,
   CenterTransformY,
@@ -8,7 +10,6 @@ import {
 } from "../../../properties.service";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
-import { TransformationModeIcon } from "../../../../models/transformation-mode";
 
 /**
  * Translate center transformation point for the DOM element and store as custom attribute.
@@ -26,7 +27,10 @@ export class CenterElementTranslateAction extends BaseTransformAction {
   offset: DOMPoint | null = null;
   committed = false;
   moveSelectionHandle = false;
-  constructor(propertiesService: PropertiesService) {
+  constructor(
+    propertiesService: PropertiesService,
+    private logger: LoggerService
+  ) {
     super(propertiesService);
   }
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
@@ -43,7 +47,7 @@ export class CenterElementTranslateAction extends BaseTransformAction {
 
       const elementStartPos = Utils.toElementPoint(node, screenPos as DOMPoint);
 
-      if (centerTransform) {
+      if (centerTransform && elementStartPos) {
         this.offset.x = elementStartPos.x - centerTransform.x;
         this.offset.y = elementStartPos.y - centerTransform.y;
       }
@@ -52,7 +56,10 @@ export class CenterElementTranslateAction extends BaseTransformAction {
   }
 
   transformByMouse(screenPos: DOMPoint): boolean {
-    if (!screenPos) {
+    if (!screenPos || !this.node || !this.offset) {
+      this.logger.warn(
+        "Element cannot be moved. Action should be initialized first"
+      );
       return false;
     }
 
@@ -74,16 +81,29 @@ export class CenterElementTranslateAction extends BaseTransformAction {
    * Translate
    */
   translate(x: number | null = null, y: number | null = null): boolean {
+    if (!this.node) {
+      this.logger.warn(
+        "Element cannot be moved. Action should be initialized first"
+      );
+      return false;
+    }
     if (this.initialValues.size === 0) {
       this.saveInitialValues([this.node], [CenterTransformX, CenterTransformY]);
     }
-    this.handle?.adorner?.setCenterTransform(new DOMPoint(x, y));
+    this.handle?.adorner?.setCenterTransform(new DOMPoint(x || 0, y || 0));
     // make it relative to the element pos:
-    const bbox = this.node.getBBox();
-    x -= bbox.x;
-    y -= bbox.y;
-    this.propertiesService.setCenterTransform(this.node, x, y);
-    const isChanged = !!(x || y);
-    return isChanged;
+    const bbox = this.node?.getBBox();
+    if (!bbox) {
+      this.logger.warn("Transformation cannot be done, bbox cannot be found");
+      return false;
+    }
+
+    if (x !== null) {
+      x -= bbox.x;
+    }
+    if (y !== null) {
+      y -= bbox.y;
+    }
+    return this.propertiesService.setCenterTransform(this.node, x, y);
   }
 }

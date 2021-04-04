@@ -37,13 +37,15 @@ export class PathData {
     }
     return set;
   }
-  public static getPathData(element: any | SVGGraphicsElement): PathData {
+  public static getPathData(
+    element: any | SVGGraphicsElement
+  ): PathData | null {
     if (element && element.getPathData) {
       return PathData.wrap(element.getPathData());
     }
     return null;
   }
-  public static wrap(elements: Array<any>): PathData {
+  public static wrap(elements: Array<any>): PathData | null {
     if (!elements || !Array.isArray(elements)) {
       return null;
     }
@@ -203,7 +205,7 @@ export class PathData {
     }
     return d;
   }
-  public normalize(normalizeTypes: string[] = null): PathData {
+  public normalize(normalizeTypes: string[] | null = null): PathData {
     const data = this;
     if (!data) {
       return data;
@@ -235,7 +237,7 @@ export class PathData {
 
   deleteCommand(command: PathDataCommand | null): boolean {
     if (!command) {
-      return null;
+      return false;
     }
     const isRemoved = Utils.deleteElement(this.commands, command);
     return isRemoved;

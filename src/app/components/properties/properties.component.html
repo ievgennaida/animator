@@ -5,18 +5,18 @@
     </div>
     <div>
         <div class="label-item">Name: <input [readonly]="!nameProperty || nameProperty.readonly"
-                (focusout)="onNameFocusOut($event)" [(value)]="name" /></div>
+                (focusout)="onNameFocusOut($event)" [value]="name" /></div>
         <div class="label-item">Type: <span>{{type}}</span></div>
     </div>
 </div>
 
 <div *ngIf="properties?.items" class="properties">
-    <div class="property" [title]="property?.description" *ngFor="let property of properties.items">
-        <app-numeric *ngIf="property.type === 'number'" [property]="property"></app-numeric>
-        <app-text *ngIf="property.type === 'text' && property.key != 'nm'" [property]="property"></app-text>
-        <app-color *ngIf="property.type === 'color'" [property]="property"></app-color>
-        <app-dnumeric *ngIf="property.type === 'dnumber'" [property]="property"></app-dnumeric>
-        <app-path-data-editor *ngIf="property.type === 'path-data'" [property]="property"></app-path-data-editor>
+    <div class="property" [title]="property?.description" *ngFor="let property of properties?.items || []">
+        <app-numeric *ngIf="property.type === 'number'" [property]="$any(property)"></app-numeric>
+        <app-text *ngIf="property.type === 'text' && property.key != 'nm'" [property]="$any(property)"></app-text>
+        <app-color *ngIf="property.type === 'color'" [property]="$any(property)"></app-color>
+        <app-dnumeric *ngIf="property.type === 'dnumber'" [property]="$any(property)"></app-dnumeric>
+        <app-path-data-editor *ngIf="property.type === 'path-data'" [property]="$any(property)"></app-path-data-editor>
         <!--app-text [property]="property" *ngIf="property.type == 'default'"></app-text>-->
     </div>
 </div>

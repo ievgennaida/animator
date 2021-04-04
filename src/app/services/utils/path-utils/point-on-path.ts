@@ -23,7 +23,9 @@ const getCubicPoint = (
   xs: number[],
   ys: number[]
 ): DOMPoint => {
-  const t = t2length(fractionLength, fullLength, (i) => getCubicArcLength(xs, ys, i));
+  const t = t2length(fractionLength, fullLength, (i) =>
+    getCubicArcLength(xs, ys, i)
+  );
 
   return cubicPoint(xs, ys, t);
 };
@@ -33,7 +35,9 @@ const getQuadraticPoint = (
   xs: number[],
   ys: number[]
 ) => {
-  const t = t2length(fractionLength, fullLength, (i) => getQuadraticArcLength(xs, ys, i));
+  const t = t2length(fractionLength, fullLength, (i) =>
+    getQuadraticArcLength(xs, ys, i)
+  );
 
   return quadraticPoint(xs, ys, t);
 };
@@ -48,7 +52,8 @@ export class PointOnPathUtils {
     if (command.type === PathType.arcAbs) {
       const lengthProperties = approximateArcLengthOfCurve(
         300,
-        (t: number): PointOnEllipticalArcResults => pointOnEllipticalArc(
+        (t: number): PointOnEllipticalArcResults =>
+          pointOnEllipticalArc(
             command.prevPoint,
             command.rx,
             command.ry,
@@ -67,7 +72,7 @@ export class PointOnPathUtils {
       // S
       command.type === PathType.shorthandSmoothAbs
     ) {
-      if (!prev || prev.isType(PathType.closeAbs)) {
+      if (!prev || prev.isType(PathType.closeAbs) || !a || !b) {
         return 0;
       }
 
@@ -86,9 +91,10 @@ export class PointOnPathUtils {
     ) {
       const isSmooth = command.type === PathType.smoothQuadraticBezierAbs;
       if (
-        (!isSmooth && a.x !== currentPoint.x && a.y !== currentPoint.y) ||
+        (a && !isSmooth && a.x !== currentPoint.x && a.y !== currentPoint.y) ||
         // Q, T
-        (isSmooth &&
+        (a &&
+          isSmooth &&
           prev &&
           (prev.type === PathType.quadraticBezierAbs ||
             prev.type === PathType.smoothQuadraticBezierAbs))
@@ -113,11 +119,11 @@ export class PointOnPathUtils {
         PathType.moveAbs
       );
       if (!moveCommand) {
-        return null;
+        return 0;
       }
       const moveAbs = moveCommand;
       if (!moveAbs) {
-        return null;
+        return 0;
       }
       return Utils.getDistance(moveAbs.p, prevPoint);
     } else {
@@ -192,10 +198,11 @@ export class PointOnPathUtils {
     ) {
       const isSmooth = command.type === PathType.smoothQuadraticBezierAbs;
       if (
-        (!isSmooth && a.x !== currentPoint.x && a.y !== currentPoint.y) ||
+        (a && !isSmooth && a.x !== currentPoint.x && a.y !== currentPoint.y) ||
         // Q, T
         (isSmooth &&
           prev &&
+          a &&
           (prev.type === PathType.quadraticBezierAbs ||
             prev.type === PathType.smoothQuadraticBezierAbs))
       ) {

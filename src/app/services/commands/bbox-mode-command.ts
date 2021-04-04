@@ -15,7 +15,7 @@ export class BBoxModeCommand implements BaseCommand {
   changed = new Subject<BaseCommand>();
   tooltip?: string;
   title?: string;
-  icon: string;
+  icon: string | null = null;
   align = "right";
   iconSVG = true;
   constructor(
@@ -25,7 +25,7 @@ export class BBoxModeCommand implements BaseCommand {
   ) {
     this.resolveState();
   }
-  execute() {
+  execute(): void {
     const config = this.configService.get();
     config.showTransformedBBoxes = !config.showTransformedBBoxes;
     this.configService.save();

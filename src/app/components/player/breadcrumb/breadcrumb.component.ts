@@ -10,7 +10,7 @@ import { TreeNode } from "src/app/models/tree-node";
 import { SelectionService } from "src/app/services/selection.service";
 import { State } from "src/app/services/state-subject";
 import { BaseComponent } from "../../base-component";
-import { Breadcrumb } from "./breadcrumb-item/breadcrumb-item.component";
+import { Breadcrumb } from "./breadcrumb-item";
 
 @Component({
   selector: "app-breadcrumb",
@@ -21,7 +21,7 @@ import { Breadcrumb } from "./breadcrumb-item/breadcrumb-item.component";
 export class BreadcrumbComponent
   extends BaseComponent
   implements OnInit, OnDestroy {
-  empty = new Breadcrumb();
+  empty = { title: "None" } as Breadcrumb;
 
   items: Breadcrumb[] = [];
   constructor(
@@ -32,7 +32,6 @@ export class BreadcrumbComponent
     this.cdRef.detach();
   }
   ngOnInit(): void {
-    this.empty.title = "None";
     this.selectionService.selected
       .pipe(takeUntil(this.destroyed$))
       .subscribe((event: State<TreeNode>) => {
@@ -48,7 +47,6 @@ export class BreadcrumbComponent
           }
         } else {
           this.items.length = 0;
-          this.empty.title = "None";
           this.items.push(this.empty);
         }
 
@@ -56,13 +54,16 @@ export class BreadcrumbComponent
       });
   }
   convert(node: TreeNode): Breadcrumb {
-    const b = new Breadcrumb();
-    b.title = node.name;
-    b.node = node;
-    return b;
+    return { title: node.name, node } as Breadcrumb;
   }
 
-  populateBreadcrumbs(array: Breadcrumb[], node: TreeNode): Breadcrumb[] {
+  populateBreadcrumbs(
+    array: Breadcrumb[],
+    node: TreeNode | null
+  ): Breadcrumb[] {
+    if (!node) {
+      return [];
+    }
     array.push(this.convert(node));
     while (node != null) {
       node = node.parent;

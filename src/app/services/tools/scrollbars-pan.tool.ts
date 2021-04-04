@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
-import { BaseTool } from "./base.tool";
-import { ViewService } from "../view.service";
-import { MouseEventArgs } from "../../models/mouse-event-args";
-import { PanTool } from "./pan.tool";
 import { consts } from "src/environments/consts";
+import { MouseEventArgs } from "../../models/mouse-event-args";
 import { Utils } from "../utils/utils";
+import { ViewService } from "../view.service";
+import { BaseTool } from "./base.tool";
+import { PanTool } from "./pan.tool";
 
 @Injectable({
   providedIn: "root",
@@ -15,7 +15,7 @@ export class ScrollbarsPanTool extends BaseTool {
   private scrollData: any = {};
   private panChangedProgrammatically = false;
   private scrollChangedProgrammatically = false;
-  private recalcScrollRef = null;
+  private recalcScrollRef: number | null = null;
 
   constructor(private viewService: ViewService, private panTool: PanTool) {
     super();
@@ -41,8 +41,8 @@ export class ScrollbarsPanTool extends BaseTool {
   }
 
   public init(
-    scrollBarElement: HTMLElement,
-    scrollContentElement: HTMLElement
+    scrollBarElement: HTMLElement | null,
+    scrollContentElement: HTMLElement | null
   ) {
     this.scrollBarElement = scrollBarElement;
     this.scrollContentElement = scrollContentElement;
@@ -58,21 +58,24 @@ export class ScrollbarsPanTool extends BaseTool {
     this.rescaleScrollbars();
   }
 
-  onScroll() {
+  onScroll(): void {
     if (this.scrollChangedProgrammatically) {
       this.scrollChangedProgrammatically = false;
       return;
     }
 
+    if (!this.scrollBarElement) {
+      throw Error("Scrollbar element should be initialized");
+    }
     if (this.recalcScrollRef) {
-      clearTimeout(this.recalcScrollRef);
+      window.clearTimeout(this.recalcScrollRef);
       this.recalcScrollRef = null;
     }
 
     // Update scrollbars size when scrolling is finished.
-    this.recalcScrollRef = setTimeout(() => {
+    this.recalcScrollRef = window.setTimeout(() => {
       if (this.recalcScrollRef) {
-        clearTimeout(this.recalcScrollRef);
+        window.clearTimeout(this.recalcScrollRef);
         this.recalcScrollRef = null;
         this.rescaleScrollbars();
       }
@@ -90,7 +93,11 @@ export class ScrollbarsPanTool extends BaseTool {
   }
 
   rescaleScrollbars() {
-    if (!this.viewService.isInit()) {
+    if (
+      !this.viewService.isInit() ||
+      !this.scrollContentElement ||
+      !this.scrollBarElement
+    ) {
       return;
     }
 
@@ -104,8 +111,8 @@ export class ScrollbarsPanTool extends BaseTool {
     const relativePos = {
       width: viewPortRect.width,
       height: viewPortRect.height,
-      top: viewPortRect.top - parentPos.top,
-      left: viewPortRect.left - parentPos.left,
+      top: viewPortRect.top - (parentPos?.top || 0),
+      left: viewPortRect.left - (parentPos?.left || 0),
     };
     // Get position relative to a parent:
 
@@ -116,8 +123,11 @@ export class ScrollbarsPanTool extends BaseTool {
     const left = Math.min(relativePos.left, pan.x, 0);
 
     // get top and left margins:
-    const h = Utils.getABDistance(top, Math.max(bottom, parentPos.height));
-    const w = Utils.getABDistance(left, Math.max(right, parentPos.width));
+    const h = Utils.getABDistance(
+      top,
+      Math.max(bottom, parentPos?.height || 0)
+    );
+    const w = Utils.getABDistance(left, Math.max(right, parentPos?.width || 0));
 
     this.scrollContentElement.style.height = h + "px";
     this.scrollContentElement.style.width = w + "px";

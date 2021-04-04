@@ -10,16 +10,15 @@ export interface CalculatedEllipse {
 
 export class Utils {
   static getTreeNodesTitle(nodes: TreeNode[] | null): string {
-    const count = nodes?.length || 0;
-    if (count === 1 && nodes[0]) {
-      return `${nodes[0].name || count}`;
+    if (nodes && nodes?.length === 1 && nodes[0]) {
+      return `${nodes[0]?.name || nodes?.length}`;
     } else {
-      return `nodes (${count})`;
+      return `nodes (${nodes?.length || 0})`;
     }
   }
   static getVector(
-    a: DOMPoint,
-    b: DOMPoint = null,
+    a: DOMPoint | null = null,
+    b: DOMPoint | null = null,
     normalized = false
   ): DOMPoint | null {
     if (!a || !b) {
@@ -50,16 +49,22 @@ export class Utils {
    * @param steps steps along vector
    */
   static alongVector(
-    point: DOMPoint,
-    vector: DOMPoint,
+    point: DOMPoint | null,
+    vector: DOMPoint | null,
     steps: number = 0
-  ): DOMPoint {
+  ): DOMPoint | null {
+    if (!point || !vector) {
+      return null;
+    }
     return new DOMPoint(point.x + vector.x * steps, point.y + vector.y * steps);
   }
   static inRange(value: number, min: number, max: number): boolean {
     return value >= min && value <= max;
   }
-  static rectIntersectPoint(rect1: DOMRect, point: DOMPoint): boolean {
+  static rectIntersectPoint(
+    rect1: DOMRect | null,
+    point: DOMPoint | null
+  ): boolean {
     if (!rect1 || !point || rect1.width === 0 || rect1.height === 0) {
       return false;
     }
@@ -69,7 +74,7 @@ export class Utils {
       Utils.inRange(point.y, rect1.y, rect1.y + rect1.height);
     return overlap;
   }
-  static rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
+  static rectsIntersect(rect1: DOMRect | null, rect2: DOMRect | null): boolean {
     if (!rect1 || !rect2) {
       return false;
     }
@@ -162,7 +167,10 @@ export class Utils {
     v.y += (y1 + y2) / 2;
     return { center: v, rx, ry } as CalculatedEllipse;
   }
-  static shrinkRectPercent(rect: DOMRect, percent: number): DOMRect | null {
+  static shrinkRectPercent(
+    rect: DOMRect | null,
+    percent: number
+  ): DOMRect | null {
     if (!rect) {
       return null;
     }
@@ -223,17 +231,27 @@ export class Utils {
     return size;
   }
   static toScreenPoint(
-    el: SVGGraphicsElement | ICTMProvider,
-    elementPoint: DOMPoint
-  ): DOMPoint {
-    const current = elementPoint.matrixTransform(el.getScreenCTM());
+    el: SVGGraphicsElement | ICTMProvider | null,
+    elementPoint: DOMPoint | null
+  ): DOMPoint | null {
+    const ctm = el?.getScreenCTM();
+    if (!ctm) {
+      console.log(
+        "Cannot transform element point to screen. Screen matrix is null"
+      );
+      return null;
+    }
+    if (!elementPoint) {
+      return null;
+    }
+    const current = elementPoint.matrixTransform(ctm);
     return current;
   }
   static toElementPoint(
-    el: SVGGraphicsElement | ICTMProvider,
-    screenPoint: DOMPoint
+    el: SVGGraphicsElement | ICTMProvider | null,
+    screenPoint: DOMPoint | null
   ): DOMPoint | null {
-    if (!screenPoint) {
+    if (!screenPoint || !el) {
       return null;
     }
     const ctm = el.getScreenCTM();
@@ -295,10 +313,11 @@ export class Utils {
     }
 
     if (treeIndex !== null && treeIndex >= 0) {
-      Utils.insertElement(container.children, node, treeIndex);
+      const children = (container.children = container.children || []);
+      Utils.insertElement(children, node, treeIndex);
     } else {
       node.parent = container;
-      container.children.push(node);
+      container.addChild(node);
     }
   }
   static deleteTreeNode(node: TreeNode, container: TreeNode | null = null) {
@@ -312,10 +331,15 @@ export class Utils {
     }
     const htmlElement = container?.getElement();
     const child = node.getElement();
+    if (!htmlElement || !child) {
+      throw Error(
+        "Tree node element cannot be found. Cannot remove child html element."
+      );
+    }
     htmlElement.removeChild(child);
-    Utils.deleteElement(container.children, node);
+    Utils.deleteElement(container?.children || [], node);
   }
-  static getElementIndex(htmlElement: Element): number {
+  static getElementIndex(htmlElement: Element | null): number {
     const children = htmlElement?.parentElement?.children;
     if (!children) {
       return -1;
@@ -329,7 +353,8 @@ export class Utils {
   public static getElementTransform(element: SVGGraphicsElement): SVGTransform {
     const transform =
       element.transform.baseVal.consolidate() ||
-      element.ownerSVGElement.createSVGTransform();
+      element?.ownerSVGElement?.createSVGTransform() ||
+      new SVGSVGElement().createSVGTransform();
     return transform;
   }
 
@@ -338,7 +363,9 @@ export class Utils {
    *
    * @param points List of points to analyze.
    */
-  public static getPointsBounds(...points: DOMPoint[]): DOMRect | null {
+  public static getPointsBounds(
+    ...points: (DOMPoint | null)[]
+  ): DOMRect | null {
     if (!points || points.length === 0) {
       return null;
     }
@@ -347,6 +374,9 @@ export class Utils {
     let minY: number | null = null;
     let maxY: number | null = null;
     points.forEach((p) => {
+      if (!p) {
+        return;
+      }
       minX = minX === null ? p.x : Math.min(p.x, minX);
       maxX = maxX === null ? p.x : Math.max(p.x, maxX);
 
@@ -363,7 +393,7 @@ export class Utils {
       isNaN(minY) ||
       isNaN(maxY)
     ) {
-      return;
+      return null;
     }
     return new DOMRect(
       minX,
@@ -398,7 +428,7 @@ export class Utils {
   /**
    * This is the top-left relative matrix to the SVG element.
    */
-  public static getCTM(element: SVGElement | any): DOMMatrix {
+  public static getCTM(element: SVGElement | any): DOMMatrix | null {
     if (!element) {
       return null;
     }
@@ -431,7 +461,7 @@ export class Utils {
     return false;
   }
 
-  public static mergeRects(...rects: DOMRect[]): DOMRect | null {
+  public static mergeRects(...rects: (DOMRect | null)[]): DOMRect | null {
     if (!rects) {
       return null;
     }
@@ -467,7 +497,7 @@ export class Utils {
       isNaN(minY) ||
       isNaN(maxY)
     ) {
-      return;
+      return null;
     }
 
     return new DOMRect(minX, minY, maxX - minX, maxY - minY);
@@ -479,16 +509,18 @@ export class Utils {
     if (!elements) {
       return null;
     }
-    const rects = elements.map((p) => {
-      if (p) {
-        return p.getBoundingClientRect() as DOMRect;
-      } else {
-        return null;
-      }
-    });
+    const rects = elements
+      .map((p) => {
+        if (p) {
+          return p.getBoundingClientRect() as DOMRect;
+        } else {
+          return null;
+        }
+      })
+      .filter((p) => p) as DOMRect[];
     return Utils.mergeRects(...rects);
   }
-  static reverseVector(a: DOMPoint): DOMPoint {
+  static reverseVector(a: DOMPoint | null): DOMPoint | null {
     if (!a) {
       return null;
     }

@@ -30,7 +30,7 @@ import { TransformsService } from "./transforms.service";
   providedIn: "root",
 })
 export class ShapeTool extends BaseTool {
-  iconName = "crop_square";
+  icon = "crop_square";
   container: TreeNode | null = null;
   protected destroyed$ = new Subject();
 
@@ -132,11 +132,14 @@ export class ShapeTool extends BaseTool {
     const nodes = this.selectionService.getSelected();
     if (nodes.length > 0) {
       containerTreeNode =
-        nodes.find((node) => document.parser.isContainer(node)) ||
+        nodes.find((node) => document?.parser?.isContainer(node)) ||
         document.rootNode;
     }
 
-    if (!document.parser.isContainer(containerTreeNode)) {
+    if (
+      containerTreeNode &&
+      !document?.parser?.isContainer(containerTreeNode)
+    ) {
       return null;
     }
     return containerTreeNode;
@@ -151,19 +154,24 @@ export class ShapeTool extends BaseTool {
     event.handled = true;
     this.mouseOverRenderer.suspend(true);
     const document = this.documentService.getDocument();
-    if (!document || !document.rootElement) {
+    if (!document || !document.rootElement || !this.container) {
       return;
     }
 
     const screenPoint = event.screenPoint;
-    const pos = Utils.toElementPoint(this.container, event.screenPoint);
+    const pos = Utils.toElementPoint(this.container, screenPoint);
+    if (!pos || !screenPoint) {
+      return;
+    }
     const element = this.shapesRepositoryService.createRect();
     element.setAttribute("width", "1px");
     element.setAttribute("height", "1px");
     element.setAttribute("x", Utils.round(pos.x).toString());
     element.setAttribute("y", Utils.round(pos.y).toString());
-    const newTreeNode = document.parser.convertTreeNode(element, true);
-
+    const newTreeNode = document?.parser?.convertTreeNode(element, true);
+    if (!newTreeNode) {
+      return;
+    }
     this.outlineService.expandToTop(this.container);
 
     const action = this.undoService.getAction(AddElementAction);
@@ -216,7 +224,7 @@ export class ShapeTool extends BaseTool {
       return null;
     }
     const mouseOver = this.mouseOverService.getValue() || document.rootNode;
-    if (document.parser.isContainer(mouseOver)) {
+    if (document?.parser?.isContainer(mouseOver)) {
       return mouseOver;
     }
     return null;
@@ -242,7 +250,7 @@ export class ShapeTool extends BaseTool {
       this.transformsService.cancel();
     }
   }
-  onWindowBlur(event) {
+  onWindowBlur(event: Event) {
     this.autoPanService.stop();
     this.transformsService.cancel();
     this.cleanUp();

@@ -25,11 +25,11 @@ export class UntransformCommand implements BaseCommand {
     private adornersRenderer: AdornersRenderer,
     private adornersService: AdornersService
   ) {}
-  canExecute() {
+  canExecute(): boolean {
     const nodes = this.selectionService.getSelected();
     return nodes && nodes.length > 0;
   }
-  execute() {
+  execute(): void {
     // TODO: extract action for the undo/redo service.
     const nodes = this.selectionService.getSelected();
     if (nodes && nodes.length > 0) {

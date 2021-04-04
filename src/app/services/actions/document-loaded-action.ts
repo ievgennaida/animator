@@ -15,7 +15,7 @@ export class DocumentLoadedAction extends BaseAction {
   constructor() {
     super();
   }
-  execute() {}
+  execute(): void {}
   canUndo(): boolean {
     // Document cannot be unloaded.
     return false;
@@ -23,5 +23,5 @@ export class DocumentLoadedAction extends BaseAction {
   canExecute(): boolean {
     return false;
   }
-  undo() {}
+  undo(): void {}
 }

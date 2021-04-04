@@ -51,7 +51,7 @@ export class AdornersService {
    * Calculate multiple selected items bounds adorner
    */
   buildSelectionAdorner(
-    rootNode: TreeNode,
+    rootNode: TreeNode | null,
     nodes: TreeNode[],
     resetCenterTransform = false
   ): AdornerContainer {
@@ -63,19 +63,17 @@ export class AdornersService {
           return;
         }
         let nodeBBox = node.getBBox();
-        if (!nodeBBox) {
-          return;
-        }
+        if (nodeBBox) {
+          // Anchor coordinates to the view port root svg node:
+          const matrix = MatrixUtils.transformToElement(node, rootNode);
+          // Get rect bbounds in transformed viewport coordinates:
+          nodeBBox = MatrixUtils.matrixRectTransform(nodeBBox, matrix, true);
 
-        // Anchor coordinates to the view port root svg node:
-        const matrix = MatrixUtils.transformToElement(node, rootNode);
-        // Get rect bbounds in transformed viewport coordinates:
-        nodeBBox = MatrixUtils.matrixRectTransform(nodeBBox, matrix, true);
-
-        if (!anchoredBBOx) {
-          anchoredBBOx = nodeBBox;
-        } else {
-          anchoredBBOx = Utils.mergeRects(anchoredBBOx, nodeBBox);
+          if (!anchoredBBOx) {
+            anchoredBBOx = nodeBBox;
+          } else {
+            anchoredBBOx = Utils.mergeRects(anchoredBBOx, nodeBBox);
+          }
         }
       });
     }
@@ -125,7 +123,7 @@ export class AdornersService {
       // so any viewport transform can be applied. ex: zoom, pan and point will remain the same.
       bbox = MatrixUtils.matrixRectTransform(
         bbox,
-        rootNode.getScreenCTM().inverse(),
+        rootNode?.getScreenCTM()?.inverse() || null,
         false
       );
     }
@@ -181,9 +179,16 @@ export class AdornersService {
     const config = this.configService.get();
     if (!config.showTransformedBBoxes) {
       adorner.type = AdornerType.elementsBounds;
-      elementAdorner.matrixTransformSelf(node.getScreenCTM());
-      elementAdorner.untransformSelf();
-      elementAdorner.matrixTransformSelf(node.getScreenCTM().inverse());
+      let matrix = node.getScreenCTM();
+      if (matrix) {
+        elementAdorner.matrixTransformSelf(matrix);
+        elementAdorner.untransformSelf();
+      }
+      // Read one more time after transform:
+      matrix = node?.getScreenCTM()?.inverse() || null;
+      if (matrix) {
+        elementAdorner.matrixTransformSelf(matrix);
+      }
     }
     adorner.calculateTranslatePosition(
       config.translateHandleOffsetX,
@@ -257,10 +262,13 @@ export class AdornersService {
     return false;
   }
   private setBBoxToAdorner(
-    container: AdornerContainer,
-    rectElementCoords: DOMRect,
+    container: AdornerContainer | null,
+    rectElementCoords: DOMRect | null,
     resetCenterTransform = false
   ): void {
+    if (!container) {
+      return;
+    }
     if (
       rectElementCoords &&
       rectElementCoords.height > 0 &&

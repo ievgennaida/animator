@@ -19,7 +19,7 @@ import { BaseRenderer } from "./base.renderer";
   providedIn: "root",
 })
 export class PathRenderer extends BaseRenderer {
-  debugHandle: NearestCommandPoint = null;
+  debugHandle: NearestCommandPoint | null = null;
   private mode = PathDirectSelectionToolMode.select;
   constructor(
     protected viewService: ViewService,
@@ -46,8 +46,11 @@ export class PathRenderer extends BaseRenderer {
     point: DOMPoint,
     size: number,
     stroke: string = "black",
-    fill: string = null
+    fill: string | null = null
   ): void {
+    if (!this.ctx) {
+      return;
+    }
     const half = size / 2;
     this.ctx.beginPath();
     this.ctx.lineWidth = 1;
@@ -63,9 +66,9 @@ export class PathRenderer extends BaseRenderer {
     point: DOMPoint,
     size: number,
     stroke: string = "black",
-    fill: string = null
+    fill: string | null = null
   ): void {
-    if (!point) {
+    if (!point || !this.ctx) {
       return;
     }
     this.ctx.beginPath();
@@ -82,7 +85,7 @@ export class PathRenderer extends BaseRenderer {
     }
   }
 
-  redraw(): void  {
+  redraw(): void {
     if (!this.ctx || !this.screenCTM) {
       return;
     }
@@ -107,7 +110,7 @@ export class PathRenderer extends BaseRenderer {
           return;
         }
         const ctm = this.screenCTM.multiply(nodeMatrix);
-        let prevPoint: DOMPoint = null;
+        let prevPoint: DOMPoint | null = null;
         data.forEach((command, commandIndex) => {
           // const prev = index > 0 ? data.commands[index - 1] : null;
           const abs = command;
@@ -138,7 +141,12 @@ export class PathRenderer extends BaseRenderer {
             PathDataHandleType.point
           );
 
-          if (this.logger.isDebug() && this.debugHandle) {
+          if (
+            this.logger.isDebug() &&
+            this.debugHandle &&
+            this.debugHandle.allPoints
+          ) {
+            const len = this.debugHandle?.allPoints?.length || 0;
             this.debugHandle.allPoints.forEach((pointToDraw, i) => {
               if (!pointToDraw) {
                 return;
@@ -147,7 +155,7 @@ export class PathRenderer extends BaseRenderer {
                 pointToDraw.matrixTransform(ctm),
                 consts.pathHandleSize,
                 consts.pathHandleStroke,
-                i === this.debugHandle.allPoints.length - 1 ? "red" : "green"
+                i === len - 1 ? "red" : "green"
               );
             });
           }
@@ -213,9 +221,18 @@ export class PathRenderer extends BaseRenderer {
     node: TreeNode,
     abs: PathDataCommand,
     ctm: DOMMatrix,
-    point: DOMPoint,
-    prevPoint: DOMPoint
+    point: DOMPoint | null,
+    prevPoint: DOMPoint | null
   ): void {
+    const ctx = this.ctx;
+    if (!ctx) {
+      console.log("Cannot draw handles, render context is not ready.");
+      return;
+    }
+    if (!point || !prevPoint) {
+      console.log("Point cannot be null");
+      return;
+    }
     const isCurveSelected = !!this.mouseOverService.pathDataSubject.getHandle(
       node,
       abs,
@@ -253,14 +270,18 @@ export class PathRenderer extends BaseRenderer {
         const c = abs;
         let a = c.a;
         let b = c.b;
-        a = a ? a.matrixTransform(ctm) : null;
-        b = b ? b.matrixTransform(ctm) : null;
+
+        a = a?.matrixTransform(ctm) || null;
+        b = b?.matrixTransform(ctm) || null;
+        if (!a || !b) {
+          return;
+        }
         if (drawPathOutline) {
-          this.ctx.moveTo(prevPoint.x, prevPoint.y);
-          this.ctx.bezierCurveTo(a.x, a.y, b.x, b.y, point.x, point.y);
-          this.ctx.lineWidth = outlineThickness;
-          this.ctx.strokeStyle = outlineColor;
-          this.ctx.stroke();
+          ctx.moveTo(prevPoint.x, prevPoint.y);
+          ctx.bezierCurveTo(a.x, a.y, b.x, b.y, point.x, point.y);
+          ctx.lineWidth = outlineThickness;
+          ctx.strokeStyle = outlineColor;
+          ctx.stroke();
         }
 
         if (!drawHandles) {
@@ -323,19 +344,20 @@ export class PathRenderer extends BaseRenderer {
           );
         }
       } else if (
-        abs.type === PathType.quadraticBezierAbs ||
-        abs.type === PathType.smoothQuadraticBezierAbs
+        abs?.a &&
+        prevPoint &&
+        (abs.type === PathType.quadraticBezierAbs ||
+          abs.type === PathType.smoothQuadraticBezierAbs)
       ) {
-        const c = abs;
-        const a = c.a.matrixTransform(ctm);
+        const a = abs.a.matrixTransform(ctm);
 
         if (drawPathOutline) {
           const path2d = new Path2D();
           path2d.moveTo(prevPoint.x, prevPoint.y);
           path2d.quadraticCurveTo(a.x, a.y, point.x, point.y);
-          this.ctx.lineWidth = outlineThickness;
-          this.ctx.strokeStyle = outlineColor;
-          this.ctx.stroke(path2d);
+          ctx.lineWidth = outlineThickness;
+          ctx.strokeStyle = outlineColor;
+          ctx.stroke(path2d);
         }
         if (!drawHandles) {
           return;
@@ -381,24 +403,17 @@ export class PathRenderer extends BaseRenderer {
         if (drawPathOutline) {
           // TODO: draw outline for arc path data.
           const curves = c.arcApproxCurves();
-          if (curves) {
+          if (curves && prevPoint) {
             let start = prevPoint;
             curves.forEach((p) => {
-              this.ctx.moveTo(start.x, start.y);
+              ctx.moveTo(start.x, start.y);
               const subA = new DOMPoint(p[0], p[1]).matrixTransform(ctm);
               const subB = new DOMPoint(p[2], p[3]).matrixTransform(ctm);
               const end = new DOMPoint(p[4], p[5]).matrixTransform(ctm);
-              this.ctx.bezierCurveTo(
-                subA.x,
-                subA.y,
-                subB.x,
-                subB.y,
-                end.x,
-                end.y
-              );
-              this.ctx.lineWidth = outlineThickness;
-              this.ctx.strokeStyle = outlineColor;
-              this.ctx.stroke();
+              ctx.bezierCurveTo(subA.x, subA.y, subB.x, subB.y, end.x, end.y);
+              ctx.lineWidth = outlineThickness;
+              ctx.strokeStyle = outlineColor;
+              ctx.stroke();
               start = end;
             });
           }
@@ -407,65 +422,67 @@ export class PathRenderer extends BaseRenderer {
           return;
         }
 
-        const m = this.screenCTM.multiply(node.getScreenCTM());
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeStyle = consts.pathHandleLineStroke;
-        this.ctx.beginPath();
-        this.ctx.setTransform(m);
+        const m = this.screenCTM.multiply(node.getScreenCTM() || undefined);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = consts.pathHandleLineStroke;
+        ctx.beginPath();
+        ctx.setTransform(m);
         let center = c.center;
         const r = c.getCalculatedRadius();
-        try {
-          this.ctx.ellipse(
-            center.x,
-            center.y,
-            r.x,
-            r.y,
-            Utils.rad(c.rotation),
-            0,
-            360
+
+        if (r && center) {
+          try {
+            ctx.ellipse(
+              center.x,
+              center.y,
+              r.x,
+              r.y,
+              Utils.rad(c.rotation || 0),
+              0,
+              360
+            );
+          } finally {
+            ctx.resetTransform();
+          }
+          ctx.stroke();
+          let rx = new DOMPoint(center.x + r.x, center.y);
+          rx = rx.matrixTransform(
+            ctm
+              .translate(center.x, center.y)
+              .rotate(c.rotation)
+              .translate(-center.x, -center.y)
           );
-        } finally {
-          this.ctx.resetTransform();
+
+          this.drawHandle(
+            rx,
+            consts.pathHandleSize,
+            consts.pathHandleStroke,
+            consts.pathHandleFill
+          );
+
+          let ry = new DOMPoint(center.x, center.y + r.y);
+          ry = ry.matrixTransform(
+            ctm
+              .translate(center.x, center.y)
+              .rotate(c.rotation)
+              .translate(-center.x, -center.y)
+          );
+
+          this.drawHandle(
+            ry,
+            consts.pathHandleSize,
+            consts.pathHandleStroke,
+            consts.pathHandleFill
+          );
+
+          center = center?.matrixTransform(ctm);
+          this.drawHandle(
+            center,
+            consts.pathHandleSize,
+            consts.pathHandleStroke,
+            consts.pathHandleFill
+          );
         }
-        this.ctx.stroke();
-
-        let rx = new DOMPoint(center.x + r.x, center.y);
-        rx = rx.matrixTransform(
-          ctm
-            .translate(center.x, center.y)
-            .rotate(c.rotation)
-            .translate(-center.x, -center.y)
-        );
-
-        this.drawHandle(
-          rx,
-          consts.pathHandleSize,
-          consts.pathHandleStroke,
-          consts.pathHandleFill
-        );
-
-        let ry = new DOMPoint(center.x, center.y + r.y);
-        ry = ry.matrixTransform(
-          ctm
-            .translate(center.x, center.y)
-            .rotate(c.rotation)
-            .translate(-center.x, -center.y)
-        );
-
-        this.drawHandle(
-          ry,
-          consts.pathHandleSize,
-          consts.pathHandleStroke,
-          consts.pathHandleFill
-        );
-
-        center = center.matrixTransform(ctm);
-        this.drawHandle(
-          center,
-          consts.pathHandleSize,
-          consts.pathHandleStroke,
-          consts.pathHandleFill
-        );
       } else if (!abs.isType(PathType.moveAbs)) {
         if (drawPathOutline) {
           if (abs.isType(PathType.closeAbs)) {

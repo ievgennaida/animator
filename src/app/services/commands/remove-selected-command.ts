@@ -40,7 +40,7 @@ export class RemoveSelectedCommand implements BaseCommand {
     }
     return false;
   }
-  execute() {
+  execute(): void {
     if (this.removePathNodesCommand.canExecute()) {
       this.removePathNodesCommand.execute();
     } else if (this.removeElementCommand.canExecute()) {

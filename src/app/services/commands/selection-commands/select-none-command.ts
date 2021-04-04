@@ -24,7 +24,7 @@ export class SelectNoneCommand implements BaseCommand {
   canExecute(): boolean {
     return this.selectionService.getSelected().length > 0;
   }
-  execute() {
+  execute(): void {
     this.selectionService.deselectAll();
   }
 }

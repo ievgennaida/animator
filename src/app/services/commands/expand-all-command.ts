@@ -19,7 +19,7 @@ export class ExpandAllCommand implements BaseCommand {
   canExecute(): boolean {
     return true;
   }
-  execute() {
+  execute(): void {
       this.outlineService.expandAll();
   }
 }

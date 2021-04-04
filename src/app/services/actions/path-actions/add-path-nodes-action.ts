@@ -41,7 +41,7 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
   ) {
     super(propertiesService);
   }
-  execute() {
+  execute(): void {
     if (!this.committed) {
       // Perform initially action and store committed values.
       this.commit();

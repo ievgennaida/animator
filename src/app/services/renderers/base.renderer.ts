@@ -8,7 +8,7 @@ export class BaseRenderer {
    * Renderer canvas viewport CTM.
    */
   screenCTM: DOMMatrix = new DOMMatrix();
-  ctx: CanvasRenderingContext2D = null;
+  ctx: CanvasRenderingContext2D | null = null;
   devicePixelRatio = window.devicePixelRatio;
   // TODO: use one pixel for different devices to draw lines sharp
   onePixel = this.devicePixelRatio;
@@ -63,15 +63,20 @@ export class BaseRenderer {
     this.invalidateSizeChanged();
   }
 
-  public initContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  public initContext(
+    canvas: HTMLCanvasElement | null
+  ): CanvasRenderingContext2D | null {
     if (!canvas) {
       return null;
     }
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     return ctx;
   }
 
   public invalidateSizeChanged(): void {
+    if (!this.ctx) {
+      return;
+    }
     const changed = this.rescaleCanvas(this.ctx);
     if (changed) {
       this.invalidate();
@@ -133,10 +138,10 @@ export class BaseRenderer {
       }
     }
   }
-  rescaleCanvas(ctx: CanvasRenderingContext2D): boolean {
+  rescaleCanvas(ctx: CanvasRenderingContext2D | null): boolean {
     let changed = false;
     if (!ctx || !ctx.canvas) {
-      return null;
+      return false;
     }
     // TODO: this method should not do any complex transforms
     const canvas = ctx.canvas;
@@ -175,7 +180,7 @@ export class BaseRenderer {
     ctx.lineTo(x2, y2);
   }
 
-  clearBackground(ctx: CanvasRenderingContext2D): void {
+  clearBackground(ctx: CanvasRenderingContext2D | null): void {
     if (ctx) {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
@@ -186,7 +191,7 @@ export class BaseRenderer {
     stroke: string,
     thickness: number = 0
   ): boolean {
-    if ((!node && Path2D) || !stroke || thickness === 0) {
+    if ((!node && Path2D) || !stroke || thickness === 0 || !this.ctx) {
       return false;
     }
     const data = node.getPathData();
@@ -201,10 +206,10 @@ export class BaseRenderer {
         // Check whether method is supported.
         return false;
       }
-      path2d.addPath(
-        new Path2D(stringPath),
-        this.screenCTM.multiply(node.getScreenCTM())
-      );
+      const matrix = node.getScreenCTM();
+      if (matrix) {
+        path2d.addPath(new Path2D(stringPath), this.screenCTM.multiply(matrix));
+      }
       this.ctx.lineWidth = thickness;
       this.ctx.strokeStyle = stroke;
       this.ctx.stroke(path2d);
@@ -227,10 +232,10 @@ export class BaseRenderer {
 
   drawRect(
     ctx: CanvasRenderingContext2D,
-    rect: DOMRect,
+    rect: DOMRect | null,
     thickness: number = 1,
     stroke: string = "black",
-    fillStyle: string = null
+    fillStyle: string | null = null
   ): void {
     if (!rect) {
       return;
@@ -248,12 +253,12 @@ export class BaseRenderer {
     );
   }
   drawPath(
-    ctx: CanvasRenderingContext2D,
+    ctx: CanvasRenderingContext2D | null,
     thickness: number,
-    stroke: string,
-    fillStyle: string,
+    stroke: string | null,
+    fillStyle: string | null,
     closed: boolean,
-    ...points: Array<DOMPoint>
+    ...points: Array<DOMPoint | null>
   ): void {
     if (!ctx || !points || points.length === 0) {
       return;
@@ -261,10 +266,10 @@ export class BaseRenderer {
     ctx.beginPath();
 
     points.forEach((point, index) => {
-      const p = this.getSharpPos(point, thickness);
-      if (!p) {
+      if (!point) {
         return;
       }
+      const p = this.getSharpPos(point, thickness);
       // const p = this.getSharpPos(point);
       if (index === 0) {
         ctx.moveTo(p.x, p.y);
@@ -293,12 +298,15 @@ export class BaseRenderer {
   }
 
   drawCross(
-    ctx: CanvasRenderingContext2D,
+    ctx: CanvasRenderingContext2D | null,
     p: DOMPoint,
     centerSize = 5,
     stroke: string = "black",
     thickness: number = 1
   ) {
+    if (!ctx) {
+      return;
+    }
     ctx.beginPath();
     ctx.lineWidth = thickness;
     ctx.strokeStyle = stroke;
@@ -315,7 +323,7 @@ export class BaseRenderer {
     ctx: CanvasRenderingContext2D,
     thickness: number,
     stroke: string,
-    adorner: Adorner
+    adorner: Adorner | null
   ) {
     if (!adorner) {
       return;

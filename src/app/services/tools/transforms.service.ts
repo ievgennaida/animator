@@ -2,10 +2,9 @@ import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { HandleData } from "src/app/models/handle-data";
 import { TreeNode } from "src/app/models/tree-node";
-import { TransformAction } from "../actions/transformations/transform-action";
 import { TransformationMode } from "../../models/transformation-mode";
+import { TransformAction } from "../actions/transformations/transform-action";
 import { UndoService } from "../undo.service";
-import { Utils } from "../utils/utils";
 
 /**
  * Start and handle transformation action.
@@ -24,7 +23,7 @@ export class TransformsService {
     return this.transformedSubject.asObservable();
   }
 
-  emitTransformed(element: SVGElement) {
+  emitTransformed(element: SVGElement | null) {
     this.transformedSubject.next(element);
   }
 
@@ -87,7 +86,7 @@ export class TransformsService {
     mode: TransformationMode,
     nodes: TreeNode[],
     screenPos: DOMPoint,
-    handle: HandleData
+    handle: HandleData | null
   ) {
     if (!nodes || nodes.length === 0) {
       return;

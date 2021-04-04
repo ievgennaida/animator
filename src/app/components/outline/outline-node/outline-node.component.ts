@@ -57,8 +57,9 @@ export class OutlineNodeComponent
       .pipe(takeUntil(this.destroyed$))
       .subscribe((value) => {
         if (
-          value.added.indexOf(this.node) >= 0 ||
-          value.removed.indexOf(this.node) >= 0
+          this.node &&
+          (value.added.indexOf(this.node) >= 0 ||
+            value.removed.indexOf(this.node) >= 0)
         ) {
           // When nodes list changed.
           this.cdRef.detectChanges();
@@ -75,12 +76,17 @@ export class OutlineNodeComponent
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         // Track only changed items:
-        if (data && data.changed && data.changed.includes(this.node)) {
+        if (
+          data &&
+          data.changed &&
+          this.node &&
+          data.changed.includes(this.node)
+        ) {
           this.cdRef.detectChanges();
         }
       });
 
-    this.mouseOverService.mouseOver
+    this.mouseOverService.mouseOverSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe((node) => {
         if (node === this.node) {
@@ -100,7 +106,7 @@ export class OutlineNodeComponent
 
   setSelected(node: TreeNode, ctrlKey = false, shiftKey = false): void {
     let mode = ChangeStateMode.normal;
-    const nodes = [];
+    const nodes: TreeNode[] = [];
     if (ctrlKey) {
       nodes.push(node);
       mode = ChangeStateMode.revert;

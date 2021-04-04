@@ -24,10 +24,10 @@ import { ZoomTool } from "./zoom.tool";
   providedIn: "root",
 })
 export class ToolsService {
-  activeToolSubject = new BehaviorSubject<BaseTool>(null);
+  activeToolSubject = new BehaviorSubject<BaseTool | null>(null);
   viewportMouseMoveSubject = new Subject<MouseEventArgs>();
   public tools: Array<BaseTool> = [];
-  private activeTool: BaseTool = null;
+  private activeTool: BaseTool | null = null;
   private lastMouseOverTreeNode: TreeNode | null = null;
 
   constructor(
@@ -52,7 +52,7 @@ export class ToolsService {
     this.setActiveTool(panTool);
   }
 
-  getActiveTool(): BaseTool {
+  getActiveTool(): BaseTool | null {
     return this.activeTool;
   }
 
@@ -60,28 +60,28 @@ export class ToolsService {
     return this.activeToolSubject.asObservable();
   }
 
-  setActiveTool(tool: BaseTool) {
+  setActiveTool(tool: BaseTool | null) {
     if (this.activeTool !== tool) {
       if (this.activeTool) {
-        this.activeTool.onDeactivate();
+        this.activeTool?.onDeactivate();
       }
       this.activeTool = tool;
       if (this.activeTool) {
-        this.activeTool.onActivate();
+        this.activeTool?.onActivate();
       }
       this.activeToolSubject.next(this.activeTool);
     }
   }
 
   onViewportTouchStart(event: TouchEvent) {
-    this.activeTool.onViewportMouseDown(new MouseEventArgs(event));
+    this.activeTool?.onViewportMouseDown(new MouseEventArgs(event));
   }
   onViewportTouchEnd(event: TouchEvent) {
-    this.activeTool.onViewportMouseUp(new MouseEventArgs(event));
+    this.activeTool?.onViewportMouseUp(new MouseEventArgs(event));
   }
 
   onScroll() {
-    this.activeTool.onScroll();
+    this.activeTool?.onScroll();
   }
 
   onViewportMouseMove(event: TouchEvent | MouseEvent) {
@@ -92,30 +92,30 @@ export class ToolsService {
         args.screenPoint
       );
     }
-    this.activeTool.onViewportMouseMove(args);
+    this.activeTool?.onViewportMouseMove(args);
     this.viewportMouseMoveSubject.next(args);
   }
   onViewportTouchLeave(event: TouchEvent) {
-    this.activeTool.onViewportMouseLeave(new MouseEventArgs(event));
+    this.activeTool?.onViewportMouseLeave(new MouseEventArgs(event));
   }
   onViewportContextMenu(event: MouseEvent) {
-    this.activeTool.onViewportContextMenu(new MouseEventArgs(event));
+    this.activeTool?.onViewportContextMenu(new MouseEventArgs(event));
   }
   onViewportTouchCancel(event: TouchEvent) {
-    this.activeTool.onViewportMouseUp(new MouseEventArgs(event));
+    this.activeTool?.onViewportMouseUp(new MouseEventArgs(event));
   }
   onViewportMouseLeave(event: MouseEvent) {
-    this.activeTool.onViewportMouseLeave(new MouseEventArgs(event));
+    this.activeTool?.onViewportMouseLeave(new MouseEventArgs(event));
   }
   onViewportMouseDown(event: MouseEvent) {
-    this.activeTool.onViewportMouseDown(new MouseEventArgs(event));
+    this.activeTool?.onViewportMouseDown(new MouseEventArgs(event));
   }
   onViewportMouseUp(event: MouseEvent) {
-    this.activeTool.onViewportMouseUp(new MouseEventArgs(event));
+    this.activeTool?.onViewportMouseUp(new MouseEventArgs(event));
   }
   onViewportMouseWheel(event: WheelEvent) {
     const mouseArgs = new MouseEventArgs(event);
-    this.activeTool.onViewportMouseWheel(mouseArgs);
+    this.activeTool?.onViewportMouseWheel(mouseArgs);
 
     if (!mouseArgs.handled) {
       if (event.ctrlKey) {
@@ -130,28 +130,28 @@ export class ToolsService {
   }
 
   onViewportBlur(event: Event) {
-    this.activeTool.onViewportBlur(event);
+    this.activeTool?.onViewportBlur(event);
   }
 
   onPlayerMouseOut(event: MouseEvent) {
-    this.activeTool.onPlayerMouseOut(new MouseEventArgs(event));
+    this.activeTool?.onPlayerMouseOut(new MouseEventArgs(event));
   }
 
   onPlayerMouseOver(event: MouseEvent) {
-    this.activeTool.onPlayerMouseOver(new MouseEventArgs(event));
+    this.activeTool?.onPlayerMouseOver(new MouseEventArgs(event));
   }
 
   onWindowMouseLeave(event: MouseEvent) {
-    this.activeTool.onWindowMouseLeave(new MouseEventArgs(event));
+    this.activeTool?.onWindowMouseLeave(new MouseEventArgs(event));
   }
   onWindowKeyDown(event: KeyboardEvent) {
-    this.activeTool.onWindowKeyDown(event);
+    this.activeTool?.onWindowKeyDown(event);
   }
   onWindowKeyUp(event: KeyboardEvent) {
-    this.activeTool.onWindowKeyUp(event);
+    this.activeTool?.onWindowKeyUp(event);
   }
   onWindowMouseDown(event: MouseEvent) {
-    this.activeTool.onWindowMouseDown(new MouseEventArgs(event));
+    this.activeTool?.onWindowMouseDown(new MouseEventArgs(event));
   }
   onWindowMouseMove(event: MouseEvent) {
     const args = new MouseEventArgs(event);
@@ -161,13 +161,13 @@ export class ToolsService {
         args.screenPoint
       );
     }
-    this.activeTool.onWindowMouseMove(args);
+    this.activeTool?.onWindowMouseMove(args);
   }
   onWindowMouseUp(mouseEventsArgs: MouseEventArgs) {
     if (mouseEventsArgs.isDoubleClick) {
       // TODO: make generic event
       if (this.activeTool === this.selectionTool) {
-        this.activeTool.onWindowMouseUp(mouseEventsArgs);
+        this.activeTool?.onWindowMouseUp(mouseEventsArgs);
         const overNode = this.mouseOverService.overNode();
         if (
           this.lastMouseOverTreeNode &&
@@ -182,14 +182,14 @@ export class ToolsService {
     }
     this.lastMouseOverTreeNode = this.mouseOverService.overNode();
 
-    this.activeTool.onWindowMouseUp(mouseEventsArgs);
+    this.activeTool?.onWindowMouseUp(mouseEventsArgs);
   }
   onWindowMouseWheel(event: WheelEvent) {
-    this.activeTool.onWindowMouseWheel(new MouseEventArgs(event));
+    this.activeTool?.onWindowMouseWheel(new MouseEventArgs(event));
   }
 
   onWindowBlur(event: Event) {
-    this.activeTool.onWindowBlur(event);
+    this.activeTool?.onWindowBlur(event);
   }
 
   fitViewportToSelected(): boolean {
@@ -198,7 +198,7 @@ export class ToolsService {
     if (bounds) {
       bounds = MatrixUtils.matrixRectTransform(
         bounds,
-        this.viewService.getScreenCTM().inverse()
+        this.viewService.getScreenCTM()?.inverse() || null
       );
       bounds = Utils.shrinkRectPercent(bounds, consts.fitToSelectedExtraBounds);
       this.fitViewport(bounds);
@@ -210,7 +210,7 @@ export class ToolsService {
   /**
    * Fit zoom and pan.
    */
-  fitViewport(rect: DOMRect = null) {
+  fitViewport(rect: DOMRect | null = null): void {
     this.zoomTool.fit(rect);
     this.panTool.fit(rect);
   }

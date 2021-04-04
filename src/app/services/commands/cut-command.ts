@@ -15,10 +15,6 @@ import { RemoveElementCommand } from "./remove-element-command";
   providedIn: "root",
 })
 export class CutCommand extends RemoveElementCommand implements BaseCommand {
-  nodes: TreeNode[];
-  indexes: number[];
-  changed: Subject<BaseCommand>;
-
   title = "Cut";
   icon = "content_cut";
   hotkey = "Ctrl+X";

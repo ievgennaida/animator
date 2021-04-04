@@ -16,18 +16,18 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
 
   getHandle(
     node: TreeNode,
-    command: PathDataCommand,
+    command: PathDataCommand | null,
     type: PathDataHandleType = PathDataHandleType.point
-  ): PathDataHandle {
+  ): PathDataHandle | null {
     const array = this.getValues();
-    return array.find((p) => p.isHandle(node, command, type));
+    return array.find((p) => p.isHandle(node, command, type)) || null;
   }
   getHandlesByType(pathHandleType: PathDataHandleType): Array<PathDataHandle> {
     const array = this.getValues();
     return array.filter((p) => p.type === pathHandleType);
   }
 
-  getHandles(nodeFilter: TreeNode = null): Array<PathDataHandle> {
+  getHandles(nodeFilter: TreeNode | null = null): Array<PathDataHandle> {
     const array = this.getValues();
     if (nodeFilter) {
       return array.filter((p) => p.node === nodeFilter);
@@ -42,9 +42,9 @@ export class PathDataSelectionSubject extends StateSubject<PathDataHandle> {
     if (!nodes || nodes.length === 0) {
       return false;
     }
-    const toLeave = this.getValues().find((p) =>
-      nodes.find((node) => node === p.node)
-    );
+    const toLeave =
+      this.getValues().find((p) => nodes.find((node) => node === p.node)) ||
+      null;
     return this.change(toLeave, ChangeStateMode.remove);
   }
   /**

@@ -12,8 +12,8 @@
             <span>Recent</span>
         </button>
         <mat-menu #recent>
-            <button mat-menu-item (click)="loadData(item.str, item.name)"
-                *ngFor="let item of recentItems">{{item?.name}}</button>
+            <button mat-menu-item *ngFor="let item of recentItems"
+                (click)="loadData(item.data, item.title)">{{item?.title}}</button>
         </mat-menu>
         <button mat-menu-item>
             <mat-icon>save_alt</mat-icon>

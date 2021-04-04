@@ -16,7 +16,7 @@ export class MouseOverRenderer extends BaseRenderer {
    * Draw path outline on mouse over when possible.
    */
   enableDrawPathOutline = false;
-  node: TreeNode;
+  node: TreeNode | null = null;
   constructor(
     private mouseOverService: MouseOverService,
     private adornersService: AdornersService
@@ -30,6 +30,9 @@ export class MouseOverRenderer extends BaseRenderer {
     }
   }
   redraw(): void {
+    if (!this.ctx) {
+      return;
+    }
     this.invalidated = false;
     this.clear();
     if (

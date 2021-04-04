@@ -23,7 +23,7 @@ export class FooterToolbarComponent extends BaseComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   ViewMode = ViewMode;
   isPlaying = true;
-  message = "";
+  message: string | null = "";
   isPan = false;
   constructor(
     private playerService: PlayerService,
@@ -34,7 +34,7 @@ export class FooterToolbarComponent extends BaseComponent implements OnInit {
     super();
     this.cdRef.detach();
   }
-  ngOnInit() {
+  ngOnInit(): void {
     this.notification.footerMessageSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe((message) => {

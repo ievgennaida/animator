@@ -12,7 +12,7 @@ import { PanTool } from "./pan.tool";
 })
 export class AutoPanService {
   private autoPanSpeed = 0;
-  private autoPanIntervalRef = null;
+  private autoPanIntervalRef?: number;
   private clientX = 0;
   private clientY = 0;
   private autoPanInterval = 50;
@@ -32,16 +32,18 @@ export class AutoPanService {
     this.active = false;
     if (this.autoPanIntervalRef) {
       clearInterval(this.autoPanIntervalRef);
-      this.autoPanIntervalRef = null;
+      this.autoPanIntervalRef = 0;
     }
   }
 
   update(clientX: number, clientY: number): void {
     this.clientX = clientX;
     this.clientY = clientY;
-
+    this.containerRect =
+      this.containerRect || this.viewService.getContainerClientRect();
     if (!this.containerRect) {
-      this.containerRect = this.viewService.getContainerClientRect();
+      console.log("Auto pan failed. Container cannot be null.");
+      return;
     }
 
     const bounds = this.viewService.getDisplayedBounds();
@@ -59,13 +61,17 @@ export class AutoPanService {
       this.active = true;
       if (!this.autoPanIntervalRef) {
         // Repeat move calls to
-        this.autoPanIntervalRef = setInterval(() => {
+        this.autoPanIntervalRef = window.setInterval(() => {
           this.autoPanAction(this.clientX, this.clientY, this.containerRect);
         }, this.autoPanInterval);
       }
     }
   }
-  private autoPanAction(x: number, y: number, containerSize: DOMRect): boolean {
+  private autoPanAction(
+    x: number,
+    y: number,
+    containerSize: DOMRect | null
+  ): boolean {
     // Pan by scroll
     if (!this.autoPanSpeed || !containerSize) {
       return false;

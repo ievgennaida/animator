@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { merge, Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { DocumentService } from "../document.service";
 import { PasteService } from "../paste.service";
@@ -23,18 +23,25 @@ export class CopyCommand implements BaseCommand {
     private clipboardService: PasteService,
     private documentService: DocumentService
   ) {
-    this.selectionService.selected.subscribe(() => this.changed.next(this));
+    merge(
+      this.documentService.documentSubject,
+      this.selectionService.selected
+    ).subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {
     const selected = this.selectionService.getTopSelectedNodes();
     if (selected && selected.length > 0) {
+      const root = this.documentService?.getDocument()?.rootNode;
+      if (!root) {
+        return false;
+      }
       // Don't allow to copy root nodes
-      return !selected.includes(this.documentService.getDocument().rootNode);
+      return !selected.includes(root);
     }
 
     return false;
   }
-  execute() {
+  execute(): void {
     const selectedNodes = this.selectionService.getTopSelectedNodes();
     this.clipboardService.addToBuffer(selectedNodes);
   }

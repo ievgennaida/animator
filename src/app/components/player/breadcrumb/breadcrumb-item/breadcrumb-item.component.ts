@@ -6,15 +6,12 @@ import {
   ChangeDetectorRef,
   NgZone,
 } from "@angular/core";
-import { TreeNode } from "src/app/models/tree-node";
 import { SelectionService } from "src/app/services/selection.service";
 import { BaseComponent } from "src/app/components/base-component";
 import { MouseOverService } from "src/app/services/mouse-over.service";
 import { ChangeStateMode } from "src/app/services/state-subject";
-export class Breadcrumb {
-  node: TreeNode;
-  title: string;
-}
+import { Breadcrumb } from "../breadcrumb-item";
+
 @Component({
   selector: "app-breadcrumb-item",
   templateUrl: "./breadcrumb-item.component.html",
@@ -57,7 +54,7 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
     }
     const mode = ChangeStateMode.normal;
     this.ngZone.runOutsideAngular(() => {
-      this.selectionService.setSelected(this.item.node, mode);
+      this.selectionService.setSelected(this.item?.node || null, mode);
     });
   }
 
@@ -65,8 +62,9 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
     if (!this.item || !this.item.node) {
       return;
     }
-    this.ngZone.runOutsideAngular(() =>
-      this.mouseOverService.setMouseOver(this.item.node)
+    this.ngZone.runOutsideAngular(
+      () =>
+        this.item?.node && this.mouseOverService.setMouseOver(this.item?.node)
     );
   }
 
@@ -75,7 +73,7 @@ export class BreadcrumbItemComponent extends BaseComponent implements OnInit {
       return;
     }
     this.ngZone.runOutsideAngular(() =>
-      this.mouseOverService.setMouseLeave(this.item.node)
+      this.mouseOverService.setMouseLeave(this.item?.node || null)
     );
   }
 }

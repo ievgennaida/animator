@@ -13,7 +13,7 @@
             (touchend)="onViewportTouchEnd($event)" 
             (mousemove)="onViewportMouseMove($event)"
             (touchmove)="onViewportTouchMove($event)"
-            (mouseleave)="onViewportMouseLeave($event)" (touchleave)="onViewportTouchLeave($event)"
+            (mouseleave)="onViewportMouseLeave($event)" (touchleave)="onViewportTouchLeave($any($event))"
             (blur)="onViewportBlur($event)" (wheel)="onViewportMouseWheel($event)" (contextmenu)="onViewportContextMenu($event)"
             (touchcancel)="onViewportTouchCancel($event)">
             <g #svgViewport class="svg-viewport">

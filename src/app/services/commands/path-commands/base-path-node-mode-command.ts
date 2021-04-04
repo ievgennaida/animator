@@ -36,7 +36,7 @@ export class BasePathNodesCommand implements BaseCommand {
     }
     return true;
   }
-  execute() {
+  execute(): void {
     if (!this.canExecute()) {
       return;
     }

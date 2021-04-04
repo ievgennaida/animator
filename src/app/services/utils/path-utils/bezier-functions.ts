@@ -128,7 +128,7 @@ function BFunc(xs: number[], ys: number[], t: number): number {
 const getDerivative = (derivative: number, t: number, vs: number[]): number => {
   // the derivative of any 't'-less function is zero.
   const n = vs.length - 1;
-  let _vs: number[] = null;
+  let _vs: number[] | null = null;
   let value;
 
   if (n === 0) {

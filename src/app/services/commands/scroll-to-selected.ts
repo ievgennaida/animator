@@ -18,7 +18,7 @@ export class ScrollToSelected implements BaseCommand {
   hotkey = "";
   iconSVG = false;
   constructor() {}
-  execute() {
+  execute(): void {
     this.executed.next(this);
   }
 }

@@ -30,18 +30,23 @@ export class CenterSelectionScaleAction extends MatrixScaleAction {
   constructor(propertiesService: PropertiesService, viewService: ViewService) {
     super(propertiesService, viewService);
   }
-  init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
+  init(
+    node: TreeNode,
+    screenPos: DOMPoint | null,
+    handle: HandleData | null
+  ): void {
     this.node = node;
     this.handle = handle;
     this.moveSelectionHandle =
       this.handle?.adorner?.type === AdornerType.selection;
 
-    this.transformOriginInitial = this.handle?.adorner?.element?.centerTransform;
+    this.transformOriginInitial =
+      this.handle?.adorner?.element?.centerTransform || null;
     super.init(node, screenPos, handle);
     this.committed = false;
   }
 
-  execute() {
+  execute(): void {
     if (!this.committed) {
       throw new Error("Cannot execute uncommitted value");
     }
@@ -49,7 +54,7 @@ export class CenterSelectionScaleAction extends MatrixScaleAction {
       this.handle?.adorner?.setCenterTransform(this.committedOrigin);
     }
   }
-  undo() {
+  undo(): void {
     // Can be null, means that was unset (default)
     this.handle?.adorner?.setCenterTransform(this.transformOriginInitial);
   }
@@ -60,12 +65,13 @@ export class CenterSelectionScaleAction extends MatrixScaleAction {
    * @param screenScaleMatrix screen coordinates matrix.
    */
   scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {
-    if (this.moveSelectionHandle && this.transformOriginInitial) {
+    if (this.moveSelectionHandle && this.transformOriginInitial && this.node) {
       // Apply transformation in screen coordinates:
-      this.committedOrigin = Utils.toScreenPoint(
-        this.node,
-        this.transformOriginInitial
-      ).matrixTransform(screenScaleMatrix);
+      this.committedOrigin =
+        Utils.toScreenPoint(
+          this.node,
+          this.transformOriginInitial
+        )?.matrixTransform(screenScaleMatrix) || null;
       this.committedOrigin = Utils.toElementPoint(
         this.node,
         this.committedOrigin

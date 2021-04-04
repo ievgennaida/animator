@@ -14,7 +14,7 @@ export class Property {
   public description: string;
   // Container to set the data
   public data: any;
-  public icon: string;
+  public icon: string | null = null;
   // Render this property as outline node:
   public renderAsOutline = false;
   public type: PropertyType = PropertyType.text;
@@ -27,7 +27,7 @@ export class Property {
     node: TreeNode,
     key: string,
     name: string,
-    data,
+    data: any,
     description: string
   ) {
     this.key = key;

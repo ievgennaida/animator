@@ -3,11 +3,12 @@ import { HandleData } from "src/app/models/handle-data";
 import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
+import { LoggerService } from "src/app/services/logger.service";
 import {
   CenterTransformX,
   CenterTransformY,
   PathDataPropertyKey,
-  PropertiesService
+  PropertiesService,
 } from "src/app/services/properties.service";
 import { PathDataUtils } from "src/app/services/utils/path-data-utils";
 import { Utils } from "src/app/services/utils/utils";
@@ -21,15 +22,18 @@ export class PathRotateAction extends BaseTransformAction {
   title = "Rotate";
   icon = TransformationModeIcon.rotate;
   prevAngle = 0;
-  transformOrigin: DOMPoint = null;
+  transformOrigin: DOMPoint | null = null;
   startOffset = 0;
-  centerTransform: DOMPoint = null;
+  centerTransform: DOMPoint | null = null;
   /**
    * List of a particular path handles to be transformed. (filter)
    */
   public pathHandles: PathDataHandle[] | null = null;
-  start: DOMPoint = null;
-  constructor(propertiesService: PropertiesService) {
+  start: DOMPoint | null = null;
+  constructor(
+    propertiesService: PropertiesService,
+    private logger: LoggerService
+  ) {
     super(propertiesService);
   }
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
@@ -43,13 +47,15 @@ export class PathRotateAction extends BaseTransformAction {
     const adornerScreen = handle?.adorner?.screen;
     this.transformOrigin = Utils.toElementPoint(
       node,
-      adornerScreen?.centerTransform || adornerScreen?.center
+      adornerScreen?.getCenterTransformOrDefault() || null
     );
     const transformedCenter = Utils.toScreenPoint(
       element,
       this.transformOrigin
     );
-    this.startOffset = -Utils.angle(transformedCenter, screenPos);
+    if (transformedCenter) {
+      this.startOffset = -Utils.angle(transformedCenter, screenPos);
+    }
   }
 
   /**
@@ -58,20 +64,37 @@ export class PathRotateAction extends BaseTransformAction {
    * @param screenPos mouse current move position point.
    */
   transformByMouse(screenPos: DOMPoint): boolean {
-    const transformPoint = this.transformOrigin;
-    const element = this.node.getElement();
-    const screenTransformOrigin = Utils.toScreenPoint(element, transformPoint);
+    const element = this.node?.getElement();
+    if (!this.node || !element || !this.transformOrigin) {
+      this.logger.log(
+        "Element cannot be transformed. Should be initialized first"
+      );
+      return false;
+    }
+    const screenTransformOrigin = Utils.toScreenPoint(
+      element,
+      this.transformOrigin
+    );
+    if (!screenTransformOrigin) {
+      this.logger.log("Cannot transform transform origin to screen origin.");
+      return false;
+    }
     let angle = -Utils.angle(screenTransformOrigin, screenPos);
-
     angle -= this.startOffset;
     const angleBefore = angle;
     angle -= this.prevAngle;
-    const changed = this.rotateOffset(angle, transformPoint);
+    const changed = this.rotateOffset(angle, this.transformOrigin);
     this.prevAngle = angleBefore;
     return changed;
   }
   rotateOffset(angle: number, transformPoint: DOMPoint) {
-    const element = this.node.getElement();
+    const element = this.node?.getElement();
+    if (!this.node || !element || !element.ownerSVGElement) {
+      this.logger.log(
+        "Element cannot be transformed. Should be initialized first"
+      );
+      return false;
+    }
     if (this.initialValues.size === 0) {
       this.saveInitialValues(
         [this.node],
@@ -84,6 +107,12 @@ export class PathRotateAction extends BaseTransformAction {
       .rotate(angle, 0)
       .translate(-transformPoint.x, -transformPoint.y);
     const pathData = this.node.getPathData();
+    if (!pathData) {
+      this.logger.warn(
+        "Element cannot be moved. Path data should be specified"
+      );
+      return false;
+    }
     pathData.normalize([
       PathType.horizontal,
       PathType.vertical,

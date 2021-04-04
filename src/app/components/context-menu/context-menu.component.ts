@@ -21,14 +21,14 @@ import { BaseComponent } from "../base-component";
 })
 export class ContextMenuComponent extends BaseComponent implements OnInit {
   commands: Array<BaseCommand> = [];
-  trigger: MatMenuTrigger;
+  trigger: MatMenuTrigger | null = null;
   @ViewChild("trigger")
   set setTrigger(value: MatMenuTrigger) {
     this.trigger = value;
     this.contextMenu.setTrigger(this.trigger);
   }
 
-  contextMenuEl: ElementRef<HTMLElement>;
+  contextMenuEl: ElementRef<HTMLElement> | null = null;
   @ViewChild("contextMenu", { read: ElementRef })
   set setMenuElement(value: ElementRef<HTMLElement>) {
     this.contextMenuEl = value;
@@ -37,7 +37,7 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
     }
   }
 
-  element: ElementRef<HTMLElement>;
+  element: ElementRef<HTMLElement> | null = null;
   @ViewChild("element", { read: ElementRef })
   set setElement(value: ElementRef<HTMLElement>) {
     this.element = value;
@@ -62,11 +62,13 @@ export class ContextMenuComponent extends BaseComponent implements OnInit {
           const el = this.element.nativeElement;
           el.style.left = event.clientX + 5 + "px";
           el.style.top = event.clientY + 5 + "px";
-          if (this.trigger.menuOpen) {
-            this.trigger.closeMenu();
-            this.trigger.openMenu();
-          } else {
-            this.trigger.openMenu();
+          if (this.trigger) {
+            if (this.trigger.menuOpen) {
+              this.trigger.closeMenu();
+              this.trigger.openMenu();
+            } else {
+              this.trigger.openMenu();
+            }
           }
           event.preventDefault();
           event.stopPropagation();

@@ -7,7 +7,10 @@ export class InputDocument {
   parsedData: any | null = null;
   rootNode: TreeNode | null = null;
   parser: IParser | null = null;
-  get rootElement(): SVGSVGElement {
+  get rootElement(): SVGSVGElement | null {
+    if (!this.rootNode) {
+      return null;
+    }
     return this.rootNode.getElement() as SVGSVGElement;
   }
   title = "";

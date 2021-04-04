@@ -23,7 +23,7 @@ export class NumericComponent extends BaseComponent implements OnInit {
   ) {
     super();
   }
-  ngOnInit() {
+  ngOnInit(): void {
     this.playerService.timeSubject
       .asObservable()
       .pipe(takeUntil(this.destroyed$))
@@ -34,9 +34,10 @@ export class NumericComponent extends BaseComponent implements OnInit {
       });
   }
 
-  onValueChanged(event) {
+  onValueChanged(e: Event): void {
+    const input = e.target as HTMLInputElement;
     if (this.property) {
-      this.property.setValue(parseInt(event.target.value, 10));
+      this.property.setValue(parseInt(input.value, 10));
       this.propertiesService.emitPropertyChanged(this.property);
     }
   }

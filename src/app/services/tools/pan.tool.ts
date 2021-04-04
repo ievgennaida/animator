@@ -3,17 +3,17 @@ import { CursorType } from "src/app/models/cursor-type";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { CursorService } from "../cursor.service";
 import { LoggerService } from "../logger.service";
+import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
 import { ViewService } from "../view.service";
 import { BaseTool } from "./base.tool";
-import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
 
 @Injectable({
   providedIn: "root",
 })
 export class PanTool extends BaseTool {
-  svgMatrix: DOMMatrix = null;
-  mouseDownPos: DOMPoint = null;
-  iconName = "pan_tool";
+  svgMatrix: DOMMatrix | null = null;
+  mouseDownPos: DOMPoint | null = null;
+  icon = "pan_tool";
 
   constructor(
     private viewService: ViewService,
@@ -45,10 +45,11 @@ export class PanTool extends BaseTool {
     event.preventDefault();
     event.handled = true;
     this.svgMatrix = this.viewService.getCTM();
-    this.mouseDownPos = event.screenPoint.matrixTransform(
-      this.svgMatrix.inverse()
-    );
-    this.cursor.setCursor(CursorType.grabbing);
+    if (this.svgMatrix) {
+      this.mouseDownPos =
+        event?.screenPoint?.matrixTransform(this.svgMatrix.inverse()) || null;
+      this.cursor.setCursor(CursorType.grabbing);
+    }
   }
 
   cleanUp() {
@@ -66,7 +67,11 @@ export class PanTool extends BaseTool {
     this.panByRelativePoint(currentPoint);
   }
 
-  panByRelativePoint(point: SVGPoint) {
+  panByRelativePoint(point: SVGPoint | null) {
+    if (!point || !this.svgMatrix || !this.mouseDownPos) {
+      return;
+    }
+
     point = point.matrixTransform(this.svgMatrix.inverse());
     this.svgMatrix = this.svgMatrix.translate(
       point.x - this.mouseDownPos.x,
@@ -95,9 +100,13 @@ export class PanTool extends BaseTool {
   }
   pan(panX: number, panY: number) {
     const matrix = this.viewService.getCTM();
-    matrix.e = panX;
-    matrix.f = panY;
-    this.viewService.setCTM(matrix);
+    if (matrix) {
+      matrix.e = panX;
+      matrix.f = panY;
+      this.viewService.setCTM(matrix);
+    } else {
+      console.log("Cannot pan, main view service should be initialized");
+    }
   }
 
   /**
@@ -105,7 +114,7 @@ export class PanTool extends BaseTool {
    *
    * @param rect rectangle to fit view for. use player svg if null.
    */
-  fit(rect: DOMRect = null) {
+  fit(rect: DOMRect | null = null): void {
     if (!this.viewService.isInit()) {
       this.logger.log(
         "Pan: cannot center content. viewport should be initialed first."
@@ -124,6 +133,10 @@ export class PanTool extends BaseTool {
     const y = rect.y * zoom;
 
     const parent = this.viewService.svgRoot();
+    if (!parent) {
+      console.log("Root svg element should be initialized");
+      return;
+    }
     const parentWidth = parent.clientWidth;
     const parentHeight = parent.clientHeight;
 

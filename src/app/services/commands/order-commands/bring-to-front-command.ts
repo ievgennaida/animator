@@ -35,7 +35,7 @@ export class BringToFrontCommand implements BaseCommand {
     const selected = this.selectionService.getSelected();
     return OrderAction.canSendToFront(selected);
   }
-  execute() {
+  execute(): void {
     if (this.canExecute && !this.canExecute()) {
       return;
     }

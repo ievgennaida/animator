@@ -5,5 +5,5 @@ import { BaseTool } from "./base.tool";
   providedIn: "root",
 })
 export class RulerTool extends BaseTool {
-  iconName = "straighten";
+  icon = "straighten";
 }

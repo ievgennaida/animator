@@ -46,11 +46,14 @@ export class IntersectionService {
   /**
    * get intersection by the viewport coordinates selector.
    */
-  getIntersects(screenRect: DOMRect, onlyFirst: boolean = false): TreeNode[] {
+  getIntersects(
+    screenRect: DOMRect | null,
+    onlyFirst: boolean = false
+  ): TreeNode[] {
     if (!screenRect) {
-      return null;
+      return [];
     }
-    let selected: TreeNode[] = null;
+    const selected: TreeNode[] = [];
     const nodes = this.outlineService.getAllNodes();
 
     if (nodes && nodes.length > 0) {
@@ -67,9 +70,6 @@ export class IntersectionService {
               if (onlyFirst) {
                 return [node];
               }
-              if (!selected) {
-                selected = [];
-              }
               selected.push(node);
             }
           } catch (err) {
@@ -81,15 +81,18 @@ export class IntersectionService {
     return selected;
   }
 
-  getAdornerHandleIntersection(screenPoint: DOMPoint): HandleData | null {
-    let results: HandleData = null;
+  getAdornerHandleIntersection(
+    screenPoint: DOMPoint | null
+  ): HandleData | null {
+    let results: HandleData | null = null;
     const adorners = this.adornersService.getActiveAdorners();
     if (!adorners) {
       return null;
     }
-    const toReturn = adorners.find((adorner) => {
+
+    for (const adorner of adorners) {
       if (!adorner) {
-        return false;
+        continue;
       }
 
       const intersects = this.intersectAdorner(adorner, adorners, screenPoint);
@@ -97,14 +100,11 @@ export class IntersectionService {
         if (!results) {
           results = new HandleData();
         }
+        results.adorner = adorner;
         results.handle = intersects;
-        return true;
+        break;
       }
-    });
-    if (!toReturn) {
-      return null;
     }
-    results.adorner = toReturn;
     return results;
   }
   /**
@@ -115,10 +115,13 @@ export class IntersectionService {
    */
   intersectPathDataHandles(
     nodes: TreeNode[],
-    selectorRectOrPos: DOMRect | DOMPoint,
+    selectorRectOrPos: DOMRect | DOMPoint | null,
     includeHandles = true
-  ): Array<PathDataHandle> {
-    const mouseOverItems: Array<PathDataHandle> = [];
+  ): PathDataHandle[] {
+    if (!selectorRectOrPos) {
+      return [];
+    }
+    const mouseOverItems: PathDataHandle[] = [];
     const config = this.configService.get();
     const rectSelector = selectorRectOrPos as DOMRect;
     const isRect = rectSelector.width || rectSelector.width === 0;
@@ -211,7 +214,7 @@ export class IntersectionService {
     if (!nodes || !screenPoint) {
       return null;
     }
-    let nearest: NearestCommandPoint = null;
+    let nearest: NearestCommandPoint | null = null;
 
     nodes.forEach((node) => {
       const elementPoint = Utils.toElementPoint(node, screenPoint);
@@ -250,7 +253,7 @@ export class IntersectionService {
    */
   getNearestPathPoint(
     node: TreeNode,
-    elementPoint: DOMPoint,
+    elementPoint: DOMPoint | null,
     shrinkBounds: number = 0,
     accuracy: number = 0.01,
     lengthLimit: number | null = null
@@ -259,6 +262,9 @@ export class IntersectionService {
       return null;
     }
     const nodeBounds = node.getBBox();
+    if (!nodeBounds) {
+      return null;
+    }
     shrinkBounds = Math.max(
       shrinkBounds,
       accuracy,
@@ -282,12 +288,13 @@ export class IntersectionService {
       return null;
     }
 
-    let nearest: NearestCommandPoint = null;
+    let nearest: NearestCommandPoint | null = null;
     const expectedLen = 8;
     let usedStep = 0;
     let bestPositionOnFragment = 0;
+    let index = 0;
     // Linear search, find nearest command first.
-    pathData.forEach((command, index) => {
+    for (const command of pathData.commands) {
       const totalLength = command.length;
       if (totalLength > accuracy) {
         let step = Math.floor(totalLength / expectedLen);
@@ -301,7 +308,8 @@ export class IntersectionService {
             bounds = Utils.shrinkRect(bounds, shrinkBounds, shrinkBounds);
           }
           if (!Utils.rectIntersectPoint(bounds, elementPoint)) {
-            return;
+            index++;
+            continue;
           }
         }
         step = totalLength / step;
@@ -347,7 +355,9 @@ export class IntersectionService {
           }
         }
       }
-    });
+
+      index++;
+    }
 
     // Increase accuracy for the found command.
     if (nearest) {
@@ -360,7 +370,7 @@ export class IntersectionService {
         pathCommand: PathDataCommand
       ): boolean => {
         const nextPointFound = pathCommand.getPointOnPath(i);
-        if (nextPointFound) {
+        if (nextPointFound && nearest) {
           if (nearest.allPoints) {
             nearest.allPoints.push(nextPointFound);
           }
@@ -421,7 +431,7 @@ export class IntersectionService {
   intersectAdorner(
     adornerContainer: AdornerContainer,
     adorners: AdornerContainer[],
-    point: DOMPoint
+    point: DOMPoint | null
   ): AdornerPointType {
     let toReturn = AdornerPointType.none;
     if (!point || !adornerContainer) {
@@ -432,7 +442,7 @@ export class IntersectionService {
     const rotateArea = 1.5;
     const adorner = adornerContainer.screen;
     // Find nearest point:
-    adorner.points.forEach((adornerPoint, key) => {
+    adorner?.points.forEach((adornerPoint, key) => {
       let minDistance =
         key === AdornerPointType.translate
           ? config.translateHandleSize
@@ -440,6 +450,7 @@ export class IntersectionService {
 
       if (
         !minDistance ||
+        !adornerPoint ||
         !this.adornersService.isAdornerActive(adornerContainer, adorners, key)
       ) {
         return;

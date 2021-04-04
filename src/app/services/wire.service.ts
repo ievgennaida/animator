@@ -149,7 +149,7 @@ export class WireService {
     // Wire mouse over service with mouse over bounds renderer.
     // Note: each renderer can be suspended.
     // Most of the renderers are suspended by tools.
-    mouseOverService.mouseOver.subscribe((treeNode: TreeNode) => {
+    mouseOverService.mouseOverSubject.asObservable().subscribe((treeNode) => {
       if (treeNode && treeNode.mouseOver) {
         mouseOverRenderer.node = treeNode;
       } else {
@@ -183,7 +183,7 @@ export class WireService {
           // Deselect nodes that was removed from the outline tree
           const nodes = this.outlineService.getAllNodes();
           const selected = this.selectionService.getSelected();
-          const toDeselect = [];
+          const toDeselect: TreeNode[] = [];
           selected.forEach((selectedNode) => {
             // One of the selected nodes does not exists anymore:
             if (nodes.indexOf(selectedNode) < 0) {
@@ -203,7 +203,7 @@ export class WireService {
   /**
    * Build multiple items selection adorner on selected changed
    */
-  buildSelectionAdorner(resetCenterTransform = false) {
+  buildSelectionAdorner(resetCenterTransform = false): void {
     const selectedNodes = this.selectionService.getSelected();
     selectedNodes.forEach((p) => p.cleanCache());
     this.adornersService.buildSelectionAdorner(
@@ -213,15 +213,17 @@ export class WireService {
     );
   }
 
-  buildPathDataSelectionAdorner() {
-    this.adornersService.buildPathDataSelectionAdorner(
-      this.outlineService.rootNode
-    );
+  buildPathDataSelectionAdorner(): void {
+    if (this.outlineService.rootNode) {
+      this.adornersService.buildPathDataSelectionAdorner(
+        this.outlineService.rootNode
+      );
+    }
   }
-  cleanCache() {
+  cleanCache(): void {
     this.buildPathDataSelectionAdorner();
     this.adornersService.cleanCache();
     this.outlineService.getAllNodes().forEach((node) => node.cleanCache());
   }
-  init() {}
+  init(): void {}
 }

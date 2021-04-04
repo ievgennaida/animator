@@ -11,19 +11,18 @@ import { BaseAction } from "./base-action";
   providedIn: "root",
 })
 export class VisibilityAction extends BaseAction {
-
-  items: TreeNode[];
-  initialStates: string[];
+  items: TreeNode[] = [];
+  initialStates: string[] = [];
   committed = true;
   constructor(private propertiesService: PropertiesService) {
     super();
   }
-  execute() {
+  execute(): void {
     this.items.forEach((p) =>
       this.propertiesService.setDisplay(p, !this.propertiesService.isVisible(p))
     );
   }
-  undo() {
+  undo(): void {
     this.items.forEach((p, index) =>
       this.propertiesService.setDisplay(p, this.initialStates[index])
     );
@@ -33,6 +32,8 @@ export class VisibilityAction extends BaseAction {
     this.items = items;
     this.title = `Visibility: ${Utils.getTreeNodesTitle(items)}`;
     this.icon = "visibility";
-    this.initialStates = items.map((p) => p.getElement().style.display);
+    this.initialStates = items.map(
+      (p) => p?.getElement()?.style?.display || ""
+    );
   }
 }

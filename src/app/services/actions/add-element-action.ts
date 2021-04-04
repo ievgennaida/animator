@@ -17,18 +17,24 @@ export class AddElementAction extends BaseAction {
   constructor(private outlineService: OutlineService) {
     super();
   }
-  execute() {
+  execute(): void {
+    if (!this.element || !this.container) {
+      return;
+    }
     Utils.addTreeNodeToContainer(this.element, this.container);
     this.outlineService.update();
   }
-  undo() {
+  undo(): void {
+    if (!this.element || !this.container) {
+      return;
+    }
     // Ensure that selected nodes exists:
     // this.selectionService.setSelected(newTreeNode);
     Utils.deleteTreeNode(this.element, this.container);
     this.outlineService.update();
   }
 
-  init(container: TreeNode, element: TreeNode) {
+  init(container: TreeNode, element: TreeNode): void {
     this.container = container;
     this.element = element;
     this.title = `Add ${element.name}`;

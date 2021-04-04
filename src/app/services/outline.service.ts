@@ -2,7 +2,7 @@ import { FlatTreeControl } from "@angular/cdk/tree";
 import { Injectable } from "@angular/core";
 import {
   MatTreeFlatDataSource,
-  MatTreeFlattener
+  MatTreeFlattener,
 } from "@angular/material/tree";
 import { BehaviorSubject, Observable } from "rxjs";
 import { InputDocument } from "../models/input-document";
@@ -22,7 +22,6 @@ export enum InteractionSource {
 export class OutlineService {
   nodesSubject = new BehaviorSubject<TreeNode[]>([]);
   rootNodeSubject = new BehaviorSubject<TreeNode | null>(null);
-
 
   get rootNode(): TreeNode | null {
     return this.rootNodeSubject.getValue();
@@ -86,7 +85,7 @@ export class OutlineService {
    *
    * @param node Node to start top-search from.
    */
-  expandToTop(node: TreeNode, includeSelf = false): boolean {
+  expandToTop(node: TreeNode | null, includeSelf = false): boolean {
     if (!node) {
       return false;
     }
@@ -181,7 +180,7 @@ export class OutlineService {
     // Parse application:
     let nodes = this.nodesSubject.value;
     nodes.length = 0;
-    nodes = parser.parse(document) || [];
+    nodes = parser.parse(document);
     return nodes;
   }
 
@@ -190,12 +189,12 @@ export class OutlineService {
     // Run new event to completely update the tree.
     this.setNodes(items);
   }
-  setNodes(nodes: TreeNode[]) {
+  setNodes(nodes: TreeNode[]): void {
     this.flatDataSource.data = nodes;
     this.nodesSubject.next(nodes);
   }
 
-  dispose() {
+  dispose(): void {
     this.flatDataSource.data = [];
   }
 }

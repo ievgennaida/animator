@@ -10,6 +10,7 @@ import {
 import { takeUntil } from "rxjs/operators";
 import { InputDocument } from "src/app/models/input-document";
 import { InputDocumentType } from "src/app/models/input-document-type";
+import { RecentItem } from "src/app/models/recent-item";
 import { ViewMode } from "src/app/models/view-mode";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { CommandsService } from "src/app/services/commands/commands-services/commands-service";
@@ -38,7 +39,7 @@ export class MainToolbarComponent
   title = "animation";
   undoDisabled = !this.undoService.canUndo();
   redoDisabled = !this.undoService.canRedo();
-  recentItems = [];
+  recentItems: RecentItem[] = [];
   showGridLines = this.gridLinesRenderer.gridLinesVisible();
   showMenu = this.viewService.menuVisibleSubject.getValue();
   showHistory = this.menuService.isPanelVisible(PanelsIds.history);
@@ -167,7 +168,8 @@ export class MainToolbarComponent
     // Load current recent items.
     this.setRecent(null);
 
-    this.stateService.document
+    this.stateService.documentSubject
+      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p) => {
         if (p) {
@@ -209,9 +211,13 @@ export class MainToolbarComponent
       }
     );
   }
-  fileSelected(event): void {
-    const files = event.target.files;
-    if (!files || event.target.files.length === 0) {
+  fileSelected(e: Event): void {
+    const input = e.target as HTMLInputElement;
+    if (!input) {
+      return;
+    }
+    const files = input.files;
+    if (!files || files.length === 0) {
       return;
     }
 
@@ -219,7 +225,7 @@ export class MainToolbarComponent
     const fileReader = new FileReader();
     fileReader.onload = () => {
       try {
-        const str = fileReader.result.toString();
+        const str = fileReader?.result?.toString() || "";
         this.loadData(str, file.name);
       } catch (err) {
         alert(`File ${file.name} cannot be parsed!`);
@@ -232,9 +238,10 @@ export class MainToolbarComponent
     // after here 'file' can be accessed and used for further process
   }
 
-  setRecent(newRecentItem: any): void {
+  setRecent(newRecentItem: RecentItem | null): void {
+    // TODO: move to the service, check data size that is about to saved if any.
     const stored = localStorage.getItem("recent");
-    let parsed = null;
+    let parsed: RecentItem[] | null = null;
 
     if (stored) {
       parsed = JSON.parse(stored);
@@ -247,9 +254,10 @@ export class MainToolbarComponent
     this.recentItems = parsed;
 
     if (newRecentItem) {
-      let index = this.recentItems.indexOf(
-        this.recentItems.find((p) => p.name === newRecentItem.name)
+      const recent = this.recentItems.find(
+        (p) => p.title === newRecentItem.title
       );
+      let index = recent ? this.recentItems.indexOf(recent) : -1;
 
       if (index >= 0 || this.recentItems.length > consts.recentItemsCount) {
         if (index <= 0) {
@@ -263,10 +271,10 @@ export class MainToolbarComponent
       localStorage.setItem("recent", JSON.stringify(this.recentItems));
     }
   }
-  loadData(data, title: string): void {
+  loadData(data: any, title: string): void {
     title = title || "";
 
-    let parsed: InputDocument = null;
+    let parsed: InputDocument | null = null;
     try {
       const lower = title.toLowerCase();
       if (lower.endsWith("svg")) {
@@ -295,9 +303,9 @@ export class MainToolbarComponent
     if (parsed) {
       this.stateService.setDocument(parsed, title);
       const newData = {
-        name: title,
-        str: data,
-      };
+        title,
+        data,
+      } as RecentItem;
       this.setRecent(newData);
     }
   }

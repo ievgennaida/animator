@@ -1,6 +1,5 @@
 import { TimelineRow } from "animation-timeline-js";
 import { Utils } from "../services/utils/utils";
-import { Adorner } from "./adorner";
 import { IBBox } from "./interfaces/bbox";
 import { ICTMProvider } from "./interfaces/ctm-provider";
 import { PathData } from "./path/path-data";
@@ -105,19 +104,28 @@ export class TreeNode implements ICTMProvider, IBBox {
     return !!this.children && this.children.length > 0;
   }
 
-  get parentNode(): TreeNode {
+  get parentNode(): TreeNode | null {
     return this.parent;
   }
   get ownerSVGElement(): SVGSVGElement | null {
-    return this.getElement()?.ownerSVGElement;
+    return this.getElement()?.ownerSVGElement || null;
   }
   addFlag(flag: Flags | string): void {
     if (!this.flags.includes(flag)) {
       this.flags.push(flag);
     }
   }
-  containsFlags(...params: (Flags | string)[]): boolean {
-    if (!params && params.length === 0) {
+  addChild(child: TreeNode): void {
+    if (!child) {
+      return;
+    }
+    if (!this.children) {
+      this.children = [];
+    }
+    this.children.push(child);
+  }
+  containsFlags(...params: Array<Flags | string>): boolean {
+    if (!params || params.length === 0) {
       return false;
     }
     return !!this.flags.find((p) => params.includes(p));
@@ -143,7 +151,7 @@ export class TreeNode implements ICTMProvider, IBBox {
     this.pathDataCache = null;
   }
 
-  public getPathData(cache = true): PathData {
+  public getPathData(cache = true): PathData | null {
     if (this.pathDataCache && cache) {
       return this.pathDataCache;
     }
@@ -159,7 +167,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   /**
    * get cached bounding client rect.
    */
-  getBoundingClientRect(): DOMRect {
+  getBoundingClientRect(): DOMRect | null {
     if (this.cacheClientRect) {
       return this.cacheClientRect;
     }
@@ -171,14 +179,14 @@ export class TreeNode implements ICTMProvider, IBBox {
     return null;
   }
 
-  getScreenCTM(): DOMMatrix {
+  getScreenCTM(): DOMMatrix | null {
     if (this.screenCTMCache) {
       return this.screenCTMCache;
     }
 
     const element = this.getElement();
     if (!element) {
-      return;
+      return null;
     }
     this.screenCTMCache = element.getScreenCTM();
     return this.screenCTMCache;
@@ -187,7 +195,7 @@ export class TreeNode implements ICTMProvider, IBBox {
   /**
    * get cached bbox.
    */
-  getBBox(): DOMRect {
+  getBBox(): DOMRect | null {
     if (this.cacheBBox) {
       return this.cacheBBox;
     }

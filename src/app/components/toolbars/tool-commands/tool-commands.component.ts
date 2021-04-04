@@ -30,6 +30,7 @@ export class ToolCommandsComponent extends BaseComponent implements OnInit {
     this.cdRef.detach();
   }
   ngOnInit(): void {
+
     this.commands = this.toolCommandsService.getToolCommands(
       this.toolsService.getActiveTool()
     );

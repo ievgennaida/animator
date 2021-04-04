@@ -47,18 +47,32 @@ export class MatrixScaleAction extends BaseTransformAction {
   ) {
     super(propertiesService);
   }
-  init(node: TreeNode, screenPos: DOMPoint, handle: HandleData): void {
+  init(
+    node: TreeNode,
+    screenPos: DOMPoint | null,
+    handle: HandleData | null
+  ): void {
     this.handle = handle;
+    if (!this.handle) {
+      return;
+    }
     this.start = screenPos;
     this.node = node;
     this.transformElementCoordinates =
       this.handle.type === AdornerType.transformedElement;
 
     const screenAdorner = this.handle?.adorner?.screen;
+    if (!screenAdorner) {
+      return;
+    }
     if (this.transformElementCoordinates) {
       this.anchor = node.getElement();
     } else {
       this.anchor = this.viewService.viewport;
+    }
+    if (!this.anchor) {
+      console.log("Transform be initialized, anchor is required");
+      return;
     }
     this.initTransformMatrix = MatrixUtils.getMatrix(this.node.getElement());
     this.start = Utils.toElementPoint(this.anchor, screenPos);
@@ -87,26 +101,35 @@ export class MatrixScaleAction extends BaseTransformAction {
    * Allow to keep proportions of element and scale proportionally transformed element.
    */
   scaleElementByMouse(screenPos: DOMPoint): boolean {
-    if (!screenPos || !this.start) {
+    if (!screenPos || !this.start || !this.handle || !this.anchor) {
       return false;
     }
-
+    if (!this.transformOrigin) {
+      console.log("Transform origin is required to scale element.");
+      return false;
+    }
+    const transformed = Utils.toElementPoint(this.anchor, screenPos);
+    if (!transformed) {
+      return false;
+    }
     const offset = this.getScale(
       this.handle.handle,
       this.start,
-      Utils.toElementPoint(this.anchor, screenPos),
+      transformed,
       this.transformOrigin
     );
 
     return this.scaleOffset(offset.x, offset.y, this.transformOrigin);
   }
   scaleOffset(
-    offsetX: number | null,
-    offsetY: number | null,
+    offsetX: number,
+    offsetY: number,
     transformPoint: DOMPoint
   ): boolean {
-    const element = this.node.getElement();
-
+    const element = this.node?.getElement();
+    if (!element) {
+      return false;
+    }
     const matrix = MatrixUtils.generateScaleMatrix(
       element,
       offsetX,
@@ -123,7 +146,7 @@ export class MatrixScaleAction extends BaseTransformAction {
    * @param screenPos new screen position.
    */
   scaleByMouse(screenPos: DOMPoint): boolean {
-    if (!screenPos || !this.start) {
+    if (!screenPos || !this.start || !this.handle) {
       return false;
     }
 
@@ -134,13 +157,16 @@ export class MatrixScaleAction extends BaseTransformAction {
       this.anchor,
       this.transformOrigin
     );
+    if (!startScreen || !screenTransformOrigin) {
+      return false;
+    }
     const calculatedOffset = this.getScale(
       this.handle.handle,
       startScreen,
       screenPos,
       screenTransformOrigin
     );
-    this.debugPoints[0] = screenTransformOrigin;
+    // this.debugPoints[0] = screenTransformOrigin;
     // scale change in screen coordinates:
     const screenScaleMatrix = MatrixUtils.generateScaleMatrix(
       this.getElement() || this.anchor,
@@ -162,8 +188,8 @@ export class MatrixScaleAction extends BaseTransformAction {
     const newHeight = transformOrigin.y - curPos.y;
     const initialWidth = transformOrigin.x - startPos.x;
     const initialHeight = transformOrigin.y - startPos.y;
-    let scaleY = newHeight / initialHeight;
-    let scaleX = newWidth / initialWidth;
+    let scaleY: number | null = newHeight / initialHeight;
+    let scaleX: number | null = newWidth / initialWidth;
     if (
       adornerPoint === AdornerPointType.topCenter ||
       adornerPoint === AdornerPointType.bottomCenter
@@ -185,14 +211,25 @@ export class MatrixScaleAction extends BaseTransformAction {
    *
    * @param screenScaleMatrix screen coordinates matrix.
    */
-  scaleByScreenMatrix(screenScaleMatrix: DOMMatrix): boolean {
+  scaleByScreenMatrix(screenScaleMatrix: DOMMatrix | null): boolean {
     const element = this.getElement();
-    const parent = element.parentNode as SVGGraphicsElement;
+    const parent = element?.parentNode as SVGGraphicsElement;
+    if (
+      !element ||
+      !element ||
+      !screenScaleMatrix ||
+      !this.initTransformMatrix
+    ) {
+      return false;
+    }
     // Get original to screen matrix from which transformation was started (anchor for when screen coords are changed on pan)
     const toScreenMatrix = parent
       .getScreenCTM()
-      .multiply(this.initTransformMatrix);
-
+      ?.multiply(this.initTransformMatrix);
+    if (!toScreenMatrix) {
+      console.log("Cannot transform matrix from parent");
+      return false;
+    }
     const newTransformationMatrix = MatrixUtils.convertScreenMatrixToElementMatrix(
       screenScaleMatrix,
       toScreenMatrix,
@@ -207,14 +244,25 @@ export class MatrixScaleAction extends BaseTransformAction {
   /**
    * Apply transformation by matrix.
    */
-  applyMatrix(matrix: DOMMatrix, applyCurrent = false): boolean {
+  applyMatrix(matrix: DOMMatrix | null, applyCurrent = false): boolean {
+    if (!matrix) {
+      return false;
+    }
+    if (!this.node) {
+      console.log(
+        "applyMatrix. Should be initialized first. Node cannot be empty"
+      );
+      return false;
+    }
     if (this.initialValues.size === 0) {
       this.saveInitialValues([this.node], [TransformPropertyKey]);
     }
     if (applyCurrent) {
       const element = this.node.getElement();
-      const transform = Utils.getElementTransform(element);
-      matrix = transform.matrix.multiply(matrix);
+      if (element) {
+        const transform = Utils.getElementTransform(element);
+        matrix = transform.matrix.multiply(matrix);
+      }
     }
     return this.propertiesService.setMatrixTransform(this.node, matrix);
   }
@@ -223,8 +271,11 @@ export class MatrixScaleAction extends BaseTransformAction {
    * Set direct scale value.
    */
   scale(scaleX: number, scaleY: number, transformPoint: DOMPoint): boolean {
-    const element = this.node.getElement();
-
+    const element = this.node?.getElement();
+    if (!element) {
+      console.log("Cannot scale for the unknown element");
+      return false;
+    }
     const transform = Utils.getElementTransform(element);
     transformPoint = transformPoint.matrixTransform(transform.matrix);
     const decomposed = DecomposedMatrix.decomposeMatrix(transform.matrix);
@@ -239,11 +290,15 @@ export class MatrixScaleAction extends BaseTransformAction {
 
     const offsetX = scaleX ? scaleX / decomposed.scaleX : 1;
     const offsetY = scaleY ? scaleY / decomposed.scaleY : 1;
-
-    const svgTransform = element.ownerSVGElement.createSVGTransform();
+    const ownerElement = element.ownerSVGElement;
+    if (!ownerElement) {
+      console.log("Cannot scale, owner document element cannot be found");
+      return false;
+    }
+    const svgTransform = ownerElement.createSVGTransform();
     svgTransform.setScale(offsetX, offsetY);
 
-    const matrix = element.ownerSVGElement
+    const matrix = ownerElement
       .createSVGMatrix()
       .translate(transformPoint.x, transformPoint.y)
       // multiply is used instead of the scale while proportional scale is applied for a scale (?)

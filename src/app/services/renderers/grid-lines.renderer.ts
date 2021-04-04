@@ -13,8 +13,8 @@ import { BaseRenderer } from "./base.renderer";
 export class GridLinesRenderer extends BaseRenderer {
   gridLinesVisibleSubject = new BehaviorSubject<boolean>(consts.showGridLines);
   rulerVisibleSubject = new BehaviorSubject<boolean>(consts.showRuler);
-  rulerVCTX: CanvasRenderingContext2D = null;
-  rulerHCTX: CanvasRenderingContext2D = null;
+  rulerVCTX: CanvasRenderingContext2D | null = null;
+  rulerHCTX: CanvasRenderingContext2D | null = null;
 
   denominators = [1, 2, 5, 10];
   constructor(
@@ -36,8 +36,8 @@ export class GridLinesRenderer extends BaseRenderer {
     return this.gridLinesVisibleSubject.getValue();
   }
   setRulers(
-    rulerHElement: HTMLCanvasElement,
-    rulerVElement: HTMLCanvasElement
+    rulerHElement: HTMLCanvasElement | null,
+    rulerVElement: HTMLCanvasElement | null
   ): void {
     this.rulerVCTX = this.initContext(rulerVElement);
     this.rulerHCTX = this.initContext(rulerHElement);
@@ -72,14 +72,14 @@ export class GridLinesRenderer extends BaseRenderer {
   }
 
   drawTicks(
-    adornersCTX: CanvasRenderingContext2D,
-    ctx: CanvasRenderingContext2D,
+    adornersCTX: CanvasRenderingContext2D | null,
+    ctx: CanvasRenderingContext2D | null,
     from: number,
     to: number,
     horizontal: boolean,
     drawGridLines: boolean
   ): void {
-    if (isNaN(from) || isNaN(to) || from === to) {
+    if (isNaN(from) || isNaN(to) || from === to || !ctx) {
       return;
     }
 
@@ -241,7 +241,7 @@ export class GridLinesRenderer extends BaseRenderer {
     }
   }
   drawGridLine(
-    ctx,
+    ctx: CanvasRenderingContext2D | null,
     pos: number,
     gridLineWidth: number,
     horizontal: boolean,
@@ -257,7 +257,7 @@ export class GridLinesRenderer extends BaseRenderer {
     }
 
     ctx.beginPath();
-    ctx.fillStyle = null;
+    ctx.fillStyle = "";
     ctx.lineWidth = gridLineWidth;
     ctx.strokeStyle = bigLine
       ? consts.gridLineMainColor
@@ -272,7 +272,7 @@ export class GridLinesRenderer extends BaseRenderer {
 
   redraw(): void {
     // two rulers OR one ctx should be active.
-    if ((!this.rulerVCTX || !this.rulerHCTX) && !this.ctx) {
+    if (!this.ctx) {
       return;
     }
 

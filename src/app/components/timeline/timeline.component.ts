@@ -100,13 +100,13 @@ export class TimelineComponent
         const keyframes = (args.elements as Array<TimelineElement>)
           .filter((p) => p.type === TimelineElementType.Keyframe && p.keyframe)
           .map((p) => p.keyframe as Keyframe);
-        this.propertiesService.emitPropertyChanged(null);
+        // this.propertiesService.emitPropertyChanged(null);
       }
     });
 
     this.timeline.onDragFinished((args) => {
       if (args) {
-        this.propertiesService.emitPropertyChanged(null);
+        // this.propertiesService.emitPropertyChanged(null);
       }
     });
 
@@ -118,16 +118,17 @@ export class TimelineComponent
       .subscribe((flatItems) => {
         this.model.rows.length = 0;
 
-        flatItems.forEach((element) => {
-          this.model.rows.push(element.lane);
-        });
+        flatItems.forEach(
+          (element) => element?.lane && this.model.rows.push(element.lane)
+        );
 
         ds.data.forEach((p) => this.resolveRowsVisibility(tc, p, false));
+        if (this.timeline) {
+          this.timeline.setModel(this.model);
+          this.redraw();
 
-        this.timeline.setModel(this.model);
-        this.redraw();
-
-        this.timeline.setScrollTop(0);
+          this.timeline.setScrollTop(0);
+        }
       });
 
     tc.expansionModel.changed.pipe(takeUntil(this.destroyed$)).subscribe(() => {
@@ -154,6 +155,9 @@ export class TimelineComponent
   }
 
   resolveRowsVisibility(tc: any, node: TreeNode, hidden: boolean): void {
+    if (!node || !node.lane) {
+      return;
+    }
     node.lane.hidden = hidden;
     if (!hidden) {
       if (tc.isExpandable(node)) {

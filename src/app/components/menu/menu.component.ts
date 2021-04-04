@@ -6,7 +6,7 @@ import {
   OnDestroy,
   OnInit,
   QueryList,
-  ViewChildren
+  ViewChildren,
 } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { ViewMode } from "src/app/models/view-mode";
@@ -23,8 +23,7 @@ import { BaseComponent } from "../base-component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
-
-  panelsRef: QueryList<ElementRef>;
+  panelsRef: QueryList<ElementRef> | null = null;
 
   @ViewChildren("panelElement")
   set getOutlinePanelEl(value: QueryList<ElementRef>) {
@@ -34,7 +33,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   // resize:
   initialDragSize = 0;
   initialDragProportion = 0;
-  dragStartedArgs: MouseEvent = null;
+  dragStartedArgs: MouseEvent | null = null;
   panelIndex: number | null = null;
   lastExpandedIndex: number | null = null;
   panels: MenuPanel[] = [];
@@ -175,7 +174,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
    */
   setPanelSize(size: number = 0): number {
     if (!this.hostElementRef || !this.hostElementRef.nativeElement) {
-      return;
+      return 0;
     }
     const el = this.hostElementRef.nativeElement;
 
@@ -192,7 +191,10 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
     }
     return validatedNumber;
   }
-  getPanelElement(index: number): HTMLElement | null {
+  getPanelElement(index: number | null): HTMLElement | null {
+    if (!this.panelsRef || (!index && index !== 0)) {
+      return null;
+    }
     const ref = this.panelsRef.toArray()[index];
     if (ref) {
       return ref.nativeElement;
@@ -201,7 +203,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
   }
 
   recalculatePanelsSize(desiredHeight: number | null = null) {
-    if (!this.panelsRef) {
+    if (!this.panelsRef || desiredHeight === null) {
       return;
     }
 
@@ -212,10 +214,14 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.panelIndex === null) {
+      return;
+    }
     const el = this.getPanelElement(this.panelIndex);
     const panel1 = this.panels[this.panelIndex];
     if (!el || !panel1) {
       console.log("Cannot resize panel");
+      return;
     }
 
     const percents = panel1.height;

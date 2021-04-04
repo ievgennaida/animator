@@ -8,12 +8,12 @@ import {
 import { AdornerPointType } from "src/app/models/adorner-point-type";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
+import { LoggerService } from "src/app/services/logger.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class MatrixSkewAction extends BaseTransformAction {
-
   title = "Skew";
   /**
    * Start click position in anchor coordinates.
@@ -26,12 +26,15 @@ export class MatrixSkewAction extends BaseTransformAction {
   /**
    * Transformation coordinates anchor.
    */
-  anchor: SVGGraphicsElement = null;
+  anchor: SVGGraphicsElement | null = null;
 
-  initTransformMatrix: DOMMatrix = null;
+  initTransformMatrix: DOMMatrix | null = null;
   startOffset = 0;
   centerTransform: DOMPoint | null = null;
-  constructor(propertiesService: PropertiesService) {
+  constructor(
+    propertiesService: PropertiesService,
+    private logger: LoggerService
+  ) {
     super(propertiesService);
   }
   init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
@@ -44,12 +47,25 @@ export class MatrixSkewAction extends BaseTransformAction {
     this.centerTransform = centerBox;
     this.start = Utils.toScreenPoint(element, centerBox);
     const transformedCenter = Utils.toScreenPoint(element, centerBox);
+    if (!transformedCenter) {
+      this.logger.warn(
+        "Element cannot be moved. Transformation center cannot be null"
+      );
+      return;
+    }
     this.startOffset = this.vertical
       ? transformedCenter.x - screenPos.x
       : transformedCenter.y - screenPos.y;
   }
 
   transformByMouse(screenPos: DOMPoint): boolean {
+    if (!this.start) {
+      this.logger.warn(
+        "Element cannot be moved. Action should be initialized first"
+      );
+      return false;
+    }
+
     const transformedCenter = new DOMPoint(
       this.vertical ? screenPos.x + this.startOffset : this.start.x,
       this.vertical ? this.start.y : screenPos.y + this.startOffset
@@ -65,7 +81,19 @@ export class MatrixSkewAction extends BaseTransformAction {
   }
 
   skewOffset(deg: number, vertical: boolean): boolean {
-    const element = this.node.getElement();
+    const element = this.node?.getElement();
+    if (
+      !this.node ||
+      !element ||
+      !element.ownerSVGElement ||
+      !this.centerTransform
+    ) {
+      this.logger.warn(
+        "Element cannot be moved. Action should be initialized first"
+      );
+      return false;
+    }
+
     if (this.initialValues.size === 0) {
       this.saveInitialValues([this.node], [TransformPropertyKey]);
     }

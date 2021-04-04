@@ -25,9 +25,9 @@ export class UndoCommand implements BaseCommand {
   canExecute(): boolean {
     return this.undoService.canUndo();
   }
-  execute() {
+  execute(): void {
     if (this.canExecute()) {
-      return this.undoService.undo();
+      this.undoService.undo();
     }
   }
 }

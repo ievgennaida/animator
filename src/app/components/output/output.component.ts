@@ -14,7 +14,7 @@ import { takeUntil } from "rxjs/operators";
 
 import { InputDocument } from "src/app/models/input-document";
 
-import { BaseComponent } from '../base-component';
+import { BaseComponent } from "../base-component";
 
 @Component({
   selector: "app-output",
@@ -22,9 +22,11 @@ import { BaseComponent } from '../base-component';
   styleUrls: ["./output.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OutputComponent extends BaseComponent implements OnInit, OnDestroy {
+export class OutputComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy {
   @ViewChild("code", { static: true })
-  codeRef: ElementRef<HTMLElement>;
+  codeRef: ElementRef<HTMLElement> | null = null;
   constructor(
     private viewService: ViewService,
     private documentService: DocumentService,
@@ -34,9 +36,10 @@ export class OutputComponent extends BaseComponent implements OnInit, OnDestroy 
   }
 
   ngOnInit(): void {
-    this.documentService.document
+    this.documentService.documentSubject
+      .asObservable()
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((document: InputDocument) => {
+      .subscribe((document) => {
         this.ngZone.runOutsideAngular(() => {
           if (
             document &&

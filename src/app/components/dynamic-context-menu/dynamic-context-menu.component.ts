@@ -22,7 +22,7 @@ import { BaseComponent } from "../base-component";
 export class DynamicContextMenuComponent
   extends BaseComponent
   implements OnInit {
-  @ViewChild("matMenu") public matMenu: MatMenu;
+  @ViewChild("matMenu") public matMenu: MatMenu | null = null;
 
   public commands: BaseCommand[] | null = [];
   // eslint-disable-next-line @angular-eslint/no-input-rename

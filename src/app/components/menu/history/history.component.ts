@@ -29,8 +29,9 @@ interface HistoryItem {
 })
 export class HistoryComponent extends BaseComponent implements OnInit {
   @ViewChild("virtual", { static: true, read: ElementRef })
-  virtualElementRef: ElementRef<HTMLElement>;
-  @ViewChild("virtual", { static: true }) virtual: CdkVirtualScrollViewport;
+  virtualElementRef: ElementRef<HTMLElement> | null = null;
+  @ViewChild("virtual", { static: true })
+  virtual: CdkVirtualScrollViewport | null = null;
   nextTickTimeout = 10;
 
   items: HistoryItem[] = [];
@@ -70,7 +71,7 @@ export class HistoryComponent extends BaseComponent implements OnInit {
       this.scrollToSelectedIndex(this.undoService.activeIndex);
     }, this.nextTickTimeout);
   }
-  updateItems() {
+  updateItems(): void {
     const itemsCountChanged =
       this.items.length !== this.undoService.actions.length;
     this.items = this.undoService.actions.map(
@@ -87,10 +88,10 @@ export class HistoryComponent extends BaseComponent implements OnInit {
     }
     this.cdRef.detectChanges();
   }
-  onScrolled() {
+  onScrolled(): void {
     this.cdRef.detectChanges();
   }
-  onRightClick(event: MouseEvent) {
+  onRightClick(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
   }
@@ -129,14 +130,20 @@ export class HistoryComponent extends BaseComponent implements OnInit {
     }
   }
 
-  scrollToEnd() {
+  scrollToEnd(): void {
+    if (!this.virtual) {
+      return;
+    }
     // execute after angular data binding
     setTimeout(() => {
+      if (!this.virtual) {
+        return;
+      }
       this.virtual.scrollToOffset(Number.MAX_SAFE_INTEGER);
       this.cdRef.detectChanges();
     }, this.nextTickTimeout);
   }
-  historyClick(action: HistoryItem) {
+  historyClick(action: HistoryItem): void {
     if (!action || !action.command) {
       this.logger.error(
         "HistoryComponent->historyClick action or command cannot be empty"
@@ -146,11 +153,11 @@ export class HistoryComponent extends BaseComponent implements OnInit {
     this.undoService.goToAction(action.command);
   }
 
-  mouseEnter(action: HistoryItem) {
+  mouseEnter(action: HistoryItem): void {
     this.updateHoverAndSelectedEffects(this.items.indexOf(action));
   }
 
-  mouseLeave(action: HistoryItem) {
+  mouseLeave(action: HistoryItem): void {
     this.updateHoverAndSelectedEffects();
   }
 }

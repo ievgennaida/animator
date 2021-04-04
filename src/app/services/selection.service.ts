@@ -47,7 +47,7 @@ export class SelectionService {
    *
    * @param node Node to start top-search from.
    */
-  getTopSelectedNode(node: TreeNode): TreeNode | null {
+  getTopSelectedNode(node: TreeNode | null): TreeNode | null {
     if (!node || !node.selected) {
       return null;
     }
@@ -71,11 +71,11 @@ export class SelectionService {
    * Only parent will be returned.
    */
   getTopSelectedNodes(): TreeNode[] {
-    const topNodes = [];
+    const topNodes: TreeNode[] = [];
     const selected = this.getSelected();
     selected.forEach((p) => {
       const top = this.getTopSelectedNode(p);
-      if (topNodes.indexOf(top) < 0) {
+      if (top && topNodes.indexOf(top) < 0) {
         topNodes.push(top);
       }
     });
@@ -111,8 +111,10 @@ export class SelectionService {
   }
   getSelectedElements(): SVGGraphicsElement[] {
     const renderable = this.getSelected().filter((p) => p.getElement());
-
-    return renderable.map((p) => p.getElement());
+    if (!renderable) {
+      return [];
+    }
+    return renderable.map((p) => p.getElement() as SVGGraphicsElement);
   }
 
   public deselectAll() {
@@ -152,7 +154,7 @@ export class SelectionService {
     this.setSelected(nodes, ChangeStateMode.remove, source);
   }
   setSelected(
-    nodes: TreeNode[] | TreeNode,
+    nodes: TreeNode[] | TreeNode | null,
     mode: ChangeStateMode = ChangeStateMode.normal,
     source: StateChangedSource = StateChangedSource.notSet
   ) {

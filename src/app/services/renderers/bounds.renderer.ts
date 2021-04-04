@@ -50,8 +50,11 @@ export class BoundsRenderer extends BaseRenderer {
   drawAdornersHandles(
     ctx: CanvasRenderingContext2D,
     container: AdornerContainer,
-    adorner: Adorner
+    adorner: Adorner | null
   ): void {
+    if (!adorner) {
+      return;
+    }
     const alongH = Utils.getVector(adorner.topLeft, adorner.topRight, true);
     const alongW = Utils.getVector(adorner.topLeft, adorner.bottomLeft, true);
     const alongHR = Utils.reverseVector(alongH);
@@ -143,13 +146,17 @@ export class BoundsRenderer extends BaseRenderer {
 
   drawAdornerHandle(
     ctx: CanvasRenderingContext2D,
-    handlePoint: DOMPoint,
-    vectorA: DOMPoint,
-    vectorB: DOMPoint,
+    handlePoint: DOMPoint | null,
+    vectorA: DOMPoint | null,
+    vectorB: DOMPoint | null,
     center = false,
     strokeColor = consts.handleStrokeColor,
     fillColor = consts.handleFillColor
   ): void {
+    if (!handlePoint || !vectorA || !vectorB) {
+      console.log("Cannot draw adorner. vector and points should be set.");
+      return;
+    }
     const boxSize = consts.handleSize;
     const halfSize = boxSize / 2;
     const oppositeX = handlePoint.x + vectorA.x * boxSize;
@@ -249,7 +256,8 @@ export class BoundsRenderer extends BaseRenderer {
         ? consts.altSelectionThickness
         : consts.mainSelectionThickness;
 
-      const converted = adorner.screen.matrixTransform(this.screenCTM);
+      const converted =
+        adorner?.screen?.matrixTransform(this.screenCTM) || null;
       if (adorner.enabled && adorner.showBounds) {
         this.drawAdornerRect(ctx, elementsThickness, elementsColor, converted);
       }
@@ -272,7 +280,7 @@ export class BoundsRenderer extends BaseRenderer {
           AdornerPointType.centerTransform
         )
       ) {
-        const transformOrigin = converted.centerTransform || converted.center;
+        const transformOrigin = converted?.centerTransform || converted?.center;
         if (
           transformOrigin &&
           activeTransformTransaction !== TransformationMode.scale
@@ -300,11 +308,14 @@ export class BoundsRenderer extends BaseRenderer {
   drawMoveHandle(
     ctx: CanvasRenderingContext2D,
     container: AdornerContainer,
-    adorner: Adorner
+    adorner: Adorner | null
   ): void {
+    if (!adorner) {
+      return;
+    }
     const config = this.configService.get();
     const centerSize = config.translateHandleSize;
-    if (!centerSize) {
+    if (!centerSize || !adorner?.translate) {
       return;
     }
     const isMouseOver = this.mouseOverService.isMouseOverAdornerHandle(
@@ -335,6 +346,9 @@ export class BoundsRenderer extends BaseRenderer {
   }
   showDebugPoints(): void {
     const ctx = this.ctx;
+    if (!ctx) {
+      return;
+    }
     const trans = this.transform?.activeAction?.transformations || [];
     trans.forEach((p) => {
       if (p.debugPoints) {

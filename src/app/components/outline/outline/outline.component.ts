@@ -26,7 +26,7 @@ import { BaseComponent } from "../../base-component";
 })
 export class OutlineComponent extends BaseComponent implements OnInit {
   @ViewChild("treeScroll", { static: true, read: ElementRef })
-  treeScroll: ElementRef<HTMLElement>;
+  treeScroll: ElementRef<HTMLElement> | null = null;
   @Input() allowScroll = false;
   scrollTop: any = 0;
   smallDebounce = 10;
@@ -87,23 +87,27 @@ export class OutlineComponent extends BaseComponent implements OnInit {
     });
   }
   scrollToSelected() {
-    if (this.element && this.element.nativeElement) {
-      setTimeout(() => {
-        const element = this.element.nativeElement.querySelector(
-          ".selected"
-        ) as HTMLElement;
-        if (
-          element &&
-          !Utils.isVisibleVertically(element, this.treeScroll.nativeElement)
-        ) {
-          element.scrollIntoView({
-            behavior: "auto",
-            block: "center",
-            inline: "center",
-          });
-        }
-      }, this.smallDebounce);
+    if (!this.element || !this.element.nativeElement || !this.treeScroll) {
+      return;
     }
+    setTimeout(() => {
+      if (!this.treeScroll) {
+        return;
+      }
+      const element = this.element.nativeElement.querySelector(
+        ".selected"
+      ) as HTMLElement;
+      if (
+        element &&
+        !Utils.isVisibleVertically(element, this.treeScroll.nativeElement)
+      ) {
+        element.scrollIntoView({
+          behavior: "auto",
+          block: "center",
+          inline: "center",
+        });
+      }
+    }, this.smallDebounce);
   }
 
   public setSize(args: TimelineScrollEvent) {

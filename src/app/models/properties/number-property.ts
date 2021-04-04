@@ -10,7 +10,13 @@ export class NumberProperty extends Property {
   public min?: number;
   public step = 0.5;
   public max?: number;
-  constructor(node: TreeNode, key, name, data, description) {
+  constructor(
+    node: TreeNode,
+    key: string,
+    name: string,
+    data: any,
+    description: string
+  ) {
     super(node, key, name, data, description);
     this.type = PropertyType.number;
     this.dataType = PropertyDataType.number;
@@ -34,7 +40,7 @@ export class NumberProperty extends Property {
       if (this.data instanceof Element) {
         const el = this.data as Element;
         const value = el.getAttribute(this.key);
-        return parseInt(value, 10);
+        return parseInt(value || '', 10);
       }
       let data = this.data[this.key];
       if (data && this.dataType === PropertyDataType.value) {
@@ -51,6 +57,7 @@ export class NumberProperty extends Property {
         return parseInt(data, 10);
       }
     }
+    return undefined;
   }
 
   setValue(value: number): any {

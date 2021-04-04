@@ -47,7 +47,10 @@ export class CursorService {
     return this.getHandleCursor(deg, true);
   }
 
-  setHandleCursor(handle: HandleData, screenPoint: DOMPoint): void {
+  setHandleCursor(
+    handle: HandleData | null,
+    screenPoint: DOMPoint | null
+  ): void {
     const defaultCursor = this.defaultCursorSubject.getValue();
     if (
       !handle ||
@@ -68,13 +71,13 @@ export class CursorService {
           cursor = this.getCursorRotate(
             this.getCursorAngle(
               handle,
-              screen?.centerTransform || screen?.center,
+              screen?.centerTransform || screen?.center || null,
               screenPoint
             )
           );
         } else if (AdornerTypeUtils.isScaleAdornerType(handle.handle)) {
           cursor = this.getCursorResize(
-            this.getCursorAngle(handle, screen?.center, screenPoint)
+            this.getCursorAngle(handle, screen?.center || null, screenPoint)
           );
         }
       }
@@ -84,8 +87,8 @@ export class CursorService {
   }
   getCursorAngle(
     handle: HandleData,
-    centerTransform: DOMPoint,
-    screenPoint: DOMPoint
+    centerTransform: DOMPoint | null,
+    screenPoint: DOMPoint | null
   ): number | null {
     if (!centerTransform || !screenPoint) {
       return null;
@@ -118,5 +121,7 @@ export class CursorService {
     } else if (deg >= 270 + tolerance && deg <= 360 - tolerance) {
       return rotate ? CursorType.rotateBR : CursorType.nWResize;
     }
+
+    return CursorType.default;
   }
 }

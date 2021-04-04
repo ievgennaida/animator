@@ -30,6 +30,6 @@ export abstract class BaseAction {
   canUndo(): boolean {
     return this.committed;
   }
-  abstract execute();
-  abstract undo();
+  abstract execute(): void;
+  abstract undo(): void;
 }

@@ -12,7 +12,7 @@ import { BaseRenderer } from "./base.renderer";
   providedIn: "root",
 })
 export class SelectorRenderer extends BaseRenderer {
-  selectionRectElement: HTMLElement;
+  selectionRectElement: HTMLElement | null = null;
   rect: DOMRect | null = null;
 
   constructor(
@@ -49,6 +49,9 @@ export class SelectorRenderer extends BaseRenderer {
       this.rect,
       this.viewService.getCTM()
     );
+    if (!transformed) {
+      return;
+    }
     this.ctx.strokeStyle = consts.selector.stroke;
     this.ctx.fillStyle = consts.selector.fill;
     this.ctx.lineWidth = consts.selector.strokeThickness;

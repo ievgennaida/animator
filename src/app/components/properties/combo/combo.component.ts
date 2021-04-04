@@ -12,7 +12,7 @@ export class ComboComponent extends BaseComponent implements OnInit {
     super();
    }
 
-  ngOnInit() {
+  ngOnInit(): void {
   }
 
 }

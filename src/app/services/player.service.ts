@@ -5,13 +5,13 @@ import { IPlayer } from "../models/interfaces/player";
 import { TimeData } from "../models/timedata";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class PlayerService {
   // Current active animation player in the app.
-  player: IPlayer = null;
+  player: IPlayer | null = null;
 
-  timeline: Timeline;
+  timeline: Timeline | null = null;
   playSubject = new BehaviorSubject<boolean>(false);
   // Current frame subject
   timeSubject = new BehaviorSubject<TimeData>(new TimeData());
@@ -43,7 +43,7 @@ export class PlayerService {
   }
 
   synchronizeTimelineWithPlayer(forced = false) {
-    if (!this.isReady()) {
+    if (!this.isReady() || !this.timeline) {
       return;
     }
 
@@ -69,11 +69,11 @@ export class PlayerService {
     if (!this.isReady()) {
       return false;
     }
-    return this.player.isPlaying();
+    return this.player?.isPlaying() || false;
   }
 
   goTo(time: number): boolean {
-    if (this.isReady() && this.player.goTo(time)) {
+    if (this.isReady() && this.player?.goTo(time)) {
       this.emitTimeChanged(time);
       return true;
     }
@@ -85,32 +85,32 @@ export class PlayerService {
     if (!this.isReady()) {
       return 0;
     }
-    return this.player.getTime();
+    return this.player?.getTime() || 0;
   }
 
-  msToFrame(ms: number) {
+  msToFrame(ms: number): number {
     if (!this.isReady()) {
       return ms;
     }
-    return this.player.msToFrame(ms);
+    return this.player?.msToFrame(ms) || 0;
   }
 
   frameToMs(frame: number): number {
-    return this.player.frameToMs(frame);
+    return this.player?.frameToMs(frame) || 0;
   }
 
   getStartPosition(): number {
     if (!this.isReady()) {
       return 0;
     }
-    return this.player.getStartPosition();
+    return this.player?.getStartPosition() || 0;
   }
 
   getEndPosition(): number {
     if (!this.isReady()) {
       return 0;
     }
-    return this.player.getStartPosition();
+    return this.player?.getStartPosition() || 0;
   }
 
   first(): boolean {
@@ -118,7 +118,7 @@ export class PlayerService {
       return false;
     }
 
-    if (this.player.first()) {
+    if (this.player?.first()) {
       this.synchronizeTimelineWithPlayer(true);
       return true;
     }
@@ -139,7 +139,7 @@ export class PlayerService {
       return false;
     }
 
-    if (this.player.prev()) {
+    if (this.player?.prev()) {
       this.synchronizeTimelineWithPlayer(true);
       return true;
     }
@@ -152,15 +152,15 @@ export class PlayerService {
       return false;
     }
 
-    return this.player.play();
+    return this.player?.play() || false;
   }
 
   pause(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
 
-    return this.player.pause();
+    return this.player?.pause() || false;
   }
 
   next(): boolean {
@@ -168,7 +168,7 @@ export class PlayerService {
       return false;
     }
 
-    if (this.player.next()) {
+    if (this.player?.next()) {
       this.synchronizeTimelineWithPlayer(true);
       return true;
     }
@@ -181,9 +181,11 @@ export class PlayerService {
       return false;
     }
 
-    if (this.player.last()) {
+    if (this.player?.last()) {
       this.synchronizeTimelineWithPlayer(true);
+      return true;
     }
+    return false;
   }
 
   loop(): boolean {
@@ -203,7 +205,7 @@ export class PlayerService {
   }
 
   panMode() {
-    if (!this.isReady()) {
+    if (!this.isReady() || !this.timeline) {
       return;
     }
 
@@ -211,7 +213,7 @@ export class PlayerService {
   }
 
   selectMode() {
-    if (!this.isReady()) {
+    if (!this.isReady() || !this.timeline) {
       return;
     }
 

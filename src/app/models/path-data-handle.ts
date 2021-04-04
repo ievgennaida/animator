@@ -23,10 +23,13 @@ export class PathDataHandle {
     return this.command.index;
   }
   isHandle(
-    node: TreeNode,
-    command: PathDataCommand,
+    node: TreeNode | null,
+    command: PathDataCommand | null,
     type: PathDataHandleType
   ): boolean {
+    if (!node || !command) {
+      return false;
+    }
     return (
       this.node === node &&
       this.type === type &&

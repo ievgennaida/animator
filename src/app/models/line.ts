@@ -1,4 +1,6 @@
 export class Line {
-  a: DOMPoint;
-  b: DOMPoint;
+  constructor(
+    public a: DOMPoint | null = null,
+    public b: DOMPoint | null = null
+  ) {}
 }

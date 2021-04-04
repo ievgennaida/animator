@@ -9,10 +9,7 @@ import { IBBox } from "./interfaces/bbox";
  * Adorner is a control points container.
  */
 export class Adorner implements IBBox {
-  points: Map<AdornerPointType, DOMPoint> = new Map<
-    AdornerPointType,
-    DOMPoint
-  >();
+  points = new Map<AdornerPointType, DOMPoint | null>();
   get topCenter(): DOMPoint | null {
     return this.get(AdornerPointType.topCenter);
   }
@@ -73,26 +70,31 @@ export class Adorner implements IBBox {
     adorner.setRect(rect);
     return adorner;
   }
-  set(key: AdornerPointType, point: DOMPoint): void {
+  getCenterTransformOrDefault(): DOMPoint | null {
+    return this.centerTransform || this.center || null;
+  }
+  set(key: AdornerPointType, point: DOMPoint | null): void {
     this.points.set(key, point);
   }
 
   get(key: AdornerPointType): DOMPoint | null {
     if (this.points && this.points.size > 0) {
-      return this.points.get(key);
+      return this.points.get(key) || null;
     }
     return null;
   }
 
   untransformSelf(): Adorner {
-    const values = [];
+    const values: DOMPoint[] = [];
     this.points.forEach((value, key) => {
       if (value && AdornerTypeUtils.isScaleAdornerType(key)) {
         values.push(value);
       }
     });
     const bounds = Utils.getPointsBounds(...values);
-    this.setRect(bounds);
+    if (bounds) {
+      this.setRect(bounds);
+    }
     return this;
   }
   calculateTranslatePosition(
@@ -103,7 +105,7 @@ export class Adorner implements IBBox {
     let maxY: number | null = null;
     this.points.forEach((value, key) => {
       if (value && AdornerTypeUtils.isScaleAdornerType(key)) {
-        if (maxY === null) {
+        if (maxY === null || maxX === null) {
           maxY = value.y;
           maxX = value.x;
         } else if (Utils.round(value.y, 0) > Utils.round(maxY, 0)) {
@@ -119,14 +121,14 @@ export class Adorner implements IBBox {
       }
     });
 
-    return new DOMPoint(maxX + offsetX, maxY + offsetY);
+    return new DOMPoint((maxX || 0) + offsetX, (maxY || 0) + offsetY);
   }
   /**
    * Set new bounds to the rect.
    *
    * @param bounds new rect bounds.
    */
-  setRect(bounds: DOMRect): Adorner {
+  setRect(bounds: DOMRect | null): Adorner {
     if (!bounds) {
       return this;
     }
@@ -171,13 +173,16 @@ export class Adorner implements IBBox {
   /**
    * Compose rect back
    */
-  getBBox(): DOMRect {
-    return new DOMRect(
-      this.topLeft.x,
-      this.topLeft.y,
-      this.bottomRight.x - this.topLeft.x,
-      this.bottomRight.y - this.topLeft.y
-    );
+  getBBox(): DOMRect | null {
+    if (this.topLeft && this.bottomRight) {
+      return new DOMRect(
+        this.topLeft.x,
+        this.topLeft.y,
+        this.bottomRight.x - this.topLeft.x,
+        this.bottomRight.y - this.topLeft.y
+      );
+    }
+    return null;
   }
 
   /**
@@ -190,7 +195,7 @@ export class Adorner implements IBBox {
   }
 
   setPoints(
-    points: Map<AdornerPointType, DOMPoint>,
+    points: Map<AdornerPointType, DOMPoint | null>,
     matrix: DOMMatrix | null = null
   ): Adorner {
     this.points.clear();
@@ -225,7 +230,7 @@ export class AdornerContainer {
 
   enabled = true;
   element: Adorner = new Adorner();
-  elementAdorner: Adorner;
+  elementAdorner: Adorner | null = null;
   showHandles = true;
   showBounds = true;
   type = AdornerType.transformedElement;
@@ -242,7 +247,7 @@ export class AdornerContainer {
     this.screenCache.setPoints(this.element.points, this.node.getScreenCTM());
     return this.screenCache;
   }
-  private screenCache: Adorner;
+  private screenCache: Adorner | null = null;
 
   resetCache(): void {
     this.screenCache = null;
@@ -250,7 +255,7 @@ export class AdornerContainer {
   /**
    * Set bbox in element coordinates.
    */
-  setBBox(rect: DOMRect): Adorner {
+  setBBox(rect: DOMRect | null): Adorner {
     // Reset screen cache:
     this.screenCache = null;
     return this.element.setRect(rect);
@@ -259,15 +264,17 @@ export class AdornerContainer {
    * Calculate translate handler point position
    */
   calculateTranslatePosition(offsetX: number = 0, offsetY: number = 0): void {
+    if (!this.screen || !this.node) {
+      console.log("Cannot calculate, node or screen should be set");
+      return;
+    }
     const translate = this.screen.calculateTranslatePosition(
       offsetX || 0,
       offsetY || 0
     );
     this.screen.set(AdornerPointType.translate, translate);
-    this.element.set(
-      AdornerPointType.translate,
-      Utils.toElementPoint(this.node, translate)
-    );
+    const elementPoint = Utils.toElementPoint(this.node, translate);
+    this.element.set(AdornerPointType.translate, elementPoint);
   }
   setCenterTransform(center: DOMPoint | null): void {
     this.element.setCenterTransform(center);

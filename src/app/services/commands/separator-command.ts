@@ -5,5 +5,5 @@ import { BaseCommand, CommandType } from "./base-command";
  */
 export class SeparatorCommand implements BaseCommand {
   commandType = CommandType.separator;
-  execute() {}
+  execute(): void {}
 }

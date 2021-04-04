@@ -15,8 +15,11 @@ export class CommandsExecutorService {
   ) {
     if (command && command.execute) {
       const execute = () => {
-        const canExecute = command.canExecute ? command.canExecute() : true;
-        if (canExecute) {
+        if (
+          command &&
+          command.execute &&
+          (command.canExecute ? command.canExecute() : true)
+        ) {
           command.execute();
           if (finishedCallback) {
             finishedCallback(true);

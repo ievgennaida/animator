@@ -28,21 +28,21 @@ import { MouseEventArgs } from "./models/mouse-event-args";
 })
 export class AppComponent extends BaseComponent implements OnInit {
   @ViewChild("footer", { static: true, read: ElementRef })
-  footer: ElementRef;
+  footer: ElementRef | null = null;
 
   @ViewChild("outline", { read: ElementRef })
-  outline: ElementRef<HTMLElement>;
+  outline: ElementRef<HTMLElement> | null = null;
 
   @ViewChild("menu", { static: true, read: ElementRef })
-  menu: ElementRef;
+  menu: ElementRef | null = null;
 
   @ViewChild("player", { static: true, read: ElementRef })
-  player: ElementRef;
+  player: ElementRef | null = null;
 
   @ViewChild("drawerContent", { static: true })
-  drawerContent: ElementRef;
-  outlineW: number | string = null;
-  footerH: number | string = null;
+  drawerContent: ElementRef | null = null;
+  outlineW: number | string | null = null;
+  footerH: number | string | null = null;
   lastMenuW = 0;
   mode: ViewMode = consts.appearance.defaultMode;
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -117,6 +117,9 @@ export class AppComponent extends BaseComponent implements OnInit {
   }
 
   onResizeOutline(event: ResizeEvent): void {
+    if (!event.rectangle.width) {
+      return;
+    }
     this.outlineW = Utils.keepInBounds(
       event.rectangle.width,
       this.self.nativeElement.clientWidth
@@ -125,6 +128,9 @@ export class AppComponent extends BaseComponent implements OnInit {
   }
 
   onResizeFooter(event: ResizeEvent): void {
+    if (!event.rectangle.height) {
+      return;
+    }
     this.footerH = Utils.keepInBounds(
       event.rectangle.height,
       this.self.nativeElement.clientHeight
@@ -143,11 +149,11 @@ export class AppComponent extends BaseComponent implements OnInit {
     });
   }
 
-  out(callback) {
-    this.ngZone.runOutsideAngular(callback);
+  out<T>(fn: (...args: any[]) => T): T {
+    return this.ngZone.runOutsideAngular(fn);
   }
 
-  monitorElementSize(element: HTMLElement, callback) {
+  monitorElementSize(element: HTMLElement, callback: () => void) {
     let lastWidth = element.clientWidth;
     let lastHeight = element.clientHeight;
 
@@ -167,17 +173,17 @@ export class AppComponent extends BaseComponent implements OnInit {
     return element;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     window.addEventListener(
       "resize",
-      (event: KeyboardEvent) => {
-        this.toolsService.onWindowKeyDown(event);
+      (event: Event) => {
+        this.toolsService.onWindowKeyDown(event as KeyboardEvent);
       },
       false
     );
 
     this.out(() => {
-      this.monitorElementSize(this.player.nativeElement, () => {
+      this.monitorElementSize(this.player?.nativeElement, () => {
         this.viewService.emitViewportResized();
       });
       window.addEventListener(

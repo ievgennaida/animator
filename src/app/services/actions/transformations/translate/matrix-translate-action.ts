@@ -18,20 +18,26 @@ export class MatrixTranslateAction extends BaseTransformAction {
   /**
    * Start click position in anchor coordinates.
    */
-  start: DOMPoint = null;
-  node: TreeNode = null;
+  start: DOMPoint | null = null;
+  node: TreeNode | null = null;
   constructor(propertiesService: PropertiesService) {
     super(propertiesService);
   }
-  init(node: TreeNode, screenPos: DOMPoint, handle: HandleData) {
+  init(node: TreeNode, screenPos: DOMPoint, handle: HandleData): void {
     this.node = node;
-    const element = node.getElement();
+    const element = node?.getElement();
+    if (!element) {
+      return;
+    }
     const startPoint = Utils.toElementPoint(element, screenPos);
     this.start = startPoint;
   }
 
-  transformByMouse(screenPos: DOMPoint) {
-    const element = this.node.getElement();
+  transformByMouse(screenPos: DOMPoint): boolean {
+    const element = this.node?.getElement();
+    if (!element) {
+      return false;
+    }
     const offset = Utils.toElementPoint(element, screenPos);
     if (!offset) {
       return false;
@@ -47,7 +53,10 @@ export class MatrixTranslateAction extends BaseTransformAction {
    * Matrix translate
    */
   offsetTranslate(x: number, y: number): boolean {
-    const element = this.node.getElement();
+    const element = this.node?.getElement();
+    if (!element || !this.node || !element.ownerSVGElement) {
+      return false;
+    }
     if (this.initialValues.size === 0) {
       this.saveInitialValues([this.node], [TransformPropertyKey]);
     }
@@ -58,7 +67,7 @@ export class MatrixTranslateAction extends BaseTransformAction {
       transformList.baseVal.appendItem(svgTransform);
       return true;
     } else if (transformList.baseVal.numberOfItems === 1) {
-      const svgTransform = transformList.baseVal[0];
+      const svgTransform = transformList.baseVal.getItem(0);
       if (svgTransform.type === svgTransform.SVG_TRANSFORM_TRANSLATE) {
         const decompose = MatrixUtils.decomposeTransformList(
           transformList.baseVal

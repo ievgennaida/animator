@@ -15,9 +15,10 @@ export class TextComponent extends BaseComponent implements OnInit {
     super();
   }
 
-  onValueChanged(event): void {
+  onValueChanged(e: Event): void {
     if (this.property) {
-      this.property.setValue(event.target.value);
+      const input = e.target as HTMLInputElement;
+      this.property.setValue(input.value);
       this.propertiesService.emitPropertyChanged(this.property);
     }
   }

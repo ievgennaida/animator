@@ -7,27 +7,27 @@ import { environment } from "src/environments/environment";
 export class LoggerService {
   constructor() {}
 
-  isDebug() {
+  isDebug(): boolean {
     return environment.debug || (location?.hash || "").includes("debug");
   }
-  debug(str) {
+  debug(str: string): void {
     if (this.isDebug()) {
       this.log(str);
     }
   }
-  log(str) {
+  log(str: string): void {
     if (str && !environment.production) {
       console.log(str);
     }
   }
 
-  error(str) {
+  error(str: string): void {
     if (str && !environment.production) {
       console.error(str);
     }
   }
 
-  warn(str) {
+  warn(str: string): void {
     if (str && !environment.production) {
       console.warn(str);
     }

@@ -14,7 +14,7 @@ export class MouseEventArgs {
   ctrlKey = false;
   shiftKey = false;
   executedMs = 0;
-  args: MouseEvent | TouchEvent | WheelEvent;
+  args: MouseEvent | TouchEvent | WheelEvent | null = null;
   /**
    * Screen DOM point.
    */
@@ -57,7 +57,7 @@ export class MouseEventArgs {
   }
   static getIsDoubleClick(
     args: MouseEventArgs,
-    prevArgs: MouseEventArgs
+    prevArgs: MouseEventArgs | null
   ): boolean {
     const isDoubleClick =
       prevArgs &&
@@ -68,7 +68,7 @@ export class MouseEventArgs {
         consts.clickThreshold &&
       !args.rightClicked() &&
       !prevArgs.rightClicked();
-    return isDoubleClick;
+    return isDoubleClick || false;
   }
   preventDefault(): void {
     if (this.args) {
@@ -110,7 +110,7 @@ export class MouseEventArgs {
     }
   }
 
-  getDOMPoint(): DOMPoint | null {
-    return this.screenPoint;
+  getDOMPoint(): DOMPoint {
+    return this.screenPoint as DOMPoint;
   }
 }

@@ -10,6 +10,7 @@ import { MatrixUtils } from "../../../utils/matrix-utils";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
 import { TransformationModeIcon } from "../../../../models/transformation-mode";
+import { LoggerService } from "src/app/services/logger.service";
 
 @Injectable({
   providedIn: "root",
@@ -21,12 +22,15 @@ export class MatrixRotateAction extends BaseTransformAction {
   /**
    * Start click position in anchor coordinates.
    */
-  start: DOMPoint = null;
-  transformOrigin: DOMPoint = null;
-  node: TreeNode = null;
+  start: DOMPoint | null = null;
+  transformOrigin: DOMPoint | null = null;
+  node: TreeNode | null = null;
   startAngle = 0;
   changed = false;
-  constructor(propertiesService: PropertiesService) {
+  constructor(
+    propertiesService: PropertiesService,
+    private logger: LoggerService
+  ) {
     super(propertiesService);
   }
   init(
@@ -42,11 +46,15 @@ export class MatrixRotateAction extends BaseTransformAction {
       node,
       this.getScreenTransformOrigin()
     );
-    const transformedCenter = Utils.toScreenPoint(
+    const screenTransformOrigin = Utils.toScreenPoint(
       element,
       this.transformOrigin
     );
-    this.startAngle = -Utils.angle(transformedCenter, screenPos);
+    if (!screenTransformOrigin || !screenPos) {
+      this.logger.log("Cannot transform transform origin to screen origin.");
+      return;
+    }
+    this.startAngle = -Utils.angle(screenTransformOrigin, screenPos);
 
     // Get current transform matrix
     const matrix = MatrixUtils.getMatrix(element);
@@ -58,14 +66,31 @@ export class MatrixRotateAction extends BaseTransformAction {
   }
 
   transformByMouse(screenPos: DOMPoint): boolean {
-    const transformPoint = this.transformOrigin;
-    const element = this.node.getElement();
-    const screenTransformOrigin = Utils.toScreenPoint(element, transformPoint);
+    const element = this.node?.getElement();
+    if (
+      !this.node ||
+      !element ||
+      !element.ownerSVGElement ||
+      !this.transformOrigin
+    ) {
+      this.logger.log(
+        "Element cannot be transformed. Should be initialized first"
+      );
+      return false;
+    }
+    const screenTransformOrigin = Utils.toScreenPoint(
+      element,
+      this.transformOrigin
+    );
+    if (!screenTransformOrigin) {
+      this.logger.log("Cannot transform transform origin to screen origin.");
+      return false;
+    }
     let angle = -Utils.angle(screenTransformOrigin, screenPos);
 
     angle -= this.startAngle;
 
-    return this.rotate(angle, transformPoint);
+    return this.rotate(angle, this.transformOrigin);
   }
 
   /**
@@ -75,7 +100,13 @@ export class MatrixRotateAction extends BaseTransformAction {
    * @param transformPoint transform center.
    */
   rotate(angle: number, transformPoint: DOMPoint): boolean {
-    const element = this.node.getElement();
+    const element = this.node?.getElement();
+    if (!this.node || !element || !element.ownerSVGElement) {
+      this.logger.log(
+        "Element cannot be transformed. Should be initialized first"
+      );
+      return false;
+    }
 
     const transform = Utils.getElementTransform(element);
     if (this.initialValues.size === 0) {

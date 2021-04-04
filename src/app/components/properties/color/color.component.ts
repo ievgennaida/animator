@@ -10,14 +10,14 @@ import { BaseComponent } from "../../base-component";
 })
 export class ColorComponent extends BaseComponent implements OnInit {
   @Input()
-  property: ColorProperty = null;
+  property: ColorProperty | null = null;
   constructor(private propertiesService: PropertiesService) {
     super();
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
-  onValueChanged(event) {
+  onValueChanged(event: Event) {
     if (this.property) {
       // this.property.setValue(parseInt(event.target.value));
       // this.propertiesService.emitPropertyChanged(this.property);

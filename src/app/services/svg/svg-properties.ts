@@ -11,7 +11,7 @@ export class SvgProperties {
    * get properties
    */
   getProperties(node: TreeNode): Property[] {
-    const tagName = node.getElement().tagName.toLowerCase();
+    const tagName = node?.getElement()?.tagName.toLowerCase();
 
     if (tagName === SVGElementType.circle) {
       return this.getCircleProperties(node);

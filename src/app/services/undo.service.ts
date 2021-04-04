@@ -164,6 +164,7 @@ export class UndoService {
       }
     }
     this.actionsSubject.next(this.actions);
+    return true;
   }
   canRedo(): boolean {
     const nextAction = this.activeIndex + 1;
@@ -221,5 +222,6 @@ export class UndoService {
         `Redo Failed: (${this.activeIndex}) ${action.title} ${er}.`
       );
     }
+    return false;
   }
 }

@@ -3,15 +3,15 @@ import { TreeNode } from "../models/tree-node";
 import { Subject } from "rxjs";
 import { MatMenuTrigger } from "@angular/material/menu";
 export class ContextEventArgs {
-  event: MouseEvent = null;
-  node: TreeNode = null;
+  event: MouseEvent | null = null;
+  node: TreeNode | null = null;
 }
 
 @Injectable({
   providedIn: "root",
 })
 export class ContextMenuService {
-  openSubject = new Subject<ContextEventArgs>();
+  openSubject = new Subject<ContextEventArgs | null>();
   private trigger: MatMenuTrigger | null = null;
   private container: HTMLElement | null = null;
 
@@ -19,7 +19,7 @@ export class ContextMenuService {
   setElement(container: HTMLElement) {
     this.container = container;
   }
-  setTrigger(trigger: MatMenuTrigger) {
+  setTrigger(trigger: MatMenuTrigger | null) {
     this.trigger = trigger;
   }
   isParent(
@@ -63,7 +63,7 @@ export class ContextMenuService {
   close() {
     this.openSubject.next(null);
   }
-  open(event: MouseEvent, node: TreeNode) {
+  open(event: MouseEvent, node: TreeNode | null) {
     const args = new ContextEventArgs();
     args.event = event;
     args.node = node;

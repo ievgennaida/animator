@@ -6,7 +6,7 @@ export interface IInitializer {
   initOnRefresh(): boolean;
 }
 
-export class InitResults {
+export interface InitResults {
   player: IPlayer;
   size: DOMRect;
 }

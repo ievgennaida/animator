@@ -28,18 +28,18 @@ export class MouseOverService {
   /**
    * Mouse over node.
    */
-  mouseOverSubject = new BehaviorSubject<TreeNode>(null);
+  mouseOverSubject = new BehaviorSubject<TreeNode | null>(null);
   /**
    * Mouse over resize adorner handle
    */
-  mouseOverHandleSubject = new BehaviorSubject<HandleData>(null);
+  mouseOverHandleSubject = new BehaviorSubject<HandleData | null>(null);
 
   /**
    * Mouse over path data handle
    */
   pathDataSubject = new PathDataSelectionSubject();
   constructor() {}
-  setMouseOverHandle(data: HandleData): boolean {
+  setMouseOverHandle(data: HandleData | null): boolean {
     if (data !== this.mouseOverHandle) {
       this.mouseOverHandleSubject.next(data);
       return true;
@@ -49,7 +49,7 @@ export class MouseOverService {
   leaveHandle(): boolean {
     return this.setMouseOverHandle(null);
   }
-  get mouseOverHandle(): HandleData {
+  get mouseOverHandle(): HandleData | null {
     return this.mouseOverHandleSubject.getValue();
   }
 
@@ -60,7 +60,8 @@ export class MouseOverService {
     return (
       this.getValue() ||
       this.mouseOverHandle?.adorner?.node ||
-      this.pathDataSubject.getValues().find((p) => p.node)?.node
+      this.pathDataSubject.getValues().find((p) => p.node)?.node ||
+      null
     );
   }
   isMouseOverHandle(data: HandleData): boolean {
@@ -70,19 +71,19 @@ export class MouseOverService {
     }
 
     return (
-      currentHandle.adorner.node === data.adorner.node &&
+      currentHandle?.adorner?.node === data?.adorner?.node &&
       currentHandle.handle === data.handle
     );
   }
   isMouseOverAdornerHandle(
-    adorner: AdornerContainer = null,
+    adorner: AdornerContainer | null = null,
     data: AdornerPointType | null = null
   ): boolean {
     const currentHandle = this.mouseOverHandleSubject.getValue();
     if (!data) {
       return !!currentHandle;
     }
-    if (!currentHandle) {
+    if (!currentHandle || !currentHandle.adorner) {
       return false;
     }
     if (
@@ -90,14 +91,14 @@ export class MouseOverService {
         currentHandle.adorner &&
         currentHandle.adorner.node === adorner.node) ||
       (currentHandle.adorner.type === AdornerType.selection &&
-        currentHandle.adorner.type === adorner.type)
+        currentHandle.adorner.type === adorner?.type)
     ) {
       return currentHandle.handle === data;
     }
     return true;
   }
 
-  getValue(): TreeNode {
+  getValue(): TreeNode | null {
     return this.mouseOverSubject.getValue();
   }
 
@@ -118,7 +119,7 @@ export class MouseOverService {
     }
   }
 
-  setMouseLeave(node: TreeNode) {
+  setMouseLeave(node: TreeNode | null) {
     if (node && node.mouseOver) {
       node.mouseOver = false;
       // update current subscribers with node selected = false;
@@ -127,9 +128,5 @@ export class MouseOverService {
     } else if (this.mouseOverSubject.getValue() !== null) {
       this.mouseOverSubject.next(null);
     }
-  }
-
-  public get mouseOver(): Observable<TreeNode> {
-    return this.mouseOverSubject.asObservable();
   }
 }

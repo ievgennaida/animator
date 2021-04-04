@@ -1,5 +1,5 @@
 export interface IPlayer {
-  dispose();
+  dispose(): void;
   isReady(): boolean;
   isPlaying(): boolean;
   goTo(time: number): boolean;

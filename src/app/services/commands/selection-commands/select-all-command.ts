@@ -18,7 +18,7 @@ export class SelectAllCommand implements BaseCommand {
   canExecute(): boolean {
     return true;
   }
-  execute() {
+  execute(): void {
     this.selectionService.selectAll();
   }
 }

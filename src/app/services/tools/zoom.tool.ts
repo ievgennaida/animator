@@ -15,7 +15,7 @@ import { SelectionRectTracker } from "./selection-rect-tracker";
   providedIn: "root",
 })
 export class ZoomTool extends BaseTool {
-  iconName = "search";
+  icon = "search";
   constructor(
     private panTool: PanTool,
     private cursor: CursorService,
@@ -27,30 +27,30 @@ export class ZoomTool extends BaseTool {
     super();
   }
 
-  onActivate() {
+  onActivate(): void {
     this.mouseOverRenderer.suspend(true);
     this.cursor.setCursor(CursorType.zoomIn);
     super.onActivate();
   }
 
-  onDeactivate() {
+  onDeactivate(): void {
     this.mouseOverRenderer.resume();
     this.cursor.setCursor(CursorType.default);
     this.cleanUp();
     super.onDeactivate();
   }
 
-  onWindowKeyDown(event: KeyboardEvent) {
+  onWindowKeyDown(event: KeyboardEvent): void {
     if (event.ctrlKey) {
       this.cursor.setCursor(CursorType.zoomOut);
     }
   }
 
-  onWindowKeyUp(event: KeyboardEvent) {
+  onWindowKeyUp(event: KeyboardEvent): void {
     this.cursor.setCursor(CursorType.zoomIn);
   }
 
-  onViewportMouseWheel(event: MouseEventArgs) {
+  onViewportMouseWheel(event: MouseEventArgs): void {
     if (!this.viewService.isInit()) {
       return;
     }
@@ -59,14 +59,14 @@ export class ZoomTool extends BaseTool {
     const direction = event.deltaY;
     this.zoom(direction, consts.zoom.sensitivityWheel, event);
   }
-  onViewportMouseDown(event: MouseEventArgs) {
+  onViewportMouseDown(event: MouseEventArgs): void {
     if (event.rightClicked()) {
       this.cursor.setCursor(CursorType.zoomOut);
     } else {
       this.selectionTracker.start(event);
     }
   }
-  onWindowMouseMove(event: MouseEventArgs) {
+  onWindowMouseMove(event: MouseEventArgs): void {
     if (!this.selectionTracker.isActive()) {
       return;
     }
@@ -77,20 +77,20 @@ export class ZoomTool extends BaseTool {
       this.autoPanService.update(event.clientX, event.clientY);
     }
   }
-  onWindowBlur(e) {
+  onWindowBlur(e: Event): void {
     this.cleanUp();
   }
-  onWindowMouseUp(e: MouseEventArgs) {
+  onWindowMouseUp(e: MouseEventArgs): void {
     this.startSelectionEnd(e);
   }
-  startSelectionEnd(e) {
+  startSelectionEnd(e: MouseEventArgs): void {
     try {
       this.selectionEnded(e, this.selectionTracker.rect);
     } finally {
       this.cleanUp();
     }
   }
-  cleanUp() {
+  cleanUp(): void {
     this.selectionTracker.stop();
     this.autoPanService.stop();
     this.cursor.setCursor(CursorType.zoomIn);
@@ -98,12 +98,12 @@ export class ZoomTool extends BaseTool {
   /**
    * Override base method.
    */
-  selectionEnded(event: MouseEventArgs, selectedArea: DOMRect) {
+  selectionEnded(event: MouseEventArgs, selectedArea: DOMRect | null): void {
     const isSelection =
       selectedArea &&
       selectedArea.width > consts.clickThreshold &&
       selectedArea.height > consts.clickThreshold;
-    if (isSelection) {
+    if (selectedArea && isSelection) {
       // Zoom to area when selection is made:
       this.fit(selectedArea);
       this.panTool.fit(selectedArea);
@@ -111,6 +111,7 @@ export class ZoomTool extends BaseTool {
       // check the bounds while it's window events:
       const area = this.viewService.getContainerClientRect();
       if (
+        area &&
         event.clientX >= area.left &&
         event.clientX <= area.right &&
         event.clientY >= area.top &&
@@ -121,7 +122,7 @@ export class ZoomTool extends BaseTool {
     }
   }
 
-  zoomByMouseEvent(event: MouseEventArgs) {
+  zoomByMouseEvent(event: MouseEventArgs): void {
     if (!this.viewService.isInit()) {
       return;
     }
@@ -136,16 +137,20 @@ export class ZoomTool extends BaseTool {
     event.preventDefault();
   }
 
-  zoomIn() {
+  zoomIn(): void {
     this.zoom(-1, consts.zoom.sensitivityMouse);
   }
-  zoomOut() {
+  zoomOut(): void {
     this.zoom(1, consts.zoom.sensitivityMouse);
   }
-  zoom(direction = 1, scale = 1, event: MouseEventArgs = null) {
+  zoom(direction = 1, scale = 1, event: MouseEventArgs | null = null): void {
     scale = 1 - direction * scale;
     if (scale !== 0) {
       let matrix = this.viewService.getCTM();
+      if (!matrix) {
+        console.log("zoom: Viewport is not ready.");
+        return;
+      }
       let point = null;
       if (event) {
         point = event.screenPoint;
@@ -156,10 +161,12 @@ export class ZoomTool extends BaseTool {
           point.y /= 2;
         }
       }
-      if (!point) {
-        point = new DOMPoint(0, 0);
-      }
+
+      point = point || new DOMPoint(0, 0);
       point = Utils.toElementPoint(this.viewService, point);
+      if (!point) {
+        return;
+      }
       // allow to set to the max
       let expectedScale = matrix.a * scale;
       if (expectedScale > consts.zoom.max) {
@@ -182,8 +189,11 @@ export class ZoomTool extends BaseTool {
     }
   }
 
-  setDirectZoom(scale: number) {
+  setDirectZoom(scale: number): void {
     const matrix = this.viewService.getCTM();
+    if (!matrix) {
+      return;
+    }
     const zoom = Math.max(Math.min(scale, consts.zoom.max), consts.zoom.min);
 
     matrix.a = zoom;
@@ -191,7 +201,7 @@ export class ZoomTool extends BaseTool {
     this.viewService.setCTM(matrix);
   }
 
-  fit(rect: DOMRect = null) {
+  fit(rect: DOMRect | null = null): void {
     if (!this.viewService.isInit()) {
       return;
     }
@@ -201,7 +211,9 @@ export class ZoomTool extends BaseTool {
     }
 
     const parentSize = this.viewService.getContainerSize();
-
+    if (!parentSize) {
+      return;
+    }
     let fitProportion = Math.min(
       parentSize.width / rect.width,
       parentSize.height / rect.height,

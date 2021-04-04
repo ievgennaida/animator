@@ -17,6 +17,9 @@ export abstract class BaseTransformAction extends BasePropertiesStorageAction {
   }
   getScreenTransformOrigin(): DOMPoint | null {
     const screen = this.handle?.adorner?.screen;
+    if (!screen) {
+      return null;
+    }
     return screen.centerTransform || screen.center;
   }
 

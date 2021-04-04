@@ -28,7 +28,7 @@ export abstract class BasePropertiesStorageAction extends BaseAction {
     }
   }
 
-  execute() {
+  execute(): void {
     if (!this.committed) {
       throw new Error(`Cannot execute uncommitted value ${this.title}`);
     }
@@ -43,7 +43,7 @@ export abstract class BasePropertiesStorageAction extends BaseAction {
       });
     }
   }
-  undo() {
+  undo(): void {
     this.setValues(this.initialValues);
   }
   /**

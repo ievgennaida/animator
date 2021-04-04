@@ -60,7 +60,7 @@ export class SvgPlayer implements IPlayer {
 
   first(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
 
     const first = this.getStartPosition();
@@ -92,7 +92,7 @@ export class SvgPlayer implements IPlayer {
 
   pause(): boolean {
     if (!this.isReady()) {
-      return;
+      return false;
     }
 
     if (this.isPlaying()) {

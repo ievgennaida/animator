@@ -15,7 +15,7 @@ import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
 export class PathTool extends BaseTool {
   svgMatrix: DOMMatrix | null = null;
   mouseDownPos: DOMPoint | null = null;
-  iconName = "ink_pen";
+  icon = "ink_pen";
   constructor(
     private selectionService: SelectionService,
     private logger: LoggerService,

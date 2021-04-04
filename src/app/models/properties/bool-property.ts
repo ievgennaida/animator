@@ -7,7 +7,7 @@ export class BoolProperty extends Property {
     node: TreeNode,
     key: string,
     name: string,
-    data,
+    data: any,
     description: string
   ) {
     super(node, key, name, data, description);

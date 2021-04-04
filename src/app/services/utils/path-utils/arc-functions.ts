@@ -223,7 +223,7 @@ export const arcToCubicCurves = (
   };
 
   const angleRad = degToRad(angleDeg);
-  let params = [];
+  let params: number[][] = [];
   let f1 = 0;
   let f2 = 0;
   let cx = 0;

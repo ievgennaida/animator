@@ -1,16 +1,15 @@
 import { Injectable } from "@angular/core";
-import {
-  PathDataHandle
-} from "src/app/models/path-data-handle";
+import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
+import { LoggerService } from "../../logger.service";
 import { OutlineService } from "../../outline.service";
 import {
   PathDataPropertyKey,
-  PropertiesService
+  PropertiesService,
 } from "../../properties.service";
 import { SelectionService } from "../../selection.service";
 import { ChangeStateMode } from "../../state-subject";
@@ -41,11 +40,12 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
   constructor(
     private outlineService: OutlineService,
     private selectionService: SelectionService,
-    propertiesService: PropertiesService
+    propertiesService: PropertiesService,
+    private logger: LoggerService
   ) {
     super(propertiesService);
   }
-  execute() {
+  execute(): void {
     if (!this.committed) {
       // Perform initially action and store committed values.
       this.commit();
@@ -55,17 +55,22 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     }
   }
 
-  isSegmentEnd(command?: PathDataCommand | null): boolean {
+  isSegmentEnd(command: PathDataCommand | null): boolean {
     return (
       !command ||
+      !command?.pathData ||
       command.isType(PathType.closeAbs) ||
       //
-      command.index === command.pathData.commands.length - 1
+      command.index === command?.pathData?.commands?.length - 1
     );
   }
-  removeNode(command: PathDataCommand) {
+  removeNode(command: PathDataCommand): void {
     const pathData = command.pathData;
-    if (command.isType(PathType.moveAbs)) {
+    if (!pathData) {
+      this.logger.warn("Cannot remove node. path Data cannot be empty");
+      return;
+    }
+    if (command.isType(PathType.moveAbs) && command.next) {
       // In this case replace make no sense:
       const nextNodeClose = this.isSegmentEnd(command.next);
       if (!nextNodeClose) {
@@ -86,23 +91,24 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     } else {
       pathData.deleteCommand(command);
     }
-
-    if (command.next.isType(PathType.moveAbs)) {
-      if (!command.next) {
-        return false;
-      } else if (
-        command.next.isType(PathType.moveAbs) &&
-        command.next.isType(PathType.closeAbs)
-      ) {
-      }
+    if (!command.next) {
+      return;
+    }
+    if (
+      command.next.isType(PathType.moveAbs) &&
+      command.next.isType(PathType.closeAbs)
+    ) {
     }
   }
   removeSegment(command: PathDataCommand) {
     const pathData = command.pathData;
-
+    if (!pathData) {
+      this.logger.warn("Cannot remove node. path Data cannot be empty");
+      return;
+    }
     if (command.isType(PathType.moveAbs)) {
       const nextNodeClose = this.isSegmentEnd(command.next);
-      if (!nextNodeClose) {
+      if (!nextNodeClose && command.next) {
         if (command.next.isType(PathType.closeAbs)) {
           // Delete element
         } else {
@@ -125,6 +131,10 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
         PathType.moveAbs,
         PathType.closeAbs
       );
+      if (!headOfTheFigure) {
+        this.logger.warn("Path data segment head cannot be found");
+        return;
+      }
       const closeCommandOfFigure = PointOnPathUtils.getNextByType(
         headOfTheFigure,
         false,
@@ -140,20 +150,22 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
       PathData.convertCommand(command, PathType.moveAbs);
       // We should close Z with line and make current element closing element.
       if (isClosed) {
-        const allCommands = command.pathData.commands;
+        const allCommands = pathData.commands;
 
         // Close current element element with the line
         PathData.convertCommand(headOfTheFigure, PathType.lineAbs);
 
-        // Reorder path data to keep z closed -> (z will become a line) and current element will be a closing one.
-        // It means that current node will become the first node in the collection.
-        for (let i = command.index; i <= closeCommandOfFigure.index; i++) {
-          const isClose = closeCommandOfFigure.index === i;
-          const toMove = allCommands[i];
-          pathData.deleteCommand(toMove);
-          if (!isClose) {
-            const headIndex = allCommands.indexOf(headOfTheFigure);
-            Utils.insertElement(allCommands, toMove, headIndex);
+        if (closeCommandOfFigure) {
+          // Reorder path data to keep z closed -> (z will become a line) and current element will be a closing one.
+          // It means that current node will become the first node in the collection.
+          for (let i = command.index; i <= closeCommandOfFigure.index; i++) {
+            const isClose = closeCommandOfFigure.index === i;
+            const toMove = allCommands[i];
+            pathData.deleteCommand(toMove);
+            if (!isClose) {
+              const headIndex = allCommands.indexOf(headOfTheFigure);
+              Utils.insertElement(allCommands, toMove, headIndex);
+            }
           }
         }
       }
@@ -182,6 +194,9 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
   }
 
   commit() {
+    if (!this.nodes || !this.items) {
+      return;
+    }
     // Make a snapshot of a state
     this.saveInitialValues(this.nodes, [PathDataPropertyKey]);
 
@@ -192,8 +207,9 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
       } else if (p.type === PathDataHandleType.point) {
         this.removeNode(p.command);
       }
-
-      items.set(p.node, p.pathData);
+      if (p.pathData) {
+        items.set(p.node, p.pathData);
+      }
     });
 
     this.selectionService.pathDataSubject.change(

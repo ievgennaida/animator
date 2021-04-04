@@ -5,7 +5,6 @@ import { SVGElementType } from "./svg-element-type";
 import { SvgProperties } from "./svg-properties";
 
 export class SvgTreeParser implements IParser {
-
   allowed: string[] = [
     SVGElementType.a,
     SVGElementType.circle, // cx, cy, r
@@ -40,7 +39,7 @@ export class SvgTreeParser implements IParser {
   parse(document: InputDocument): TreeNode[] {
     const element = document.parsedData as HTMLElement;
     if (!element) {
-      return;
+      return [];
     }
 
     // Represent root node:
@@ -111,7 +110,8 @@ export class SvgTreeParser implements IParser {
 
     node.properties.items = this.svgPropertiesProvider.getProperties(node);
     if (deep) {
-      this.addChildNodes(node, node.children, el);
+      const children = (node.children = node.children || []);
+      this.addChildNodes(node, children, el);
     }
     return node;
   }
@@ -120,14 +120,14 @@ export class SvgTreeParser implements IParser {
     parent: TreeNode,
     collection: TreeNode[],
     element: HTMLElement
-  ): TreeNode[] {
+  ): TreeNode[] | null {
     if (!element) {
-      return;
+      return null;
     }
 
     const converted = element as HTMLElement;
     if (!converted) {
-      return;
+      return null;
     }
 
     element.childNodes.forEach((childElement) => {

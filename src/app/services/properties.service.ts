@@ -79,20 +79,23 @@ export class PropertiesService {
   }
   unset(node: TreeNode, key: string) {
     const element = node.getElement();
-    element.removeAttribute(key);
+    if (element) {
+      element.removeAttribute(key);
+    }
   }
   setMatrixTransform(node: TreeNode, matrix: DOMMatrix | null): boolean {
     const element = node.getElement();
-    if (element) {
-      const transform = Utils.getElementTransform(element);
-      transform.setMatrix(matrix);
-      element.transform.baseVal.initialize(transform);
-      const property = this.getPropertyByKey(node, TransformPropertyKey);
-      if (property) {
-        this.emitPropertyChanged(property);
-      }
-      return true;
+    if (!matrix || !element) {
+      return false;
     }
+    const transform = Utils.getElementTransform(element);
+    transform.setMatrix(matrix);
+    element.transform.baseVal.initialize(transform);
+    const property = this.getPropertyByKey(node, TransformPropertyKey);
+    if (property) {
+      this.emitPropertyChanged(property);
+    }
+    return true;
     return false;
   }
   /**
@@ -110,6 +113,9 @@ export class PropertiesService {
       }
       transform = transform.matrixTransform(matrix);
       const bbox = node.getBBox();
+      if (!bbox) {
+        return false;
+      }
       transform.x -= bbox.x;
       transform.y -= bbox.y;
       this.setCenterTransform(node, transform.x, transform.y);
@@ -120,7 +126,7 @@ export class PropertiesService {
   isCenterTransformSet(node: TreeNode) {
     const x = this.getNum(node, CenterTransformX);
     const y = this.getNum(node, CenterTransformY);
-    return (!isNaN(x) && x !== null) || (!isNaN(y) && y !== null);
+    return (x !== null && !isNaN(x)) || (y !== null && !isNaN(y));
   }
   /**
    * Check whether exact node is displayed
@@ -158,13 +164,16 @@ export class PropertiesService {
     let x = this.getNum(node, CenterTransformX);
     let y = this.getNum(node, CenterTransformY);
     const bboxCache = node.getBBox();
+    if (!bboxCache) {
+      return null;
+    }
     const center = Utils.getRectCenter(bboxCache, relative);
-    if (isNaN(x) || x === null) {
+    if (x === null || isNaN(x)) {
       x = center?.x || 0;
     } else if (!relative) {
       x += bboxCache.x;
     }
-    if (isNaN(y) || y === null) {
+    if (y === null || isNaN(y)) {
       y = center?.y || 0;
     } else if (!relative) {
       y += bboxCache.y;
@@ -173,16 +182,28 @@ export class PropertiesService {
     const transformPoint = new DOMPoint(x, y);
     return transformPoint;
   }
-  setCenterTransform(node: TreeNode, x: number, y: number) {
-    this.setNum(node, CenterTransformX, x);
-    this.setNum(node, CenterTransformY, y);
+  setCenterTransform(
+    node: TreeNode,
+    x: number | null,
+    y: number | null
+  ): boolean {
+    let changed = this.setNum(node, CenterTransformX, x);
+    changed = changed || this.setNum(node, CenterTransformY, y);
+    return changed;
   }
 
   setNum(node: TreeNode, key: string, val: number | null): boolean {
     const element = node.getElement();
+    if (!element) {
+      return false;
+    }
     if (val === null) {
-      element.removeAttribute(key);
-      return true;
+      if (element.hasAttribute(key)) {
+        element.removeAttribute(key);
+        return true;
+      } else {
+        return false;
+      }
     }
 
     // Get property definition
@@ -237,12 +258,15 @@ export class PropertiesService {
 
   getAttributeString(node: TreeNode, key: string): string {
     const element = node.getElement();
-    const propAttribute = element.getAttribute(key);
-    return propAttribute;
+    const propAttribute = element?.getAttribute(key);
+    return propAttribute || "";
   }
-  getAttributeValue<T>(node: TreeNode, key: string): T | string {
+  getAttributeValue<T>(node: TreeNode, key: string): T | string | null {
     const element = node.getElement();
-    const propAttribute = element[key];
+    if (!element) {
+      return null;
+    }
+    const propAttribute = (element as any)[key];
     if (!propAttribute) {
       return element.getAttribute(key);
     }

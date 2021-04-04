@@ -9,20 +9,20 @@ export enum CommandType {
  * Base application command.
  */
 export interface BaseCommand {
-  tooltip?: string;
-  title?: string;
-  align?: string;
+  tooltip?: string | null;
+  title?: string | null;
+  align?: string | null;
   /**
    * Icon resource reference.
    */
-  icon?: string;
+  icon?: string | null;
   /**
    * SVG or font icon.
    */
-  iconSVG?: boolean;
-  active?: boolean;
-  group?: string;
-  hotkey?: string;
+  iconSVG?: boolean | null;
+  active?: boolean | null;
+  group?: string | null;
+  hotkey?: string | null;
   commandType?: CommandType | string;
   commands?: BaseCommand[];
   /**

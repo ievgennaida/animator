@@ -1,13 +1,11 @@
 import { Injectable } from "@angular/core";
-import {
-  PathDataHandle
-} from "src/app/models/path-data-handle";
+import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
 import {
   PathDataPropertyKey,
-  PropertiesService
+  PropertiesService,
 } from "../../properties.service";
 import { SelectionService } from "../../selection.service";
 import { Utils } from "../../utils/utils";
@@ -22,8 +20,8 @@ import { BasePropertiesStorageAction } from "../base-property-action";
 export class SmoothPathNodesAction extends BasePropertiesStorageAction {
   icon = "smooth-path";
   iconSVG = true;
-  nodes: TreeNode[] | null = null;
-  items: PathDataHandle[] | null = null;
+  nodes: TreeNode[] = [];
+  items: PathDataHandle[] = [];
   containers: TreeNode[] = [];
   committed = false;
   /**
@@ -41,7 +39,7 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
   ) {
     super(propertiesService);
   }
-  execute() {
+  execute(): void {
     if (!this.committed) {
       // Perform initially action and store committed values.
       this.commit();
@@ -56,6 +54,9 @@ export class SmoothPathNodesAction extends BasePropertiesStorageAction {
 
     this.nodes.forEach((node) => {
       const pathData = node.getPathData();
+      if (!pathData) {
+        return;
+      }
       this.items.forEach((p) => {
         if (p.type === PathDataHandleType.point && p.node === node) {
           // data.deleteCommand(p.command);

@@ -39,7 +39,7 @@ export class RemovePathNodesCommand implements BaseCommand {
 
     return false;
   }
-  execute() {
+  execute(): void {
     if (!this.canExecute()) {
       return;
     }

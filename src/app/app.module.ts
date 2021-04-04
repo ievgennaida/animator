@@ -6,6 +6,7 @@ import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { MatIconModule } from "@angular/material/icon";
 import { MatListModule } from "@angular/material/list";
 import { MatMenuModule } from "@angular/material/menu";
+import { MatSelectModule } from "@angular/material/select";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTreeModule } from "@angular/material/tree";
@@ -34,14 +35,14 @@ import { ColorComponent } from "./components/properties/color/color.component";
 import { ComboComponent } from "./components/properties/combo/combo.component";
 import { DnumericComponent } from "./components/properties/dnumeric/dnumeric.component";
 import { NumericComponent } from "./components/properties/numeric/numeric.component";
+import { PathDataEditorComponent } from "./components/properties/path-data-editor/path-data-editor.component";
 import { PropertiesComponent } from "./components/properties/properties.component";
 import { TextComponent } from "./components/properties/text/text.component";
 import { TimelineComponent } from "./components/timeline/timeline.component";
+import { CommandsListComponent } from "./components/toolbars/commands-list/commands-list.component";
 import { MainToolbarComponent } from "./components/toolbars/main-toolbar/main-toolbar.component";
 import { ToolCommandsComponent } from "./components/toolbars/tool-commands/tool-commands.component";
 import { ToolboxComponent } from "./components/toolbars/toolbox/toolbox.component";
-import { CommandsListComponent } from "./components/toolbars/commands-list/commands-list.component";
-import { PathDataEditorComponent } from './components/properties/path-data-editor/path-data-editor.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -78,6 +79,7 @@ import { PathDataEditorComponent } from './components/properties/path-data-edito
   imports: [
     ResizableModule,
     MatTreeModule,
+    MatSelectModule,
     MatToolbarModule,
     MatIconModule,
     HttpClientModule,

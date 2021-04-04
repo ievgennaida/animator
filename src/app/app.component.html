@@ -20,7 +20,7 @@
 <footer *ngIf="mode === ViewMode.animator" #footer mwlResizable [style.height.px]="footerH" [resizeCursorPrecision]="6"
   (resizing)="onResizeFooter($event)" (resizeEnd)="onResizeFooter($event)" [enableGhostResize]="false"
   [resizeEdges]="{ top: true }">
-  <app-outline (mousewheel)="timeline.onWheel($event)" #outline mwlResizable [style.width.px]="outlineW"
+  <app-outline (mousewheel)="timeline.onWheel($any($event))" #outline mwlResizable [style.width.px]="outlineW"
     [resizeCursorPrecision]="6" (resizing)="onResizeOutline($event)" (resizeEnd)="onResizeOutline($event)"
     [enableGhostResize]="false" [resizeEdges]="{ right: true }">
   </app-outline>

@@ -2,7 +2,7 @@
     <div *cdkVirtualFor="let item of items" (contextmenu)="onRightClick($event)" (click)="historyClick(item)"
         class="container" (mouseenter)="mouseEnter(item)" (mouseleave)="mouseLeave(item)" [title]="item.tooltip || ''"
         [ngClass]="{'deactivated':!item.active, 'hover':item.hover, 'selected':item.selected}">
-        <mat-icon [svgIcon]="item.command.iconSVG?item.command.icon:null">{{item.command.icon?item.command.icon:''}}
+        <mat-icon [svgIcon]="$any(item.command.iconSVG?item.command.icon:null)">{{item.command.icon?item.command.icon:''}}
         </mat-icon>
         <div class="content text">
             {{item.command.title || 'command'}}

@@ -25,9 +25,9 @@ export class RedoCommand implements BaseCommand {
   canExecute(): boolean {
     return this.undoService.canRedo();
   }
-  execute() {
+  execute(): void {
     if (this.canExecute()) {
-      return this.undoService.redo();
+      this.undoService.redo();
     }
   }
 }

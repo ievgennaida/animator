@@ -9,7 +9,7 @@ export class MatrixUtils {
    * @param element element to get matrix for.
    */
   public static getMatrix(
-    element: SVGGraphicsElement | TreeNode
+    element: SVGGraphicsElement | TreeNode | null
   ): DOMMatrix | null {
     if (!element) {
       return null;
@@ -20,8 +20,8 @@ export class MatrixUtils {
     );
   }
   public static transformToElement(
-    fromElement: SVGGraphicsElement | TreeNode,
-    toElement: SVGGraphicsElement | TreeNode
+    fromElement: SVGGraphicsElement | TreeNode | null,
+    toElement: SVGGraphicsElement | TreeNode | null
   ): DOMMatrix | null {
     if (!fromElement || !fromElement.getScreenCTM) {
       return null;
@@ -40,8 +40,17 @@ export class MatrixUtils {
   /**
    * Set matrix as transform attribute for the element.
    */
-  public static setMatrix(element: SVGGraphicsElement, matrix: DOMMatrix) {
-    const transform = element.ownerSVGElement.createSVGTransform();
+  public static setMatrix(
+    element: SVGGraphicsElement | null,
+    matrix: DOMMatrix | null
+  ): boolean {
+    if (!element || !matrix) {
+      return false;
+    }
+    const transform = element?.ownerSVGElement?.createSVGTransform();
+    if (!transform) {
+      return false;
+    }
     if (matrix) {
       transform.setMatrix(matrix);
     }
@@ -74,6 +83,9 @@ export class MatrixUtils {
       return false;
     }
     const element = elementNode.getElement();
+    if (!element || !element.ownerSVGElement) {
+      return false;
+    }
     const bbox = element.getBoundingClientRect();
     // Get center of figure in element coordinates:
     const scaleX = screenBounds.width / bbox.width;
@@ -83,6 +95,10 @@ export class MatrixUtils {
     let offsetY = 0;
     if (changePosition) {
       const destCenter = Utils.getRectCenter(screenBounds);
+      if (!destCenter || !inputCenter) {
+        console.log("Center of rect cannot be null");
+        return false;
+      }
       offsetX = destCenter.x - inputCenter.x;
       offsetY = destCenter.y - inputCenter.y;
     }
@@ -94,7 +110,10 @@ export class MatrixUtils {
       scaleY,
       inputCenter
     );
-
+    if (!scaleMatrix) {
+      console.log("Matrix should be set");
+      return false;
+    }
     // get element self transformation matrix:
     const scaleAndTransform = element.ownerSVGElement
       .createSVGMatrix()
@@ -102,6 +121,10 @@ export class MatrixUtils {
       .multiply(scaleMatrix);
 
     const toScreenMatrix = element.getScreenCTM();
+    if (!toScreenMatrix) {
+      console.log("Element matrix cannot be null");
+      return false;
+    }
     // Scale element by a matrix in screen coordinates and convert it back to the element coordinates:
     let currentMatrix = Utils.getElementTransform(element).matrix;
     currentMatrix = currentMatrix.multiply(
@@ -119,12 +142,18 @@ export class MatrixUtils {
    * Generate scale matrix.
    */
   static generateScaleMatrix(
-    element: SVGGraphicsElement,
-    offsetX: number | null,
-    offsetY: number | null,
+    element: SVGGraphicsElement | null,
+    offsetX: number,
+    offsetY: number,
     transformPoint: DOMPoint | null = null,
     matrix: DOMMatrix | null = null
   ): DOMMatrix | null {
+    if (!element || !element.ownerSVGElement) {
+      console.log(
+        "Matrix generation failed: element and owner svg element should be specified."
+      );
+      return null;
+    }
     // Hack: fixed bug in chrome that scaling is applied only for one axis when regular scale method of matrix is called.
     const svgTransform = element.ownerSVGElement.createSVGTransform();
     svgTransform.setScale(offsetX, offsetY);
@@ -156,11 +185,12 @@ export class MatrixUtils {
    * In this case rotated bounds will be returned.
    */
   public static matrixRectTransform(
-    rect: DOMRect,
-    matrix: DOMMatrix,
+    rect: DOMRect | null,
+    matrix: DOMMatrix | null,
     recalculateBounds = false
   ): DOMRect | null {
     if (!rect || !matrix) {
+      console.log("Rect cannot be transformed. Rect or matrix is null.");
       return null;
     }
     const topLeft = new DOMPoint(rect.x, rect.y).matrixTransform(matrix);
@@ -205,8 +235,8 @@ export class MatrixUtils {
    */
   static consolidateTranslate(element: SVGGraphicsElement): DOMPoint | null {
     const transformList = element.transform.baseVal;
-    if (transformList.numberOfItems === 1) {
-      const transform = transformList[0];
+    if (transformList && transformList.numberOfItems === 1) {
+      const transform = transformList.getItem(0);
       if (transform.type === transform.SVG_TRANSFORM_TRANSLATE) {
         element.transform.baseVal.removeItem(0);
         const offsetX = transform.matrix.e;
@@ -214,10 +244,10 @@ export class MatrixUtils {
         element.removeAttribute("transform");
         return new DOMPoint(offsetX, offsetY);
       }
-    } else if (transformList.numberOfItems > 1) {
+    } else if (transformList && transformList.numberOfItems > 1) {
       let consolidationRequired = true;
       for (let i = 0; i <= transformList.numberOfItems; i++) {
-        const tr = transformList[i];
+        const tr = transformList.getItem(i);
         if (
           tr &&
           (tr.type === tr.SVG_TRANSFORM_TRANSLATE ||
@@ -251,7 +281,7 @@ export class MatrixUtils {
   }
   static decomposeAnimatedTransformList(
     transforms: SVGAnimatedTransformList
-  ): DecomposedMatrix {
+  ): DecomposedMatrix | null {
     if (!transforms || !transforms.baseVal) {
       return null;
     }
@@ -260,7 +290,7 @@ export class MatrixUtils {
 
   static decomposeTransformList(
     transforms: SVGTransformList
-  ): DecomposedMatrix {
+  ): DecomposedMatrix | null {
     if (!transforms) {
       return null;
     }

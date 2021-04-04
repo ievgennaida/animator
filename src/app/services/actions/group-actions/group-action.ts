@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "src/app/models/tree-node";
 import { ScrollToSelected } from "../../commands/scroll-to-selected";
+import { LoggerService } from "../../logger.service";
 import { OutlineService } from "../../outline.service";
 import { Utils } from "../../utils/utils";
 import { BaseAction } from "../base-action";
@@ -13,7 +14,6 @@ import { GroupMode } from "./group-mode";
   providedIn: "root",
 })
 export class GroupAction extends BaseAction {
-
   icon = "remove";
   nodes: TreeNode[] | null = null;
   containers: TreeNode[] = [];
@@ -30,12 +30,13 @@ export class GroupAction extends BaseAction {
   indexes: number[] = [];
   constructor(
     private outlineService: OutlineService,
-    private scrollToSelectedCommand: ScrollToSelected
+    private scrollToSelectedCommand: ScrollToSelected,
+    private logger: LoggerService
   ) {
     super();
   }
-  execute() {}
-  undo() {}
+  execute(): void {}
+  undo(): void {}
 
   init(nodes: TreeNode[], mode: GroupMode) {
     this.mode = mode;
@@ -46,9 +47,15 @@ export class GroupAction extends BaseAction {
     this.indexes = [];
     this.nodes.forEach((node) => {
       const parent = node.parentNode;
-      this.containers.push(parent);
-      this.treeNodeIndex.push(node.index);
-      this.indexes.push(node.indexDOM);
+      if (parent) {
+        this.containers.push(parent);
+        this.treeNodeIndex.push(node.index);
+        this.indexes.push(node.indexDOM);
+      } else {
+        this.logger.warn(
+          "Cannot perform order operation. Parent node cannot be found."
+        );
+      }
     });
   }
 }

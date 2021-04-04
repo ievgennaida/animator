@@ -91,9 +91,10 @@ export class PropertiesComponent
       });
   }
 
-  onNameFocusOut(event): void {
+  onNameFocusOut(e: Event): void {
     if (this.node && this.node.nameProperty) {
-      this.node.nameProperty.setValue(event.target.value);
+      const input = e.target as HTMLInputElement;
+      this.node.nameProperty.setValue(input.value);
       this.propertiesService.emitPropertyChanged(this.node.nameProperty);
     }
   }

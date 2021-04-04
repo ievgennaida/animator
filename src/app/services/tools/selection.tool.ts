@@ -29,7 +29,7 @@ import { TransformsService } from "./transforms.service";
   providedIn: "root",
 })
 export class SelectionTool extends BaseTool {
-  iconName = "navigation";
+  icon = "navigation";
 
   startedNode: TreeNode | null = null;
   startedHandle: HandleData | null = null;
@@ -86,7 +86,7 @@ export class SelectionTool extends BaseTool {
       }
 
       this.startedHandle = handle;
-      if (handle) {
+      if (handle && handle.adorner) {
         if (handle?.adorner?.type !== AdornerType.selection) {
           this.startedNode = handle.adorner.node;
         }
@@ -156,11 +156,13 @@ export class SelectionTool extends BaseTool {
         this.cleanUp();
         return;
       }
-      // Start transformation of the element by mouse
-      this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
-      // Don't draw mouse over when transformation is started:
-      this.mouseOverRenderer.suspend(true);
-      this.applyTransformationByMouseMove(event);
+      if (this.startedHandle) {
+        // Start transformation of the element by mouse
+        this.cursor.setHandleCursor(this.startedHandle, event.screenPoint);
+        // Don't draw mouse over when transformation is started:
+        this.mouseOverRenderer.suspend(true);
+        this.applyTransformationByMouseMove(event);
+      }
     } else {
       // Start element or adorner selection.
       if (this.startedNode) {
@@ -215,27 +217,27 @@ export class SelectionTool extends BaseTool {
   /**
    * Override.
    */
-  onWindowBlur(e) {
+  onWindowBlur(e: Event): void {
     this.cleanUp();
   }
 
   /**
    * Override.
    */
-  onWindowMouseUp(e: MouseEventArgs) {
+  onWindowMouseUp(e: MouseEventArgs): void {
     this.startSelectionEnd(e);
     // Simulate and update current state again after the cleanup that was done during the mouse up commit.
     this.onWindowMouseMove(e);
   }
 
-  startSelectionEnd(e: MouseEventArgs) {
+  startSelectionEnd(e: MouseEventArgs): void {
     try {
       this.selectionEnded(e);
     } finally {
       this.cleanUp();
     }
   }
-  onScroll() {
+  onScroll(): void {
     // Transform element when auto pan is running.
     if (
       this.lastUsedArgs &&
@@ -249,7 +251,7 @@ export class SelectionTool extends BaseTool {
   /**
    * On selection ended.
    */
-  selectionEnded(event: MouseEventArgs) {
+  selectionEnded(event: MouseEventArgs): void {
     this.autoPanService.stop();
     if (!this.selectionTracker.isActive()) {
       return;

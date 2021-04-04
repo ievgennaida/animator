@@ -1,3 +1,3 @@
 export interface ICTMProvider {
-  getScreenCTM(): DOMMatrix;
+  getScreenCTM(): DOMMatrix | null;
 }

@@ -30,7 +30,7 @@ export class UnGroupCommand implements BaseCommand {
   canExecute(): boolean {
     return false;
   }
-  execute() {
+  execute(): void {
     if (this.canExecute && !this.canExecute()) {
       return;
     }

@@ -35,9 +35,8 @@ import { AdornerPointType } from "src/app/models/adorner-point-type";
   providedIn: "root",
 })
 export class TransformAction extends BaseAction {
-
   mode: TransformationMode = TransformationMode.none;
-  transformations: Array<BaseTransformAction> = [];
+  transformations: BaseTransformAction[] = [];
   handle: HandleData | null = null;
   changed = false;
   committed = false;
@@ -48,11 +47,11 @@ export class TransformAction extends BaseAction {
    * Get transform action for the node by type.
    */
   getTransform(
-    node: TreeNode,
+    node: TreeNode | null,
     mode: TransformationMode,
     adornerMode: AdornerType = AdornerType.transformedElement,
     adornerType: AdornerPointType = AdornerPointType.none
-  ): BaseTransformAction {
+  ): BaseTransformAction | null {
     let actionType: Type<BaseTransformAction> | null = null;
     if (mode === TransformationMode.translate) {
       if (adornerType === AdornerPointType.centerTransform) {
@@ -133,13 +132,13 @@ export class TransformAction extends BaseAction {
     this.undoService.update();
     return true;
   }
-  execute() {
+  execute(): void {
     if (!this.transformations) {
       return;
     }
     this.transformations.forEach((p) => this.undoService._executeAction(p));
   }
-  undo() {
+  undo(): void {
     if (!this.transformations) {
       return;
     }
@@ -196,7 +195,7 @@ export class TransformAction extends BaseAction {
 
         return transform;
       })
-      .filter((p) => !!p);
+      .filter((p) => !!p) as BaseTransformAction[];
 
     // Set child info for the history view when one is applied:
     if (this.transformations.length === 1) {
@@ -232,7 +231,7 @@ export class TransformAction extends BaseAction {
         handle.adorner?.type,
         AdornerPointType.centerTransform
       );
-      if (actionInstance) {
+      if (actionInstance && handle.adorner?.node) {
         actionInstance.init(handle.adorner?.node, screenPos, handle);
         this.transformations.push(actionInstance);
       }

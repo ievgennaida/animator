@@ -89,10 +89,18 @@ export class PathDataEditorComponent
     }
     this.items = data.map((p) => {
       const mouseOver = !!mouseOverPoints.find((overHandle) =>
-        overHandle.isHandle(this.property.node, p, PathDataHandleType.point)
+        overHandle.isHandle(
+          this.property?.node || null,
+          p,
+          PathDataHandleType.point
+        )
       );
       const isSelected = !!selectedPathData.find((overHandle) =>
-        overHandle.isHandle(this.property.node, p, PathDataHandleType.point)
+        overHandle.isHandle(
+          this.property?.node || null,
+          p,
+          PathDataHandleType.point
+        )
       );
       return {
         title: p.saveAsRelative ? p.type.toLocaleLowerCase() : p.type,
@@ -161,7 +169,10 @@ export class PathDataEditorComponent
     event.preventDefault();
     event.stopPropagation();
   }
-  getHandle(action: PathDataNode): PathDataHandle {
+  getHandle(action: PathDataNode): PathDataHandle | null {
+    if (!this.property?.node) {
+      return null;
+    }
     const pathDataHandle = new PathDataHandle(
       this.property.node,
       action.command
@@ -177,14 +188,12 @@ export class PathDataEditorComponent
       PathDataEditorComponent.prevSelected = node;
     } else if (shiftKey) {
       const selected = PathDataEditorComponent.prevSelected;
-      const a = this.items.indexOf(
-        this.items.find(
-          (p) => selected && p?.command?.index === selected?.command?.index
-        )
+      let item = this.items.find(
+        (p) => selected && p?.command?.index === selected?.command?.index
       );
-      const b = this.items.indexOf(
-        this.items.find((p) => p?.command?.index === node?.command?.index)
-      );
+      const a = item ? this.items.indexOf(item) : -1;
+      item = this.items.find((p) => p?.command?.index === node?.command?.index);
+      const b = item ? this.items.indexOf(item) : -1;
       const from = Math.min(a, b);
       const to = Math.max(a, b);
       if (from !== -1 && to !== -1) {
@@ -200,10 +209,10 @@ export class PathDataEditorComponent
       nodes.push(node);
       PathDataEditorComponent.prevSelected = node;
     }
-    this.selectionService.pathDataSubject.change(
-      nodes.map((p) => this.getHandle(p)),
-      mode
-    );
+    const toSelect = nodes
+      .map((p) => this.getHandle(p))
+      .filter((p) => !!p) as PathDataHandle[];
+    this.selectionService.pathDataSubject.change(toSelect, mode);
   }
   onCommandTypeClick(event: MouseEvent, node: PathDataNode): void {
     event.preventDefault();

@@ -20,7 +20,7 @@ export class CollapseAllCommand implements BaseCommand {
   canExecute(): boolean {
     return true;
   }
-  execute() {
+  execute(): void {
       this.outlineService.collapseAll();
   }
 }

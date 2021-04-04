@@ -37,7 +37,7 @@ export class ToolboxComponent extends BaseComponent implements OnInit {
       });
   }
 
-  onToolSelected(activeTool: BaseTool): void {
+  onToolSelected(activeTool: BaseTool | null): void {
     this.toolsService.setActiveTool(activeTool);
   }
 }

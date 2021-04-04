@@ -8,7 +8,7 @@ export class ColorProperty extends Property {
     node: TreeNode,
     key: string,
     name: string,
-    data,
+    data: any,
     description: string
   ) {
     super(node, key, name, data, description);
@@ -24,14 +24,14 @@ export class ColorProperty extends Property {
     return hex;
   }
 
-  toHex(r, g, b) {
+  toHex(r: number, g: number, b: number) {
     const red = this.rgbToHex(r);
     const green = this.rgbToHex(g);
     const blue = this.rgbToHex(b);
     return red + green + blue;
   }
 
-  getValue(): number | undefined | string {
+  getValue(): number | undefined | string | null {
     if (this.data && this.key) {
       const data = this.data[this.key];
       if (data && data.k) {
@@ -43,5 +43,7 @@ export class ColorProperty extends Property {
         }
       }
     }
+
+    return null;
   }
 }

@@ -35,9 +35,8 @@ export class MenuService {
     });
   }
 
-
   getPanel(panelId: string | PanelsIds): MenuPanel | null {
-    return this.getMenu().find((p) => p.id === panelId);
+    return this.getMenu().find((p) => p.id === panelId) || null;
   }
   closePanel(panelId: string | PanelsIds) {
     this.setPanelVisibility(panelId, false);

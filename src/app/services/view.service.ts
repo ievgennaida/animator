@@ -15,9 +15,8 @@ export class ClientSize {
   providedIn: "root",
 })
 export class ViewService implements ICTMProvider {
-
-  ctm: DOMMatrix;
-  screenCTM: DOMMatrix;
+  ctm: DOMMatrix | null = null;
+  screenCTM: DOMMatrix | null = null;
   viewModeSubject = new BehaviorSubject<ViewMode>(
     consts.appearance.defaultMode
   );
@@ -28,9 +27,9 @@ export class ViewService implements ICTMProvider {
   breadcrumbsVisibleSubject = new BehaviorSubject<boolean>(
     consts.breadcrumbVisible
   );
-  viewportTransformedSubject = new BehaviorSubject<SVGElement>(null);
-  viewportSubject = new BehaviorSubject<SVGGraphicsElement>(null);
-  playerHost: SVGElement;
+  viewportTransformedSubject = new BehaviorSubject<SVGElement | null>(null);
+  viewportSubject = new BehaviorSubject<SVGGraphicsElement | null>(null);
+  playerHost: SVGElement | null = null;
   defaultSize = new DOMRect(
     0,
     0,
@@ -61,18 +60,18 @@ export class ViewService implements ICTMProvider {
       }
     });
   }
-  setMode(mode: ViewMode) {
+  setMode(mode: ViewMode): void {
     if (this.viewModeSubject.getValue() !== mode) {
       this.viewModeSubject.next(mode);
       this.emitViewportResized();
     }
   }
-  toggleBreadcrumbs() {
+  toggleBreadcrumbs(): void {
     this.breadcrumbsVisibleSubject.next(
       !this.breadcrumbsVisibleSubject.getValue()
     );
   }
-  toggleCode() {
+  toggleCode(): void {
     this.codeVisibleSubject.next(!this.codeVisibleSubject.getValue());
   }
 
@@ -82,7 +81,7 @@ export class ViewService implements ICTMProvider {
     return value;
   }
 
-  openMenu() {
+  openMenu(): void {
     const value = this.menuVisibleSubject.getValue();
     if (!value) {
       this.menuVisibleSubject.next(true);
@@ -100,7 +99,7 @@ export class ViewService implements ICTMProvider {
     return this.viewportResizedSubject.asObservable();
   }
 
-  public emitViewportResized() {
+  public emitViewportResized(): void {
     const area = this.viewportResizedSubject.getValue();
     const svg = this.svgRoot();
     if (svg) {
@@ -124,11 +123,11 @@ export class ViewService implements ICTMProvider {
     return this.elementsChangedSubject.asObservable();
   }
 
-  public get viewportInitialized(): Observable<SVGGraphicsElement> {
+  public get viewportInitialized(): Observable<SVGGraphicsElement | null> {
     return this.viewportSubject.asObservable();
   }
 
-  public get viewport(): SVGGraphicsElement {
+  public get viewport(): SVGGraphicsElement | null {
     return this.viewportSubject.getValue();
   }
 
@@ -145,11 +144,15 @@ export class ViewService implements ICTMProvider {
    */
   public setCTM(matrix: DOMMatrix) {
     if (!this.isInit()) {
+      console.log("Cannot set matrix, viewport is not ready yet");
       return;
     }
-
-    MatrixUtils.setMatrix(this.viewport, matrix);
-    this.viewportTransformedSubject.next(this.viewport);
+    if (this.viewport) {
+      MatrixUtils.setMatrix(this.viewport, matrix);
+      this.viewportTransformedSubject.next(this.viewport);
+    } else {
+      console.log("Cannot set matrix, viewport is not ready yet");
+    }
   }
 
   public getZoom(): number {
@@ -160,34 +163,43 @@ export class ViewService implements ICTMProvider {
     return ctm.a;
   }
 
-  public getScreenSize(): DOMPoint {
+  public getScreenSize(): DOMPoint | null {
     if (!this.isInit()) {
       return null;
     }
-    if (!this.svgRoot()) {
+    const svg = this.svgRoot();
+    if (!svg) {
       return null;
     }
-    const svg = this.svgRoot();
     const toPoint = svg.createSVGPoint();
     toPoint.x = svg.clientWidth;
     toPoint.y = svg.clientHeight;
     return toPoint;
   }
-  public getDisplayedBounds(): DOMRect {
+  public getDisplayedBounds(): DOMRect | null {
     if (!this.viewport) {
       return null;
     }
-    const matrix = this.getCTM().inverse();
+    const matrix = this.getCTM()?.inverse();
     const svg = this.svgRoot();
-    const toPoint = this.getScreenSize().matrixTransform(matrix);
-    const from = svg.createSVGPoint().matrixTransform(matrix);
-    return new DOMRect(from.x, from.y, toPoint.x - from.x, toPoint.y - from.y);
+    const toPoint = this.getScreenSize()?.matrixTransform(matrix);
+    const from = svg?.createSVGPoint().matrixTransform(matrix);
+    if (from && toPoint) {
+      return new DOMRect(
+        from.x,
+        from.y,
+        toPoint.x - from.x,
+        toPoint.y - from.y
+      );
+    } else {
+      return null;
+    }
   }
 
   /**
    * Get cached viewport CTM.
    */
-  public getCTM(): DOMMatrix {
+  public getCTM(): DOMMatrix | null {
     if (!this.isInit()) {
       return null;
     }
@@ -202,7 +214,7 @@ export class ViewService implements ICTMProvider {
   /**
    * Get viewport screen CTM.
    */
-  public getScreenCTM(): DOMMatrix {
+  public getScreenCTM(): DOMMatrix | null {
     if (!this.isInit()) {
       return null;
     }
@@ -211,34 +223,43 @@ export class ViewService implements ICTMProvider {
       return this.screenCTM;
     }
 
-    this.screenCTM = this.viewport.getScreenCTM();
+    const ctm = this.viewport?.getScreenCTM();
+    this.screenCTM = ctm || null;
+    return this.screenCTM;
   }
 
-  public svgRoot(): SVGSVGElement {
+  public svgRoot(): SVGSVGElement | null {
     if (!this.isInit()) {
       return null;
     }
-
-    return this.viewport.ownerSVGElement;
+    if (this.viewport) {
+      return this.viewport.ownerSVGElement;
+    }
+    return null;
   }
 
   getWorkAreaSize(): DOMRect {
     return this.viewportSize;
   }
 
-  getContainerClientRect(): DOMRect | any {
+  getContainerClientRect(): DOMRect | null {
     if (!this.isInit()) {
-      return;
+      return null;
     }
-    return this.svgRoot().getBoundingClientRect();
+    const newRect = this.svgRoot()?.getBoundingClientRect();
+    return newRect || null;
   }
 
-  getContainerSize(): DOMRect {
-    if (!this.isInit()) {
-      return;
-    }
+  getContainerSize(): DOMRect | null {
     const svg = this.svgRoot();
-    return new DOMRect(0, 0, svg.clientWidth, svg.clientHeight);
+    if (svg) {
+      return new DOMRect(0, 0, svg.clientWidth, svg.clientHeight);
+    } else {
+      console.log(
+        "Cannot get container size, service is not initialized and synced with DOM yet"
+      );
+      return null;
+    }
   }
 
   /**
@@ -246,7 +267,7 @@ export class ViewService implements ICTMProvider {
    *
    * @param viewport svg application viewport.
    */
-  init(viewport: SVGGraphicsElement, host: SVGElement) {
+  init(viewport: SVGGraphicsElement | null, host: SVGElement | null) {
     this.playerHost = host;
     this.viewportSubject.next(viewport);
     this.emitViewportResized();
@@ -256,7 +277,7 @@ export class ViewService implements ICTMProvider {
     this.viewportSizeSubject.next(rect);
   }
 
-  dispose() {
+  dispose(): void {
     if (this.playerHost) {
       this.playerHost.innerHTML = "";
     }

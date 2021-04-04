@@ -15,7 +15,6 @@ import { BaseTransformAction } from "../base-transform-action";
   providedIn: "root",
 })
 export class CenterSelectionTranslateAction extends BaseTransformAction {
-
   title = "Center Transform";
   changed = false;
   icon = TransformationModeIcon.move;
@@ -47,16 +46,18 @@ export class CenterSelectionTranslateAction extends BaseTransformAction {
     );
 
     this.offset = new DOMPoint(0, 0);
-    this.transformOriginInitial = this.handle?.adorner?.element?.centerTransform;
+    this.transformOriginInitial =
+      this.handle?.adorner?.element?.centerTransform || null;
     // Determine initial offset:
     const elementStartPos = Utils.toElementPoint(this.anchor, screenPos);
-    if (this.transformOrigin) {
+
+    if (this.transformOrigin && elementStartPos) {
       this.offset.x = elementStartPos.x - this.transformOrigin.x;
       this.offset.y = elementStartPos.y - this.transformOrigin.y;
     }
     this.committed = false;
   }
-  execute() {
+  execute(): void {
     if (!this.committed) {
       throw new Error("Cannot execute uncommitted value");
     }
@@ -64,13 +65,16 @@ export class CenterSelectionTranslateAction extends BaseTransformAction {
       this.handle?.adorner?.setCenterTransform(this.committedOrigin);
     }
   }
-  undo() {
+  undo(): void {
     // Can be null, means that was unset (default)
     this.handle?.adorner?.setCenterTransform(this.transformOriginInitial);
   }
   transformByMouse(screenPos: DOMPoint): boolean {
-    if (screenPos && this.transformOrigin) {
+    if (screenPos && this.transformOrigin && this.offset) {
       const clickPosition = Utils.toElementPoint(this.anchor, screenPos);
+      if (!clickPosition) {
+        return false;
+      }
       this.committedOrigin = new DOMPoint(
         clickPosition.x - this.offset.x,
         clickPosition.y - this.offset.y

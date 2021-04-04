@@ -5,6 +5,7 @@ import { PropertiesService } from "../../../properties.service";
 import { Utils } from "../../../utils/utils";
 import { BaseTransformAction } from "../base-transform-action";
 import { TransformationModeIcon } from "../../../../models/transformation-mode";
+import { LoggerService } from "src/app/services/logger.service";
 
 /**
  * Rect translate by the mouse action.
@@ -18,14 +19,17 @@ export class RectTranslateAction extends BaseTransformAction {
   propX = "x";
   propY = "y";
   changed = false;
-  startRect: DOMRect = null;
+  startRect: DOMRect | null = null;
   /**
    * Start mouse click position in element coordinates.
    */
-  start: DOMPoint = null;
+  start: DOMPoint | null = null;
 
   committed = false;
-  constructor(propertiesService: PropertiesService) {
+  constructor(
+    propertiesService: PropertiesService,
+    private logger: LoggerService
+  ) {
     super(propertiesService);
   }
   init(node: TreeNode, screenPos: DOMPoint | null, handle: HandleData | null) {
@@ -37,6 +41,12 @@ export class RectTranslateAction extends BaseTransformAction {
         screenPos as DOMPoint
       );
       const bbox = this.node.getBBox();
+      if (!this.start || !bbox) {
+        this.logger.log(
+          "Cannot get start point or bbox of the element. Initialization is failed."
+        );
+        return;
+      }
       this.start.x -= bbox.x;
       this.start.y -= bbox.y;
     }
@@ -44,7 +54,10 @@ export class RectTranslateAction extends BaseTransformAction {
   }
 
   transformByMouse(screenPos: DOMPoint): boolean {
-    if (!screenPos || !this.start) {
+    if (!screenPos || !this.start || !this.node) {
+      this.logger.log(
+        "Rect cannot be transformed. Should be initialized first"
+      );
       return false;
     }
 
@@ -64,6 +77,12 @@ export class RectTranslateAction extends BaseTransformAction {
    * Translate
    */
   translate(x: number | null = null, y: number | null = null): boolean {
+    if (!this.node) {
+      this.logger.log(
+        "Rect cannot be transformed. Should be initialized first"
+      );
+      return false;
+    }
     if (this.initialValues.size === 0) {
       this.saveInitialValues([this.node], [this.propX, this.propY]);
     }

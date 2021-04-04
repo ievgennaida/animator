@@ -13,19 +13,22 @@ const WIREFRAME_CLASS = "wireframe";
   providedIn: "root",
 })
 export class WireframeCommand implements BaseCommand {
-
   changed = new Subject<BaseCommand>();
   get active(): boolean {
-    return this.viewService.playerHost.classList.contains(WIREFRAME_CLASS);
+    return !!this.viewService?.playerHost?.classList.contains(WIREFRAME_CLASS);
   }
   set active(val: boolean) {
     if (this.active === val) {
       return;
     }
+    const host = this.viewService?.playerHost;
+    if (!host) {
+      return;
+    }
     if (!val) {
-      this.viewService.playerHost.classList.remove(WIREFRAME_CLASS);
+      host.classList.remove(WIREFRAME_CLASS);
     } else {
-      this.viewService.playerHost.classList.add(WIREFRAME_CLASS);
+      host.classList.add(WIREFRAME_CLASS);
     }
   }
   tooltip = "Show current svg in wireframe mode.";
@@ -44,7 +47,7 @@ export class WireframeCommand implements BaseCommand {
   canExecute(): boolean {
     return this.outline.rootNode != null && this.viewService.playerHost != null;
   }
-  execute() {
+  execute(): void {
     if (!this.canExecute()) {
       return;
     }

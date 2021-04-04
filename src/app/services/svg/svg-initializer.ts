@@ -18,11 +18,6 @@ export class SvgInitializer implements IInitializer {
     ) {
       throw Error("SVG element is expected");
     }
-    let currentHost = host as SVGSVGElement;
-    if (!currentHost) {
-      currentHost = host.ownerSVGElement;
-    }
-
     let root: any = toSet.documentElement;
     root = root as SVGSVGElement;
 
@@ -33,8 +28,10 @@ export class SvgInitializer implements IInitializer {
     host.innerHTML = "";
     host.append(svgContent);
     document.parsedData = svgContent;
-    const results = new InitResults();
-    results.player = new SvgPlayer(svgContent);
+    const results = {
+      player: new SvgPlayer(svgContent),
+      size: new DOMRect(0, 0, 800, 600),
+    } as InitResults;
     const w = svgContent.width.baseVal;
     const h = svgContent.height.baseVal;
     if (

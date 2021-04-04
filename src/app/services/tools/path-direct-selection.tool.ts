@@ -37,7 +37,7 @@ import { TransformsService } from "./transforms.service";
  * Path direct path data selection
  */
 export class PathDirectSelectionTool extends SelectionTool {
-  iconName = "navigation_outline";
+  icon = "navigation_outline";
   modeSubject = new BehaviorSubject<PathDirectSelectionToolMode>(
     PathDirectSelectionToolMode.select
   );

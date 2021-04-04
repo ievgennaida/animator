@@ -23,8 +23,8 @@ export interface SVGPathSegmentEx {
  * relative or absolute by setting saveAsRelative.
  */
 export class PathDataCommand implements SVGPathSegmentEx {
-  public _a: DOMPoint;
-  public _b: DOMPoint;
+  public _a: DOMPoint | null = null;
+  public _b: DOMPoint | null = null;
   public _x = 0;
   public _y = 0;
 
@@ -243,7 +243,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
       const relCloned = this.cloneCommand();
       relCloned.type = (relCloned.type || "").toLowerCase();
       const calcRelative = this.calculateRelPoint();
-      relCloned.p = calcRelative;
+      if (calcRelative) {
+        relCloned.p = calcRelative;
+      }
       if (relCloned.type !== PathType.arc) {
         const relA = this.calculateRelA();
         if (relA) {
@@ -317,8 +319,10 @@ export class PathDataCommand implements SVGPathSegmentEx {
         prev.type === PathType.cubicBezierAbs
       ) {
         const b = prev.b;
+        const x = b?.x || 0;
+        const y = b?.y || 0;
         // For this mode handle point is calculated.
-        const virtualHandle = new DOMPoint(2 * prev.x - b.x, 2 * prev.y - b.y);
+        const virtualHandle = new DOMPoint(2 * prev.x - x, 2 * prev.y - y);
         return virtualHandle;
       } else {
         return new DOMPoint(prev.x, prev.y);
@@ -329,12 +333,16 @@ export class PathDataCommand implements SVGPathSegmentEx {
       this.type === PathType.smoothQuadraticBezierAbs
     ) {
       if (
-        (prev && prev.type === PathType.smoothQuadraticBezierAbs) ||
-        prev.type === PathType.quadraticBezierAbs
+        prev &&
+        (prev.type === PathType.smoothQuadraticBezierAbs ||
+          prev.type === PathType.quadraticBezierAbs)
       ) {
         // The control point is a reflection of the control point of the previous curve command.
         const a = prev.a;
-        const virtualHandle = new DOMPoint(2 * prev.x - a.x, 2 * prev.y - a.y);
+        const virtualHandle = new DOMPoint(
+          2 * prev.x - (a?.x || 0),
+          2 * prev.y - (a?.y || 0)
+        );
         return virtualHandle;
       } else {
         return new DOMPoint(this.x, this.y);
@@ -358,9 +366,12 @@ export class PathDataCommand implements SVGPathSegmentEx {
   /**
    * get bezier control handle point 'a'.
    */
-  public set a(point: DOMPoint) {
+  public set a(point: DOMPoint | null) {
     // Clean cached point.
     this._a = null;
+    if (!point) {
+      return;
+    }
     const prev = this.prev;
 
     if (
@@ -429,7 +440,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
        */
       if (
         (prev && prev.type === PathType.shorthandSmoothAbs) ||
-        prev.type === PathType.cubicBezierAbs
+        (prev && prev.type === PathType.cubicBezierAbs)
       ) {
         const b = prev.b;
         return prev.changedB;
@@ -440,8 +451,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
       this.type === PathType.smoothQuadraticBezierAbs
     ) {
       if (
-        (prev && prev.type === PathType.smoothQuadraticBezierAbs) ||
-        prev.type === PathType.quadraticBezierAbs
+        prev &&
+        (prev.type === PathType.smoothQuadraticBezierAbs ||
+          prev.type === PathType.quadraticBezierAbs)
       ) {
         return prev.changedA;
       }
@@ -487,7 +499,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
 
     return this._b;
   }
-  public set b(point: DOMPoint) {
+  public set b(point: DOMPoint | null) {
     this._b = null;
     if (point) {
       if (
@@ -516,7 +528,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   /**
    * Arc center
    */
-  public get center(): DOMPoint {
+  public get center(): DOMPoint | null {
     const calResults = this.calcEllipse();
 
     if (!calResults) {
@@ -603,7 +615,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
 
     return false;
   }
-  public getPointOnPath(fractionLength: number): DOMPoint {
+  public getPointOnPath(fractionLength: number): DOMPoint | null {
     const toReturn = this.pointsCache.get(fractionLength);
     if (toReturn) {
       return toReturn;
@@ -638,22 +650,22 @@ export class PathDataCommand implements SVGPathSegmentEx {
 
   public calculateRelative() {}
 
-  public calculateRelPoint(): DOMPoint {
+  public calculateRelPoint(): DOMPoint | null {
     return this.getRel(this.x, this.y);
   }
-  public calculateRelA(): DOMPoint {
+  public calculateRelA(): DOMPoint | null {
     const abs = this;
     const a = abs.a;
     return this.getRel(a ? a.x : null, a ? a.y : null);
   }
-  public calculateRelB(): DOMPoint {
+  public calculateRelB(): DOMPoint | null {
     const b = this.b;
     return this.getRel(b ? b.x : null, b ? b.y : null);
   }
   /** Arc radius point. */
-  public get rx(): number | undefined {
+  public get rx(): number {
     if (!this.isArc()) {
-      return;
+      return 0;
     }
 
     return this.values[0];
@@ -666,9 +678,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.values[0] = value;
     this.cleanCache();
   }
-  public get ry(): number | undefined {
+  public get ry(): number {
     if (!this.isArc()) {
-      return;
+      return 0;
     }
 
     return this.values[1];
@@ -704,9 +716,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
    * the x-axis of the ellipse is rotated by x-axis-rotation
    * degrees relative to the x-axis of the current coordinate system.
    */
-  public get rotation(): number | undefined {
+  public get rotation(): number {
     if (!this.isArc()) {
-      return;
+      return 0;
     }
     return this.values[2];
   }
@@ -720,7 +732,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
   public get large(): boolean {
     if (!this.isArc()) {
-      return;
+      return false;
     }
     return this.values[3] === 1;
   }
@@ -739,7 +751,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    */
   public get sweep(): boolean {
     if (!this.isArc()) {
-      return;
+      return false;
     }
     return this.values[4] === 1;
   }
@@ -774,7 +786,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   /**
    * Get path data command bounds.
    */
-  public getBounds(): DOMRect {
+  public getBounds(): DOMRect | null {
     if (this.type === PathType.moveAbs) {
       return null;
     }
@@ -805,6 +817,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
       // TODO: calculate bounding box of arc
       const r = this.getCalculatedRadius();
       const centerArc = this.center;
+      if (!r || !centerArc) {
+        return null;
+      }
       minX = Math.min(centerArc.x + r.x, minX);
       minX = Math.max(centerArc.x - r.x, minX);
       minY = Math.min(centerArc.y + r.y, minY);

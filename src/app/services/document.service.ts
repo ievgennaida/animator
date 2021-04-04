@@ -16,7 +16,7 @@ export class DocumentService {
   /**
    * Active document subject
    */
-  documentSubject = new BehaviorSubject<InputDocument>(null);
+  documentSubject = new BehaviorSubject<InputDocument | null>(null);
   constructor(
     private appFactory: AppFactory,
     private propertiesService: PropertiesService,
@@ -31,11 +31,7 @@ export class DocumentService {
       this.onDocumentChanged(doc, true);
     });
   }
-  public get document(): Observable<InputDocument> {
-    return this.documentSubject.asObservable();
-  }
-
-  public getDocument(): InputDocument {
+  public getDocument(): InputDocument | null {
     const doc = this.documentSubject.getValue();
     return doc;
   }
@@ -43,10 +39,20 @@ export class DocumentService {
     this.onDocumentChanged(document);
   }
 
-  onDocumentChanged(document: InputDocument, refresh: boolean = false) {
+  onDocumentChanged(
+    document: InputDocument | null,
+    refresh: boolean = false
+  ): void {
+    const docTitle = document?.title || "unknown";
+    if (!document || !this.viewService.playerHost) {
+      console.log(
+        "Cannot initialize null document. Player host should be initialized first."
+      );
+      return;
+    }
     if (!this.viewService.isInit()) {
       this.logger.log(
-        `Viewport is not ready to open the document: ${document.title}.`
+        `Viewport is not ready to open the document: ${docTitle}.`
       );
       return;
     }
@@ -54,16 +60,12 @@ export class DocumentService {
     const initializer = this.appFactory.getViewportInitializer(document.type);
     if (!initializer) {
       this.logger.log(
-        `Cannot open document ${document.title}. Cannot find a parser for file.`
+        `Cannot open document ${document?.title}. Cannot find a parser for file.`
       );
       return;
     }
 
     if (refresh && !initializer.initOnRefresh()) {
-      return;
-    }
-
-    if (!document) {
       return;
     }
 
@@ -78,12 +80,17 @@ export class DocumentService {
       this.playerService.setPlayer(data.player);
       if (!refresh) {
         const rootNodes = this.outlineService.parseDocumentOutline(document);
-        document.rootNode = rootNodes.find((p) => p.isRoot);
-        document.rootNode.expanded = true;
-        this.outlineService.clear();
-        this.outlineService.rootNode = document.rootNode;
-        this.outlineService.setNodes(rootNodes);
-        this.outlineService.syncExpandedState();
+        if (!rootNodes) {
+          return;
+        }
+        document.rootNode = rootNodes.find((p) => p.isRoot) || null;
+        if (document.rootNode) {
+          document.rootNode.expanded = true;
+          this.outlineService.clear();
+          this.outlineService.rootNode = document.rootNode;
+          this.outlineService.setNodes(rootNodes);
+          this.outlineService.syncExpandedState();
+        }
       }
 
       this.documentSubject.next(document);

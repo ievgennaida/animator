@@ -14,8 +14,6 @@ import { BaseCommand } from "./base-command";
   providedIn: "root",
 })
 export class RemoveElementCommand implements BaseCommand {
-
-
   title = "Delete";
   icon = "clear";
   hotkey = "Del";
@@ -37,12 +35,13 @@ export class RemoveElementCommand implements BaseCommand {
     if (selected && selected.length > 0) {
       return true;
     }
+    return false;
   }
   canExecute(): boolean {
     // Check whether all selected can be removed.
     return this.canRemove(this.selectionService.getSelected());
   }
-  execute() {
+  execute(): void {
     if (!this.canExecute()) {
       return;
     }

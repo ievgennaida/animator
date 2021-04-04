@@ -8,7 +8,7 @@ import {
   ChangeDetectorRef,
 } from "@angular/core";
 import { BaseRenderer } from "src/app/services/renderers/base.renderer";
-import { BaseComponent } from 'src/app/components/base-component';
+import { BaseComponent } from "src/app/components/base-component";
 
 @Component({
   selector: "app-player-adorner",
@@ -20,13 +20,13 @@ export class PlayerAdornerComponent extends BaseComponent implements OnInit {
   @Input() renderer: BaseRenderer | null = null;
 
   @ViewChild("canvas", { static: true })
-  canvas: ElementRef<HTMLCanvasElement>;
+  canvas: ElementRef<HTMLCanvasElement> | null = null;
   constructor(private cdRef: ChangeDetectorRef) {
     super();
     cdRef.detach();
   }
   ngOnInit(): void {
-    if (this.renderer) {
+    if (this.renderer && this.canvas?.nativeElement) {
       this.renderer.setCanvas(this.canvas.nativeElement);
     }
     this.cdRef.detectChanges();

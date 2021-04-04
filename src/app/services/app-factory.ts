@@ -12,7 +12,7 @@ export class AppFactory {
   // TODO: inject on demand.
   constructor() {}
 
-  getParser(type: InputDocumentType): IParser {
+  getParser(type: InputDocumentType): IParser | null {
     if (type === InputDocumentType.json) {
       return null;
     } else {
@@ -23,7 +23,7 @@ export class AppFactory {
   /**
    * Viewport initializer.
    */
-  getViewportInitializer(type: InputDocumentType): IInitializer {
+  getViewportInitializer(type: InputDocumentType): IInitializer | null {
     if (type === InputDocumentType.json) {
       return null;
     } else {

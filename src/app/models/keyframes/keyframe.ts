@@ -6,9 +6,9 @@ export class Keyframe implements TimelineKeyframe {
   keyframesShape?: string;
   hidden?: boolean;
   draggable?: boolean;
-  public property: Property = null;
-  public key: string = null;
-  public container: string = null;
+  public property: Property | null = null;
+  public key: string | null = null;
+  public container: string | null = null;
 
   get data() {
     return this;

@@ -39,7 +39,7 @@ export class State<T> {
   public changed: Array<T> = [];
   public added: Array<T> = [];
   public removed: Array<T> = [];
-  public source: StateChangedSource | string;
+  public source: StateChangedSource | string = StateChangedSource.notSet;
   /**
    * Check whether value is set.
    *
@@ -53,7 +53,9 @@ export class State<T> {
  * State subject allow to track array of the pinned objects and list of the pinned states.
  */
 export class StateSubject<T> extends BehaviorSubject<State<T>> {
-  constructor(private changeStateCallback: StateChangeCallback<T> = null) {
+  constructor(
+    private changeStateCallback: StateChangeCallback<T> | null = null
+  ) {
     super(new State<T>());
   }
 
@@ -65,7 +67,7 @@ export class StateSubject<T> extends BehaviorSubject<State<T>> {
     this.change([], ChangeStateMode.normal);
   }
   public change(
-    values: T[] | T,
+    values: T[] | T | null,
     mode: ChangeStateMode = ChangeStateMode.normal,
     source: StateChangedSource | string = StateChangedSource.notSet
   ): boolean {

@@ -43,7 +43,7 @@ export class PathDataUtils {
             // Check that it was not transformed in current cycle.
             !command.changedA &&
             PathDataUtils.isAllowMoveHandleA(commandIndex, command, filters);
-          if (allowedChangeControlPointA) {
+          if (allowedChangeControlPointA && a) {
             command.a = a.matrixTransform(matrix);
             changed = true;
           }
@@ -54,40 +54,42 @@ export class PathDataUtils {
             (manipulateP ||
               PathDataUtils.isAllowMoveHandleB(commandIndex, command, filters));
 
-          if (allowedChangeControlPointB) {
+          if (allowedChangeControlPointB && b) {
             command.b = b.matrixTransform(matrix);
             changed = true;
           }
 
           if (manipulateP && command.type === PathType.arcAbs) {
             const center = command.center;
-            const rx = new DOMPoint(
-              center.x + command.rx,
-              center.y
-            ).matrixTransform(
-              matrix
-                .translate(center.x, center.y)
-                .rotate(command.rotation)
-                .translate(-center.x, -center.y)
-            );
+            if (center) {
+              const rx = new DOMPoint(
+                center.x + command.rx,
+                center.y
+              ).matrixTransform(
+                matrix
+                  .translate(center.x, center.y)
+                  .rotate(command.rotation)
+                  .translate(-center.x, -center.y)
+              );
 
-            const ry = new DOMPoint(
-              center.x,
-              center.y + command.ry
-            ).matrixTransform(
-              matrix
-                .translate(center.x, center.y)
-                .rotate(command.rotation)
-                .translate(-center.x, -center.y)
-            );
+              const ry = new DOMPoint(
+                center.x,
+                center.y + command.ry
+              ).matrixTransform(
+                matrix
+                  .translate(center.x, center.y)
+                  .rotate(command.rotation)
+                  .translate(-center.x, -center.y)
+              );
 
-            const newCenter = center.matrixTransform(matrix);
-            const ryLen = Utils.getDistance(ry, newCenter);
-            const rxLen = Utils.getDistance(rx, newCenter);
-            command.rx = rxLen;
-            command.ry = ryLen;
-            if (command.rx !== rxLen || command.ry !== ryLen) {
-              changed = true;
+              const newCenter = center.matrixTransform(matrix);
+              const ryLen = Utils.getDistance(ry, newCenter);
+              const rxLen = Utils.getDistance(rx, newCenter);
+              command.rx = rxLen;
+              command.ry = ryLen;
+              if (command.rx !== rxLen || command.ry !== ryLen) {
+                changed = true;
+              }
             }
 
             const rotatedMatrix = matrix.rotate(command.rotation);
@@ -121,7 +123,7 @@ export class PathDataUtils {
 
   static allowToManipulatePoint(
     command: PathDataCommand,
-    filters: PathDataHandle[]
+    filters: PathDataHandle[] | null
   ): boolean {
     if (!command || command.isType(PathType.closeAbs)) {
       return false;
@@ -168,7 +170,7 @@ export class PathDataUtils {
             true,
             PathType.moveAbs
           );
-          if (moveCommand.index === command.index) {
+          if (moveCommand?.index === command.index) {
             return true;
           }
         } else if (f.commandIndex === commandIndex) {
@@ -194,7 +196,7 @@ export class PathDataUtils {
   static isAllowMoveHandleA(
     commandIndex: number,
     command: PathDataCommand,
-    filters: PathDataHandle[]
+    filters: PathDataHandle[] | null = null
   ): boolean {
     // Allow to manipulate when no filters are specified.
     if (!filters) {
@@ -220,7 +222,7 @@ export class PathDataUtils {
   static isAllowMoveHandleB(
     commandIndex: number,
     command: PathDataCommand,
-    filters: PathDataHandle[]
+    filters: PathDataHandle[] | null = null
   ): boolean {
     // Allow to manipulate when no filters are specified.
     if (!filters) {

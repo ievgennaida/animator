@@ -34,7 +34,7 @@ export class StepBackwardCommand implements BaseCommand {
     const selected = this.selectionService.getSelected();
     return OrderAction.canSendToBottom(selected);
   }
-  execute() {
+  execute(): void {
     if (this.canExecute && !this.canExecute()) {
       return;
     }

@@ -9,6 +9,6 @@ export interface IParser {
    * @param el element to be converted.
    */
   convertTreeNode(el: any, deep: boolean): TreeNode;
-  isContainer(node: TreeNode): boolean;
+  isContainer(node: TreeNode|null): boolean;
   clone(node: TreeNode,  deep: boolean): TreeNode;
 }
