@@ -141,25 +141,7 @@ export class PathRenderer extends BaseRenderer {
             PathDataHandleType.point
           );
 
-          if (
-            this.logger.isDebug() &&
-            this.debugHandle &&
-            this.debugHandle.allPoints
-          ) {
-            const len = this.debugHandle?.allPoints?.length || 0;
-            this.debugHandle.allPoints.forEach((pointToDraw, i) => {
-              if (!pointToDraw) {
-                return;
-              }
-              this.drawHandle(
-                pointToDraw.matrixTransform(ctm),
-                consts.pathHandleSize,
-                consts.pathHandleStroke,
-                i === len - 1 ? "red" : "green"
-              );
-            });
-          }
-
+          this.drawDebugPoints(ctm);
           this.drawHandlesAndOutlines(node, command, ctm, point, prevPoint);
           if (point) {
             if (abs.isType(PathType.closeAbs)) {
@@ -216,7 +198,29 @@ export class PathRenderer extends BaseRenderer {
 
     this.ctx.restore();
   }
-
+  drawDebugPoints(ctm: DOMMatrix | null): void {
+    if (!ctm) {
+      return;
+    }
+    if (
+      this.logger.isDebug() &&
+      this.debugHandle &&
+      this.debugHandle.allPoints
+    ) {
+      const len = this.debugHandle?.allPoints?.length || 0;
+      this.debugHandle.allPoints.forEach((pointToDraw, i) => {
+        if (!pointToDraw) {
+          return;
+        }
+        this.drawHandle(
+          pointToDraw.matrixTransform(ctm),
+          consts.pathHandleSize,
+          consts.pathHandleStroke,
+          i === len - 1 ? "red" : "green"
+        );
+      });
+    }
+  }
   drawHandlesAndOutlines(
     node: TreeNode,
     abs: PathDataCommand,
@@ -226,11 +230,13 @@ export class PathRenderer extends BaseRenderer {
   ): void {
     const ctx = this.ctx;
     if (!ctx) {
-      console.log("Cannot draw handles, render context is not ready.");
+      this.logger.debug(
+        "Path renderer: Cannot draw handles, render context is not ready."
+      );
       return;
     }
     if (!point || !prevPoint) {
-      console.log("Point cannot be null");
+      this.logger.debug("Path renderer: Point cannot be null");
       return;
     }
     const isCurveSelected = !!this.mouseOverService.pathDataSubject.getHandle(
