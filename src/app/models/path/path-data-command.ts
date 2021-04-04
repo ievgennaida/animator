@@ -519,11 +519,11 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.cleanCache();
   }
 
-  public get prevPoint(): DOMPoint {
-    return new DOMPoint(
-      this.prev ? this.prev.x : 0,
-      this.prev ? this.prev.y : 0
-    );
+  public get prevPoint(): DOMPoint | null {
+    if (!this.prev) {
+      return null;
+    }
+    return new DOMPoint(this.prev.x, this.prev.y);
   }
   /**
    * Arc center
@@ -544,6 +544,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return this.ellipseCache;
     }
     const prev = this.prevPoint;
+    if (!prev) {
+      return null;
+    }
     this.ellipseCache = Utils.ellipseCenter(
       prev.x,
       prev.y,
@@ -565,6 +568,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return this.approxCurves;
     }
     const prev = this.prevPoint;
+    if (!prev) {
+      return null;
+    }
     this.approxCurves = arcToCubicCurves(
       prev.x,
       prev.y,
@@ -791,6 +797,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return null;
     }
     const prev = this.prevPoint;
+    if (!prev) {
+      return null;
+    }
     const p = this.p;
     const a = this.a;
     const b = this.b;

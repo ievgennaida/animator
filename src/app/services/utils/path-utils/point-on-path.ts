@@ -47,14 +47,15 @@ export class PointOnPathUtils {
     const prev = command.prev;
     const a = command.a;
     const b = command.b;
-    const prevPoint = command.prevPoint;
+    // TODO: should be covered with unit tests
+    const prevPoint = command.prevPoint || new DOMPoint(0, 0);
     // A arc
     if (command.type === PathType.arcAbs) {
       const lengthProperties = approximateArcLengthOfCurve(
         300,
         (t: number): PointOnEllipticalArcResults =>
           pointOnEllipticalArc(
-            command.prevPoint,
+            prevPoint,
             command.rx,
             command.ry,
             command.rotation,
@@ -163,7 +164,7 @@ export class PointOnPathUtils {
     const currentPoint = command.p;
     const a = command.a;
     const b = command.b;
-    const prevPoint = command.prevPoint;
+    const prevPoint = command.prevPoint || new DOMPoint(0, 0);
     const prev = command.prev;
     if (command.type === PathType.arcAbs) {
       return pointOnEllipticalArc(
@@ -222,15 +223,11 @@ export class PointOnPathUtils {
         return null;
       }
 
-      return Utils.getPointAtLength(
-        moveCommand.p,
-        command.prevPoint,
-        fractionLength
-      );
+      return Utils.getPointAtLength(moveCommand.p, prevPoint, fractionLength);
     }
 
     // L,H,V or failed Q, T
-    return Utils.getPointAtLength(command.prevPoint, command.p, fractionLength);
+    return Utils.getPointAtLength(prevPoint, command.p, fractionLength);
   }
   /**
    * Get nearest next command by type.

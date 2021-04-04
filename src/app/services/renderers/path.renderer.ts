@@ -10,6 +10,7 @@ import { NearestCommandPoint } from "../intersection.service";
 import { LoggerService } from "../logger.service";
 import { MouseOverService } from "../mouse-over.service";
 import { SelectionService } from "../selection.service";
+import { MatrixUtils } from "../utils/matrix-utils";
 import { PointOnPathUtils } from "../utils/path-utils/point-on-path";
 import { Utils } from "../utils/utils";
 import { ViewService } from "../view.service";
@@ -97,81 +98,71 @@ export class PathRenderer extends BaseRenderer {
     nodes.forEach((node, index) => {
       const data = node.getPathData();
 
-      if (data && data.commands) {
-        if (consts.showPathOutline) {
-          this.drawPathOutline(
-            node,
-            consts.outlineStrokeColor,
-            consts.outlineThickness
-          );
-        }
-        const nodeMatrix = node.getScreenCTM();
-        if (!nodeMatrix) {
+      if (!data || !data.commands) {
+        return;
+      }
+
+      if (consts.showPathOutline) {
+        this.drawPathOutline(
+          node,
+          consts.outlineStrokeColor,
+          consts.outlineThickness
+        );
+      }
+      const nodeMatrix = node.getScreenCTM();
+      if (!nodeMatrix) {
+        return;
+      }
+      const ctm = this.screenCTM.multiply(nodeMatrix);
+      let prevPoint: DOMPoint | null = null;
+      data.forEach((command, commandIndex) => {
+        // const prev = index > 0 ? data.commands[index - 1] : null;
+        if (!command || !command.p) {
           return;
         }
-        const ctm = this.screenCTM.multiply(nodeMatrix);
-        let prevPoint: DOMPoint | null = null;
-        data.forEach((command, commandIndex) => {
-          // const prev = index > 0 ? data.commands[index - 1] : null;
-          const abs = command;
-          if (!abs || !abs.p) {
-            return;
-          }
 
-          const point = abs.p.matrixTransform(ctm);
-          if (!point) {
-            return;
-          }
+        const point = command.p.matrixTransform(ctm);
+        if (!point) {
+          return;
+        }
 
-          /* Debug: Draw command bounds
-          this.drawRect(
-            this.ctx,
-            2,
-            "red",
-            null,
-            MatrixUtils.matrixRectTransform(
-              Utils.shrinkRect(abs.getBounds(), 2, 2),
-              ctm
-            )
-          );*/
+        const isSelected = this.selectionService.pathDataSubject.getHandle(
+          node,
+          command,
+          PathDataHandleType.point
+        );
+        // this.drawDebugPathCommandBounds(abs, ctm);
+        this.drawDebugPoints(ctm);
+        this.drawHandlesAndOutlines(node, command, ctm, point, prevPoint);
+        if (command.isType(PathType.closeAbs)) {
+          return;
+        }
+        const mouseOver = this.mouseOverService.pathDataSubject.getHandle(
+          node,
+          command
+        );
+        let handleStroke = consts.pathPointStroke;
+        let handleFill = consts.pathPointFill;
+        let size = consts.pathPointSize;
+        if (mouseOver) {
+          handleStroke = consts.pathMouseOverPointStroke;
+          handleFill = consts.pathMouseOverPointFill;
+          size = consts.pathPointMouseOverSize;
+        } else if (isSelected) {
+          handleStroke = consts.pathSelectedPointStroke;
+          handleFill = consts.pathSelectedPointFill;
+          size = consts.pathPointSelectedSize;
+        }
 
-          const isSelected = this.selectionService.pathDataSubject.getHandle(
-            node,
-            command,
-            PathDataHandleType.point
-          );
-
-          this.drawDebugPoints(ctm);
-          this.drawHandlesAndOutlines(node, command, ctm, point, prevPoint);
-          if (point) {
-            if (abs.isType(PathType.closeAbs)) {
-              return;
-            }
-            let handleStroke = consts.pathPointStroke;
-            let handleFill = consts.pathPointFill;
-            const mouseOver = this.mouseOverService.pathDataSubject.getHandle(
-              node,
-              command
-            );
-            let size = consts.pathPointSize;
-            if (mouseOver) {
-              handleStroke = consts.pathMouseOverPointStroke;
-              handleFill = consts.pathMouseOverPointFill;
-              size = consts.pathPointMouseOverSize;
-            } else if (isSelected) {
-              handleStroke = consts.pathSelectedPointStroke;
-              handleFill = consts.pathSelectedPointFill;
-              size = consts.pathPointSelectedSize;
-            }
-
-            this.drawPoint(node, point, size, handleStroke, handleFill);
-          }
-
-          prevPoint = point;
-        });
-      }
+        this.drawPoint(node, point, size, handleStroke, handleFill);
+        // Matrix transformed previous point.
+        prevPoint = point;
+      });
     });
-
+    this.drawNewPointMouseOver();
+    this.ctx.restore();
+  }
+  drawNewPointMouseOver(): void {
     // Draw new point to be added
     const values = this.mouseOverService.pathDataSubject
       .getValues()
@@ -195,8 +186,22 @@ export class PathRenderer extends BaseRenderer {
         );
       }
     });
-
-    this.ctx.restore();
+  }
+  drawDebugPathCommandBounds(
+    command: PathDataCommand,
+    ctm: DOMMatrix | null
+  ): void {
+    if (!this.ctx) {
+      return;
+    }
+    // Debug: Draw command bounds
+    this.drawRect(
+      this.ctx,
+      MatrixUtils.matrixRectTransform(command.getBounds(), ctm),
+      2,
+      "red",
+      null
+    );
   }
   drawDebugPoints(ctm: DOMMatrix | null): void {
     if (!ctm) {
@@ -235,6 +240,7 @@ export class PathRenderer extends BaseRenderer {
       );
       return;
     }
+
     if (!point || !prevPoint) {
       this.logger.debug("Path renderer: Point cannot be null");
       return;
