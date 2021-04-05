@@ -546,10 +546,8 @@ export class Utils {
     return Utils.plus(Utils.multiply(a, 1 - t), Utils.multiply(b, t));
   }
   static getPointAtLength(a: DOMPoint, b: DOMPoint, pos: number): DOMPoint {
-    const fraction = pos / Utils.getDistance(a, b);
-    const newDeltaX = (b.x - a.x) * fraction;
-    const newDeltaY = (b.y - a.y) * fraction;
-    return new DOMPoint(a.x + newDeltaX, a.y + newDeltaY);
+    const t = pos / Utils.getDistance(a, b);
+    return Utils.getPointAlong(a, b, t);
   }
 
   static getDistance(a: DOMPoint | null, b: DOMPoint | null): number {
