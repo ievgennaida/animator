@@ -540,6 +540,11 @@ export class Utils {
     vector.y /= mag;
     return vector;
   }
+  static getPointAlong(a: DOMPoint, b: DOMPoint, t: number): DOMPoint {
+    // T is value from 0 to 1
+    t = Utils.keepInBounds(t, 0, 1);
+    return Utils.plus(Utils.multiply(a, 1 - t), Utils.multiply(b, t));
+  }
   static getPointAtLength(a: DOMPoint, b: DOMPoint, pos: number): DOMPoint {
     const fraction = pos / Utils.getDistance(a, b);
     const newDeltaX = (b.x - a.x) * fraction;
