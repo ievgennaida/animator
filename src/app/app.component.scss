@@ -24,8 +24,9 @@ app-main-toolbar {
   overflow: hidden;
 }
 .main-container {
-  grid-template-columns: auto minmax(0, 1fr);
   display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 .player-overlay {
   position: absolute;
@@ -54,7 +55,7 @@ footer {
   height: 45%;
   max-height: 70%;
 }
-app-menu{
+app-menu {
   min-width: 10%;
   width: 300px;
 }
