@@ -422,7 +422,13 @@ export class Utils {
     }
     return element.getCTM();
   }
-
+  public static insertElements<T>(
+    array: T[],
+    elements: T[],
+    index: number
+  ): T[] {
+    return array.splice(index, 0, ...elements);
+  }
   public static insertElement<T>(array: T[], element: T, index: number): T[] {
     return array.splice(index, 0, element);
   }
@@ -543,7 +549,9 @@ export class Utils {
   static getPointAlong(a: DOMPoint, b: DOMPoint, t: number): DOMPoint {
     // T is value from 0 to 1
     t = Utils.keepInBounds(t, 0, 1);
-    return Utils.plus(Utils.multiply(a, 1 - t), Utils.multiply(b, t));
+    a = Utils.multiply(a, 1 - t);
+    b = Utils.multiply(b, t);
+    return Utils.plus(a, b);
   }
   static getPointAtLength(a: DOMPoint, b: DOMPoint, pos: number): DOMPoint {
     const t = pos / Utils.getDistance(a, b);
