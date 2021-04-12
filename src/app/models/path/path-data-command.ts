@@ -10,11 +10,7 @@ import { arcToCubicCurves } from "src/app/services/utils/path-utils/arc-function
 import { PointOnPathUtils } from "src/app/services/utils/path-utils/point-on-path";
 import { CalculatedEllipse, Utils } from "src/app/services/utils/utils";
 import { PathData } from "./path-data";
-// Should be replaced by a DOM type when available.
-export interface SVGPathSegmentEx {
-  type: string;
-  values: number[];
-}
+import { SVGPathSegmentEx } from "./svg-path-segment-ex";
 
 /**
  * Path data command (represents segment of a path data).
@@ -59,13 +55,15 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this.saveAsRelative = this.isRelative(type);
   }
 
-  static isPathCommandType(
+  static isType(
     commandType: PathType | string,
-    type: PathType | string
+    type: PathType | string,
+    ignoreAbs = true
   ): boolean {
     const same =
       commandType === type ||
-      commandType.toUpperCase() === type.toString().toUpperCase();
+      (ignoreAbs &&
+        commandType.toUpperCase() === type.toString().toUpperCase());
     return same;
   }
   static isAbsolutePathCommand(type: PathType | string): boolean {
@@ -263,9 +261,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
   }
 
   public isType(...params: (PathType | string)[]): boolean {
-    return !!params.find((p) =>
-      PathDataCommand.isPathCommandType(this.type, p)
-    );
+    return !!params.find((p) => PathDataCommand.isType(this.type, p));
   }
 
   /**
@@ -273,7 +269,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    */
   public get ownA(): boolean {
     if (
-      this.isType(PathType.shorthandSmoothAbs) ||
+      this.isType(PathType.smoothCubicBezierAbs) ||
       this.isType(PathType.smoothQuadraticBezierAbs) ||
       this.isType(PathType.arcAbs) ||
       (this.values && this.values.length < 3)
@@ -288,7 +284,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
    */
   public get ownB(): boolean {
     if (
-      this.isType(PathType.shorthandSmoothAbs) ||
+      this.isType(PathType.smoothCubicBezierAbs) ||
       this.isType(PathType.arcAbs) ||
       this.values.length >= 6
     ) {
@@ -303,8 +299,8 @@ export class PathDataCommand implements SVGPathSegmentEx {
     const prev = this.prev;
     if (
       // S command
-      this.type === PathType.shorthandSmooth ||
-      this.type === PathType.shorthandSmoothAbs
+      this.type === PathType.smoothCubicBezier ||
+      this.type === PathType.smoothCubicBezierAbs
     ) {
       if (!prev) {
         return null;
@@ -315,7 +311,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
        * is the same as the curve starting point (current point).
        */
       if (
-        prev.type === PathType.shorthandSmoothAbs ||
+        prev.type === PathType.smoothCubicBezierAbs ||
         prev.type === PathType.cubicBezierAbs
       ) {
         const b = prev.b;
@@ -376,14 +372,14 @@ export class PathDataCommand implements SVGPathSegmentEx {
 
     if (
       // S command
-      this.type === PathType.shorthandSmoothAbs
+      this.type === PathType.smoothCubicBezierAbs
     ) {
       if (!prev) {
         return;
       }
 
       if (
-        prev.type === PathType.shorthandSmoothAbs ||
+        prev.type === PathType.smoothCubicBezierAbs ||
         prev.type === PathType.cubicBezierAbs
       ) {
         // Change handle of the prev node.
@@ -430,8 +426,8 @@ export class PathDataCommand implements SVGPathSegmentEx {
     const prev = this.prev;
     if (
       // S command
-      this.type === PathType.shorthandSmooth ||
-      this.type === PathType.shorthandSmoothAbs
+      this.type === PathType.smoothCubicBezier ||
+      this.type === PathType.smoothCubicBezierAbs
     ) {
       /**
        * The start control point is a reflection of the end control point of the previous curve command.
@@ -439,7 +435,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
        * is the same as the curve starting point (current point).
        */
       if (
-        (prev && prev.type === PathType.shorthandSmoothAbs) ||
+        (prev && prev.type === PathType.smoothCubicBezierAbs) ||
         (prev && prev.type === PathType.cubicBezierAbs)
       ) {
         const b = prev.b;
@@ -480,7 +476,7 @@ export class PathDataCommand implements SVGPathSegmentEx {
       return null;
     }
     // S
-    if (this.isType(PathType.shorthandSmoothAbs)) {
+    if (this.isType(PathType.smoothCubicBezierAbs)) {
       if (!this._b) {
         this._b = new DOMPoint();
       }
@@ -503,8 +499,8 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this._b = null;
     if (point) {
       if (
-        this.type === PathType.shorthandSmooth ||
-        this.type === PathType.shorthandSmoothAbs
+        this.type === PathType.smoothCubicBezier ||
+        this.type === PathType.smoothCubicBezierAbs
       ) {
         this.values[0] = point.x;
         this.values[1] = point.y;
@@ -560,6 +556,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
     );
     return this.ellipseCache;
   }
+  /**
+   * Convert arc to bezier cubic curves.
+   */
   public arcApproxCurves(): number[][] | null {
     if (!this.isType(PathType.arcAbs)) {
       return null;
@@ -605,8 +604,8 @@ export class PathDataCommand implements SVGPathSegmentEx {
     this._a = null;
     if (
       // S command
-      this.type === PathType.shorthandSmooth ||
-      this.type === PathType.shorthandSmoothAbs
+      this.type === PathType.smoothCubicBezier ||
+      this.type === PathType.smoothCubicBezierAbs
     ) {
       // Virtual point
       return true;

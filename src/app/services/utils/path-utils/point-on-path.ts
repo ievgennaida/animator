@@ -71,7 +71,7 @@ export class PointOnPathUtils {
       // C
       command.type === PathType.cubicBezierAbs ||
       // S
-      command.type === PathType.shorthandSmoothAbs
+      command.type === PathType.smoothCubicBezierAbs
     ) {
       if (!prev || prev.isType(PathType.closeAbs) || !a || !b) {
         return 0;
@@ -169,7 +169,7 @@ export class PointOnPathUtils {
       );
     } else if (
       // S
-      command.type === PathType.shorthandSmoothAbs ||
+      command.type === PathType.smoothCubicBezierAbs ||
       // C
       command.type === PathType.cubicBezierAbs
     ) {

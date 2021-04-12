@@ -47,7 +47,7 @@ export enum PathType {
    * S shorthand/smooth curveto.
    * (x2 y2 x y)+
    */
-  shorthandSmooth = "s",
+  smoothCubicBezier = "s",
   horizontal = "h",
   vertical = "v",
   close = "z",
@@ -55,10 +55,22 @@ export enum PathType {
   arcAbs = "A",
   moveAbs = "M",
   lineAbs = "L",
+  /**
+   * C - cubic Bezier (x1 y1 x2 y2 x y)+
+   */
   cubicBezierAbs = "C",
+  /**
+   * Q - quadratic Bezier (x1 y1 x y)+
+   */
   quadraticBezierAbs = "Q",
+  /**
+   * T - Shorthand for Q. (x y)+
+   */
   smoothQuadraticBezierAbs = "T",
-  shorthandSmoothAbs = "S",
+  /**
+   * S - Shorthand for C. (x2 y2 x y)+
+   */
+  smoothCubicBezierAbs = "S",
   horizontalAbs = "H",
   verticalAbs = "V",
   closeAbs = "Z",

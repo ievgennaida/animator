@@ -1,6 +1,7 @@
 import { Utils } from "src/app/services/utils/utils";
 import { consts } from "src/environments/consts";
 import { PathDataCommand } from "./path-data-command";
+import { PathDataConverter } from "./path-data-converter";
 import { PathType } from "./path-type";
 export class PathData {
   constructor(public commands: PathDataCommand[] = []) {}
@@ -51,55 +52,6 @@ export class PathData {
     }
 
     return PathData.analyze(elements) as PathData;
-  }
-
-  public static convertCommand(
-    command: PathDataCommand,
-    destinationType: PathType | string,
-    values: number[] | null = null
-  ) {
-    const isAbsolute = PathDataCommand.isAbsolutePathCommand(destinationType);
-    if (PathDataCommand.isPathCommandType(command.type, destinationType)) {
-      // Already the same
-      command.saveAsRelative = !isAbsolute;
-      return;
-    }
-
-    if (PathDataCommand.isPathCommandType(destinationType, PathType.lineAbs)) {
-      if (
-        PathDataCommand.isPathCommandType(command.type, PathType.horizontalAbs)
-      ) {
-        command.values[1] = command.y;
-      } else if (
-        PathDataCommand.isPathCommandType(command.type, PathType.verticalAbs)
-      ) {
-        const y = command.y;
-        command.values[0] = command.x;
-        command.values[1] = y;
-      } else {
-        // Convert any type to line
-        command.values = [command.p.x, command.p.y];
-      }
-    } else if (
-      PathDataCommand.isPathCommandType(destinationType, PathType.moveAbs)
-    ) {
-      if (values) {
-        command.values = values;
-      } else {
-        command.values = [command.p.x, command.p.y];
-      }
-    } else if (
-      PathDataCommand.isPathCommandType(destinationType, PathType.closeAbs)
-    ) {
-      if (values) {
-        command.values = values;
-      } else {
-        command.values = [];
-      }
-    }
-
-    command.saveAsRelative = !isAbsolute;
-    command.type = destinationType;
   }
 
   public static isSameCommandType(typeA: string, typeB: string): boolean {
@@ -218,13 +170,40 @@ export class PathData {
         command.type === PathType.horizontalAbs ||
         command.type === PathType.verticalAbs
       ) {
-        PathData.convertCommand(command, PathType.lineAbs);
+        data.convertCommand(command, PathType.lineAbs);
       }
     });
 
     return data;
   }
-
+  public convertCommand(
+    command: PathDataCommand,
+    destinationType: PathType
+  ): PathDataCommand[] {
+    const convertedItems = PathDataConverter.convertCommand(
+      command,
+      destinationType
+    );
+    this.replaceCommand(command, ...convertedItems);
+    return convertedItems;
+  }
+  public replaceCommand(
+    command: PathDataCommand,
+    ...commands: PathDataCommand[]
+  ) {
+    const index = this.commands.indexOf(command);
+    if (index > 0 && Utils.deleteElement(this.commands, command)) {
+      this.insertCommands(index, commands);
+    } else {
+      console.log("Command to be replaced cannot be found");
+    }
+  }
+  insertCommands(index: number, commandsToAdd: PathDataCommand[]): void {
+    commandsToAdd.forEach((command) => {
+      command.pathData = this;
+    });
+    Utils.insertElements(this.commands, commandsToAdd, index);
+  }
   public clone(): PathData {
     const cloned = new PathData();
     this.forEach((command) => {

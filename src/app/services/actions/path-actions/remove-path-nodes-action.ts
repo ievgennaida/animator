@@ -3,6 +3,7 @@ import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { PathData } from "src/app/models/path/path-data";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
+import { PathDataConverter } from "src/app/models/path/path-data-converter";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { LoggerService } from "../../logger.service";
@@ -78,10 +79,7 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
           // Delete element
         } else {
           // Replace command:
-          PathData.convertCommand(command.next, PathType.moveAbs, [
-            command.next.p.x,
-            command.next.p.y,
-          ]);
+          pathData.convertCommand(command.next, PathType.moveAbs);
         }
       }
       pathData.deleteCommand(command);
@@ -112,10 +110,13 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
         if (command.next.isType(PathType.closeAbs)) {
           // Delete element
         } else {
-          PathData.convertCommand(command, PathType.moveAbs, [
-            command.next.p.x,
-            command.next.p.y,
-          ]);
+          const newValues = [command.next.p.x, command.next.p.y];
+          const newCommands = PathDataConverter.convertCommand(
+            command,
+            PathType.moveAbs
+          );
+          newCommands.forEach((p) => (p.values = newValues));
+          pathData.replaceCommand(command, ...newCommands);
         }
       }
       pathData.deleteCommand(command);
@@ -147,14 +148,14 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
         headOfTheFigure.isType(PathType.moveAbs) &&
         closeCommandOfFigure.isType(PathType.closeAbs);
       // Current element becomes close element:
-      PathData.convertCommand(command, PathType.moveAbs);
+      // TODO: fix this
+      pathData.convertCommand(command, PathType.moveAbs);
       // We should close Z with line and make current element closing element.
       if (isClosed) {
         const allCommands = pathData.commands;
 
         // Close current element element with the line
-        PathData.convertCommand(headOfTheFigure, PathType.lineAbs);
-
+        pathData.convertCommand(headOfTheFigure, PathType.lineAbs);
         if (closeCommandOfFigure) {
           // Reorder path data to keep z closed -> (z will become a line) and current element will be a closing one.
           // It means that current node will become the first node in the collection.

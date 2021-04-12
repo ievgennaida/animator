@@ -277,7 +277,7 @@ export class PathRenderer extends BaseRenderer {
       // draw handles:
       if (
         abs.type === PathType.cubicBezierAbs ||
-        abs.type === PathType.shorthandSmoothAbs
+        abs.type === PathType.smoothCubicBezierAbs
       ) {
         const c = abs;
         let a = c.a;
