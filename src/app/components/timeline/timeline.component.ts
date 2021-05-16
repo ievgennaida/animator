@@ -37,7 +37,8 @@ import { BaseComponent } from "../base-component";
 })
 export class TimelineComponent
   extends BaseComponent
-  implements OnInit, OnDestroy {
+  implements OnInit, OnDestroy
+{
   @Output()
   public timelineScroll: EventEmitter<any> = new EventEmitter();
 
@@ -113,7 +114,8 @@ export class TimelineComponent
     const ds = this.outlineService.flatDataSource;
     const tc = this.outlineService.treeControl;
 
-    ds._flattenedData
+    this.outlineService.flatListSubject
+      ?.asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((flatItems) => {
         this.model.rows.length = 0;

@@ -4,7 +4,7 @@ import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
 } from "@angular/material/tree";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { InputDocument } from "../models/input-document";
 import { Keyframe } from "../models/keyframes/keyframe";
 import { TreeNode } from "../models/tree-node";
@@ -50,8 +50,9 @@ export class OutlineService {
     )
   );
 
-  get flatList() {
-    return this.flatDataSource._flattenedData.asObservable();
+  get flatListSubject(): BehaviorSubject<TreeNode[]> | null {
+    const subject = (this.flatDataSource as any)._flattenedData;
+    return subject as BehaviorSubject<TreeNode[]>;
   }
   constructor(private appFactory: AppFactory, private logger: LoggerService) {
     this.treeControl.expansionModel.changed.subscribe((state) => {
@@ -153,8 +154,9 @@ export class OutlineService {
   }
 
   getAllNodes(): TreeNode[] {
-    if (this.flatDataSource && this.flatDataSource._flattenedData) {
-      return this.flatDataSource._flattenedData.getValue();
+    const subj = this.flatListSubject;
+    if (subj) {
+      return subj.getValue();
     }
     return [];
   }
