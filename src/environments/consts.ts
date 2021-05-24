@@ -2,6 +2,7 @@ import { MenuPanel } from "src/app/services/menu-service";
 import { ViewMode } from "../app/models/view-mode";
 
 export const consts = {
+  xmlns: "http://www.w3.org/2000/svg",
   recentItemsCount: 7,
   /**
    * Digits after coma for a path data.
@@ -121,9 +122,9 @@ export const consts = {
   translateHandleOffsetY: 25,
   translateHandleSize: 12,
   translateHandleThickness: 1,
-  translateHandleColor: '#3399FF',
-  translateHandleMouseOverColor: '#3399FF',
-  translateHandleMouseOverFillColor: '#FFFFFF'
+  translateHandleColor: "#3399FF",
+  translateHandleMouseOverColor: "#3399FF",
+  translateHandleMouseOverFillColor: "#FFFFFF",
 };
 
 export const enum PanelsIds {

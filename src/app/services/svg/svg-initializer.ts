@@ -2,7 +2,7 @@ import { IInitializer, InitResults } from "../../models/interfaces/initializer";
 import { InputDocument } from "src/app/models/input-document";
 import { SvgPlayer } from "./svg-player";
 import { SVGElementType } from "./svg-element-type";
-const xmlns = "http://www.w3.org/2000/svg";
+
 export class SvgInitializer implements IInitializer {
   constructor() {}
   initOnRefresh(): boolean {

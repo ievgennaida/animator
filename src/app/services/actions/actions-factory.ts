@@ -1,7 +1,7 @@
 import { Injectable, Injector, Type } from "@angular/core";
 
 /**
- * Resolve action dependencies and create new instance on each call.
+ * Resolve action dependencies and create new instance on each call!
  */
 @Injectable({
   providedIn: "root",

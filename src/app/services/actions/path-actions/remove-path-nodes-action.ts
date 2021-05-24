@@ -7,7 +7,6 @@ import { PathDataConverter } from "src/app/models/path/path-data-converter";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { LoggerService } from "../../logger.service";
-import { OutlineService } from "../../outline.service";
 import {
   PathDataPropertyKey,
   PropertiesService,
@@ -39,7 +38,6 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
    */
   indexes: number[] = [];
   constructor(
-    private outlineService: OutlineService,
     private selectionService: SelectionService,
     propertiesService: PropertiesService,
     private logger: LoggerService
@@ -56,48 +54,21 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
     }
   }
 
-  isSegmentEnd(command: PathDataCommand | null): boolean {
-    return (
-      !command ||
-      !command?.pathData ||
-      command.isType(PathType.closeAbs) ||
-      //
-      command.index === command?.pathData?.commands?.length - 1
-    );
-  }
   removeNode(command: PathDataCommand): void {
     const pathData = command.pathData;
     if (!pathData) {
       this.logger.warn("Cannot remove node. path Data cannot be empty");
       return;
     }
-    if (command.isType(PathType.moveAbs) && command.next) {
-      // In this case replace make no sense:
-      const nextNodeClose = this.isSegmentEnd(command.next);
-      if (!nextNodeClose) {
-        if (command.next.isType(PathType.closeAbs)) {
-          // Delete element
-        } else {
-          // Replace command:
-          pathData.convertCommand(command.next, PathType.moveAbs);
-        }
-      }
-      pathData.deleteCommand(command);
-      if (nextNodeClose && command.next) {
-        pathData.deleteCommand(command.next);
-      }
-    } else {
-      pathData.deleteCommand(command);
-    }
-    if (!command.next) {
-      return;
-    }
-    if (
-      command.next.isType(PathType.moveAbs) &&
-      command.next.isType(PathType.closeAbs)
-    ) {
-    }
+    pathData.removeCommand(command);
   }
+
+  /**
+   * Remove segment connecting command and previous.
+   *
+   * @param command to remove.
+   *
+   */
   removeSegment(command: PathDataCommand) {
     const pathData = command.pathData;
     if (!pathData) {
@@ -105,7 +76,7 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
       return;
     }
     if (command.isType(PathType.moveAbs)) {
-      const nextNodeClose = this.isSegmentEnd(command.next);
+      const nextNodeClose = pathData.isSegmentEnd(command.next);
       if (!nextNodeClose && command.next) {
         if (command.next.isType(PathType.closeAbs)) {
           // Delete element
@@ -143,54 +114,55 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
         PathType.moveAbs
       );
       const isClosed =
-        headOfTheFigure &&
-        closeCommandOfFigure &&
-        headOfTheFigure.isType(PathType.moveAbs) &&
-        closeCommandOfFigure.isType(PathType.closeAbs);
-      // Current element becomes close element:
-      // TODO: fix this
-      pathData.convertCommand(command, PathType.moveAbs);
+        (headOfTheFigure &&
+          closeCommandOfFigure &&
+          headOfTheFigure.isType(PathType.moveAbs) &&
+          closeCommandOfFigure.isType(PathType.closeAbs)) ||
+        false;
+      const commandIndex = command.index;
+      const prevCommand = command.prev;
+      const nextCommand = command.next;
+      let closeCommandIndex = -1;
+      if (closeCommandOfFigure) {
+        closeCommandIndex = closeCommandOfFigure.index;
+      }
       // We should close Z with line and make current element closing element.
       if (isClosed) {
-        const allCommands = pathData.commands;
+        const headIndex = headOfTheFigure.index;
+        if (closeCommandIndex !== -1) {
+          // Reorder path data to keep z closed -> (z will become a line) and current element will be a closing one.
+          // It means that current node will become the first node in the collection.
+          pathData.moveCommands(
+            headIndex,
+            commandIndex,
+            closeCommandIndex - commandIndex
+          );
+        }
 
         // Close current element element with the line
         pathData.convertCommand(headOfTheFigure, PathType.lineAbs);
-        if (closeCommandOfFigure) {
-          // Reorder path data to keep z closed -> (z will become a line) and current element will be a closing one.
-          // It means that current node will become the first node in the collection.
-          for (let i = command.index; i <= closeCommandOfFigure.index; i++) {
-            const isClose = closeCommandOfFigure.index === i;
-            const toMove = allCommands[i];
-            pathData.deleteCommand(toMove);
-            if (!isClose) {
-              const headIndex = allCommands.indexOf(headOfTheFigure);
-              Utils.insertElement(allCommands, toMove, headIndex);
-            }
-          }
-        }
       }
-
-      let toAnalyze = command.prev;
-      // Remove prev commands if necessary.
-      while (toAnalyze && toAnalyze.isType(PathType.moveAbs)) {
-        pathData.deleteCommand(toAnalyze);
-        toAnalyze = command.prev;
-      }
-
-      toAnalyze = command.next;
+      // Current element becomes close element:
+      // Remove next commands if necessary.
       if (
-        !command.next ||
-        command.next.isType(PathType.moveAbs, PathType.closeAbs)
+        //isClosed ||
+        !nextCommand ||
+        nextCommand.isType(PathType.moveAbs, PathType.closeAbs)
       ) {
         pathData.deleteCommand(command);
+      } else {
+        pathData.convertCommand(command, PathType.moveAbs);
       }
-      /*
-      // Remove next commands if necessary.
-      while (toAnalyze && toAnalyze.isType(PathType.moveAbs)) {
-        pathData.deleteCommand(toAnalyze);
-        toAnalyze = command.next;
-      }*/
+
+      // Remove prev commands if necessary.
+      if (prevCommand) {
+        pathData.removeCommandsChainByType(
+          prevCommand,
+          false,
+          true,
+          PathType.move
+        );
+      }
     }
   }
 

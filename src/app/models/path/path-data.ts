@@ -176,6 +176,31 @@ export class PathData {
 
     return data;
   }
+  /**
+   * Remove all commands starting from current by type.
+   */
+  removeCommandsChainByType(
+    command: PathDataCommand | null,
+    includeSelf = false,
+    directionLeft = false,
+    type: PathType = PathType.moveAbs
+  ) {
+    if (!command) {
+      return;
+    }
+    let toCheck: PathDataCommand | null = command;
+    if (!includeSelf) {
+      toCheck = (directionLeft ? command?.prev : command?.next) || null;
+    }
+    // Remove prev commands if necessary.
+    while (toCheck && toCheck.isType(type)) {
+      const nextToCheck: PathDataCommand | null = directionLeft
+        ? toCheck?.prev
+        : toCheck?.next;
+      this.deleteCommand(toCheck);
+      toCheck = nextToCheck;
+    }
+  }
   public convertCommand(
     command: PathDataCommand,
     destinationType: PathType
@@ -187,16 +212,102 @@ export class PathData {
     this.replaceCommand(command, ...convertedItems);
     return convertedItems;
   }
+  isSegmentEnd(command: PathDataCommand | null): boolean {
+    return (
+      !command ||
+      !command?.pathData ||
+      command.isType(PathType.closeAbs) ||
+      //
+      command.index === command?.pathData?.commands?.length - 1
+    );
+  }
+
+  getSegment(command: PathDataCommand): PathDataCommand[] {
+    const commands: PathDataCommand[] = [];
+    if (!command) {
+      return commands;
+    }
+    commands.push(command);
+    if (!command.isType(PathType.moveAbs)) {
+      let nextPrev = command.prev;
+      while (nextPrev) {
+        commands.push(nextPrev);
+        if (
+          nextPrev.isType(PathType.closeAbs) ||
+          nextPrev.isType(PathType.moveAbs)
+        ) {
+          break;
+        }
+        nextPrev = nextPrev.prev;
+      }
+    }
+    commands.reverse();
+    let toCheck = command.next;
+    if (command && !command.isType(PathType.closeAbs)) {
+      while (toCheck && !toCheck.isType(PathType.moveAbs)) {
+        commands.push(toCheck);
+        if (toCheck.isType(PathType.closeAbs)) {
+          break;
+        }
+        toCheck = toCheck.next;
+      }
+    }
+    return commands;
+  }
+  /**
+   * Remove command and keep structure of path data.
+   * Use deleteCommand to delete the exact command.
+   */
+  removeCommand(command: PathDataCommand): boolean {
+    if (!command) {
+      return false;
+    }
+
+    const segmentCommands = this.getSegment(command);
+    const commands = segmentCommands.filter(
+      (p) => p !== command && !p.isType(PathType.moveAbs, PathType.closeAbs)
+    );
+    const count = command.isType(PathType.moveAbs)
+      ? commands.length - 1
+      : commands.length;
+    const removeSegment = count === 0;
+    if (removeSegment) {
+      // Remove full segment, no sense to keep it while only closed nodes exists.
+      for (let i = segmentCommands.length - 1; i >= 0; i--) {
+        const toRemove = segmentCommands[i] || null;
+        this.deleteCommand(toRemove);
+      }
+      return true;
+    }
+
+    const pathData = command.pathData;
+    const nextCommand = command.next;
+    if (command.isType(PathType.moveAbs) && nextCommand) {
+      // In this case replace make no sense:
+      const nextNodeClose = this.isSegmentEnd(nextCommand);
+      if (!nextNodeClose) {
+        // Replace command:
+        this.convertCommand(nextCommand, PathType.moveAbs);
+      }
+      this.deleteCommand(command);
+    } else {
+      this.deleteCommand(command);
+    }
+    return true;
+  }
+
   public replaceCommand(
     command: PathDataCommand,
     ...commands: PathDataCommand[]
-  ) {
+  ): boolean {
     const index = this.commands.indexOf(command);
-    if (index > 0 && Utils.deleteElement(this.commands, command)) {
+    if (index >= 0 && Utils.deleteElement(this.commands, command)) {
       this.insertCommands(index, commands);
+      return true;
     } else {
       console.log("Command to be replaced cannot be found");
     }
+    return false;
   }
   insertCommands(index: number, commandsToAdd: PathDataCommand[]): void {
     commandsToAdd.forEach((command) => {
@@ -214,6 +325,20 @@ export class PathData {
     return cloned;
   }
 
+  moveCommands(
+    toIndex: number,
+    commandIndex: number,
+    elementsToMove: number = 1
+  ) {
+    const elementsToTake: PathDataCommand[] = this.commands.slice(
+      commandIndex,
+      commandIndex + elementsToMove
+    );
+    // Delete
+    this.commands.splice(commandIndex, elementsToTake.length);
+    // Insert
+    this.commands.splice(toIndex, 0, ...elementsToTake);
+  }
   deleteCommand(command: PathDataCommand | null): boolean {
     if (!command) {
       return false;
