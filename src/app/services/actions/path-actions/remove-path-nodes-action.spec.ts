@@ -1,12 +1,9 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { assert } from "console";
-import { PathData } from "src/app/models/path/path-data";
+import { TestBed } from "@angular/core/testing";
 import { PathDataCommand } from "src/app/models/path/path-data-command";
 import {
   getTestPathData,
-  pathDataToString,
+  pathDataToString
 } from "src/app/models/path/path-data.spec";
-import { consts } from "src/environments/consts";
 import { ActionsFactory } from "../actions-factory";
 import { RemovePathNodesAction } from "./remove-path-nodes-action";
 
@@ -35,7 +32,7 @@ const assertRemovePathNode = (
     expect(output).toEqual(outputPathData);
   }
 };
-describe("Remove Path Data Actions Tests", () => {
+describe("Remove Path Data Nodes Tests", () => {
   beforeEach(() => TestBed.configureTestingModule({}));
   it("Should remove move node", () =>
     assertRemovePathNode(
@@ -136,9 +133,9 @@ describe("Remove Path Data Actions Tests", () => {
       "M 0 0 L 1 1 Z M 4 4 L 5 5",
       3
     ));
-  it("Should remove segment by M removal", () =>
+  it("Should remove segment by M node removal", () =>
     assertRemovePathNode("M 0 0 L 1 1 Z", "", 0));
-  it("Should remove segment by L removal", () =>
+  it("Should remove segment by L node removal", () =>
     assertRemovePathNode("M 0 0 L 1 1 Z", "", 1));
   it("Should keep segment by L removal", () =>
     assertRemovePathNode("M 0 0 L 1 1 L 2 2", "M 0 0 L 2 2", 1));

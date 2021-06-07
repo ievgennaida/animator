@@ -325,20 +325,30 @@ export class PathData {
     return cloned;
   }
 
-  moveCommands(
-    toIndex: number,
-    commandIndex: number,
-    elementsToMove: number = 1
-  ) {
-    const elementsToTake: PathDataCommand[] = this.commands.slice(
-      commandIndex,
-      commandIndex + elementsToMove
-    );
+  moveCommands(from: number, to: number, elementsToMove: number = 1): boolean {
+    if (
+      from === to ||
+      from < 0 ||
+      to < 0 ||
+      from >= this.commands.length ||
+      to >= this.commands.length ||
+      elementsToMove <= 0
+    ) {
+      return false;
+    }
     // Delete
-    this.commands.splice(commandIndex, elementsToTake.length);
+    const elementsToTake: PathDataCommand[] = this.commands.splice(
+      from,
+      elementsToMove
+    );
+    if (from < to) {
+      to -= elementsToTake.length - 1;
+    }
     // Insert
-    this.commands.splice(toIndex, 0, ...elementsToTake);
+    this.commands.splice(to, 0, ...elementsToTake);
+    return true;
   }
+
   deleteCommand(command: PathDataCommand | null): boolean {
     if (!command) {
       return false;

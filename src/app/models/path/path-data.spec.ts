@@ -163,8 +163,9 @@ describe("PathData", () => {
     if (!data) {
       return;
     }
-    // M1,2 H20 to start
-    data.moveCommands(0, 2, 2);
+    // m1,1, v20 to start
+    const moved = data.moveCommands(2, 0, 2);
+    expect(moved).toEqual(true);
 
     expect(true).toEqual(data.commands[0].isType(PathType.move));
     expect(true).toEqual(data.commands[1].isType(PathType.vertical));
@@ -180,7 +181,7 @@ describe("PathData", () => {
       return;
     }
     // M1,2 H20 to end
-    data.moveCommands(data.commands.length - 1, 2, 2);
+    data.moveCommands(2, data.commands.length - 1, 2);
     const len = data.commands.length;
     expect(true).toEqual(data.commands[len - 3].isType(PathType.arc));
     expect(true).toEqual(data.commands[len - 2].isType(PathType.move));
