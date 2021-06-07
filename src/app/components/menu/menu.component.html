@@ -10,10 +10,10 @@
                 <mat-icon>close</mat-icon>
             </button>
         </div>
-        <app-outline class="panel-content" *ngIf="panel.expanded && panel.id == 'outline'" [allowScroll]="true">
+        <app-outline class="panel-content" *ngIf="panel.expanded && panel.id === 'outline'" [allowScroll]="true">
         </app-outline>
-        <app-properties class="panel-content" *ngIf="panel.expanded && panel.id == 'properties'"></app-properties>
-        <app-history class="panel-content" *ngIf="panel.expanded && panel.id == 'history'"></app-history>
+        <app-properties class="panel-content" *ngIf="panel.expanded && panel.id === 'properties'"></app-properties>
+        <app-history class="panel-content" *ngIf="panel.expanded && panel.id === 'history'"></app-history>
         <div *ngIf="panel.expanded && i !== panels.length-1 && lastExpandedIndex !== i" class="resize"
             [style.height.px]="resizeCursorPrecision" (mousedown)="dragStartedNode($event, i)">
         </div>
