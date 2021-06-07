@@ -84,6 +84,7 @@ Used to capture mouse over events for the g containers.*/
     vertical-align: middle;
     height: 20px;
     width: 20px;
+    overflow: hidden;
   }
 }
 
@@ -111,6 +112,7 @@ Used to capture mouse over events for the g containers.*/
 .mat-button {
   border-radius: 0px !important;
   border: none;
+  overflow: hidden;
 }
 
 .mat-button-toggle-group {
