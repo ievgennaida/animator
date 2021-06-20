@@ -20,10 +20,6 @@ export class CursorService {
   cursorSubject = new BehaviorSubject<CursorType>(
     this.defaultCursorSubject.getValue()
   );
-  public get changed(): Observable<CursorType> {
-    return this.cursorSubject.asObservable();
-  }
-
   public setDefaultCursor(cursor: CursorType, applyToActiveCursor = true) {
     if (cursor !== this.defaultCursorSubject.getValue()) {
       this.defaultCursorSubject.next(cursor);

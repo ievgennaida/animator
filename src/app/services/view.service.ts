@@ -47,7 +47,7 @@ export class ViewService implements ICTMProvider {
   /**
    * On elements count of the svg is changed. deleted, added etc.
    */
-  elementsChangedSubject = new Subject();
+  elementsChangedSubject = new Subject<void>();
   constructor() {
     this.transformed.subscribe(() => {
       if (this.viewport) {
@@ -117,14 +117,6 @@ export class ViewService implements ICTMProvider {
     } else {
       this.viewportResizedSubject.next(area);
     }
-  }
-
-  public get elementsChanged(): Observable<any> {
-    return this.elementsChangedSubject.asObservable();
-  }
-
-  public get viewportInitialized(): Observable<SVGGraphicsElement | null> {
-    return this.viewportSubject.asObservable();
   }
 
   public get viewport(): SVGGraphicsElement | null {

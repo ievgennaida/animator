@@ -21,16 +21,16 @@ export interface MenuPanel {
   providedIn: "root",
 })
 export class MenuService {
-  menuChanged = new BehaviorSubject<MenuPanel[]>(this.config.getPanelsConfig());
+  menuChangedSubject = new BehaviorSubject<MenuPanel[]>(this.config.getPanelsConfig());
 
   constructor(private config: ConfigService, private viewService: ViewService) {
-    this.viewService.viewModeSubject.asObservable().subscribe((mode) => {
+    this.viewService.viewModeSubject.subscribe((mode) => {
       const animator = mode === ViewMode.animator;
       const menu = this.getMenu();
       const outline = menu.find((p) => p.id === PanelsIds.outline);
       if (outline) {
         outline.visible = !animator;
-        this.menuChanged.next(menu);
+        this.menuChangedSubject.next(menu);
       }
     });
   }
@@ -49,7 +49,7 @@ export class MenuService {
         panel.visible = visibility;
         this.config.save();
         // Rise event that panels updated:
-        this.menuChanged.next(this.menuChanged.getValue());
+        this.menuChangedSubject.next(this.menuChangedSubject.getValue());
       }
     }
   }
@@ -58,7 +58,7 @@ export class MenuService {
     return visible;
   }
   getMenu(): MenuPanel[] {
-    return this.menuChanged.getValue();
+    return this.menuChangedSubject.getValue();
   }
   saveMenuSettings() {
     // TODO: size of the menu should be saved. current collection can be used already.

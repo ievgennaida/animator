@@ -241,14 +241,12 @@ export class AppComponent extends BaseComponent implements OnInit {
     });
 
     this.viewService.menuVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         this.menuVisible = visible;
         this.viewService.emitViewportResized();
       });
     this.viewService.viewModeSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((mode) => {
         if (this.mode !== mode) {
@@ -258,7 +256,6 @@ export class AppComponent extends BaseComponent implements OnInit {
 
     this.hotkeys.initialize();
     this.viewService.codeVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (this.codeVisible !== visible) {
@@ -268,7 +265,6 @@ export class AppComponent extends BaseComponent implements OnInit {
       });
 
     this.viewService.breadcrumbsVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (this.breadcrumbsVisible !== visible) {

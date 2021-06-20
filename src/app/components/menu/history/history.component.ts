@@ -50,7 +50,6 @@ export class HistoryComponent extends BaseComponent implements OnInit {
         this.cdRef.detectChanges();
       });
     this.undoService.actionIndexSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((activeIndex) => {
         this.updateHoverAndSelectedEffects();
@@ -59,7 +58,6 @@ export class HistoryComponent extends BaseComponent implements OnInit {
         }, this.nextTickTimeout);
       });
     this.undoService.actionsSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.updateItems();

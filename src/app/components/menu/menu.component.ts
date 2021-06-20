@@ -77,8 +77,7 @@ export class MenuComponent extends BaseComponent implements OnInit, OnDestroy {
 
     this.viewService.emitViewportResized();
 
-    this.menuService.menuChanged
-      .asObservable()
+    this.menuService.menuChangedSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.panels = this.menuService.getVisibleMenu();

@@ -45,7 +45,7 @@ export class WireService {
     documentService: DocumentService,
     pathRenderer: PathRenderer
   ) {
-    toolsService.activeToolChanged().subscribe((activeTool) => {
+    toolsService.activeToolSubject.subscribe((activeTool) => {
       BaseRenderer.invalidateOnceAfter(
         () => {
           const isSelectionToolActive =
@@ -80,7 +80,7 @@ export class WireService {
         this.buildPathDataSelectionAdorner();
       }, boundsRenderer);
     });
-    selectionService.selected.subscribe((state) => {
+    selectionService.selectedSubject.subscribe((state) => {
       BaseRenderer.invalidateOnceAfter(
         () => {
           // Remove mouse over path data states:

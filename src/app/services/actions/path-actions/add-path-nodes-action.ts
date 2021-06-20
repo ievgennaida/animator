@@ -1,7 +1,5 @@
 import { Injectable } from "@angular/core";
-import {
-  PathDataHandle
-} from "src/app/models/path-data-handle";
+import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathDataHandleType } from "src/app/models/path-data-handle-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
@@ -52,10 +50,16 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
   }
 
   commit() {
+    if (!this.nodes) {
+      return;
+    }
     this.saveInitialValues(this.nodes, [PathDataPropertyKey]);
 
     this.nodes.forEach((node) => {
       const pathData = node.getPathData();
+      if (!pathData || !this.items) {
+        return;
+      }
       this.items.forEach((p) => {
         if (p.type === PathDataHandleType.point && p.node === node) {
           // data.deleteCommand(p.command);
@@ -71,9 +75,7 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
   }
   init(items: PathDataHandle[]) {
     // Important, clone the reference to keep it for undo service
-    const filtered = items.filter(
-      (p) => p.type === PathDataHandleType.point
-    );
+    const filtered = items.filter((p) => p.type === PathDataHandleType.point);
     this.items = [...filtered];
     this.nodes = Utils.distinctElement(items.map((p) => p.node));
     this.title = `Add: ${Utils.getTreeNodesTitle(this.nodes)}`;

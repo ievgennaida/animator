@@ -1,9 +1,7 @@
 import { Injectable } from "@angular/core";
 import { merge, Subject } from "rxjs";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import {
-  GroupAction
-} from "../../actions/group-actions/group-action";
+import { GroupAction } from "../../actions/group-actions/group-action";
 import { GroupMode } from "../../actions/group-actions/group-mode";
 import { OutlineService } from "../../outline.service";
 import { SelectionService } from "../../selection.service";
@@ -25,8 +23,8 @@ export class GroupCommand implements BaseCommand {
     private undoService: UndoService
   ) {
     merge(
-      this.selectionService.selected,
-      this.outlineService.nodes
+      this.selectionService.selectedSubject,
+      this.outlineService.nodesSubject
     ).subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

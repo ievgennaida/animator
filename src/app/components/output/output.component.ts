@@ -37,7 +37,6 @@ export class OutputComponent
 
   ngOnInit(): void {
     this.documentService.documentSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((document) => {
         this.ngZone.runOutsideAngular(() => {

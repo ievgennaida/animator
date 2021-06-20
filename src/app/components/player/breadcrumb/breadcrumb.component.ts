@@ -32,7 +32,7 @@ export class BreadcrumbComponent
     this.cdRef.detach();
   }
   ngOnInit(): void {
-    this.selectionService.selected
+    this.selectionService.selectedSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe((event: State<TreeNode>) => {
         if (event.hasAny()) {

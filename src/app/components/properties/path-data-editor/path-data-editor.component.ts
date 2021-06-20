@@ -144,7 +144,6 @@ export class PathDataEditorComponent
       });
 
     this.propertiesService.changedSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p) => {
         if (p.key === PathDataPropertyKey && p.node === this.property?.node) {

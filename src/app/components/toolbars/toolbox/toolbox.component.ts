@@ -29,7 +29,7 @@ export class ToolboxComponent extends BaseComponent implements OnInit {
     this.tools = this.toolsService.tools;
     this.activeTool = this.toolsService.getActiveTool();
     this.toolsService
-      .activeToolChanged()
+      .activeToolSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe((tool) => {
         this.activeTool = tool;

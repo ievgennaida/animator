@@ -20,8 +20,8 @@ export class BasePathNodesCommand implements BaseCommand {
     return this.pathDirectSelectionTool.mode === this.expectedMode;
   }
   constructor(
-    private pathDirectSelectionTool: PathDirectSelectionTool,
-    private undoService: UndoService
+    protected pathDirectSelectionTool: PathDirectSelectionTool,
+    protected undoService: UndoService
   ) {
     merge(
       this.undoService.actionIndexSubject,

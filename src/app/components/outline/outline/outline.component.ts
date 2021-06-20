@@ -59,7 +59,7 @@ export class OutlineComponent extends BaseComponent implements OnInit {
         this.cdRef.detectChanges();
       });
 
-    this.selectionService.selected
+    this.selectionService.selectedSubject
       .pipe(
         takeUntil(this.destroyed$),
         // Debounce a bit to avoid stuck on click

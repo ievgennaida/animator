@@ -121,10 +121,6 @@ export class SelectionService {
     this.setSelected(null);
   }
 
-  public get selected(): Observable<State<TreeNode>> {
-    return this.selectedSubject.asObservable();
-  }
-
   selectSameType(): TreeNode[] {
     const types = this.getSelected().map((p) => p.type);
     return this.selectByTypes(types);

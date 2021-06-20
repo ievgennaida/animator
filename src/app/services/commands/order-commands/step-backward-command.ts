@@ -26,8 +26,8 @@ export class StepBackwardCommand implements BaseCommand {
     private undoService: UndoService
   ) {
     merge(
-      this.selectionService.selected,
-      this.outlineService.nodes
+      this.selectionService.selectedSubject,
+      this.outlineService.nodesSubject
     ).subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

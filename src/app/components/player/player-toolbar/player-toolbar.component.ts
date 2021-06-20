@@ -1,16 +1,12 @@
 import {
-  Component,
-  OnInit,
-  ChangeDetectorRef,
-  OnDestroy,
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit
 } from "@angular/core";
-import { ZoomTool } from "src/app/services/tools/zoom.tool";
 import { takeUntil } from "rxjs/operators";
-import { ToolsService } from "src/app/services/tools/tools.service";
-import { PanTool } from "src/app/services/tools/pan.tool";
-import { ViewService } from "src/app/services/view.service";
 import { GridLinesRenderer } from "src/app/services/renderers/grid-lines.renderer";
+import { PanTool } from "src/app/services/tools/pan.tool";
+import { ToolsService } from "src/app/services/tools/tools.service";
+import { ZoomTool } from "src/app/services/tools/zoom.tool";
+import { ViewService } from "src/app/services/view.service";
 import { BaseComponent } from "../../base-component";
 
 @Component({
@@ -37,7 +33,6 @@ export class PlayerToolbarComponent
   }
   ngOnInit(): void {
     this.gridLinesRenderer.gridLinesVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (visible !== this.showGridLines) {
@@ -46,7 +41,6 @@ export class PlayerToolbarComponent
         }
       });
     this.gridLinesRenderer.rulerVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (visible !== this.rulerVisible) {

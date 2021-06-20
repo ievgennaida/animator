@@ -19,7 +19,6 @@ export class RedoCommand implements BaseCommand {
   constructor(private undoService: UndoService) {
     // Command is singleton, no need to unsubscribe.
     this.undoService.actionIndexSubject
-      .asObservable()
       .subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

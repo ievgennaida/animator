@@ -42,7 +42,7 @@ export class PropertiesComponent
   }
 
   ngOnInit(): void {
-    this.selectionService.selected
+    this.selectionService.selectedSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p: State<TreeNode>) => {
         if (p.values) {

@@ -18,7 +18,6 @@ export class SelectNoneCommand implements BaseCommand {
   iconSVG = false;
   constructor(private selectionService: SelectionService) {
     this.selectionService.selectedSubject
-      .asObservable()
       .subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

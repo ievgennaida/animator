@@ -49,7 +49,6 @@ export class DynamicContextMenuComponent
       this.commands.forEach((p) => {
         if (p && p.changed) {
           p.changed
-            .asObservable()
             // destroy on commands list changed or when component is unloaded:
             .pipe(takeUntil(this.commandChanged$), takeUntil(this.destroyed$))
             .subscribe(() => {

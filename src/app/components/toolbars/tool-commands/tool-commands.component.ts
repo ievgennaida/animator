@@ -35,7 +35,7 @@ export class ToolCommandsComponent extends BaseComponent implements OnInit {
       this.toolsService.getActiveTool()
     );
     this.toolsService
-      .activeToolChanged()
+      .activeToolSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe((tool) => {
         if (tool) {

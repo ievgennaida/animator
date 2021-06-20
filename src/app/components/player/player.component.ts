@@ -245,7 +245,7 @@ export class PlayerComponent
   ngOnInit(): void {
     this.out(() => {
       this.calcRealScrollBarSize();
-      this.cursor.changed
+      this.cursor.cursorSubject
         .pipe(takeUntil(this.destroyed$))
         .subscribe((cursor: CursorType) => {
           const el = this.svgContainer?.nativeElement;
@@ -259,7 +259,6 @@ export class PlayerComponent
 
     // Mouse over mode.
     this.mouseOverService.mouseOverModeSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((mode) => {
         if (this.playerRef && this.playerRef.nativeElement) {
@@ -274,7 +273,6 @@ export class PlayerComponent
       });
 
     this.gridLinesRenderer.rulerVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (this.rulerVisible !== visible) {

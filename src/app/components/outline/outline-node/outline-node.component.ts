@@ -72,7 +72,7 @@ export class OutlineNodeComponent
         OutlineNodeComponent.prevSelected = null;
         this.cdRef.detectChanges();
       });
-    this.selectionService.selected
+    this.selectionService.selectedSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         // Track only changed items:

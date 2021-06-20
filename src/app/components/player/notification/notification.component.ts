@@ -26,7 +26,6 @@ export class NotificationComponent extends BaseComponent implements OnInit {
 
   ngOnInit(): void {
     this.notificationService.notificationSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((message) => {
         if (this.message !== message) {

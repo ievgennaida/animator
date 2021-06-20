@@ -41,7 +41,6 @@ export class WireframeCommand implements BaseCommand {
     private viewService: ViewService
   ) {
     outline.rootNodeSubject
-      .asObservable()
       .subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

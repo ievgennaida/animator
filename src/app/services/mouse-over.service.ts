@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { AdornerContainer } from "../models/adorner";
-import { AdornerType } from "../models/adorner-type";
 import { AdornerPointType } from "../models/adorner-point-type";
+import { AdornerType } from "../models/adorner-type";
 import { HandleData } from "../models/handle-data";
 import { TreeNode } from "../models/tree-node";
 import { PathDataSelectionSubject } from "./path-data-subject";

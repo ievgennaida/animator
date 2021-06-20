@@ -28,7 +28,9 @@ export class RemoveElementCommand implements BaseCommand {
     protected undoService: UndoService,
     protected logger: LoggerService
   ) {
-    this.selectionService.selected.subscribe(() => this.changed.next(this));
+    this.selectionService.selectedSubject.subscribe(() =>
+      this.changed.next(this)
+    );
   }
   canRemove(nodes: TreeNode[]): boolean {
     const selected = nodes.filter((p) => p.allowRemove);

@@ -79,21 +79,18 @@ export class MainToolbarComponent
   ngOnInit(): void {
     this.editMenuCommands = this.commandsService.getEditMenuCommands();
     this.undoService.actionIndexSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.updateUndoState();
       });
 
     this.undoService.actionsSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.updateUndoState();
       });
 
     this.viewService.menuVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((value) => {
         if (value !== this.showMenu) {
@@ -101,8 +98,7 @@ export class MainToolbarComponent
           this.cdRef.markForCheck();
         }
       });
-    this.menuService.menuChanged
-      .asObservable()
+    this.menuService.menuChangedSubject
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         let changed = true;
@@ -127,7 +123,6 @@ export class MainToolbarComponent
       });
 
     this.gridLinesRenderer.gridLinesVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((gridLines) => {
         if (gridLines !== this.showGridLines) {
@@ -137,7 +132,6 @@ export class MainToolbarComponent
       });
 
     this.viewService.codeVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (this.codeVisible !== visible) {
@@ -147,7 +141,6 @@ export class MainToolbarComponent
       });
 
     this.viewService.breadcrumbsVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (this.breadcrumbsVisible !== visible) {
@@ -156,7 +149,6 @@ export class MainToolbarComponent
         }
       });
     this.gridLinesRenderer.rulerVisibleSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((visible) => {
         if (this.rulerVisible !== visible) {
@@ -169,7 +161,6 @@ export class MainToolbarComponent
     this.setRecent(null);
 
     this.stateService.documentSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((p) => {
         if (p) {
@@ -182,7 +173,6 @@ export class MainToolbarComponent
       });
 
     this.viewService.viewModeSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((mode) => {
         if (this.mode !== mode) {

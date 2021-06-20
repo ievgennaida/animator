@@ -25,7 +25,7 @@ export class CopyCommand implements BaseCommand {
   ) {
     merge(
       this.documentService.documentSubject,
-      this.selectionService.selected
+      this.selectionService.selectedSubject
     ).subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

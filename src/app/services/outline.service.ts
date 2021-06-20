@@ -166,10 +166,6 @@ export class OutlineService {
     // this.selectedSubject.next(this.selectedSubject.value);
   }
 
-  public get nodes(): Observable<TreeNode[]> {
-    return this.nodesSubject.asObservable();
-  }
-
   public parseDocumentOutline(document: InputDocument): TreeNode[] | null {
     const parser = this.appFactory.getParser(document.type);
     if (!parser) {

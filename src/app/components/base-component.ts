@@ -4,9 +4,9 @@ import { Subject } from "rxjs";
 @Directive()
 // eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class BaseComponent implements OnDestroy {
-  protected destroyed$ = new Subject();
+  protected destroyed$ = new Subject<void>();
   ngOnDestroy(): void {
-    this.destroyed$.next(true);
+    this.destroyed$.next();
     this.destroyed$.complete();
   }
   /*

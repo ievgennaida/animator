@@ -52,7 +52,6 @@ export class FooterToolbarComponent extends BaseComponent implements OnInit {
         }
       });
     this.viewService.viewModeSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((mode) => {
         if (this.mode !== mode) {

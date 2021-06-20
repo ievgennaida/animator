@@ -6,7 +6,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
-  Output,
+  Output
 } from "@angular/core";
 import {
   Timeline,
@@ -16,18 +16,18 @@ import {
   TimelineModel,
   TimelineOptions,
   TimelineRow,
-  TimelineRowStyle,
+  TimelineRowStyle
 } from "animation-timeline-js";
 import { takeUntil } from "rxjs/operators";
 import { Keyframe } from "src/app/models/keyframes/keyframe";
 import { TreeNode } from "src/app/models/tree-node";
-
 import { OutlineService } from "src/app/services/outline.service";
 import { PlayerService } from "src/app/services/player.service";
 import { PropertiesService } from "src/app/services/properties.service";
 import { ViewService } from "src/app/services/view.service";
 import { consts } from "src/environments/consts";
 import { BaseComponent } from "../base-component";
+
 
 @Component({
   selector: "app-timeline",
@@ -115,8 +115,7 @@ export class TimelineComponent
     const tc = this.outlineService.treeControl;
 
     this.outlineService.flatListSubject
-      ?.asObservable()
-      .pipe(takeUntil(this.destroyed$))
+      ?.pipe(takeUntil(this.destroyed$))
       .subscribe((flatItems) => {
         this.model.rows.length = 0;
 

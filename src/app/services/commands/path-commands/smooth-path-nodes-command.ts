@@ -23,7 +23,7 @@ export class SmoothNodesCommand implements BaseCommand {
   ) {
     merge(
       this.selectionService.pathDataSubject,
-      this.selectionService.selected
+      this.selectionService.selectedSubject
     ).subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

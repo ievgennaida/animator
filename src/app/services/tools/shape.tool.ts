@@ -32,7 +32,7 @@ import { TransformsService } from "./transforms.service";
 export class ShapeTool extends BaseTool {
   icon = "crop_square";
   container: TreeNode | null = null;
-  protected destroyed$ = new Subject();
+  protected destroyed$ = new Subject<void>();
 
   constructor(
     private viewService: ViewService,
@@ -60,7 +60,6 @@ export class ShapeTool extends BaseTool {
 
     // Update current when nodes are changed and container is not there anymore.
     this.outlineService.nodesSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe((nodes) => {
         if (!this.container || nodes.indexOf(this.container) < 0) {
@@ -70,7 +69,6 @@ export class ShapeTool extends BaseTool {
 
     // Update current container when new container is selected:
     this.selectionService.selectedSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.updateCurrentContainer();
@@ -78,7 +76,6 @@ export class ShapeTool extends BaseTool {
 
     // Update message on mouse over
     this.mouseOverService.mouseOverSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.updateCurrentContainer();
@@ -86,7 +83,6 @@ export class ShapeTool extends BaseTool {
 
     // Update current container when new document is created
     this.documentService.documentSubject
-      .asObservable()
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
         this.updateCurrentContainer();

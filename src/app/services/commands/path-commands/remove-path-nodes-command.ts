@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { merge, Subject } from "rxjs";
-import { TreeNode } from "src/app/models/tree-node";
 import { RemovePathNodesAction } from "../../actions/path-actions/remove-path-nodes-action";
 import { SelectionService } from "../../selection.service";
 import { UndoService } from "../../undo.service";
@@ -18,9 +17,6 @@ export class RemovePathNodesCommand implements BaseCommand {
   hotkey = "Del";
   tooltip = `Remove selected path nodes (${this.hotkey})`;
   iconSVG = false;
-  nodes: TreeNode[] | null = null;
-  // Store previous indexes of the elements
-  indexes: number[] = [];
   changed = new Subject<BaseCommand>();
   constructor(
     private selectionService: SelectionService,
@@ -28,7 +24,7 @@ export class RemovePathNodesCommand implements BaseCommand {
   ) {
     merge(
       this.selectionService.pathDataSubject,
-      this.selectionService.selected
+      this.selectionService.selectedSubject
     ).subscribe(() => this.changed.next(this));
   }
   canExecute(): boolean {

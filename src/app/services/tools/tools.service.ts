@@ -56,10 +56,6 @@ export class ToolsService {
     return this.activeTool;
   }
 
-  activeToolChanged() {
-    return this.activeToolSubject.asObservable();
-  }
-
   setActiveTool(tool: BaseTool | null) {
     if (this.activeTool !== tool) {
       if (this.activeTool) {

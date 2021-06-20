@@ -17,9 +17,9 @@ export class SelectInverseCommand implements BaseCommand {
   hotkey = "";
   iconSVG = false;
   constructor(private selectionService: SelectionService) {
-    this.selectionService.selectedSubject
-      .asObservable()
-      .subscribe(() => this.changed.next(this));
+    this.selectionService.selectedSubject.subscribe(() =>
+      this.changed.next(this)
+    );
   }
   canExecute(): boolean {
     return this.selectionService.getSelected().length > 0;

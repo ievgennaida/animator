@@ -14,7 +14,7 @@ import { UndoService } from "../undo.service";
   providedIn: "root",
 })
 export class TransformsService {
-  transformedSubject = new Subject();
+  transformedSubject = new Subject<SVGElement | null>();
   activeAction: TransformAction | null = null;
   constructor(
     private undoService: UndoService,
