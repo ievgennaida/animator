@@ -1,17 +1,20 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { SelectionService } from "src/app/services/selection.service";
 
-import { OutlineComponent } from './outline.component';
+import { OutlineComponent } from "./outline.component";
 
-describe('OutlineComponent', () => {
+describe("OutlineComponent", () => {
   let component: OutlineComponent;
   let fixture: ComponentFixture<OutlineComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ OutlineComponent ]
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [OutlineComponent],
+        providers: [SelectionService],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(OutlineComponent);
@@ -19,7 +22,7 @@ describe('OutlineComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });
