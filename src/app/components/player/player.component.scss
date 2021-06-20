@@ -1,7 +1,6 @@
 @import "../../../variables.scss";
 /*Some player styles are global to avoid angular injection of only component styling.*/
 :host {
-  display: grid;
   overflow: hidden;
 }
 
@@ -13,6 +12,7 @@
 }
 
 .svg-container {
+  overflow: hidden;
   position: relative;
   width: 100%;
   height: 100%;
