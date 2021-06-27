@@ -163,6 +163,6 @@ export class RemovePathNodesAction extends BasePropertiesStorageAction {
       .sort((a, b) => b.commandIndex - a.commandIndex);
     this.items = [...filtered];
     this.nodes = Utils.distinctElement(items.map((p) => p.node));
-    this.title = `Remove: ${Utils.getTreeNodesTitle(this.nodes)}`;
+    this.title = `Remove node: ${Utils.getNodesCommandsTitles(filtered)}`;
   }
 }

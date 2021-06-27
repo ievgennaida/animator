@@ -87,7 +87,9 @@ Used to capture mouse over events for the g containers.*/
     overflow: hidden;
   }
 }
-
+mat-icon {
+  overflow: hidden;
+}
 .nodrag {
   -webkit-user-drag: none;
   -khtml-user-drag: none;

@@ -2,7 +2,7 @@
     <button class="button center" *ngIf="command && (!command.commandType || command.commandType === 'command')"
         mat-button (click)="onActionClicked(command)" [disabled]="command.canExecute?!command.canExecute():false"
         [attr.title]="command.tooltip" [class.active]="command?.active || false">
-        <mat-icon [svgIcon]="$any(command.iconSVG?command.icon:null)">{{command.icon?command.icon:''}}
+        <mat-icon [svgIcon]="$any(command.iconSVG?command.icon:null)">{{command.icon || ''}}
         </mat-icon>
         <div class="active-line" *ngIf="command?.active">
         </div>

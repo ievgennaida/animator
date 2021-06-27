@@ -19,6 +19,8 @@ import { BasePropertiesStorageAction } from "../base-property-action";
 })
 export class AddPathNodesAction extends BasePropertiesStorageAction {
   icon = "add-black-18dp.svg";
+  title = 'add node';
+  tooltip= 'Added path data node';
   iconSVG = true;
   nodes: TreeNode[] | null = null;
   items: PathDataHandle[] | null = null;
@@ -78,6 +80,6 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
     const filtered = items.filter((p) => p.type === PathDataHandleType.point);
     this.items = [...filtered];
     this.nodes = Utils.distinctElement(items.map((p) => p.node));
-    this.title = `Add: ${Utils.getTreeNodesTitle(this.nodes)}`;
+    this.title = `Add node: ${Utils.getNodesCommandsTitles(filtered)}`;
   }
 }

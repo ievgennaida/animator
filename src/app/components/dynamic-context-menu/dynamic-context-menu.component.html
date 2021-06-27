@@ -7,7 +7,7 @@
                 (mouseEnter)="render()" (mouseLeave)="render()"
                 [disabled]="command.canExecute?!command.canExecute():false" [attr.title]="command.tooltip"
                 (click)="onActionClicked($event, command)">
-                <mat-icon [svgIcon]="$any(command.iconSVG?command.icon:null)">{{command.icon?command.icon:''}}
+                <mat-icon [svgIcon]="$any(command.iconSVG?command.icon:null)">{{command.icon || ''}}
                 </mat-icon>
                 <span *ngIf="command.title">{{command.title}}</span><span class="hotkey">{{command.hotkey ||
                     ''}}</span>
@@ -16,7 +16,7 @@
         <div *ngIf="command && !command.commands && (!command.commandType || command.commandType === 'command')">
             <button mat-menu-item [disabled]="command.canExecute?!command.canExecute():false"
                 [attr.title]="command.tooltip" (click)="onActionClicked($event, command)">
-                <mat-icon [svgIcon]="$any(command.iconSVG?command.icon:null)">{{command.icon?command.icon:''}}
+                <mat-icon [svgIcon]="$any(command.iconSVG?command.icon:null)">{{command.icon || ''}}
                 </mat-icon>
                 <span *ngIf="command.title">{{command.title}}</span><span class="hotkey">{{command.hotkey ||
                     ''}}</span>

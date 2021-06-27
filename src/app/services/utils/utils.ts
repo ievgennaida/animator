@@ -1,4 +1,5 @@
 import { AdornerPointType } from "src/app/models/adorner-point-type";
+import { PathDataHandle } from "src/app/models/path-data-handle";
 import { TreeNode } from "src/app/models/tree-node";
 import { ICTMProvider } from "../../models/interfaces/ctm-provider";
 
@@ -9,6 +10,14 @@ export interface CalculatedEllipse {
 }
 
 export class Utils {
+  static getNodesCommandsTitles(items: PathDataHandle[]): string {
+    const commands = items.filter((p) => p.command).map((p) => p.command.type);
+    const types = commands.join(",");
+    if (commands && commands?.length > 1) {
+      return `(${commands?.length}) ${types}`;
+    }
+    return types;
+  }
   static getTreeNodesTitle(nodes: TreeNode[] | null): string {
     if (nodes && nodes?.length === 1 && nodes[0]) {
       return `${nodes[0]?.name || nodes?.length}`;
