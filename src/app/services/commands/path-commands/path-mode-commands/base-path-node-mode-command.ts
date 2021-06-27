@@ -2,11 +2,11 @@ import { Injectable } from "@angular/core";
 import { merge, Subject } from "rxjs";
 import { PathDirectSelectionToolMode } from "src/app/models/path-direct-selection-tool-mode";
 import { BaseCommand } from "src/app/services/commands/base-command";
-import { PathDirectSelectionTool } from "../../tools/path-direct-selection.tool";
-import { UndoService } from "../../undo.service";
+import { PathDirectSelectionTool } from "../../../tools/path-direct-selection.tool";
+import { UndoService } from "../../../undo.service";
 
 /**
- * Change path tool mode to add new nodes.
+ * Switch path tool mode.
  */
 @Injectable({
   providedIn: "root",
