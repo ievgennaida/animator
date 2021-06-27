@@ -1,14 +1,17 @@
 import { Injectable } from "@angular/core";
 import { PathDataHandle } from "src/app/models/path-data-handle";
 import { PathDataHandleType } from "src/app/models/path-data-handle-type";
+import { PathDataCommand } from "src/app/models/path/path-data-command";
+import { PathDataConverter } from "src/app/models/path/path-data-converter";
 import { PathType } from "src/app/models/path/path-type";
 import { TreeNode } from "src/app/models/tree-node";
 import { OutlineService } from "../../outline.service";
 import {
   PathDataPropertyKey,
-  PropertiesService
+  PropertiesService,
 } from "../../properties.service";
 import { SelectionService } from "../../selection.service";
+import { PointOnPathUtils } from "../../utils/path-utils/point-on-path";
 import { Utils } from "../../utils/utils";
 import { BasePropertiesStorageAction } from "../base-property-action";
 
@@ -52,6 +55,27 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
     }
   }
 
+  replaceZWithLine(command: PathDataCommand): PathDataCommand[] {
+    if (!command?.isClose()) {
+      return [];
+    }
+    const convertedItems = PathDataConverter.convertCommand(
+      command,
+      PathType.lineAbs
+    );
+    const prevMove = PointOnPathUtils.getPrevByType(
+      command,
+      true,
+      PathType.moveAbs
+    );
+    if (prevMove?.p) {
+      convertedItems.forEach((newCommand) => {
+        newCommand.p = prevMove?.p;
+      });
+    }
+    command.pathData?.insertCommands(command.index, convertedItems);
+    return convertedItems;
+  }
   commit() {
     if (!this.nodes) {
       return;
@@ -71,9 +95,15 @@ export class AddPathNodesAction extends BasePropertiesStorageAction {
         const toCubicBezier = command.isAbsolute()
           ? PathType.cubicBezierAbs
           : PathType.cubicBezier;
-
-        pathData.convertCommand(command, toCubicBezier);
-
+        if (command.isClose()) {
+          // Insert line before close and split it
+          const newCommands = this.replaceZWithLine(command);
+          newCommands.forEach((newCommand) => {
+            pathData.convertCommand(newCommand, toCubicBezier);
+          });
+        } else {
+          pathData.convertCommand(command, toCubicBezier);
+        }
         if (p.type === PathDataHandleType.point && p.node === node) {
           // data.deleteCommand(p.command);
         }

@@ -259,6 +259,9 @@ export class PathDataCommand implements SVGPathSegmentEx {
 
     return this;
   }
+  public isClose(): boolean {
+    return this.isType(PathType.closeAbs);
+  }
 
   public isType(...params: (PathType | string)[]): boolean {
     return !!params.find((p) => PathDataCommand.isType(this.type, p));
