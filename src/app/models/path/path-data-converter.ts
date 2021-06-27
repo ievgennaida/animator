@@ -1,16 +1,39 @@
 import { PathDataCommand } from "./path-data-command";
 import { PathType } from "./path-type";
 
+const quadraticToCubicConst = 2.0 / 3.0;
+
 export class PathDataConverter {
   static toCubicBezierAbs(command: PathDataCommand): PathDataCommand[] {
     if (PathDataCommand.isType(command.type, PathType.smoothCubicBezierAbs)) {
       const cloned = command.cloneCommand();
-
       cloned.values = [
-        command.a?.x || 0,
-        command.a?.y || 0,
-        command.b?.x || 0,
-        command.b?.y || 0,
+        command.a?.x || command.prevPoint?.x || 0,
+        command.a?.y || command.prevPoint?.x || 0,
+        command.b?.x || command.p.x,
+        command.b?.y || command.p.x,
+        command.p.x,
+        command.p.y,
+      ];
+      cloned.type = PathType.cubicBezierAbs;
+      cloned.saveAsRelative = command.saveAsRelative;
+      return [cloned];
+    } else if (
+      PathDataCommand.isType(command.type, PathType.quadraticBezierAbs) ||
+      PathDataCommand.isType(command.type, PathType.smoothQuadraticBezierAbs)
+    ) {
+      const cloned = command.cloneCommand();
+      const prevX = command.prevPoint?.x || 0;
+      const prevY = command.prevPoint?.y || 0;
+      const controlX =
+        command.a?.x || (command.p.x || 0) - (command.prevPoint?.x || 0);
+      const controlY =
+        command.a?.y || (command.p.y || 0) - (command.prevPoint?.y || 0);
+      cloned.values = [
+        prevX + quadraticToCubicConst * (controlX - prevX),
+        prevY + quadraticToCubicConst * (controlY - prevY),
+        command.p.x + quadraticToCubicConst * (controlX - command.p.x),
+        command.p.y + quadraticToCubicConst * (controlY - command.p.y),
         command.p.x,
         command.p.y,
       ];
@@ -41,7 +64,11 @@ export class PathDataConverter {
         });
         return convertedCommands;
       }
-    } else if (PathDataCommand.isType(command.type, PathType.lineAbs)) {
+    } else if (
+      PathDataCommand.isType(command.type, PathType.lineAbs) ||
+      PathDataCommand.isType(command.type, PathType.horizontalAbs) ||
+      PathDataCommand.isType(command.type, PathType.verticalAbs)
+    ) {
       const cloned = command.cloneCommand();
       cloned.type = PathType.cubicBezierAbs;
       cloned.values = [

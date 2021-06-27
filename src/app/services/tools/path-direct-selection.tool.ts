@@ -11,6 +11,7 @@ import { consts } from "src/environments/consts";
 import { AdornerType } from "../../models/adorner-type";
 import { MouseEventArgs } from "../../models/mouse-event-args";
 import { TransformationMode } from "../../models/transformation-mode";
+import { AddPathNodesAction } from "../actions/path-actions/add-path-nodes-action";
 import { AdornersService } from "../adorners-service";
 import { CommandsExecutorService } from "../commands/commands-services/commands-executor-service";
 import { RemoveSelectedCommand } from "../commands/remove-selected-command";
@@ -25,6 +26,7 @@ import { MouseOverRenderer } from "../renderers/mouse-over.renderer";
 import { PathRenderer } from "../renderers/path.renderer";
 import { SelectionService } from "../selection.service";
 import { ChangeStateMode } from "../state-subject";
+import { UndoService } from "../undo.service";
 import { AutoPanService } from "./auto-pan-service";
 import { SelectionRectTracker } from "./selection-rect-tracker";
 import { SelectionTool } from "./selection.tool";
@@ -59,7 +61,8 @@ export class PathDirectSelectionTool extends SelectionTool {
     selectionTracker: SelectionRectTracker,
     notification: NotificationService,
     private removeSelectedCommand: RemoveSelectedCommand,
-    private commandExecutorService: CommandsExecutorService
+    private commandExecutorService: CommandsExecutorService,
+    private undoService: UndoService
   ) {
     // TODO: decouple
     super(
@@ -199,7 +202,8 @@ export class PathDirectSelectionTool extends SelectionTool {
       }
       this.startedHandle = handle;
     } else {
-      const overPathDataHandles = this.mouseOverService.pathDataSubject.getHandles();
+      const overPathDataHandles =
+        this.mouseOverService.pathDataSubject.getHandles();
       if (!overPathDataHandles || overPathDataHandles.length === 0) {
         // Start click or rect transform, deselect all selected
         this.selectionService.pathDataSubject.setNone();
@@ -423,6 +427,17 @@ export class PathDirectSelectionTool extends SelectionTool {
           this.commandExecutorService.executeCommand(
             this.removeSelectedCommand
           );
+        } else if (this.mode === PathDirectSelectionToolMode.add) {
+          // Remove selected points:
+          changeStateMode = ChangeStateMode.normal;
+          this.selectionService.pathDataSubject.change(
+            overPoints,
+            changeStateMode
+          );
+          const selectedNodes = this.selectionService.pathDataSubject.getValues();
+          const action = this.undoService.getAction(AddPathNodesAction);
+          action.init(selectedNodes);
+          this.undoService.startAction(action, true);
         }
       } else {
         super.selectionEnded(event);
