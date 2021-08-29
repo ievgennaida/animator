@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Launch Chrome against localhost, with sourcemaps",
-      "type": "chrome",
+      "type": "pwa-chrome",
       "request": "launch",
       "url": "http://localhost:4200",
       "sourceMaps": true,
@@ -14,14 +14,14 @@
     },
     {
       "name": "Attach to Chrome, with sourcemaps",
-      "type": "chrome",
+      "type": "pwa-chrome",
       "request": "attach",
       "port": 9222,
       "sourceMaps": true,
       "webRoot": "${workspaceFolder}"
     },
     {
-      "type": "chrome",
+      "type": "pwa-chrome",
       "request": "attach",
       "name": "Attach Karma Chrome",
       "address": "localhost",
@@ -33,7 +33,7 @@
     },
     {
       "name": "ng test",
-      "type": "chrome",
+      "type": "pwa-chrome",
       "request": "launch",
       "url": "http://localhost:9876/debug.html",
       "webRoot": "${workspaceFolder}",
