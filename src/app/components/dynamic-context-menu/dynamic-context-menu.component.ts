@@ -29,7 +29,7 @@ export class DynamicContextMenuComponent
   @Input("commands") set setCommand(commands: BaseCommand[]) {
     this.subscribeCommands(commands);
   }
-  protected commandChanged$ = new Subject<BaseCommand>();
+  protected commandChanged$ = new Subject<void>();
 
   constructor(
     private commandExecutor: CommandsExecutorService,

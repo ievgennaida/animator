@@ -23,7 +23,7 @@ export class CommandsListComponent extends BaseComponent {
   }
   public commands: BaseCommand[] = [];
 
-  protected commandChanged$ = new Subject<void>();
+  protected commandChanged = new Subject<void>();
   constructor(
     private cdRef: ChangeDetectorRef,
     private commandExecutor: CommandsExecutorService
@@ -33,14 +33,14 @@ export class CommandsListComponent extends BaseComponent {
   }
   subscribeCommands(commands: BaseCommand[]): void {
     // Notify to unsubscribe current subscribed list if any:
-    this.commandChanged$.next();
+    this.commandChanged.next();
 
     this.commands = commands;
     if (this.commands) {
       this.commands.forEach((command) => {
         if (command && command.changed) {
           command.changed
-            .pipe(takeUntil(this.commandChanged$), takeUntil(this.destroyed$))
+            .pipe(takeUntil(this.commandChanged), takeUntil(this.destroyed$))
             .subscribe(() => {
               // Render commands again
               this.render();

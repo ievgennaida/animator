@@ -262,9 +262,11 @@ export class MatrixUtils {
 
       if (consolidationRequired) {
         const transform = transformList.consolidate();
+        if (!transform) {
+          return null;
+        }
         const offsetX = transform.matrix.e;
         const offsetY = transform.matrix.f;
-
         // Remove x and y from the matrix:
         const toSet = transform.matrix.translate(
           -transform.matrix.e,
