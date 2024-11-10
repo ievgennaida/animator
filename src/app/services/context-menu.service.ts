@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "../models/tree-node";
 import { Subject } from "rxjs";
-import { MatMenuTrigger } from "@angular/material/menu";
+import { MatLegacyMenuTrigger as MatMenuTrigger } from "@angular/material/legacy-menu";
 export class ContextEventArgs {
   event: MouseEvent | null = null;
   node: TreeNode | null = null;

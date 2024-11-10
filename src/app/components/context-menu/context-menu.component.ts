@@ -6,7 +6,7 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { MatMenuTrigger } from "@angular/material/menu";
+import { MatLegacyMenuTrigger as MatMenuTrigger } from "@angular/material/legacy-menu";
 import { takeUntil } from "rxjs/operators";
 import { BaseCommand } from "src/app/services/commands/base-command";
 import { ContextMenuCommandsService } from "src/app/services/commands/commands-services/context-menu-commands-service";
